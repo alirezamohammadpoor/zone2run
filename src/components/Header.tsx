@@ -10,24 +10,27 @@ async function Header() {
   console.log("Header Logo:", siteSettings?.headerLogo);
 
   return (
-    <header className="w-full py-4 px-6 bg-white shadow-sm">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-4">
-          {siteSettings?.headerLogo?.asset?._id && (
-            <Image
-              src={urlFor(siteSettings.headerLogo).width(100).height(100).url()}
-              alt={siteSettings.headerLogo.alt || "Site Logo"}
-              width={100}
-              height={100}
-              className="object-contain"
-              priority
-            />
-          )}
-          {siteSettings?.title && (
-            <h2 className="text-xl font-semibold">{siteSettings.title}</h2>
-          )}
-        </Link>
+    <header>
+      <div className="bg-black text-white text-center h-8">
+        Free standard shipping on orders over $100
       </div>
+      <nav className="flex justify-between items-center h-16">
+        <div className="flex items-center gap-4 ml-4">
+          <Link href="/">
+            <Image
+              src={urlFor(siteSettings.headerLogo).width(50).height(50).url()}
+              alt="Logo"
+              width={50}
+              height={50}
+            />
+          </Link>
+        </div>
+        <div className="flex items-center gap-4 ml-auto mr-4">
+          <span>Search</span>
+          <span>Cart</span>
+          <span>Menu</span>
+        </div>
+      </nav>
     </header>
   );
 }
