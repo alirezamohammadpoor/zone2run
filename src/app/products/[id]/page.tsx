@@ -1,5 +1,4 @@
 import { getProductByHandle } from "@/lib/shopify/products";
-import Image from "next/image";
 import AddToCart from "@/components/buttons/AddToCart";
 import CollapsibleSection from "@/components/CollapsibleSection";
 import ProductDescription from "@/components/ProductDescription";

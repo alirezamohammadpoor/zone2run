@@ -1,4 +1,4 @@
-import React from "react";
+import Link from "next/link";
 
 function Footer() {
   return (
@@ -10,19 +10,19 @@ function Footer() {
             <p className="mb-4 font-semibold">Zone 2</p>
             <ul className="space-y-2">
               <li>
-                <a href="/" className="hover:text-gray-600">
+                <Link href="/" className="hover:text-gray-600">
                   About
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/" className="hover:text-gray-600">
+                <Link href="/" className="hover:text-gray-600">
                   Terms & Conditions
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/" className="hover:text-gray-600">
+                <Link href="/" className="hover:text-gray-600">
                   Privacy Policy
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -30,29 +30,29 @@ function Footer() {
             <p className="mb-4 font-semibold">Support</p>
             <ul className="space-y-2">
               <li>
-                <a href="/" className="hover:text-gray-600">
+                <Link href="/" className="hover:text-gray-600">
                   Contact us
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/" className="hover:text-gray-600">
+                <Link href="/" className="hover:text-gray-600">
                   Shipping & Returns
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/" className="hover:text-gray-600">
+                <Link href="/" className="hover:text-gray-600">
                   FAQ
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/" className="hover:text-gray-600">
+                <Link href="/" className="hover:text-gray-600">
                   Size Guide
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/" className="hover:text-gray-600">
+                <Link href="/" className="hover:text-gray-600">
                   Payment Methods
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -63,19 +63,19 @@ function Footer() {
             <p className="mb-4 font-semibold">Socials</p>
             <ul className="space-y-2">
               <li>
-                <a href="/" className="hover:text-gray-600">
+                <Link href="/" className="hover:text-gray-600">
                   Instagram
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/" className="hover:text-gray-600">
+                <Link href="/" className="hover:text-gray-600">
                   TikTok
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/" className="hover:text-gray-600">
+                <Link href="/" className="hover:text-gray-600">
                   LinkedIn
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
