@@ -4,12 +4,10 @@ import CollapsibleSection from "@/components/CollapsibleSection";
 import ProductDescription from "@/components/ProductDescription";
 
 // Add this function to help with dynamic routing
-export async function generateStaticParams() {
-  return [
-    { id: "1" },
-    { id: "2" },
-    // Add more IDs as needed
-  ];
+export async function generateStaticParams(): Promise<
+  { params: { id: string } }[]
+> {
+  return [{ params: { id: "1" } }, { params: { id: "2" } }];
 }
 
 interface ProductPageProps {
