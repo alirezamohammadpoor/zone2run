@@ -20,7 +20,7 @@ function Hero() {
           <div className="text-black text-lg font-medium">
             <div className="flex justify-between items-center">
               <span>Explore Summer '25 Delivery 01</span>
-              <span className="mr-2">Shop Now</span>
+              <span className="mr-2">View All</span>
             </div>
           </div>
           <hr className="w-full border-t border-black mt-4" />
@@ -58,6 +58,42 @@ function Hero() {
           <HeroButton />
         </div>
       </div>
+
+      {/* Run Club */}
+      <div className="bg-black px-4 py-8">
+        <h2 className="text-white text-3xl font-medium mb-2">
+          Join the Movement
+        </h2>
+        <div className="text-white text-lg">
+          <div className="flex justify-between items-center">
+            <span>
+              Run smarter, not harder. The Zone 2 Run Club brings together
+              athletes who value consistency, recovery, and community. Weekly
+              runs, post-session recovery, and a shared commitment to
+              sustainable progress
+            </span>
+            <span className="mr-2"></span>
+          </div>
+        </div>
+        <hr className="w-full border-t border-black mt-4" />
+      </div>
+      <div className="bg-gray-200 h-[40vh]"></div>
+
+      {/* Playlists*/}
+      <div className="bg-black px-4 py-8">
+        <h2 className="text-white text-3xl font-medium mb-2">Distance Tapes</h2>
+        <div className="text-white text-lg">
+          <div className="flex justify-between items-center">
+            <span>
+              Running is tempo. Built to match your stride — steady beats, clear
+              rhythm, no skips. Curated to move with you and fuel your flow.
+            </span>
+            <span className="mr-2"></span>
+          </div>
+        </div>
+        <hr className="w-full border-t border-black mt-4" />
+      </div>
+      <div className="bg-gray-200 h-[40vh]"></div>
     </div>
   );
 }
