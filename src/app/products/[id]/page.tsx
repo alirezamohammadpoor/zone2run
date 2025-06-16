@@ -1,22 +1,14 @@
-import { getProductByHandle } from "@/lib/shopify/products";
 import AddToCart from "@/components/buttons/AddToCart";
 import CollapsibleSection from "@/components/CollapsibleSection";
 import ProductDescription from "@/components/ProductDescription";
 
-// Add this function to help with dynamic routing
-export async function generateStaticParams(): Promise<
-  { params: { id: string } }[]
-> {
-  return [{ params: { id: "1" } }, { params: { id: "2" } }];
-}
+export default async function ProductPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const id = (await params).id;
 
-interface ProductPageProps {
-  params: {
-    id: string;
-  };
-}
-
-export default function ProductPage({ params }: ProductPageProps) {
   return (
     <div>
       <span className="text-sm text-gray-500">
@@ -31,22 +23,14 @@ export default function ProductPage({ params }: ProductPageProps) {
       <div className="max-w-md mx-auto p-4 mt-4">
         <h3 className="mb-2 text-sm font-medium">Select Size</h3>
         <div className="grid grid-cols-3 gap-2">
-          {/* Example of available sizes */}
-          <button className="py-2 px-4 border rounded text-center hover:bg-black hover:text-white">
-            XS
-          </button>
-          <button className="py-2 px-4 border rounded text-center hover:bg-black hover:text-white">
-            S
-          </button>
-          <button className="py-2 px-4 border rounded text-center hover:bg-black hover:text-white">
-            M
-          </button>
-          <button className="py-2 px-4 border rounded text-center hover:bg-black hover:text-white">
-            L
-          </button>
-          <button className="py-2 px-4 border rounded text-center hover:bg-black hover:text-white">
-            XL
-          </button>
+          {["XS", "S", "M", "L", "XL"].map((size) => (
+            <button
+              key={size}
+              className="py-2 px-4 border rounded text-center hover:bg-black hover:text-white"
+            >
+              {size}
+            </button>
+          ))}
           <button
             className="py-2 px-4 border rounded text-center cursor-not-allowed text-gray-400 bg-gray-100"
             disabled
@@ -60,24 +44,20 @@ export default function ProductPage({ params }: ProductPageProps) {
       </div>
 
       <AddToCart />
-
       <ProductDescription />
 
       <CollapsibleSection
         title="Product Details"
         content="Your product details content here"
       />
-
       <CollapsibleSection
         title="Wash and care"
         content="Your wash and care content here"
       />
-
       <CollapsibleSection
         title="Shipping and returns"
         content="Your shipping and returns content here"
       />
-
       <CollapsibleSection
         title="Secure payments"
         content="Your secure payments content here"
@@ -85,7 +65,6 @@ export default function ProductPage({ params }: ProductPageProps) {
 
       <div className="mt-12 mb-12 ml-2">
         <h3 className="font-medium text-sm uppercase mb-2">Related Products</h3>
-
         <div className="mt-12 mb-12">
           <h3 className="text-2xl font-medium uppercase mb-2">
             The Race Collection

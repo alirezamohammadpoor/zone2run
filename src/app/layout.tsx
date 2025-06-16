@@ -7,8 +7,8 @@ import Footer from "@/components/Footer";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Zone2Run",
-  description: "Your running gear destination",
+  title: "Zone 2 Run",
+  description: "Running gear for the modern athlete",
 };
 
 export default function RootLayout({
