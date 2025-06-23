@@ -1,6 +1,11 @@
 import AddToCart from "@/components/buttons/AddToCart";
 import CollapsibleSection from "@/components/CollapsibleSection";
 import ProductDescription from "@/components/ProductDescription";
+import { urlFor } from "@/sanity/lib/image";
+import { getProductByHandle } from "@/sanity/lib/getData";
+import Image from "next/image";
+import React from "react";
+import { notFound } from "next/navigation";
 
 export default async function ProductPage({
   params,
@@ -8,15 +13,29 @@ export default async function ProductPage({
   params: Promise<{ id: string }>;
 }) {
   const id = (await params).id;
+  const product = await getProductByHandle(id);
+
+  if (!product) {
+    notFound();
+  }
 
   return (
     <div>
       <span className="text-sm text-gray-500">
         Zone 2 {">"} Men's {">"} Tops
       </span>
-      <div className="w-full h-[70vh] bg-gray-200 mt-4"></div>
+      <div className="w-full relative aspect-[5/5] mt-4 overflow-hidden group">
+        {product.mainImage && (
+          <Image
+            src={urlFor(product.mainImage).url()}
+            alt={product.title || "Product"}
+            fill
+            className="object-contain transition-transform duration-300 ease-in-out group-hover:scale-150"
+          />
+        )}
+      </div>
       <div className="flex justify-between items-center mt-4">
-        <span className="ml-2">Product Name</span>
+        <span className="ml-2">{product.title || "Product Name"}</span>
         <span className="mr-2">500 SEK</span>
       </div>
 
