@@ -13,6 +13,170 @@
  */
 
 // Source: schema.json
+export type Product = {
+  _id: string;
+  _type: "product";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title?: string;
+  shopifyId?: string;
+  shopifyHandle?: string;
+  mainImage?: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
+  gallery?: Array<{
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+    _key: string;
+  }>;
+  description?: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
+    listItem?: "bullet" | "number";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  } | {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+    _key: string;
+  }>;
+  shortDescription?: string;
+  category?: {
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "category";
+  };
+  brand?: {
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "brand";
+  };
+  tags?: Array<string>;
+  featured?: boolean;
+  seo?: {
+    title?: string;
+    description?: string;
+    keywords?: Array<string>;
+  };
+  productDetails?: Array<{
+    title?: string;
+    value?: string;
+    _type: "detail";
+    _key: string;
+  }>;
+  careInstructions?: Array<string>;
+};
+
+export type Brand = {
+  _id: string;
+  _type: "brand";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  name?: string;
+  slug?: Slug;
+  logo?: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
+  description?: string;
+  website?: string;
+  featured?: boolean;
+  seo?: {
+    title?: string;
+    description?: string;
+  };
+};
+
+export type Category = {
+  _id: string;
+  _type: "category";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title?: string;
+  slug?: Slug;
+  description?: string;
+  image?: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
+  parentCategory?: {
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "category";
+  };
+  featured?: boolean;
+  sortOrder?: number;
+  seo?: {
+    title?: string;
+    description?: string;
+    keywords?: Array<string>;
+  };
+  productCount?: number;
+};
+
 export type SiteSettings = {
   _id: string;
   _type: "siteSettings";
@@ -201,67 +365,5 @@ export type SanityAssetSourceData = {
   url?: string;
 };
 
-export type AllSanitySchemaTypes = SiteSettings | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageHotspot | SanityImageCrop | SanityFileAsset | SanityImageAsset | SanityImageMetadata | Geopoint | Slug | SanityAssetSourceData;
+export type AllSanitySchemaTypes = Product | Brand | Category | SiteSettings | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageHotspot | SanityImageCrop | SanityFileAsset | SanityImageAsset | SanityImageMetadata | Geopoint | Slug | SanityAssetSourceData;
 export declare const internalGroqTypeReferenceTo: unique symbol;
-// Source: ./src/sanity/lib/siteSettings/getSiteSettings.ts
-// Variable: siteSettingsQuery
-// Query: *[_type == "siteSettings"][0]{  ...,  headerLogo {    asset {      _id,      url    },    alt  },  mainHeroImage {    asset {      _id,      url    },    alt  },  logo {    asset {      _id,      url    },    alt  }}
-export type SiteSettingsQueryResult = {
-  _id: string;
-  _type: "siteSettings";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  title?: string;
-  description?: string;
-  headerLogo: {
-    asset: {
-      _id: null;
-      url: null;
-    } | null;
-    alt: string | null;
-  } | null;
-  mainHeroImage: {
-    asset: {
-      _id: null;
-      url: null;
-    } | null;
-    alt: string | null;
-  } | null;
-  logo: {
-    asset: {
-      _id: null;
-      url: null;
-    } | null;
-    alt: string | null;
-  } | null;
-  socialMediaLinks?: Array<{
-    platform?: "facebook" | "instagram" | "linkedin" | "twitter" | "youtube";
-    url?: string;
-    _type: "socialLink";
-    _key: string;
-  }>;
-  callToActionText?: {
-    heading?: string;
-    subheading?: string;
-    buttonText?: string;
-  };
-  pricingDetails?: Array<{
-    planName?: string;
-    price?: number;
-    currency?: string;
-    billingPeriod?: "monthly" | "one-time" | "yearly";
-    features?: Array<string>;
-    isPopular?: boolean;
-    _type: "pricingPlan";
-    _key: string;
-  }>;
-} | null;
-
-// Query TypeMap
-import "@sanity/client";
-declare module "@sanity/client" {
-  interface SanityQueries {
-    "*[_type == \"siteSettings\"][0]{\n  ...,\n  headerLogo {\n    asset {\n      _id,\n      url\n    },\n    alt\n  },\n  mainHeroImage {\n    asset {\n      _id,\n      url\n    },\n    alt\n  },\n  logo {\n    asset {\n      _id,\n      url\n    },\n    alt\n  }\n}": SiteSettingsQueryResult;
-  }
-}
