@@ -119,6 +119,22 @@ export default defineType({
       to: [{ type: "brand" }],
     }),
     defineField({
+      name: "gender",
+      title: "Gender",
+      type: "string",
+      options: {
+        list: [
+          { title: "Men", value: "men" },
+          { title: "Women", value: "women" },
+          { title: "Unisex", value: "unisex" },
+          { title: "Kids", value: "kids" },
+        ],
+        layout: "radio",
+      },
+      validation: (Rule) => Rule.required(),
+      description: "Target gender for this product",
+    }),
+    defineField({
       name: "tags",
       title: "Tags",
       type: "array",

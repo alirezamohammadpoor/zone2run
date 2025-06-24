@@ -22,7 +22,7 @@ interface ProductGridProps {
 
 export default function ProductGrid({ products }: ProductGridProps) {
   return (
-    <div className="grid grid-cols-2">
+    <div className="grid grid-cols-2 gap-2 mx-2">
       {products?.map((product) => {
         return (
           <Link

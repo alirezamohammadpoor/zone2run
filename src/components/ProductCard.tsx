@@ -33,11 +33,11 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   return (
     <div
-      className="w-full aspect-[1/1.05] bg-white rounded-lg overflow-hidden flex flex-col hover:cursor-pointer"
+      className=" w-full aspect-[3/4] flex flex-col hover:cursor-pointer"
       onClick={handleClick}
     >
       {product.mainImage && (
-        <div className="w-full h-4/5 relative">
+        <div className="w-full h-full relative bg-gray-100">
           <Image
             src={urlFor(product.mainImage).url()}
             alt={product.title || "Product"}
@@ -46,9 +46,10 @@ export default function ProductCard({ product }: ProductCardProps) {
           />
         </div>
       )}
-      <div className="p-3">
-        <p className="text-base">{product.brand?.name}</p>
+      <div className="mt-2 mb-10">
+        <p className="text-base font-medium">{product.brand?.name}</p>
         <p className="text-base">{product.title || "Untitled Product"}</p>
+        <p className="text-base mt-2">1500 SEK</p>
       </div>
     </div>
   );

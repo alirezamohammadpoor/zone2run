@@ -24,13 +24,13 @@ export default async function ProductPage({
       <span className="text-sm text-gray-500">
         Zone 2 {">"} Men's {">"} Tops
       </span>
-      <div className="w-full relative aspect-[5/5] mt-4 overflow-hidden group">
+      <div className="w-full relative aspect-[5/5] mt-4 bg-gray-100 flex items-center justify-center">
         {product.mainImage && (
           <Image
             src={urlFor(product.mainImage).url()}
             alt={product.title || "Product"}
             fill
-            className="object-contain transition-transform duration-300 ease-in-out group-hover:scale-150"
+            className="object-contain"
           />
         )}
       </div>
@@ -50,12 +50,6 @@ export default async function ProductPage({
               {size}
             </button>
           ))}
-          <button
-            className="py-2 px-4 border rounded text-center cursor-not-allowed text-gray-400 bg-gray-100"
-            disabled
-          >
-            XXL
-          </button>
         </div>
         <p className="mt-2 text-xs text-gray-500">
           Find your size with our size guide.

@@ -6,7 +6,7 @@ export default async function ProductsPage() {
 
   return (
     <div>
-      <h1 className="text-xl font-semibold mb-6 mt-16 ml-2">
+      <h1 className="text-xl font-semibold mb-6 mt-10 ml-2">
         Purposefully Curated. Built to Perform.
       </h1>
       <p className="text-md ml-2 mr-4 mb-10">
