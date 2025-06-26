@@ -1,14 +1,16 @@
 import React from "react";
 import HeroButton from "./buttons/HeroButton";
+import Image from "next/image";
 
 function Hero() {
   return (
     <div className="w-full">
       {/* Main Hero Section */}
-      <div className="flex w-full h-[90vh] bg-gray-200 items-center">
-        <div className="text-black mt-auto mb-8">
-          <h1 className="text-black text-4xl ml-4 font-bold">Hero Title</h1>
-          <p className="text-black text-lg ml-4 mt-4">Hero Para</p>
+      <div className="flex w-full h-[70vh] items-center relative">
+        <Image src="/adidas.WEBP" alt="adidas" className="object-cover" fill />
+        <div className="text-black mt-auto mb-8 z-10 relative">
+          <h1 className="text-white text-4xl ml-4 font-bold">Hero Title</h1>
+          <p className="text-white text-lg ml-4 mt-4">Hero Para</p>
           <HeroButton />
         </div>
       </div>
@@ -42,8 +44,9 @@ function Hero() {
       </div>
 
       {/* Men's Section */}
-      <div className="flex w-full h-[90vh] bg-gray-200 items-center mt-16">
-        <div className="text-black mt-auto mb-8">
+      <div className="flex w-full h-[70vh] items-center mt-16 relative">
+        <Image src="/arc.WEBP" alt="arc" className="object-cover" fill />
+        <div className="text-black mt-auto mb-8 z-10 relative">
           <h2 className="text-black text-4xl ml-4 font-bold">Men's Title</h2>
           <p className="text-black text-lg ml-4 mt-4">Men's Para</p>
           <HeroButton />
@@ -51,8 +54,9 @@ function Hero() {
       </div>
 
       {/* Women's Section */}
-      <div className="flex w-full h-[90vh] bg-gray-200 items-center mt-16">
-        <div className="text-black mt-auto mb-8">
+      <div className="flex w-full h-[70vh] items-center mt-16 relative">
+        <Image src="/nike.WEBP" alt="nike" className="object-cover" fill />
+        <div className="text-black mt-auto mb-8 z-10 relative">
           <h2 className="text-black text-4xl ml-4 font-bold">Women's Title</h2>
           <p className="text-black text-lg ml-4 mt-4">Women's Para</p>
           <HeroButton />
