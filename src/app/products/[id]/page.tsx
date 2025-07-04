@@ -6,6 +6,7 @@ import { getProductByHandle } from "@/sanity/lib/getData";
 import Image from "next/image";
 import React from "react";
 import { notFound } from "next/navigation";
+import { useCartStore } from "@/store/cartStore";
 
 export default async function ProductPage({
   params,

@@ -1,69 +1,41 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import { getSiteSettings } from "@/sanity/lib/getData";
 import Link from "next/link";
 import Image from "next/image";
 import { urlFor } from "@/sanity/lib/image";
+import MenuModal from "./MenuModal";
 
-async function Header() {
-  try {
-    const siteSettings = await getSiteSettings();
-    console.log("Site Settings:", siteSettings);
-    console.log("Header Logo:", siteSettings?.headerLogo);
+function Header() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-    return (
-      <header>
-        <div className="bg-black text-white text-center h-8">
-          Free standard shipping on orders over $100
+  return (
+    <header>
+      <div className="bg-black text-white text-center h-6 text-xs py-1">
+        Free standard shipping on orders over $100
+      </div>
+      <nav className="text-xs flex justify-between items-center h-8 relative">
+        <div className="flex items-center gap-4 ml-4">
+          <button
+            onClick={() => setIsMenuOpen(true)}
+            className="hover:text-gray-300"
+          >
+            Menu
+          </button>
         </div>
-        <nav className="flex justify-between items-center h-16">
-          <div className="flex items-center gap-4 ml-4">
-            <Link href="/">
-              {siteSettings?.headerLogo ? (
-                <Image
-                  src={urlFor(siteSettings.headerLogo)
-                    .width(50)
-                    .height(50)
-                    .url()}
-                  alt={siteSettings.headerLogo.alt || "Logo"}
-                  width={50}
-                  height={50}
-                />
-              ) : (
-                <span className="text-xl font-bold">Zone 2</span>
-              )}
-            </Link>
-          </div>
-          <div className="flex items-center gap-4 ml-auto mr-4">
-            <span>Search</span>
-            <span>Cart</span>
-            <span>Menu</span>
-          </div>
-        </nav>
-      </header>
-    );
-  } catch (error) {
-    console.error("Error loading site settings:", error);
-    // Fallback header without site settings
-    return (
-      <header>
-        <div className="bg-black text-white text-center h-8">
-          Free standard shipping on orders over $100
+        <div className="absolute left-1/2 transform -translate-x-1/2">
+          <span className="text-sm font-bold">Zone 2</span>
         </div>
-        <nav className="flex justify-between items-center h-16">
-          <div className="flex items-center gap-4 ml-4">
-            <Link href="/">
-              <span className="text-xl font-bold">Zone 2</span>
-            </Link>
-          </div>
-          <div className="flex items-center gap-4 ml-auto mr-4">
-            <span>Search</span>
-            <span>Cart</span>
-            <span>Menu</span>
-          </div>
-        </nav>
-      </header>
-    );
-  }
+        <div className="flex items-center gap-4 mr-4">
+          <span>Search</span>
+          <span>Cart</span>
+        </div>
+      </nav>
+
+      <MenuModal isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
+    </header>
+  );
 }
 
 export default Header;
