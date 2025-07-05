@@ -6,10 +6,14 @@ import Link from "next/link";
 import Image from "next/image";
 import { urlFor } from "@/sanity/lib/image";
 import MenuModal from "./MenuModal";
+import SearchModal from "./SearchModal";
+import { useSearchStore } from "@/store/searchStore";
+import { useRouter } from "next/navigation";
 
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
+  const { isSearchOpen, setIsSearchOpen } = useSearchStore();
+  const router = useRouter();
   return (
     <header>
       <div className="bg-black text-white text-center h-6 text-xs py-1">
@@ -25,15 +29,23 @@ function Header() {
           </button>
         </div>
         <div className="absolute left-1/2 transform -translate-x-1/2">
-          <span className="text-sm font-bold">Zone 2</span>
+          <span className="text-sm font-bold" onClick={() => router.push("/")}>
+            Zone 2
+          </span>
         </div>
         <div className="flex items-center gap-4 mr-4">
-          <span>Search</span>
+          <button
+            onClick={() => setIsSearchOpen(true)}
+            className="hover:text-gray-300"
+          >
+            Search
+          </button>
           <span>Cart</span>
         </div>
       </nav>
 
       <MenuModal isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
+      <SearchModal />
     </header>
   );
 }

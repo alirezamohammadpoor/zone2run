@@ -1,0 +1,104 @@
+import { create } from "zustand";
+
+interface Product {
+  _id: string;
+  title: string;
+  shopifyHandle: string;
+  shortDescription?: string;
+  mainImage?: any;
+  category?: {
+    title: string;
+    slug: any;
+  };
+  brand?: {
+    name: string;
+    slug: any;
+  };
+  gender?: string;
+  price?: number;
+}
+
+interface SearchFilters {
+  category: string[];
+  brand: string[];
+  gender: string[];
+  priceRange: [number, number];
+}
+
+interface SearchState {
+  query: string;
+  filters: SearchFilters;
+  results: Product[];
+  isLoading: boolean;
+  isSearchOpen: boolean;
+}
+
+interface SearchActions {
+  setQuery: (query: string) => void;
+  setFilters: (filters: Partial<SearchFilters>) => void;
+  setResults: (results: Product[]) => void;
+  setIsLoading: (loading: boolean) => void;
+  setIsSearchOpen: (isOpen: boolean) => void;
+  clearSearch: () => void;
+  clearFilters: () => void;
+}
+
+type SearchStore = SearchState & SearchActions;
+
+const initialState: SearchState = {
+  query: "",
+  filters: {
+    category: [],
+    brand: [],
+    gender: [],
+    priceRange: [0, 3000],
+  },
+  results: [],
+  isLoading: false,
+  isSearchOpen: false,
+};
+
+export const useSearchStore = create<SearchStore>((set, get) => ({
+  ...initialState,
+  setQuery: (query) => {
+    set({ query });
+  },
+
+  setResults: (results) => {
+    set({ results });
+  },
+
+  setIsLoading: (loading) => {
+    set({ isLoading: loading });
+  },
+
+  setIsSearchOpen: (isOpen) => {
+    set({ isSearchOpen: isOpen });
+  },
+
+  setFilters: (newFilters) => {
+    const { filters } = get();
+    set({
+      filters: { ...filters, ...newFilters },
+    });
+  },
+
+  clearSearch: () => {
+    set({
+      query: "",
+      results: [],
+      isLoading: false,
+    });
+  },
+
+  clearFilters: () => {
+    set({
+      filters: {
+        category: [],
+        brand: [],
+        gender: [],
+        priceRange: [0, 1000],
+      },
+    });
+  },
+}));
