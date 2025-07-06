@@ -30,8 +30,6 @@ function MenuModal({
   // Prevent body scroll when modal is open
   useModalScroll(isMenuOpen);
 
-  if (!isMenuOpen) return null;
-
   return (
     <>
       {/* Modal */}
