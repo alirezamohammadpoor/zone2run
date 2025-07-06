@@ -53,11 +53,11 @@ function CartModal({
               Close
             </button>
           </div>
-          <div className="border-b border-gray-300 w-full mt-2"></div>
+          <div className="border-b border-gray-300 w-full mt-2 "></div>
         </div>
 
-        <div className="flex w-full flex-1 overflow-hidden">
-          <div className="h-[120px] w-[80px] bg-black ml-4 flex-shrink-0"></div>
+        <div className="flex w-full overflow-hidden mt-8">
+          <div className="h-[120px] w-[80px] bg-black ml-4 flex-shrink-0  "></div>
           <div className="ml-4 flex flex-1 flex-col overflow-hidden">
             <span className="text-sm font-bold w-full block">Product Name</span>
             <span className="text-sm block mt-1">Size: XS</span>
@@ -73,6 +73,34 @@ function CartModal({
               </span>
             </div>
           </div>
+        </div>
+
+        <div className="mt-auto mb-10 border-b border-gray-300 w-full"></div>
+        {/* Price Container */}
+        <div className="px-2 w-full flex items-center">
+          <div className="flex flex-col gap-2.5">
+            <p className="text-sm">Subtotal</p>
+            <p className="text-sm">Shipping</p>
+            <p className="text-sm">Total</p>
+            <p className="text-sm">Including 25% VAT</p>
+          </div>
+          <div className=" flex-1"></div>
+          <div className="px-2 flex flex-col gap-2.5 items-end">
+            <p className="text-sm">1500 SEK</p>
+            <p className="text-sm text-gray-500">Calculated at checkout</p>
+            <p className="text-sm">1500 SEK</p>
+            <p className="text-sm">375 SEK</p>
+          </div>
+        </div>
+
+        {/* Checkout Button */}
+        <div className="p-2.5 w-full ">
+          <button
+            className="border border-black bg-black text-white text-base py-2.5 px-5 w-full mb-5 cursor-pointer mt-5 hover:bg-gray-800"
+            onClick={() => router.push("/checkout")}
+          >
+            Go to checkout
+          </button>
         </div>
       </div>
     </>
