@@ -1,3 +1,25 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Prevent horizontal scrolling on all pages */
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* Add padding for fixed header */
+body {
+  padding-top: 56px; /* 24px (announcement) + 32px (nav) = 56px */
+}
+
+/* Prevent body scroll when modal is open */
+body.modal-open {
+  overflow: hidden !important;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}

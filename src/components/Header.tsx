@@ -9,20 +9,28 @@ import MenuModal from "./MenuModal";
 import SearchModal from "./SearchModal";
 import { useSearchStore } from "@/store/searchStore";
 import { useRouter } from "next/navigation";
+import CartModal from "./CartModal";
+import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
 
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isSearchOpen, setIsSearchOpen } = useSearchStore();
+  const [isCartOpen, setIsCartOpen] = useState(false);
   const router = useRouter();
+  const { lockScroll, unlockScroll } = useModalScrollRestoration();
+
   return (
-    <header>
+    <header className="fixed top-0 left-0 right-0 z-40 bg-white shadow-sm">
       <div className="bg-black text-white text-center h-6 text-xs py-1">
         Free standard shipping on orders over $100
       </div>
-      <nav className="text-xs flex justify-between items-center h-8 relative">
+      <nav className="text-xs flex justify-between items-center h-8 relative bg-white">
         <div className="flex items-center gap-4 ml-4">
           <button
-            onClick={() => setIsMenuOpen(true)}
+            onClick={() => {
+              lockScroll();
+              setIsMenuOpen(true);
+            }}
             className="hover:text-gray-300"
           >
             Menu
@@ -35,17 +43,28 @@ function Header() {
         </div>
         <div className="flex items-center gap-4 mr-4">
           <button
-            onClick={() => setIsSearchOpen(true)}
+            onClick={() => {
+              lockScroll();
+              setIsSearchOpen(true);
+            }}
             className="hover:text-gray-300"
           >
             Search
           </button>
-          <span>Cart</span>
+          <span
+            onClick={() => {
+              lockScroll();
+              setIsCartOpen(true);
+            }}
+          >
+            Cart
+          </span>
         </div>
       </nav>
 
       <MenuModal isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
       <SearchModal />
+      <CartModal isCartOpen={isCartOpen} setIsCartOpen={setIsCartOpen} />
     </header>
   );
 }

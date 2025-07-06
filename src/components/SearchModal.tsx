@@ -3,6 +3,8 @@ import { useRouter } from "next/navigation";
 import SearchProductGrid from "./SearchProductGrid";
 import { getAllProducts } from "@/sanity/lib/getData";
 import { useSearchStore } from "@/store/searchStore";
+import { useModalScroll } from "@/hooks/useModalScroll";
+import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
 
 function SearchModal() {
   const router = useRouter();
@@ -16,13 +18,21 @@ function SearchModal() {
     setResults,
   } = useSearchStore();
 
+  const { unlockScroll } = useModalScrollRestoration();
+
   const handleClose = () => {
     setIsSearchOpen(false);
+    // Delay scroll restoration to allow modal animation to complete
+    setTimeout(() => {
+      unlockScroll();
+    }, 300);
   };
 
   const handleNavigate = (path: string) => {
     router.push(path);
   };
+
+  useModalScroll(isSearchOpen);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -35,23 +45,25 @@ function SearchModal() {
   return (
     <>
       {/* Backdrop */}
-      {isSearchOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40"
-          onClick={handleClose}
-        />
-      )}
+      <div
+        className={
+          "fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300" +
+          (isSearchOpen ? " opacity-100" : " opacity-0 pointer-events-none")
+        }
+        onClick={handleClose}
+      />
 
       {/* Modal */}
       <div
-        className={`fixed top-0 right-0 h-full w-full bg-white z-50 transform transition-transform duration-300 ${
-          isSearchOpen ? "translate-x-0" : "translate-x-full"
-        }`}
+        className={
+          "fixed top-0 right-0 h-screen w-full bg-white z-50 transform transition-transform duration-300 overflow-hidden flex flex-col" +
+          (isSearchOpen ? " translate-x-0" : " translate-x-full")
+        }
       >
         {/* Fixed Header */}
-        <div className="sticky top-0 bg-white z-10">
+        <div className="bg-white z-10 h-16 flex-shrink-0">
           {/* Modal Header */}
-          <div className="text-xs flex justify-between items-center h-8 relative mt-6 px-4">
+          <div className="text-xs flex justify-between items-center h-8 relative mt-4 px-4">
             <span>Search</span>
             <button
               className="mr-2 text-xs hover:text-gray-500"
@@ -60,11 +72,11 @@ function SearchModal() {
               Close
             </button>
           </div>
-          <div className="border-b border-gray-300 w-full mt-4"></div>
+          <div className="border-b border-gray-300 w-full mt-2"></div>
         </div>
 
         {/* Scrollable Content */}
-        <div className="overflow-y-auto h-full">
+        <div className="flex-1 overflow-y-auto">
           {/* Navigation Menu */}
           <div className="mt-4 flex justify-center">
             <input
