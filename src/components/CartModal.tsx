@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import SearchProductGrid from "./SearchProductGrid";
-import { getAllProducts } from "@/sanity/lib/getData";
 import { useModalScroll } from "@/hooks/useModalScroll";
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
+import { useCartStore } from "@/store/cartStore";
+import Image from "next/image";
 
 function CartModal({
   isCartOpen,
@@ -13,7 +13,7 @@ function CartModal({
   setIsCartOpen: (isOpen: boolean) => void;
 }) {
   const router = useRouter();
-
+  const { items, removeItem } = useCartStore();
   const { unlockScroll } = useModalScrollRestoration();
 
   const handleClose = () => {
@@ -56,24 +56,46 @@ function CartModal({
           <div className="border-b border-gray-300 w-full mt-2 "></div>
         </div>
 
-        <div className="flex w-full overflow-hidden mt-8">
-          <div className="h-[120px] w-[80px] bg-black ml-4 flex-shrink-0  "></div>
-          <div className="ml-4 flex flex-1 flex-col overflow-hidden">
-            <span className="text-sm font-bold w-full block">Product Name</span>
-            <span className="text-sm block mt-1">Size: XS</span>
-            <span className="text-sm block mt-1">Color: Black</span>
-            <span className="text-sm block mt-1">Price: 1500 SEK</span>
-            <div className="mt-4 w-full flex items-center">
-              <span className="text-sm mr-4 cursor-pointer">-</span>
-              <span className="text-sm">1</span>
-              <span className="text-sm ml-4 cursor-pointer">+</span>
-
-              <span className="text-sm ml-auto mr-4 cursor-pointer underline font-bold">
-                Remove
-              </span>
+        {items.length > 0 ? (
+          items.map((item) => (
+            <div key={item.id} className="flex w-full overflow-hidden mt-8">
+              <Image
+                src={item.image}
+                alt={item.title}
+                width={80}
+                height={120}
+                className="h-[120px] w-[80px] flex-shrink-0"
+              />
+              <div className="ml-4 flex flex-1 flex-col overflow-hidden">
+                <span className="text-sm font-bold w-full block">
+                  {item.title}
+                </span>
+                <span className="text-sm block mt-1">
+                  Size: {item.variantId}
+                </span>
+                <span className="text-sm block mt-1">Color: {item.color}</span>
+                <span className="text-sm block mt-1">
+                  Price: {item.price} SEK
+                </span>
+                <div className="mt-4 w-full flex items-center">
+                  <span className="text-sm mr-4 cursor-pointer">-</span>
+                  <span className="text-sm">{item.quantity}</span>
+                  <span className="text-sm ml-4 cursor-pointer">+</span>
+                  <button
+                    className="text-sm ml-auto mr-4 cursor-pointer underline font-bold"
+                    onClick={() => removeItem(item.id)}
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
             </div>
+          ))
+        ) : (
+          <div className="flex w-full overflow-hidden mt-8">
+            <span className="text-sm">Cart is empty</span>
           </div>
-        </div>
+        )}
 
         <div className="mt-auto mb-10 border-b border-gray-300 w-full"></div>
         {/* Price Container */}

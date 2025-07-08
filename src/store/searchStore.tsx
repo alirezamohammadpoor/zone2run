@@ -66,6 +66,7 @@ export const useSearchStore = create<SearchStore>((set, get) => ({
 
   setResults: (results) => {
     set({ results });
+    console.log("Zustand search store results:", results);
   },
 
   setIsLoading: (loading) => {
