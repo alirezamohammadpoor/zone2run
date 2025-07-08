@@ -60,7 +60,7 @@ function CartModal({
           items.map((item) => (
             <div key={item.id} className="flex w-full overflow-hidden mt-8">
               <Image
-                src={item.image}
+                src={item.image || ""}
                 alt={item.title}
                 width={80}
                 height={120}
