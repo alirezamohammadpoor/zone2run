@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { useCartStore } from "@/store/cartStore";
+import { useCartStore } from "@/lib/cart/store";
 import { Variant } from "@/store/variantStore";
 
 interface AddToCartProps {
@@ -22,7 +22,10 @@ function AddToCart({ product, selectedVariant }: AddToCartProps) {
       variantId: selectedVariant.id,
       productHandle: product.handle,
       title: product.title,
-      price: selectedVariant.price ?? 0,
+      price: {
+        amount: selectedVariant.price ?? 0,
+        currencyCode: "SEK",
+      },
       image: product.productImage || "",
       color: selectedVariant.color ?? "",
     });

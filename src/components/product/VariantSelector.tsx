@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { useCartStore } from "@/store/cartStore";
+import { useCartStore } from "@/lib/cart/store";
 import { useProductStore } from "@/store/variantStore";
 import { ProductHelper } from "@/types/product";
 import type { Product } from "@/types/product";
@@ -28,15 +28,16 @@ function VariantSelector({ product }: VariantSelectorProps) {
                 ? "bg-black text-white"
                 : "hover:bg-black hover:text-white"
             }`}
-            onClick={() =>
+            onClick={() => {
+              const price = helper.getPrice();
               setSelectedVariant({
                 size,
                 id: size,
                 available: true,
                 title: size,
-                price: 0,
-              })
-            }
+                price: price.amount,
+              });
+            }}
           >
             {size}
           </button>

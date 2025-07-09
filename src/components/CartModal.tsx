@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useModalScroll } from "@/hooks/useModalScroll";
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
-import { useCartStore } from "@/store/cartStore";
 import Image from "next/image";
+import { useCartStore } from "@/lib/cart/store";
 
 function CartModal({
   isCartOpen,
@@ -13,8 +13,11 @@ function CartModal({
   setIsCartOpen: (isOpen: boolean) => void;
 }) {
   const router = useRouter();
-  const { items, removeItem } = useCartStore();
+  const { items, removeItem, getTotalPrice } = useCartStore();
   const { unlockScroll } = useModalScrollRestoration();
+
+  // Calculate total price from all cart items
+  const totalPrice = getTotalPrice();
 
   const handleClose = () => {
     setIsCartOpen(false);
@@ -75,7 +78,7 @@ function CartModal({
                 </span>
                 <span className="text-sm block mt-1">Color: {item.color}</span>
                 <span className="text-sm block mt-1">
-                  Price: {item.price} SEK
+                  Price: {item.price?.amount} {item.price?.currencyCode}
                 </span>
                 <div className="mt-4 w-full flex items-center">
                   <span className="text-sm mr-4 cursor-pointer">-</span>
@@ -108,10 +111,16 @@ function CartModal({
           </div>
           <div className=" flex-1"></div>
           <div className="px-2 flex flex-col gap-2.5 items-end">
-            <p className="text-sm">1500 SEK</p>
+            <p className="text-sm">
+              {totalPrice} {items[0]?.price?.currencyCode || "SEK"}
+            </p>
             <p className="text-sm text-gray-500">Calculated at checkout</p>
-            <p className="text-sm">1500 SEK</p>
-            <p className="text-sm">375 SEK</p>
+            <p className="text-sm">
+              {totalPrice} {items[0]?.price?.currencyCode || "SEK"}
+            </p>
+            <p className="text-sm">
+              {totalPrice * 1.25} {items[0]?.price?.currencyCode || "SEK"}
+            </p>
           </div>
         </div>
 
