@@ -1,22 +1,5 @@
 import { create } from "zustand";
-
-interface Product {
-  _id: string;
-  title: string;
-  shopifyHandle: string;
-  shortDescription?: string;
-  mainImage?: any;
-  category?: {
-    title: string;
-    slug: any;
-  };
-  brand?: {
-    name: string;
-    slug: any;
-  };
-  gender?: string;
-  price?: number;
-}
+import type { Product } from "@/types/product";
 
 interface SearchFilters {
   category: string[];

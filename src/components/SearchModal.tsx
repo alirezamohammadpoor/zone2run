@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import SearchProductGrid from "./SearchProductGrid";
-import { getAllProducts } from "@/sanity/lib/getData";
+import { getAllProducts } from "@/lib/product/getAllProducts";
 import { useSearchStore } from "@/store/searchStore";
 import { useModalScroll } from "@/hooks/useModalScroll";
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";

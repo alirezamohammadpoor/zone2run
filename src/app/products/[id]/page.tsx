@@ -1,7 +1,7 @@
 import ProductDetails from "@/components/product/ProductDetails";
 import CollapsibleSection from "@/components/CollapsibleSection";
 import ProductDescription from "@/components/ProductDescription";
-import { getProductByHandle } from "@/sanity/lib/getData";
+import { getProductByHandle } from "@/lib/product/getProductByHandle";
 import React from "react";
 import { notFound } from "next/navigation";
 

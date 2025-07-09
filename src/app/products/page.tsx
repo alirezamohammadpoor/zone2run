@@ -1,4 +1,4 @@
-import { getAllProducts } from "@/sanity/lib/getData";
+import { getAllProducts } from "@/lib/product/getAllProducts";
 import ProductGrid from "@/components/ProductGrid";
 
 export default async function ProductsPage() {

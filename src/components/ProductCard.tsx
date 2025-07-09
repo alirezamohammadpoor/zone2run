@@ -5,30 +5,17 @@ import Link from "next/link";
 import Image from "next/image";
 import { urlFor } from "@/sanity/lib/image";
 import { useRouter } from "next/navigation";
+import type { Product } from "@/types/product";
 
 interface ProductCardProps {
-  product: {
-    _id: string;
-    title?: string;
-    shopifyHandle?: string;
-    mainImage?: any;
-    shortDescription?: string;
-    category?: {
-      title: string;
-      slug: any;
-    };
-    brand?: {
-      name: string;
-      slug: any;
-    };
-  };
+  product: Product;
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
   const router = useRouter();
 
   const handleClick = () => {
-    router.push(`/products/${product.shopifyHandle}`);
+    router.push(`/products/${product.shopify.handle}`);
   };
 
   return (
@@ -36,20 +23,25 @@ export default function ProductCard({ product }: ProductCardProps) {
       className=" w-full aspect-[3/4] flex flex-col hover:cursor-pointer"
       onClick={handleClick}
     >
-      {product.mainImage && (
+      {product.sanity.mainImage && (
         <div className="w-full h-full relative bg-gray-100">
           <Image
-            src={urlFor(product.mainImage).url()}
-            alt={product.title || "Product"}
+            src={urlFor(product.sanity.mainImage).url()}
+            alt={product.sanity.title || "Product"}
             fill
             className="object-cover"
           />
         </div>
       )}
       <div className="mt-2 mb-10">
-        <p className="text-base font-medium">{product.brand?.name}</p>
-        <p className="text-base">{product.title || "Untitled Product"}</p>
-        <p className="text-base mt-2">1500 SEK</p>
+        <p className="text-base font-medium">{product.sanity.brand?.name}</p>
+        <p className="text-base">
+          {product.sanity.title || "Untitled Product"}
+        </p>
+        <p className="text-base mt-2">
+          {product.shopify.priceRange.minVariantPrice.amount}{" "}
+          {product.shopify.priceRange.minVariantPrice.currencyCode}
+        </p>
       </div>
     </div>
   );

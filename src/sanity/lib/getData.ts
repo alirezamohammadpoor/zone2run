@@ -1,42 +1,178 @@
-import { client } from "./client";
-import * as queries from "./queries";
+// lib/sanity/getData.ts
+import { client } from "@/sanity/lib/client";
+import type { SanityProduct } from "@/types/sanity";
 
-export async function getAllProducts() {
-  return await client.fetch(queries.getAllProducts);
+export async function getSanityProductByHandle(
+  handle: string
+): Promise<SanityProduct | null> {
+  const query = `*[_type == "product" && shopifyHandle == $handle][0] {
+    _id,
+    title,
+    shopifyId,
+    shopifyHandle,
+    shortDescription,
+    description,
+    
+    mainImage {
+      asset-> {
+        url,
+        metadata
+      },
+      alt
+    },
+    
+    gallery[] {
+      asset-> {
+        url,
+        metadata
+      },
+      alt
+    },
+    
+    productDetails[] {
+      title,
+      value
+    },
+    
+    careInstructions,
+    
+    category-> {
+      _id,
+      title,
+      slug {
+        current
+      }
+    },
+    
+    brand-> {
+      _id,
+      name,
+      logo {
+        asset-> {
+          url
+        }
+      }
+    },
+    
+    featured,
+    tags
+  }`;
+
+  try {
+    const sanityProduct = await client.fetch(query, { handle });
+    return sanityProduct || null;
+  } catch (error) {
+    console.error("Error fetching Sanity product:", error);
+    return null;
+  }
 }
 
-export async function getFeaturedProducts() {
-  return client.fetch(queries.getFeaturedProducts);
+// Additional helper functions you might need
+export async function getSanityProductsByCategory(
+  categorySlug: string
+): Promise<SanityProduct[]> {
+  const query = `*[_type == "product" && category->slug.current == $categorySlug] {
+    _id,
+    title,
+    shopifyHandle,
+    shortDescription,
+    mainImage {
+      asset-> {
+        url,
+        metadata
+      },
+      alt
+    },
+    category-> {
+      _id,
+      title,
+      slug {
+        current
+      }
+    },
+    featured,
+    tags
+  }`;
+
+  try {
+    return await client.fetch(query, { categorySlug });
+  } catch (error) {
+    console.error("Error fetching Sanity products by category:", error);
+    return [];
+  }
 }
 
-export async function getProductByHandle(handle: string) {
-  return await client.fetch(queries.getProductByHandle, { handle });
+export async function getFeaturedSanityProducts(): Promise<SanityProduct[]> {
+  const query = `*[_type == "product" && featured == true] | order(_createdAt desc) {
+    _id,
+    title,
+    shopifyHandle,
+    shortDescription,
+    mainImage {
+      asset-> {
+        url,
+        metadata
+      },
+      alt
+    },
+    category-> {
+      _id,
+      title,
+      slug {
+        current
+      }
+    },
+    featured,
+    tags
+  }`;
+
+  try {
+    return await client.fetch(query);
+  } catch (error) {
+    console.error("Error fetching featured Sanity products:", error);
+    return [];
+  }
 }
 
-export async function getProductsByBrand(brandId: string) {
-  return await client.fetch(queries.getProductsByBrand, { brandId });
-}
+export async function getAllProducts(): Promise<SanityProduct[]> {
+  const query = `*[_type == "product"] {
+    _id,
+    title,
+    shopifyHandle,
+    shortDescription,
+    mainImage {
+      asset-> {
+        url,
+        metadata
+      },
+      alt
+    },
+    category-> {
+      _id,
+      title,
+      slug {
+        current
+      }
+    },
+    brand-> {
+      _id,
+      name,
+      logo {
+        asset-> {
+          url
+        }
+      }
+    },
+    featured,
+    tags
+  }`;
 
-export async function searchProducts(searchTerm: string) {
-  return await client.fetch(queries.searchProducts, { searchTerm });
-}
+  try {
+    const products = await client.fetch(query);
 
-export async function getAllCategories() {
-  return await client.fetch(queries.getAllCategories);
-}
-
-export async function getSiteSettings() {
-  return await client.fetch(queries.getSiteSettings);
-}
-
-export async function getAllBrands() {
-  return await client.fetch(queries.getAllBrands);
-}
-
-export async function getBrandBySlug(slug: string) {
-  return await client.fetch(queries.getBrandBySlug, { slug });
-}
-
-export async function getCategoryBySlug(slug: string) {
-  return await client.fetch(queries.getCategoryBySlug, { slug });
+    return products;
+  } catch (error) {
+    console.error("Error fetching all Sanity products:", error);
+    return [];
+  }
 }
