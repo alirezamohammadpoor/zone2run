@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useModalScroll } from "@/hooks/useModalScroll";
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
+import { useHasMounted } from "@/hooks/useHasMounted";
 import Image from "next/image";
 import { useCartStore } from "@/lib/cart/store";
 
@@ -15,6 +16,7 @@ function CartModal({
   const router = useRouter();
   const { items, removeItem, getTotalPrice } = useCartStore();
   const { unlockScroll } = useModalScrollRestoration();
+  const hasMounted = useHasMounted();
 
   // Calculate total price from all cart items
   const totalPrice = getTotalPrice();
@@ -59,44 +61,52 @@ function CartModal({
           <div className="border-b border-gray-300 w-full mt-2 "></div>
         </div>
 
-        {items.length > 0 ? (
-          items.map((item) => (
-            <div key={item.id} className="flex w-full overflow-hidden mt-8">
-              <Image
-                src={item.image || ""}
-                alt={item.title}
-                width={80}
-                height={120}
-                className="h-[120px] w-[80px] flex-shrink-0"
-              />
-              <div className="ml-4 flex flex-1 flex-col overflow-hidden">
-                <span className="text-sm font-bold w-full block">
-                  {item.title}
-                </span>
-                <span className="text-sm block mt-1">
-                  Size: {item.variantId}
-                </span>
-                <span className="text-sm block mt-1">Color: {item.color}</span>
-                <span className="text-sm block mt-1">
-                  Price: {item.price?.amount} {item.price?.currencyCode}
-                </span>
-                <div className="mt-4 w-full flex items-center">
-                  <span className="text-sm mr-4 cursor-pointer">-</span>
-                  <span className="text-sm">{item.quantity}</span>
-                  <span className="text-sm ml-4 cursor-pointer">+</span>
-                  <button
-                    className="text-sm ml-auto mr-4 cursor-pointer underline font-bold"
-                    onClick={() => removeItem(item.id)}
-                  >
-                    Remove
-                  </button>
+        {hasMounted ? (
+          items.length > 0 ? (
+            items.map((item) => (
+              <div key={item.id} className="flex w-full overflow-hidden mt-8">
+                <Image
+                  src={item.image || ""}
+                  alt={item.title}
+                  width={80}
+                  height={120}
+                  className="h-[120px] w-[80px] flex-shrink-0 object-cover"
+                />
+                <div className="ml-4 flex flex-1 flex-col overflow-hidden">
+                  <span className="text-sm font-bold w-full block">
+                    {item.title}
+                  </span>
+                  <span className="text-sm block mt-1">
+                    Size: {item.variantId}
+                  </span>
+                  <span className="text-sm block mt-1">
+                    Color: {item.color}
+                  </span>
+                  <span className="text-sm block mt-1">
+                    Price: {item.price?.amount} {item.price?.currencyCode}
+                  </span>
+                  <div className="mt-4 w-full flex items-center">
+                    <span className="text-sm mr-4 cursor-pointer">-</span>
+                    <span className="text-sm">{item.quantity}</span>
+                    <span className="text-sm ml-4 cursor-pointer">+</span>
+                    <button
+                      className="text-sm ml-auto mr-4 cursor-pointer underline font-bold"
+                      onClick={() => removeItem(item.id)}
+                    >
+                      Remove
+                    </button>
+                  </div>
                 </div>
               </div>
+            ))
+          ) : (
+            <div className="flex w-full overflow-hidden mt-8">
+              <span className="text-sm">Cart is empty</span>
             </div>
-          ))
+          )
         ) : (
           <div className="flex w-full overflow-hidden mt-8">
-            <span className="text-sm">Cart is empty</span>
+            <span className="text-sm">Loading cart...</span>
           </div>
         )}
 
@@ -112,14 +122,22 @@ function CartModal({
           <div className=" flex-1"></div>
           <div className="px-2 flex flex-col gap-2.5 items-end">
             <p className="text-sm">
-              {totalPrice} {items[0]?.price?.currencyCode || "SEK"}
+              {hasMounted
+                ? `${totalPrice} ${items[0]?.price?.currencyCode || "SEK"}`
+                : "Loading..."}
             </p>
             <p className="text-sm text-gray-500">Calculated at checkout</p>
             <p className="text-sm">
-              {totalPrice} {items[0]?.price?.currencyCode || "SEK"}
+              {hasMounted
+                ? `${totalPrice} ${items[0]?.price?.currencyCode || "SEK"}`
+                : "Loading..."}
             </p>
             <p className="text-sm">
-              {totalPrice * 1.25} {items[0]?.price?.currencyCode || "SEK"}
+              {hasMounted
+                ? `${totalPrice * 1.25} ${
+                    items[0]?.price?.currencyCode || "SEK"
+                  }`
+                : "Loading..."}
             </p>
           </div>
         </div>
