@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { getSiteSettings } from "@/sanity/lib/getData";
 import Link from "next/link";
 import Image from "next/image";
 import { urlFor } from "@/sanity/lib/image";
