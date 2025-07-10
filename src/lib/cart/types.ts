@@ -15,6 +15,8 @@ export interface CartState {
   items: CartItem[];
   isLoading: boolean;
   error: string | null;
+  shopifyCartId: string | null;
+  shopifyCheckoutUrl: string | null;
 }
 
 export interface CartActions {
@@ -26,6 +28,9 @@ export interface CartActions {
   setError: (error: string | null) => void;
   getTotalItems: () => number;
   getTotalPrice: () => number;
+  // Shopify cart management
+  setShopifyCart: (cartId: string, checkoutUrl: string) => void;
+  syncWithShopify: () => Promise<void>;
 }
 
 export type CartStore = CartState & CartActions;

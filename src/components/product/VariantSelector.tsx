@@ -29,14 +29,21 @@ function VariantSelector({ product }: VariantSelectorProps) {
                 : "hover:bg-black hover:text-white"
             }`}
             onClick={() => {
-              const price = helper.getPrice();
-              setSelectedVariant({
-                size,
-                id: size,
-                available: true,
-                title: size,
-                price: price.amount,
-              });
+              // Find the correct Shopify variant for this size
+              const shopifyVariant = product.shopify.variants.find(
+                (variant) => variant.size === size && variant.availableForSale
+              );
+
+              if (shopifyVariant) {
+                setSelectedVariant({
+                  size,
+                  id: shopifyVariant.id, // Use the actual Shopify variant ID
+                  available: shopifyVariant.availableForSale,
+                  title: shopifyVariant.title,
+                  price: shopifyVariant.price.amount,
+                  color: shopifyVariant.color,
+                });
+              }
             }}
           >
             {size}

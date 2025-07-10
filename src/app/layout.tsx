@@ -3,12 +3,13 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { ScrollRestoration } from "@/components/ScrollRestoration";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Zone 2 Run",
-  description: "Running gear for the modern athlete",
+  title: "Zone2Run",
+  description: "Purposefully Curated. Built to Perform.",
 };
 
 export default function RootLayout({
@@ -18,7 +19,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className="__className_aaf875">
+        <ScrollRestoration />
         <Header />
         {children}
         <Footer />

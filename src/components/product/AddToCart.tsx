@@ -14,10 +14,10 @@ interface AddToCartProps {
 
 function AddToCart({ product, selectedVariant }: AddToCartProps) {
   const addItem = useCartStore((state) => state.addItem);
-  const handleClick = () => {
+  const handleClick = async () => {
     if (!selectedVariant) return;
 
-    addItem({
+    await addItem({
       id: `${product.handle}-${selectedVariant.size}`,
       variantId: selectedVariant.id,
       productHandle: product.handle,

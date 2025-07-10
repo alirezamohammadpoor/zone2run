@@ -5,7 +5,8 @@ import type { SanityProduct } from "@/types/sanity";
 export async function getSanityProductByHandle(
   handle: string
 ): Promise<SanityProduct | null> {
-  const query = `*[_type == "product" && shopifyHandle == $handle][0] {
+  // First try with the original handle
+  let query = `*[_type == "product" && shopifyHandle == $handle][0] {
     _id,
     title,
     shopifyId,
@@ -59,7 +60,22 @@ export async function getSanityProductByHandle(
   }`;
 
   try {
-    const sanityProduct = await client.fetch(query, { handle });
+    let sanityProduct = await client.fetch(query, { handle });
+
+    // If not found and handle starts with "distance-lab-", try without the prefix
+    if (!sanityProduct && handle.startsWith("distance-lab-")) {
+      const handleWithoutPrefix = handle.replace("distance-lab-", "");
+      sanityProduct = await client.fetch(query, {
+        handle: handleWithoutPrefix,
+      });
+    }
+
+    // If still not found and handle doesn't start with "distance-lab-", try with the prefix
+    if (!sanityProduct && !handle.startsWith("distance-lab-")) {
+      const handleWithPrefix = `distance-lab-${handle}`;
+      sanityProduct = await client.fetch(query, { handle: handleWithPrefix });
+    }
+
     return sanityProduct || null;
   } catch (error) {
     console.error("Error fetching Sanity product:", error);

@@ -11,6 +11,12 @@ export function useModalScroll(isOpen: boolean) {
     // Cleanup on unmount
     return () => {
       document.body.classList.remove("modal-open");
+      // Reset body styles in case they were set by scroll restoration
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
     };
   }, [isOpen]);
 }
