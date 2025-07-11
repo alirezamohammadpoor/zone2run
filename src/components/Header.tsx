@@ -10,6 +10,8 @@ import { useSearchStore } from "@/store/searchStore";
 import { useRouter } from "next/navigation";
 import CartModal from "./CartModal";
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
+import { useCartStore } from "@/lib/cart/store";
+import { Search } from "lucide-react";
 
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -17,26 +19,26 @@ function Header() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const router = useRouter();
   const { lockScroll, unlockScroll } = useModalScrollRestoration();
-
+  const totalItems = useCartStore((state) => state.getTotalItems());
   return (
     <header className="fixed top-0 left-0 right-0 z-40 bg-white shadow-sm">
-      <div className="bg-black text-white text-center h-6 text-xs py-1">
-        Free standard shipping on orders over $100
-      </div>
-      <nav className="text-xs flex justify-between items-center h-8 relative bg-white">
+      <nav className="text-sm flex justify-between items-center h-12 relative bg-white">
         <div className="flex items-center gap-4 ml-4">
           <button
+            aria-label="Open menu"
             onClick={() => {
               lockScroll();
               setIsMenuOpen(true);
             }}
-            className="hover:text-gray-300"
+            className="flex flex-col justify-between w-4 h-3 z-50 hover:text-gray-300"
           >
-            Menu
+            <span className="w-full h-0.5 bg-current" />
+            <span className="w-full h-0.5 bg-current" />
+            <span className="w-full h-0.5 bg-current" />
           </button>
         </div>
         <div className="absolute left-1/2 transform -translate-x-1/2">
-          <span className="text-sm font-bold" onClick={() => router.push("/")}>
+          <span className="text-lg font-bold" onClick={() => router.push("/")}>
             Zone 2
           </span>
         </div>
@@ -48,7 +50,7 @@ function Header() {
             }}
             className="hover:text-gray-300"
           >
-            Search
+            <Search className="w-5 h-4 text-current" />
           </button>
           <span
             onClick={() => {
@@ -56,7 +58,7 @@ function Header() {
               setIsCartOpen(true);
             }}
           >
-            Cart
+            ({totalItems})
           </span>
         </div>
       </nav>

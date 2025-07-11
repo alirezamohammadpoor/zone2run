@@ -10,7 +10,7 @@ interface ProductGalleryProps {
 
 function ProductGallery({ mainImage, title }: ProductGalleryProps) {
   return (
-    <div className="w-full relative aspect-[5/5] mt-4 bg-gray-100 flex items-center justify-center">
+    <div className="w-full relative aspect-[5/5]  bg-gray-100 flex items-center justify-center">
       {mainImage && (
         <Image
           src={urlFor(mainImage).url()}

@@ -28,17 +28,31 @@ function AddToCart({ product, selectedVariant }: AddToCartProps) {
       },
       image: product.productImage || "",
       color: selectedVariant.color ?? "",
+      size: selectedVariant.size,
     });
   };
 
   return (
     <div className="flex justify-center items-center">
       <button
-        className="bg-black text-white w-[95%] h-[50px] mt-12"
+        className={`
+          w-[95%] h-[50px] mt-12
+          ${
+            !selectedVariant
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed border border-gray-300"
+              : !selectedVariant.available
+              ? "bg-red-500 text-white cursor-not-allowed border border-red-500"
+              : "bg-black text-white cursor-pointer"
+          }
+        `}
         onClick={handleClick}
-        disabled={!selectedVariant}
+        disabled={!selectedVariant || !selectedVariant.available}
       >
-        ADD TO CART
+        {!selectedVariant
+          ? "SELECT SIZE"
+          : !selectedVariant.available
+          ? "OUT OF STOCK"
+          : "ADD TO CART"}
       </button>
     </div>
   );

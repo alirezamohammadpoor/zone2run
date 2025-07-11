@@ -11,7 +11,7 @@ body {
 
 /* Add padding for fixed header */
 body {
-  padding-top: 56px; /* 24px (announcement) + 32px (nav) = 56px */
+  padding-top: 40px; /* Match header height (h-10 = 40px) */
 }
 
 /* Prevent body scroll when modal is open */

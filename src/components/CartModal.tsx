@@ -5,6 +5,7 @@ import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
 import { useHasMounted } from "@/hooks/useHasMounted";
 import Image from "next/image";
 import { useCartStore } from "@/lib/cart/store";
+import { formatPrice } from "@/lib/utils/formatPrice";
 
 function CartModal({
   isCartOpen,
@@ -110,14 +111,12 @@ function CartModal({
                   >
                     {item.title}
                   </span>
-                  <span className="text-sm block mt-1">
-                    Size: {item.variantId}
-                  </span>
+                  <span className="text-sm block mt-1">Size: {item.size}</span>
                   <span className="text-sm block mt-1">
                     Color: {item.color}
                   </span>
                   <span className="text-sm block mt-1">
-                    Price: {item.price?.amount} {item.price?.currencyCode}
+                    {formatPrice(item.price?.amount)} {item.price?.currencyCode}
                   </span>
                   <div className="mt-4 w-full flex items-center">
                     <button
@@ -170,23 +169,23 @@ function CartModal({
           <div className="flex-1"></div>
           <div className="px-2 flex flex-col gap-2.5 items-end">
             <p className="text-sm">
-              {hasMounted
-                ? `${(totalPrice / 1.25).toFixed(2)} ${
+              {hasMounted && totalPrice
+                ? `${formatPrice(totalPrice / 1.25)} ${
                     items[0]?.price?.currencyCode || "SEK"
                   }`
                 : "Loading..."}
             </p>
             <p className="text-sm text-gray-500">Calculated at checkout</p>
             <p className="text-sm font-semibold">
-              {hasMounted
-                ? `${totalPrice.toFixed(2)} ${
+              {hasMounted && totalPrice
+                ? `${formatPrice(totalPrice)} ${
                     items[0]?.price?.currencyCode || "SEK"
                   }`
                 : "Loading..."}
             </p>
             <p className="text-sm text-gray-500">
-              {hasMounted
-                ? `${(totalPrice * 0.2).toFixed(2)} ${
+              {hasMounted && totalPrice
+                ? `${formatPrice(totalPrice * 0.2)} ${
                     items[0]?.price?.currencyCode || "SEK"
                   }`
                 : "Loading..."}

@@ -9,6 +9,7 @@ export interface CartItem {
   variantId: string;
   productHandle: string;
   color: string;
+  size: string;
 }
 
 export interface CartState {
