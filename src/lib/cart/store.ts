@@ -55,6 +55,8 @@ export const useCartStore = create<CartStore>()(
       removeItem: (id) =>
         set({ items: get().items.filter((i) => i.id !== id) }),
 
+      removeAllItems: () => set({ items: [] }),
+
       updateQuantity: async (id, quantity) => {
         set({
           items: get().items.map((i) =>

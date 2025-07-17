@@ -22,6 +22,7 @@ function CartModal({
     updateQuantity,
     shopifyCheckoutUrl,
     syncWithShopify,
+    removeAllItems,
   } = useCartStore();
   const { unlockScroll } = useModalScrollRestoration();
   const hasMounted = useHasMounted();
@@ -141,6 +142,12 @@ function CartModal({
                       onClick={() => removeItem(item.id)}
                     >
                       Remove
+                    </button>
+                    <button
+                      className="text-sm ml-auto mr-4 mt-4 cursor-pointer underline font-bold"
+                      onClick={() => removeAllItems()}
+                    >
+                      Remove All
                     </button>
                   </div>
                 </div>
