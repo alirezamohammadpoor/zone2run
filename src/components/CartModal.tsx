@@ -87,149 +87,162 @@ function CartModal({
           <div className="border-b border-gray-300 w-full mt-2 "></div>
         </div>
 
-        {hasMounted ? (
-          items.length > 0 ? (
-            items.map((item) => (
-              <div key={item.id} className="flex w-full overflow-hidden mt-8">
-                <Image
-                  src={item.image || ""}
-                  alt={item.title}
-                  width={80}
-                  height={120}
-                  className="h-[120px] w-[80px] flex-shrink-0 object-cover cursor-pointer"
+        {/* Scrollable Content Area */}
+        <div className="flex-1 overflow-y-auto px-4">
+          {hasMounted ? (
+            items.length > 0 ? (
+              <div className="py-4">
+                {items.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex w-full overflow-hidden mb-8"
+                  >
+                    <Image
+                      src={item.image || ""}
+                      alt={item.title}
+                      width={80}
+                      height={120}
+                      className="h-[120px] w-[80px] flex-shrink-0 object-cover cursor-pointer"
+                      onClick={() => {
+                        router.push(`/products/${item.productHandle}`);
+                        handleClose();
+                      }}
+                    />
+                    <div className="ml-4 flex flex-1 flex-col overflow-hidden">
+                      <span
+                        className="text-sm font-bold w-full block cursor-pointer"
+                        onClick={() => {
+                          router.push(`/products/${item.productHandle}`);
+                          handleClose();
+                        }}
+                      >
+                        {item.title}
+                      </span>
+                      <span className="text-sm block mt-1">
+                        Size: {item.size}
+                      </span>
+                      <span className="text-sm block mt-1">
+                        Color: {item.color}
+                      </span>
+                      <span className="text-sm block mt-1">
+                        {formatPrice(item.price?.amount)}{" "}
+                        {item.price?.currencyCode}
+                      </span>
+                      <div className="mt-4 w-full flex items-center">
+                        <button
+                          className="text-sm mr-4 cursor-pointer hover:text-gray-600"
+                          onClick={() =>
+                            handleDecreaseQuantity(item.id, item.quantity)
+                          }
+                        >
+                          -
+                        </button>
+                        <span className="text-sm">{item.quantity}</span>
+                        <button
+                          className="text-sm ml-4 cursor-pointer hover:text-gray-600"
+                          onClick={() =>
+                            handleIncreaseQuantity(item.id, item.quantity)
+                          }
+                        >
+                          +
+                        </button>
+                        <button
+                          className="text-sm ml-auto mr-4 cursor-pointer underline font-bold"
+                          onClick={() => removeItem(item.id)}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                <button
+                  className="text-sm cursor-pointer underline font-bold w-full text-center mb-4"
+                  onClick={() => removeAllItems()}
+                >
+                  Remove All Items
+                </button>
+              </div>
+            ) : (
+              <div className="flex w-full overflow-hidden justify-center items-center h-full flex-col">
+                <p className="text-md">Your cart is currently empty</p>
+                <button
+                  className="text-md font-bold mt-4"
                   onClick={() => {
-                    router.push(`/products/${item.productHandle}`);
+                    router.push("/products");
                     handleClose();
                   }}
-                />
-                <div className="ml-4 flex flex-1 flex-col overflow-hidden">
-                  <span
-                    className="text-sm font-bold w-full block cursor-pointer"
-                    onClick={() => {
-                      router.push(`/products/${item.productHandle}`);
-                      handleClose();
-                    }}
-                  >
-                    {item.title}
-                  </span>
-                  <span className="text-sm block mt-1">Size: {item.size}</span>
-                  <span className="text-sm block mt-1">
-                    Color: {item.color}
-                  </span>
-                  <span className="text-sm block mt-1">
-                    {formatPrice(item.price?.amount)} {item.price?.currencyCode}
-                  </span>
-                  <div className="mt-4 w-full flex items-center">
-                    <button
-                      className="text-sm mr-4 cursor-pointer hover:text-gray-600"
-                      onClick={() =>
-                        handleDecreaseQuantity(item.id, item.quantity)
-                      }
-                    >
-                      -
-                    </button>
-                    <span className="text-sm">{item.quantity}</span>
-                    <button
-                      className="text-sm ml-4 cursor-pointer hover:text-gray-600"
-                      onClick={() =>
-                        handleIncreaseQuantity(item.id, item.quantity)
-                      }
-                    >
-                      +
-                    </button>
-                    <button
-                      className="text-sm ml-auto mr-4 cursor-pointer underline font-bold"
-                      onClick={() => removeItem(item.id)}
-                    >
-                      Remove
-                    </button>
-                    <button
-                      className="text-sm ml-auto mr-4 mt-4 cursor-pointer underline font-bold"
-                      onClick={() => removeAllItems()}
-                    >
-                      Remove All
-                    </button>
-                  </div>
-                </div>
+                >
+                  Explore our products
+                </button>
               </div>
-            ))
+            )
           ) : (
-            <div className="flex w-full overflow-hidden justify-center items-center h-full flex-col">
-              <p className="text-md">Your cart is currently empty</p>
-              <button
-                className="text-md font-bold mt-4"
-                onClick={() => {
-                  router.push("/products");
-                  handleClose();
-                }}
-              >
-                Explore our products
-              </button>
+            <div className="flex w-full overflow-hidden mt-8">
+              <span className="text-sm">Loading cart...</span>
             </div>
-          )
-        ) : (
-          <div className="flex w-full overflow-hidden mt-8">
-            <span className="text-sm">Loading cart...</span>
-          </div>
-        )}
-
-        <div className="mt-auto mb-10 border-b border-gray-300 w-full"></div>
-        {/* Price Container */}
-        <div className="px-2 w-full flex items-center">
-          <div className="flex flex-col gap-2.5">
-            <p className="text-sm">Subtotal (excl. VAT)</p>
-            <p className="text-sm">Shipping</p>
-            <p className="text-sm font-semibold">Total (incl. VAT)</p>
-            <p className="text-sm text-gray-500">VAT (25%) included</p>
-          </div>
-          <div className="flex-1"></div>
-          <div className="px-2 flex flex-col gap-2.5 items-end">
-            <p className="text-sm">
-              {hasMounted && totalPrice
-                ? `${formatPrice(totalPrice / 1.25)} ${
-                    items[0]?.price?.currencyCode || "SEK"
-                  }`
-                : "Loading..."}
-            </p>
-            <p className="text-sm text-gray-500">Calculated at checkout</p>
-            <p className="text-sm font-semibold">
-              {hasMounted && totalPrice
-                ? `${formatPrice(totalPrice)} ${
-                    items[0]?.price?.currencyCode || "SEK"
-                  }`
-                : "Loading..."}
-            </p>
-            <p className="text-sm text-gray-500">
-              {hasMounted && totalPrice
-                ? `${formatPrice(totalPrice * 0.2)} ${
-                    items[0]?.price?.currencyCode || "SEK"
-                  }`
-                : "Loading..."}
-            </p>
-          </div>
+          )}
         </div>
 
-        {/* Checkout Button */}
-        <div className="p-2.5 w-full ">
-          <button
-            className="border border-black bg-black text-white text-base py-2.5 px-5 w-full mb-5 cursor-pointer mt-5 hover:bg-gray-800"
-            onClick={async () => {
-              if (items.length === 0) return;
+        {/* Fixed Bottom Section */}
+        <div className="flex-shrink-0 border-t border-gray-300">
+          {/* Price Container */}
+          <div className="px-2 w-full flex items-center py-4">
+            <div className="flex flex-col gap-2.5">
+              <p className="text-sm">Subtotal (excl. VAT)</p>
+              <p className="text-sm">Shipping</p>
+              <p className="text-sm font-semibold">Total (incl. VAT)</p>
+              <p className="text-sm text-gray-500">VAT (25%) included</p>
+            </div>
+            <div className="flex-1"></div>
+            <div className="px-2 flex flex-col gap-2.5 items-end">
+              <p className="text-sm">
+                {hasMounted && totalPrice
+                  ? `${formatPrice(totalPrice / 1.25)} ${
+                      items[0]?.price?.currencyCode || "SEK"
+                    }`
+                  : "Loading..."}
+              </p>
+              <p className="text-sm text-gray-500">Calculated at checkout</p>
+              <p className="text-sm font-semibold">
+                {hasMounted && totalPrice
+                  ? `${formatPrice(totalPrice)} ${
+                      items[0]?.price?.currencyCode || "SEK"
+                    }`
+                  : "Loading..."}
+              </p>
+              <p className="text-sm text-gray-500">
+                {hasMounted && totalPrice
+                  ? `${formatPrice(totalPrice * 0.2)} ${
+                      items[0]?.price?.currencyCode || "SEK"
+                    }`
+                  : "Loading..."}
+              </p>
+            </div>
+          </div>
 
-              // Sync with Shopify if needed
-              await syncWithShopify();
+          {/* Checkout Button */}
+          <div className="p-2.5 w-full">
+            <button
+              className="border border-black bg-black text-white text-base py-2.5 px-5 w-full mb-5 cursor-pointer hover:bg-gray-800"
+              onClick={async () => {
+                if (items.length === 0) return;
 
-              // Redirect to Shopify checkout
-              if (shopifyCheckoutUrl) {
-                window.location.href = shopifyCheckoutUrl;
-              } else {
-                console.error("No checkout URL available");
-              }
-            }}
-            disabled={items.length === 0}
-          >
-            Go to checkout
-          </button>
+                // Sync with Shopify if needed
+                await syncWithShopify();
+
+                // Redirect to Shopify checkout
+                if (shopifyCheckoutUrl) {
+                  window.location.href = shopifyCheckoutUrl;
+                } else {
+                  console.error("No checkout URL available");
+                }
+              }}
+              disabled={items.length === 0}
+            >
+              Go to checkout
+            </button>
+          </div>
         </div>
       </div>
     </>
