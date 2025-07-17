@@ -74,10 +74,10 @@ function CartModal({
         {/* Fixed Header */}
         <div className="bg-white z-10 h-16 flex-shrink-0">
           {/* Modal Header */}
-          <div className="text-xs flex justify-between items-center h-8 relative mt-4 px-4">
+          <div className="text-sm flex justify-between items-center h-8 relative mt-4 px-4">
             <span>Cart</span>
             <button
-              className="mr-2 text-xs hover:text-gray-500"
+              className="mr-2 text-sm hover:text-gray-500"
               onClick={handleClose}
             >
               Close
@@ -147,8 +147,17 @@ function CartModal({
               </div>
             ))
           ) : (
-            <div className="flex w-full overflow-hidden mt-8">
-              <span className="text-sm">Cart is empty</span>
+            <div className="flex w-full overflow-hidden justify-center items-center h-full flex-col">
+              <p className="text-md">Your cart is currently empty</p>
+              <button
+                className="text-md font-bold mt-4"
+                onClick={() => {
+                  router.push("/products");
+                  handleClose();
+                }}
+              >
+                Explore our products
+              </button>
             </div>
           )
         ) : (

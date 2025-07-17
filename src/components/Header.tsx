@@ -58,7 +58,7 @@ function Header() {
               setIsCartOpen(true);
             }}
           >
-            ({totalItems})
+            Cart ({totalItems})
           </span>
         </div>
       </nav>
