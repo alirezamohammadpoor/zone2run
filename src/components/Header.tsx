@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import CartModal from "./CartModal";
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
 import { useCartStore } from "@/lib/cart/store";
+import { useHasMounted } from "@/hooks/useHasMounted";
 import { Search } from "lucide-react";
 
 function Header() {
@@ -20,6 +21,7 @@ function Header() {
   const router = useRouter();
   const { lockScroll, unlockScroll } = useModalScrollRestoration();
   const totalItems = useCartStore((state) => state.getTotalItems());
+  const hasMounted = useHasMounted();
   return (
     <header className="fixed top-0 left-0 right-0 z-40 bg-white shadow-sm">
       <nav className="text-sm flex justify-between items-center h-12 relative bg-white">
@@ -58,7 +60,7 @@ function Header() {
               setIsCartOpen(true);
             }}
           >
-            Cart ({totalItems})
+            Cart ({hasMounted ? totalItems : 0})
           </span>
         </div>
       </nav>

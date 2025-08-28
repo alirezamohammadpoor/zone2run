@@ -93,6 +93,7 @@ export type Product = {
     _weak?: boolean;
     [internalGroqTypeReferenceTo]?: "brand";
   };
+  gender?: "men" | "women" | "unisex" | "kids";
   tags?: Array<string>;
   featured?: boolean;
   seo?: {

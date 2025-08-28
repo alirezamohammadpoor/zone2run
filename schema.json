@@ -555,6 +555,31 @@
         },
         "optional": true
       },
+      "gender": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "men"
+            },
+            {
+              "type": "string",
+              "value": "women"
+            },
+            {
+              "type": "string",
+              "value": "unisex"
+            },
+            {
+              "type": "string",
+              "value": "kids"
+            }
+          ]
+        },
+        "optional": true
+      },
       "tags": {
         "type": "objectAttribute",
         "value": {
