@@ -2,7 +2,7 @@ import { getAllProducts } from "@/lib/product/getAllProducts";
 import ProductGrid from "@/components/ProductGrid";
 import Footer from "@/components/Footer";
 import CategoriesSection from "@/components/product/CategoriesSection";
-import FilterBar from "@/components/product/FilterBar";
+/// import FilterBar from "@/components/product/FilterBar";
 
 export default async function ProductsPage() {
   const products = await getAllProducts();
@@ -19,7 +19,7 @@ export default async function ProductsPage() {
           just what runners need.
         </p>
         <CategoriesSection />
-        <FilterBar products={products} />
+        {/* <FilterBar products={products} /> */}
         <ProductGrid products={products} />
       </div>
       <Footer />
