@@ -192,3 +192,159 @@ export async function getAllProducts(): Promise<SanityProduct[]> {
     return [];
   }
 }
+<<<<<<< Updated upstream
+=======
+
+export async function getAllCategories() {
+  const query = `*[_type == "category"] {
+    _id,
+    title,
+    slug {
+      current
+    },
+    description,
+    "productCount": count(*[_type == "product" && references(^._id)]),
+    featured,
+    sortOrder
+  } | order(sortOrder asc, title asc)`;
+
+  try {
+    return await client.fetch(query);
+  } catch (error) {
+    console.error("Error fetching all categories:", error);
+    return [];
+  }
+}
+
+export async function getAllBrands() {
+  const query = `*[_type == "brand"] {
+    _id,
+    name,
+    slug {
+      current
+    },
+    logo {
+      asset-> {
+        url
+      }
+    },
+    "productCount": count(*[_type == "product" && references(^._id)]),
+    featured
+  } | order(name asc)`;
+
+  try {
+    return await client.fetch(query);
+  } catch (error) {
+    console.error("Error fetching all brands:", error);
+    return [];
+  }
+}
+
+export async function getAllMainCategories() {
+  const query = `*[_type == "category" && categoryType == "main"] {
+    _id,
+    title,
+    slug {
+      current
+    },
+    description,
+    "productCount": count(*[_type == "product" && references(^._id)]),
+    featured,
+    sortOrder
+  } | order(sortOrder asc, title asc)`;
+
+  try {
+    return await client.fetch(query);
+  } catch (error) {
+    console.error("Error fetching all main categories:", error);
+    return [];
+  }
+}
+
+export async function getSubcategoriesByParent(parentSlug: string) {
+  const query = `*[_type == "category" && categoryType == "subcategory" && parentCategory->slug.current == $parentSlug] {
+    _id,
+    title,
+    slug {
+      current
+    },
+    description,
+    "productCount": count(*[_type == "product" && references(^._id)]),
+    sortOrder,
+    parentCategory->{
+      _id,
+      title,
+      slug {
+        current
+      }
+    }
+  } | order(sortOrder asc, title asc)`;
+
+  try {
+    return await client.fetch(query, { parentSlug });
+  } catch (error) {
+    console.error(`Error fetching subcategories for ${parentSlug}:`, error);
+    return [];
+  }
+}
+
+export async function getCategoryBySlug(slug: string) {
+  const query = `*[_type == "category" && slug.current == $slug][0] {
+    _id,
+    title,
+    slug { current },
+    description,
+    categoryType,
+    parentCategory->{
+      _id,
+      title,
+      slug { current }
+    },
+    "productCount": count(*[_type == "product" && references(^._id)]),
+    featured,
+    sortOrder,
+    visibility
+  }`;
+
+  try {
+    return await client.fetch(query, { slug });
+  } catch (error) {
+    console.error(`Error fetching category ${slug}:`, error);
+    return null;
+  }
+}
+
+export async function getProductsByCategory(
+  categorySlug: string,
+  limit?: number
+) {
+  const query = `*[_type == "product" && references(*[_type == "category" && slug.current == $categorySlug]._id)] {
+    _id,
+    title,
+    shopifyId,
+    shopifyHandle,
+    mainImage { asset-> { url } },
+    category->{
+      _id,
+      title,
+      slug { current },
+      parentCategory->{
+        title,
+        slug { current }
+      }
+    },
+    brand->{ name, slug { current } },
+    gender
+  } | order(title asc)${limit ? `[0...${limit}]` : ""}`;
+
+  try {
+    return await client.fetch(query, { categorySlug });
+  } catch (error) {
+    console.error(
+      `Error fetching products for category ${categorySlug}:`,
+      error
+    );
+    return [];
+  }
+}
+>>>>>>> Stashed changes
