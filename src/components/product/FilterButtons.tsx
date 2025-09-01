@@ -49,11 +49,16 @@ export function FilterButtons({ products }: FilterButtonsProps) {
       const slugCurrent = category?.slug?.current;
       const title = category?.title;
 
-      if (!slugCurrent || !title) return acc;
+      if (!slugCurrent || !title || !category?._id) return acc;
 
       const existing = acc.find((cat) => cat.title === title);
       if (!existing) {
-        acc.push({ _id: category._id, title, slug: category.slug, count: 1 });
+        acc.push({
+          _id: category._id,
+          title,
+          slug: { current: slugCurrent },
+          count: 1,
+        });
       } else {
         existing.count++;
       }
