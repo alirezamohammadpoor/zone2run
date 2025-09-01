@@ -192,3 +192,48 @@ export async function getAllProducts(): Promise<SanityProduct[]> {
     return [];
   }
 }
+
+export async function getAllCategories() {
+  const query = `*[_type == "category"] {
+    _id,
+    title,
+    slug {
+      current
+    },
+    description,
+    "productCount": count(*[_type == "product" && references(^._id)]),
+    featured,
+    sortOrder
+  } | order(sortOrder asc, title asc)`;
+
+  try {
+    return await client.fetch(query);
+  } catch (error) {
+    console.error("Error fetching all categories:", error);
+    return [];
+  }
+}
+
+export async function getAllBrands() {
+  const query = `*[_type == "brand"] {
+    _id,
+    name,
+    slug {
+      current
+    },
+    logo {
+      asset-> {
+        url
+      }
+    },
+    "productCount": count(*[_type == "product" && references(^._id)]),
+    featured
+  } | order(name asc)`;
+
+  try {
+    return await client.fetch(query);
+  } catch (error) {
+    console.error("Error fetching all brands:", error);
+    return [];
+  }
+}

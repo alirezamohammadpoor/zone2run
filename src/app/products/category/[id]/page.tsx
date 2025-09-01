@@ -9,7 +9,6 @@ export default async function CategoryPage({
   const { id } = await params;
   const products = await getAllProducts();
 
-  // Basic category filtering
   const categoryProducts = products.filter(
     (product) => product.sanity?.category?.slug?.current === id
   );

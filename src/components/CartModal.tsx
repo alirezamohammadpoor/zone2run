@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useModalScroll } from "@/hooks/useModalScroll";
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
 import { useHasMounted } from "@/hooks/useHasMounted";
 import Image from "next/image";
 import { useCartStore } from "@/lib/cart/store";
 import { formatPrice } from "@/lib/utils/formatPrice";
+import { createCart, addToCart } from "@/lib/shopify/cart";
 
 function CartModal({
   isCartOpen,
@@ -27,23 +27,22 @@ function CartModal({
   const { unlockScroll } = useModalScrollRestoration();
   const hasMounted = useHasMounted();
 
-  // Calculate total price from all cart items
   const totalPrice = getTotalPrice();
 
   const handleClose = () => {
     setIsCartOpen(false);
-    // Delay scroll restoration to allow modal animation to complete
     setTimeout(() => {
       unlockScroll();
     }, 300);
   };
+
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   const handleNavigate = (path: string) => {
     router.push(path);
     handleClose();
   };
 
-  // Quantity control handlers
   const handleIncreaseQuantity = async (
     itemId: string,
     currentQuantity: number
@@ -60,21 +59,17 @@ function CartModal({
     }
   };
 
-  // Prevent body scroll when modal is open
-  useModalScroll(isCartOpen);
-
   return (
     <>
       {/* Modal */}
       <div
         className={
-          "fixed top-0 right-0 h-screen w-full bg-white z-50 transform transition-transform duration-300 overflow-hidden flex flex-col" +
+          "fixed top-0 right-0 h-screen w-full bg-white z-50 transform transition-transform duration-300 flex flex-col" +
           (isCartOpen ? " translate-x-0" : " translate-x-full")
         }
       >
         {/* Fixed Header */}
-        <div className="bg-white z-10 h-16 flex-shrink-0">
-          {/* Modal Header */}
+        <div className="flex-shrink-0 bg-white z-10 h-16">
           <div className="text-sm flex justify-between items-center h-8 relative mt-4 px-4">
             <span>Cart</span>
             <button
@@ -88,7 +83,7 @@ function CartModal({
         </div>
 
         {/* Scrollable Content Area */}
-        <div className="flex-1 overflow-y-auto px-4">
+        <div className="flex-1 min-h-0 overflow-y-auto px-4">
           {hasMounted ? (
             items.length > 0 ? (
               <div className="py-4">
@@ -158,7 +153,10 @@ function CartModal({
                 ))}
                 <button
                   className="text-sm cursor-pointer underline font-bold w-full text-center mb-4"
-                  onClick={() => removeAllItems()}
+                  onClick={() => {
+                    removeAllItems();
+                    console.log("🛒 Cart cleared");
+                  }}
                 >
                   Remove All Items
                 </button>
@@ -185,62 +183,81 @@ function CartModal({
         </div>
 
         {/* Fixed Bottom Section */}
-        <div className="flex-shrink-0 border-t border-gray-300">
-          {/* Price Container */}
-          <div className="px-2 w-full flex items-center py-4">
-            <div className="flex flex-col gap-2.5">
-              <p className="text-sm">Subtotal (excl. VAT)</p>
-              <p className="text-sm">Shipping</p>
-              <p className="text-sm font-semibold">Total (incl. VAT)</p>
-              <p className="text-sm text-gray-500">VAT (25%) included</p>
+        <div className="flex-shrink-0 border-t border-gray-300 bg-white h-60">
+          <div className="px-4 py-4 h-full flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-2.5">
+                <p className="text-sm">Shipping</p>
+                <p className="text-sm">Subtotal (excl. VAT)</p>
+                <p className="text-sm text-gray-500">VAT (25%)</p>
+                <p className="text-sm font-semibold">Total (incl. VAT)</p>
+              </div>
+              <div className="flex flex-col gap-2.5 items-end">
+                <p className="text-sm text-gray-500">Calculated at checkout</p>
+                <p className="text-sm">
+                  {hasMounted && totalPrice
+                    ? `${formatPrice(totalPrice / 1.25)} ${
+                        items[0]?.price?.currencyCode || "SEK"
+                      }`
+                    : "Loading..."}
+                </p>
+                <p className="text-sm text-gray-500">
+                  {hasMounted && totalPrice
+                    ? `${formatPrice(totalPrice * 0.2)} ${
+                        items[0]?.price?.currencyCode || "SEK"
+                      }`
+                    : "Loading..."}
+                </p>
+                <p className="text-sm font-semibold">
+                  {hasMounted && totalPrice
+                    ? `${formatPrice(totalPrice)} ${
+                        items[0]?.price?.currencyCode || "SEK"
+                      }`
+                    : "Loading..."}
+                </p>
+              </div>
             </div>
-            <div className="flex-1"></div>
-            <div className="px-2 flex flex-col gap-2.5 items-end">
-              <p className="text-sm">
-                {hasMounted && totalPrice
-                  ? `${formatPrice(totalPrice / 1.25)} ${
-                      items[0]?.price?.currencyCode || "SEK"
-                    }`
-                  : "Loading..."}
-              </p>
-              <p className="text-sm text-gray-500">Calculated at checkout</p>
-              <p className="text-sm font-semibold">
-                {hasMounted && totalPrice
-                  ? `${formatPrice(totalPrice)} ${
-                      items[0]?.price?.currencyCode || "SEK"
-                    }`
-                  : "Loading..."}
-              </p>
-              <p className="text-sm text-gray-500">
-                {hasMounted && totalPrice
-                  ? `${formatPrice(totalPrice * 0.2)} ${
-                      items[0]?.price?.currencyCode || "SEK"
-                    }`
-                  : "Loading..."}
-              </p>
-            </div>
-          </div>
 
-          {/* Checkout Button */}
-          <div className="p-2.5 w-full">
             <button
-              className="border border-black bg-black text-white text-base py-2.5 px-5 w-full mb-5 cursor-pointer hover:bg-gray-800"
+              className="mt-10 bg-black text-white text-base py-3 w-full cursor-pointer hover:bg-gray-800 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
               onClick={async () => {
                 if (items.length === 0) return;
+                console.log("🛒 Checkout button clicked");
+                console.log("🛒 Current cart items:", items);
+                setIsRedirecting(true);
 
-                // Sync with Shopify if needed
-                await syncWithShopify();
+                // Create fresh cart with current items
+                const freshCartResult = await createCart();
+                console.log("🛒 Fresh cart created:", freshCartResult);
 
-                // Redirect to Shopify checkout
-                if (shopifyCheckoutUrl) {
-                  window.location.href = shopifyCheckoutUrl;
+                if (freshCartResult) {
+                  // Add all current items to the fresh cart
+                  for (const item of items) {
+                    const success = await addToCart(
+                      freshCartResult.cartId,
+                      item.variantId,
+                      item.quantity
+                    );
+                    if (!success) {
+                      console.error(
+                        "🛒 Failed to add item to fresh cart:",
+                        item
+                      );
+                    }
+                  }
+
+                  console.log(
+                    "🛒 Redirecting to fresh checkout:",
+                    freshCartResult.checkoutUrl
+                  );
+                  window.location.href = freshCartResult.checkoutUrl;
                 } else {
-                  console.error("No checkout URL available");
+                  console.error("🛒 Failed to create fresh cart");
                 }
               }}
-              disabled={items.length === 0}
+              disabled={items.length === 0 || isRedirecting}
             >
-              Go to checkout
+              {isRedirecting ? "Redirecting..." : "Go to checkout"}
             </button>
           </div>
         </div>

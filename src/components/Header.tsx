@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import CartModal from "./CartModal";
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
 import { useCartStore } from "@/lib/cart/store";
+import { useHasMounted } from "@/hooks/useHasMounted";
 import { Search } from "lucide-react";
 
 function Header() {
@@ -20,6 +21,7 @@ function Header() {
   const router = useRouter();
   const { lockScroll, unlockScroll } = useModalScrollRestoration();
   const totalItems = useCartStore((state) => state.getTotalItems());
+  const hasMounted = useHasMounted();
   return (
     <header className="fixed top-0 left-0 right-0 z-40 bg-white shadow-sm">
       <nav className="text-sm flex justify-between items-center h-12 relative bg-white">
@@ -30,7 +32,7 @@ function Header() {
               lockScroll();
               setIsMenuOpen(true);
             }}
-            className="flex flex-col justify-between w-4 h-3 z-50 hover:text-gray-300"
+            className="flex flex-col justify-between w-4 h-3 z-50 hover:text-gray-300 cursor-pointer"
           >
             <span className="w-full h-0.5 bg-current" />
             <span className="w-full h-0.5 bg-current" />
@@ -38,7 +40,10 @@ function Header() {
           </button>
         </div>
         <div className="absolute left-1/2 transform -translate-x-1/2">
-          <span className="text-lg font-bold" onClick={() => router.push("/")}>
+          <span
+            className="text-lg font-bold cursor-pointer"
+            onClick={() => router.push("/")}
+          >
             Zone 2
           </span>
         </div>
@@ -53,12 +58,13 @@ function Header() {
             <Search className="w-5 h-4 text-current" />
           </button>
           <span
+            className="cursor-pointer"
             onClick={() => {
               lockScroll();
               setIsCartOpen(true);
             }}
           >
-            Cart ({totalItems})
+            Cart ({hasMounted ? totalItems : 0})
           </span>
         </div>
       </nav>
