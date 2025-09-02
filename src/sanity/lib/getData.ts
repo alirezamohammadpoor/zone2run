@@ -192,8 +192,6 @@ export async function getAllProducts(): Promise<SanityProduct[]> {
     return [];
   }
 }
-<<<<<<< Updated upstream
-=======
 
 export async function getAllCategories() {
   const query = `*[_type == "category"] {
@@ -347,4 +345,3 @@ export async function getProductsByCategory(
     return [];
   }
 }
->>>>>>> Stashed changes
