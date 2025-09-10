@@ -215,6 +215,11 @@ export async function createCart(): Promise<{
 
     const { cartCreate } = response as any;
 
+    console.log("🛒 Cart creation response:", cartCreate);
+    console.log("🛒 Cart object:", cartCreate.cart);
+    console.log("🛒 Cart ID:", cartCreate.cart.id);
+    console.log("🛒 Checkout URL:", cartCreate.cart.checkoutUrl);
+
     if (cartCreate.userErrors.length > 0) {
       console.error("Cart creation errors:", cartCreate.userErrors);
       return null;
@@ -236,6 +241,14 @@ export async function addToCart(
   quantity: number = 1
 ): Promise<boolean> {
   try {
+    // Validate variant ID format
+    if (!variantId || !variantId.startsWith("gid://shopify/ProductVariant/")) {
+      console.error("Invalid variant ID format:", variantId);
+      return false;
+    }
+
+    console.log("🛒 Adding to cart with:", { cartId, variantId, quantity });
+
     const response = await shopifyClient.request(CART_LINES_ADD, {
       cartId,
       lines: [
@@ -249,7 +262,13 @@ export async function addToCart(
     const { cartLinesAdd } = response as any;
 
     if (cartLinesAdd.userErrors.length > 0) {
-      console.error("Add to cart errors:", cartLinesAdd.userErrors);
+      console.error(
+        "Add to cart errors:",
+        JSON.stringify(cartLinesAdd.userErrors, null, 2)
+      );
+      console.error("Cart ID:", cartId);
+      console.error("Variant ID:", variantId);
+      console.error("Quantity:", quantity);
       return false;
     }
 

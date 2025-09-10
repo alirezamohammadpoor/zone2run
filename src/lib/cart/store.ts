@@ -37,7 +37,10 @@ export const useCartStore = create<CartStore>()(
         const state = get();
         if (!state.shopifyCartId) {
           const cartResult = await createCart();
+          console.log("🛒 Cart result from createCart:", cartResult);
           if (cartResult) {
+            console.log("🛒 Setting cart ID:", cartResult.cartId);
+            console.log("🛒 Setting checkout URL:", cartResult.checkoutUrl);
             set({
               shopifyCartId: cartResult.cartId,
               shopifyCheckoutUrl: cartResult.checkoutUrl,
@@ -48,14 +51,48 @@ export const useCartStore = create<CartStore>()(
         // Add item to Shopify cart
         const updatedState = get();
         if (updatedState.shopifyCartId) {
-          await addToCart(updatedState.shopifyCartId, item.variantId, 1);
+          console.log("🛒 Adding item to Shopify cart:", {
+            cartId: updatedState.shopifyCartId,
+            variantId: item.variantId,
+            item: item,
+            existingInLocalCart: !!existing,
+          });
+
+          // Only try to add to Shopify if it's a new item
+          // For existing items, we'll rely on the local cart for now
+          // In a production app, you'd want to sync with Shopify cart properly
+          if (!existing) {
+            const success = await addToCart(
+              updatedState.shopifyCartId,
+              item.variantId,
+              1
+            );
+            if (!success) {
+              console.error("🛒 Failed to add item to Shopify cart");
+              // The item was added to local cart but failed to sync with Shopify
+              // This could happen if the item is out of stock or has quantity limits
+            }
+          } else {
+            console.log(
+              "🛒 Item already exists in local cart, skipping Shopify add"
+            );
+          }
         }
       },
 
       removeItem: (id) =>
-        set({ items: get().items.filter((i) => i.id !== id) }),
+        set({
+          items: get().items.filter((i) => i.id !== id),
+          shopifyCartId: null,
+          shopifyCheckoutUrl: null,
+        }),
 
-      removeAllItems: () => set({ items: [] }),
+      removeAllItems: () =>
+        set({
+          items: [],
+          shopifyCartId: null,
+          shopifyCheckoutUrl: null,
+        }),
 
       updateQuantity: async (id, quantity) => {
         set({

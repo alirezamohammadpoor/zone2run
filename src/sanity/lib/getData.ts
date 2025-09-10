@@ -239,7 +239,6 @@ export async function getAllBrands() {
     return [];
   }
 }
-
 export async function getAllMainCategories() {
   const query = `*[_type == "category" && categoryType == "main"] {
     _id,
