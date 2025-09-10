@@ -29,6 +29,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             src={urlFor(product.sanity.mainImage).url()}
             alt={product.sanity.title || "Product"}
             fill
+            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
             className="object-cover"
           />
         </div>
