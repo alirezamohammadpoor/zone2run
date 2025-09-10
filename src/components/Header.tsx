@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { urlFor } from "@/sanity/lib/image";
-import MenuModal from "./MenuModal";
+import MenuModal from "./menumodal/MenuModal";
 import SearchModal from "./SearchModal";
 import { useSearchStore } from "@/store/searchStore";
 import { useRouter } from "next/navigation";
@@ -12,6 +12,7 @@ import CartModal from "./CartModal";
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
 import { useCartStore } from "@/lib/cart/store";
 import { Search } from "lucide-react";
+import { useHasMounted } from "@/hooks/useHasMounted";
 
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -20,6 +21,7 @@ function Header() {
   const router = useRouter();
   const { lockScroll, unlockScroll } = useModalScrollRestoration();
   const totalItems = useCartStore((state) => state.getTotalItems());
+  const hasMounted = useHasMounted();
   return (
     <header className="fixed top-0 left-0 right-0 z-40 bg-white shadow-sm">
       <nav className="text-sm flex justify-between items-center h-12 relative bg-white">
@@ -58,7 +60,7 @@ function Header() {
               setIsCartOpen(true);
             }}
           >
-            Cart ({totalItems})
+            {hasMounted ? `Cart (${totalItems})` : "Cart (0)"}
           </span>
         </div>
       </nav>

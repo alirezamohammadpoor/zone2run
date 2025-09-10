@@ -1,5 +1,6 @@
 import { getAllProducts } from "@/lib/product/getAllProducts";
 import ProductGrid from "@/components/ProductGrid";
+import CategoriesSection from "@/components/product/CategoriesSection";
 
 export default async function ProductsPage() {
   const products = await getAllProducts();
@@ -14,6 +15,7 @@ export default async function ProductsPage() {
         fabrics. Designed for endurance, comfort, and clarity — nothing extra,
         just what runners need.
       </p>
+      <CategoriesSection />
       <ProductGrid products={products} />
     </div>
   );
