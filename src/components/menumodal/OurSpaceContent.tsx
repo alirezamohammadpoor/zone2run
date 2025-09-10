@@ -1,6 +1,12 @@
 "use client";
 
-function OurSpaceContent() {
+function OurSpaceContent({
+  onClose,
+  data,
+}: {
+  onClose: () => void;
+  data: any;
+}) {
   return (
     <div className="p-6">
       <h2 className="text-xl font-semibold mb-4">Our Space</h2>

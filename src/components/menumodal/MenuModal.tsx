@@ -22,7 +22,7 @@ function MenuModal({
     null
   );
 
-  const [menuData, setMenuData] = useState<{ [key: string]: any[] }>({});
+  const [menuData, setMenuData] = useState<{ [key: string]: any }>({});
 
   const { unlockScroll } = useModalScrollRestoration();
 

@@ -22,7 +22,7 @@ function WomenContent({ onClose, data }: { onClose: () => void; data: any }) {
         <div key={category} className="mb-6">
           <h3 className="font-semibold text-lg mb-3 capitalize">{category}</h3>
           <ol className="space-y-2">
-            {subcategories.map((subcategory) => (
+            {(subcategories as any[]).map((subcategory) => (
               <li
                 key={subcategory._id}
                 className="text-sm cursor-pointer hover:text-gray-500 pl-2"
