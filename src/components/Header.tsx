@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { urlFor } from "@/sanity/lib/image";
-import MenuModal from "./MenuModal";
+import MenuModal from "./menumodal/MenuModal";
 import SearchModal from "./SearchModal";
 import { useSearchStore } from "@/store/searchStore";
 import { useRouter } from "next/navigation";
@@ -64,7 +64,7 @@ function Header() {
               setIsCartOpen(true);
             }}
           >
-            Cart ({hasMounted ? totalItems : 0})
+            {hasMounted ? `Cart (${totalItems})` : "Cart (0)"}
           </span>
         </div>
       </nav>
