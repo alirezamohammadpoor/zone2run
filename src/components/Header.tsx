@@ -13,6 +13,7 @@ import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
 import { useCartStore } from "@/lib/cart/store";
 import { useHasMounted } from "@/hooks/useHasMounted";
 import { Search } from "lucide-react";
+import AddedToCartModal from "./product/AddedToCartModal";
 
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -40,12 +41,9 @@ function Header() {
           </button>
         </div>
         <div className="absolute left-1/2 transform -translate-x-1/2">
-          <span
-            className="text-lg font-bold cursor-pointer"
-            onClick={() => router.push("/")}
-          >
+          <Link href="/" className="text-lg font-bold cursor-pointer">
             Zone 2
-          </span>
+          </Link>
         </div>
         <div className="flex items-center gap-4 mr-4">
           <button
@@ -72,6 +70,7 @@ function Header() {
       <MenuModal isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
       <SearchModal />
       <CartModal isCartOpen={isCartOpen} setIsCartOpen={setIsCartOpen} />
+      <AddedToCartModal isCartOpen={isCartOpen} setIsCartOpen={setIsCartOpen} />
     </header>
   );
 }

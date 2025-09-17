@@ -11,6 +11,7 @@ import {
 const initialState: CartState = {
   items: [],
   isLoading: false,
+  isAdded: {},
   error: null,
   shopifyCartId: null,
   shopifyCheckoutUrl: null,
@@ -115,6 +116,12 @@ export const useCartStore = create<CartStore>()(
       clearCart: () => set({ items: [] }),
 
       setLoading: (loading) => set({ isLoading: loading }),
+
+      setIsAdded: (variantId: string, isAdded: boolean) => {
+        set((state) => ({
+          isAdded: { ...state.isAdded, [variantId]: isAdded },
+        }));
+      },
 
       setError: (error) => set({ error }),
 

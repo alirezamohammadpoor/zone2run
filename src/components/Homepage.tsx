@@ -7,14 +7,6 @@ function Hero() {
     <div className="w-full">
       {/* Main Hero Section */}
       <div className="flex w-full h-[70vh] items-center relative">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          src="https://cdn.midjourney.com/video/f61b343d-0d88-4442-99ec-56be303ca6cf/0.mp4"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
         <div className="text-black mt-auto mb-8 z-10 relative">
           <h1 className="text-white text-4xl ml-4 font-bold">Hero Title</h1>
           <p className="text-white text-lg ml-4 mt-4">Hero Para</p>
