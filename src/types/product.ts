@@ -90,20 +90,51 @@ export class ProductHelper {
 
   getBreadcrumbs(): Array<{ label: string; href?: string }> {
     const { sanity, shopify } = this.product;
-    const breadcrumbs = [{ label: "Home", href: "/" }];
+    const breadcrumbs: Array<{ label: string; href?: string }> = [];
 
-    // Add category from Sanity
-    if (sanity.category?.title) {
+    // Add gender from Sanity (only mens and womens)
+    if (
+      sanity.gender &&
+      (sanity.gender === "mens" || sanity.gender === "womens")
+    ) {
+      const formattedGender = sanity.gender === "womens" ? "Women's" : "Men's";
+      // Convert to frontend format for URL
+      const frontendGender = sanity.gender === "womens" ? "women" : "men";
       breadcrumbs.push({
-        label: sanity.category.title,
-        href: `/category/${sanity.category.slug?.current}`,
+        label: formattedGender,
+        href: `/products/${frontendGender}`,
+      });
+    }
+
+    // Add category hierarchy from Sanity
+    if (
+      sanity.category?.categoryType === "sub" &&
+      sanity.category.parentCategory?.title
+    ) {
+      // Add parent category first
+      const frontendGender = sanity.gender === "womens" ? "women" : "men";
+      breadcrumbs.push({
+        label: sanity.category.parentCategory.title || "",
+        href: `/products/${frontendGender}/${sanity.category.parentCategory.slug?.current}`,
+      });
+      // Add subcategory
+      breadcrumbs.push({
+        label: sanity.category.title || "",
+        href: `/products/${frontendGender}/${sanity.category.parentCategory.slug?.current}/${sanity.category.slug?.current}`,
+      });
+    } else if (sanity.category?.title) {
+      // Add main category
+      const frontendGender = sanity.gender === "womens" ? "women" : "men";
+      breadcrumbs.push({
+        label: sanity.category.title || "",
+        href: `/products/${frontendGender}/${sanity.category.slug?.current}`,
       });
     }
 
     // Add current product
     breadcrumbs.push({
-      label: this.getDisplayTitle(),
-      href: `/products/${shopify.handle}`,
+      label: this.getDisplayTitle() || "",
+      href: `/products/item/${shopify.handle}`,
     });
 
     return breadcrumbs;

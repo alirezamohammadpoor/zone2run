@@ -99,7 +99,7 @@ function CartModal({
                       height={120}
                       className="h-[120px] w-[80px] flex-shrink-0 object-cover cursor-pointer"
                       onClick={() => {
-                        router.push(`/products/${item.productHandle}`);
+                        router.push(`/products/item/${item.productHandle}`);
                         handleClose();
                       }}
                     />
@@ -107,10 +107,11 @@ function CartModal({
                       <span
                         className="text-sm font-bold w-full block cursor-pointer"
                         onClick={() => {
-                          router.push(`/products/${item.productHandle}`);
+                          router.push(`/products/item/${item.productHandle}`);
                           handleClose();
                         }}
                       >
+                        {item.brand && `${item.brand} - `}
                         {item.title}
                       </span>
                       <span className="text-sm block mt-1">

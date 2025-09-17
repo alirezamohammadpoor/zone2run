@@ -10,11 +10,13 @@ export interface CartItem {
   productHandle: string;
   color: string;
   size: string;
+  brand?: string; // Optional since it may not be available from Shopify
 }
 
 export interface CartState {
   items: CartItem[];
   isLoading: boolean;
+  isAdded: { [variantId: string]: boolean };
   error: string | null;
   shopifyCartId: string | null;
   shopifyCheckoutUrl: string | null;
@@ -27,6 +29,7 @@ export interface CartActions {
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
   setLoading: (loading: boolean) => void;
+  setIsAdded: (variantId: string, isAdded: boolean) => void;
   setError: (error: string | null) => void;
   getTotalItems: () => number;
   getTotalPrice: () => number;

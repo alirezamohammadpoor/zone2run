@@ -1,10 +1,12 @@
 export interface SanityProduct {
   _id: string;
   title?: string;
+  displayTitle?: string;
+  originalTitle?: string;
   shopifyId?: string;
   shopifyHandle?: string;
   shortDescription?: string;
-
+  gender?: string;
   // Images
   mainImage?: {
     asset?: {
@@ -35,6 +37,14 @@ export interface SanityProduct {
     title?: string;
     slug?: {
       current?: string;
+    };
+    categoryType?: string;
+    parentCategory?: {
+      _id: string;
+      title?: string;
+      slug?: {
+        current?: string;
+      };
     };
   };
   brand?: {

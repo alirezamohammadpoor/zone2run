@@ -17,38 +17,54 @@ function ProductDetails({ product }: ProductDetailsProps) {
   const helper = new ProductHelper(product);
   const breadCrumbs = helper.getBreadcrumbs();
   const brandName = helper.getBrandName();
-  const productName = helper.getProductName();
+  const displayTitle = helper.getDisplayTitle();
 
   return (
-    <div>
+    <div className="">
       <ProductGallery
         mainImage={product.sanity.mainImage}
-        title={helper.getDisplayTitle()}
+        galleryImages={product.sanity.gallery}
+        title={displayTitle}
       />
-      <span className="ml-2 text-sm text-gray-500">
-        {breadCrumbs.map((crumb, index) => (
-          <span key={index}>
-            {index > 0 && " > "}
-            {crumb.label}
-          </span>
-        ))}
-      </span>
+      <div className="mt-4 ml-2">
+        <span className="text-sm text-gray-500">
+          {breadCrumbs.map((crumb, index) => (
+            <span key={index}>
+              {index > 0 && " > "}
+              {crumb.href ? (
+                <a
+                  href={crumb.href}
+                  className="hover:text-gray-700 hover:underline cursor-pointer"
+                >
+                  {crumb.label}
+                </a>
+              ) : (
+                <span className="text-gray-900">{crumb.label}</span>
+              )}
+            </span>
+          ))}
+        </span>
+      </div>
 
       <div className="flex justify-between items-center mt-4">
         <p className="ml-2 text-md font-semibold">{brandName}</p>
+      </div>
+      <div className="flex justify-between items-center">
+        <p className="ml-2">{displayTitle}</p>
         <p className="mr-2">
           {formatPrice(helper.getPrice().amount)}{" "}
           {helper.getPrice().currencyCode}
         </p>
       </div>
-      <p className="ml-2">{productName}</p>
 
       <VariantSelector product={product} />
       <AddToCart
         product={{
-          title: productName,
+          title: displayTitle,
           handle: product.shopify.handle,
           productImage: helper.getMainImage() || "",
+          brand: brandName || "",
+          currencyCode: helper.getPrice().currencyCode || "",
         }}
         selectedVariant={selectedVariant}
       />

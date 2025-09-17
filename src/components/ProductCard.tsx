@@ -15,7 +15,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const router = useRouter();
 
   const handleClick = () => {
-    router.push(`/products/${product.shopify.handle}`);
+    router.push(`/products/item/${product.shopify.handle}`);
   };
 
   return (

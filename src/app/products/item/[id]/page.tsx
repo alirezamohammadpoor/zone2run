@@ -22,7 +22,7 @@ export default async function ProductPage({
     <>
       <div>
         <ProductDetails product={product} />
-        <ProductDescription />
+        <ProductDescription productId={product.sanity._id} />
 
         <CollapsibleSection
           title="Product Details"
