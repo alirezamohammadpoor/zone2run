@@ -26,6 +26,19 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: "displayTitle",
+      title: "Display Title",
+      type: "string",
+      description:
+        "Formatted title for display (e.g., 'Men's Running Shirt' instead of 'M Running Shirt')",
+    }),
+    defineField({
+      name: "originalTitle",
+      title: "Original Title",
+      type: "string",
+      description: "Original product title from Shopify (for reference)",
+    }),
+    defineField({
       name: "shopifyId",
       title: "Shopify Product ID",
       type: "string",
@@ -124,8 +137,8 @@ export default defineType({
       type: "string",
       options: {
         list: [
-          { title: "Men", value: "men" },
-          { title: "Women", value: "women" },
+          { title: "Men's", value: "mens" },
+          { title: "Women's", value: "womens" },
           { title: "Unisex", value: "unisex" },
           { title: "Kids", value: "kids" },
         ],

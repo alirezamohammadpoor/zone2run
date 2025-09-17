@@ -1,5 +1,5 @@
 import ProductGrid from "@/components/ProductGrid";
-import { getProductsByPath } from "@/sanity/lib/getData";
+import { getProductsBySubcategoryIncludingSubSubcategories } from "@/sanity/lib/getData";
 
 export default async function CategoryPage({
   params,
@@ -12,7 +12,11 @@ export default async function CategoryPage({
 }) {
   const { gender, mainCategory, subcategory } = await params;
 
-  const products = await getProductsByPath(gender, "sub", subcategory);
+  const products = await getProductsBySubcategoryIncludingSubSubcategories(
+    gender,
+    mainCategory,
+    subcategory
+  );
 
   return (
     <div>

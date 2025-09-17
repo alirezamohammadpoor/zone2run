@@ -13,8 +13,8 @@ export default function ProductGrid({ products }: ProductGridProps) {
       {products?.map((product) => {
         return (
           <Link
-            key={product.shopify.handle}
-            href={`/products/${product.shopify.handle}`}
+            key={`${product.sanity._id}-${product.shopify.handle}`}
+            href={`/products/item/${product.shopify.handle}`}
             className="hover:cursor-pointer"
           >
             <ProductCard product={product} />

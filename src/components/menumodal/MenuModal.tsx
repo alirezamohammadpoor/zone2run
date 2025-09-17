@@ -1,14 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useModalScroll } from "@/hooks/useModalScroll";
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
+import {
+  getSubcategoriesByParentAndGender,
+  getAllMainCategories,
+} from "@/sanity/lib/getData";
 import MenContent from "./MenContent";
-import { menuConfig } from "./menuConfig";
 import WomenContent from "./WomenContent";
 import HelpContent from "./HelpContent";
 import OurSpaceContent from "./OurSpaceContent";
-import { getSubcategoriesByParentAndGender } from "@/sanity/lib/getData";
-import { useEffect } from "react";
+import { menuConfig } from "./menuConfig";
 
 function MenuModal({
   isMenuOpen,
@@ -23,6 +25,8 @@ function MenuModal({
   );
 
   const [menuData, setMenuData] = useState<{ [key: string]: any }>({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
 
   const { unlockScroll } = useModalScrollRestoration();
 
@@ -42,63 +46,63 @@ function MenuModal({
   // Prevent body scroll when modal is open
   useModalScroll(isMenuOpen);
 
+  // Handle client-side mounting
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   useEffect(() => {
     const fetchMenuData = async () => {
-      // Fetch men's data
-      const menTops = await getSubcategoriesByParentAndGender("tops", "men");
-      const menBottoms = await getSubcategoriesByParentAndGender(
-        "bottoms",
-        "men"
-      );
-      const menOuterwear = await getSubcategoriesByParentAndGender(
-        "outerwear",
-        "men"
-      );
-      const menAccessories = await getSubcategoriesByParentAndGender(
-        "accessories",
-        "men"
-      );
-      const menShoes = await getSubcategoriesByParentAndGender("shoes", "men");
+      try {
+        // Fetch main categories dynamically from Sanity
+        const mainCategories = await getAllMainCategories();
 
-      // Fetch women's data
-      const womenTops = await getSubcategoriesByParentAndGender(
-        "tops",
-        "women"
-      );
-      const womenBottoms = await getSubcategoriesByParentAndGender(
-        "bottoms",
-        "women"
-      );
-      const womenOuterwear = await getSubcategoriesByParentAndGender(
-        "outerwear",
-        "women"
-      );
-      const womenAccessories = await getSubcategoriesByParentAndGender(
-        "accessories",
-        "women"
-      );
-      const womenShoes = await getSubcategoriesByParentAndGender(
-        "shoes",
-        "women"
-      );
+        if (!mainCategories || mainCategories.length === 0) {
+          console.warn("No main categories found");
+          return;
+        }
 
-      setMenuData({
-        men: {
-          tops: menTops,
-          bottoms: menBottoms,
-          outerwear: menOuterwear,
-          accessories: menAccessories,
-          shoes: menShoes,
-        },
-        women: {
-          tops: womenTops,
-          bottoms: womenBottoms,
-          outerwear: womenOuterwear,
-          accessories: womenAccessories,
-          shoes: womenShoes,
-        },
-      });
+        const genders = ["men", "women"];
+        const data: { [key: string]: any } = {};
+
+        for (const gender of genders) {
+          data[gender] = {};
+
+          for (const category of mainCategories) {
+            if (!category.slug?.current) {
+              console.warn(`Category ${category.title} has no slug`);
+              continue;
+            }
+
+            try {
+              const subcategories = await getSubcategoriesByParentAndGender(
+                category.slug.current,
+                gender
+              );
+              data[gender][category.slug.current] = subcategories || [];
+            } catch (categoryError) {
+              console.error(
+                `Error fetching subcategories for ${category.slug.current}:`,
+                categoryError
+              );
+              data[gender][category.slug.current] = [];
+            }
+          }
+        }
+
+        setMenuData(data);
+        // Set default tab to "men" after data is loaded
+        setActiveTab("men");
+      } catch (error) {
+        console.error("Error fetching menu data:", error);
+        // Set empty data structure to prevent UI errors
+        setMenuData({ men: {}, women: {} });
+        setActiveTab("men");
+      } finally {
+        setIsLoading(false);
+      }
     };
+
     fetchMenuData();
   }, []);
 
@@ -126,8 +130,8 @@ function MenuModal({
           <div className="border-b border-gray-300 w-full mt-2"></div>
         </div>
 
-        {/* Scrollable Content */}
-        <div className="flex border-b border-gray-300">
+        {/* Tab Navigation */}
+        <div className="flex border-b border-gray-300 flex-shrink-0">
           {Object.keys(menuConfig).map((tab) => (
             <button
               key={tab}
@@ -144,18 +148,40 @@ function MenuModal({
             </button>
           ))}
         </div>
-        {activeTab === "men" && (
-          <MenContent onClose={handleClose} data={menuData["men"]} />
-        )}
-        {activeTab === "women" && (
-          <WomenContent onClose={handleClose} data={menuData["women"]} />
-        )}
-        {activeTab === "help" && (
-          <HelpContent onClose={handleClose} data={menuData["help"]} />
-        )}
-        {activeTab === "Our Space" && (
-          <OurSpaceContent onClose={handleClose} data={menuData["Our Space"]} />
-        )}
+
+        {/* Scrollable Content Area */}
+        <div className="flex-1 overflow-y-auto">
+          {!isMounted || isLoading ? (
+            <div className="p-4 text-center">Loading...</div>
+          ) : (
+            <>
+              {activeTab === "men" && (
+                <MenContent
+                  onClose={handleClose}
+                  data={menuData["men"] || {}}
+                />
+              )}
+              {activeTab === "women" && (
+                <WomenContent
+                  onClose={handleClose}
+                  data={menuData["women"] || {}}
+                />
+              )}
+              {activeTab === "help" && (
+                <HelpContent
+                  onClose={handleClose}
+                  data={menuData["help"] || {}}
+                />
+              )}
+              {activeTab === "Our Space" && (
+                <OurSpaceContent
+                  onClose={handleClose}
+                  data={menuData["Our Space"] || {}}
+                />
+              )}
+            </>
+          )}
+        </div>
       </div>
     </>
   );

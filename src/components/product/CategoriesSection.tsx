@@ -22,7 +22,8 @@ function CategoriesSection() {
           className="text-sm cursor-pointer hover:text-gray-500"
           onClick={() => {
             router.push(
-              `/products/category/${category.categoryType}/${category.slug.current}`
+              `/products/${category.categoryType}/${category.slug.current}`
+
             );
           }}
         >
