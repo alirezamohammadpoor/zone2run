@@ -23,10 +23,10 @@ export default async function BrandPage({
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        {products[0]?.sanity?.brand?.logo?.asset?.url && (
+        {products[0]?.sanity?.brand?.logo?.asset?._ref && (
           <div className="mb-4">
             <Image
-              src={urlFor(products[0].sanity.brand.logo.asset.url).url()}
+              src={urlFor(products[0].sanity.brand.logo).url()}
               alt={`${brandName} logo`}
               width={100}
               height={100}

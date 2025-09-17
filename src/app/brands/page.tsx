@@ -1,5 +1,5 @@
 import { getAllBrands } from "@/sanity/lib/getData";
-import { Brand } from "@/types/sanity";
+import { Brand } from "../../../sanity.types";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -22,10 +22,10 @@ export default async function BrandsPage() {
             href={`/brands/${brand.slug?.current}`}
             className="group block p-6 border rounded-lg hover:shadow-lg transition-shadow"
           >
-            {brand.logo?.asset?.url && (
+            {brand.logo?.asset?._ref && (
               <div className="mb-4">
                 <Image
-                  src={urlFor(brand.logo.asset.url).url()}
+                  src={urlFor(brand.logo).url()}
                   alt={brand.logo.alt || brand.name || "Brand logo"}
                   width={100}
                   height={100}
