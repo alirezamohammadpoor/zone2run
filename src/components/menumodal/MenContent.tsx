@@ -253,5 +253,4 @@ function MenContent({ onClose, data }: { onClose: () => void; data: any }) {
     </div>
   );
 }
-
 export default MenContent;
