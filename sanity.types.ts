@@ -20,6 +20,8 @@ export type Product = {
   _updatedAt: string;
   _rev: string;
   title?: string;
+  displayTitle?: string;
+  originalTitle?: string;
   shopifyId?: string;
   shopifyHandle?: string;
   mainImage?: {
@@ -93,7 +95,7 @@ export type Product = {
     _weak?: boolean;
     [internalGroqTypeReferenceTo]?: "brand";
   };
-  gender?: "men" | "women" | "unisex" | "kids";
+  gender?: "mens" | "womens" | "unisex" | "kids";
   tags?: Array<string>;
   featured?: boolean;
   seo?: {
@@ -167,6 +169,12 @@ export type Category = {
     _type: "reference";
     _weak?: boolean;
     [internalGroqTypeReferenceTo]?: "category";
+  };
+  categoryType?: "main" | "subcategory" | "specific";
+  level?: number;
+  visibility?: {
+    navigation?: boolean;
+    filters?: boolean;
   };
   featured?: boolean;
   sortOrder?: number;
