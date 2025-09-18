@@ -41,6 +41,20 @@
         },
         "optional": true
       },
+      "displayTitle": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "originalTitle": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
       "shopifyId": {
         "type": "objectAttribute",
         "value": {
@@ -562,11 +576,11 @@
           "of": [
             {
               "type": "string",
-              "value": "men"
+              "value": "mens"
             },
             {
               "type": "string",
-              "value": "women"
+              "value": "womens"
             },
             {
               "type": "string",
@@ -1018,6 +1032,57 @@
             }
           },
           "dereferencesTo": "category"
+        },
+        "optional": true
+      },
+      "categoryType": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "main"
+            },
+            {
+              "type": "string",
+              "value": "subcategory"
+            },
+            {
+              "type": "string",
+              "value": "specific"
+            }
+          ]
+        },
+        "optional": true
+      },
+      "level": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "number"
+        },
+        "optional": true
+      },
+      "visibility": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "object",
+          "attributes": {
+            "navigation": {
+              "type": "objectAttribute",
+              "value": {
+                "type": "boolean"
+              },
+              "optional": true
+            },
+            "filters": {
+              "type": "objectAttribute",
+              "value": {
+                "type": "boolean"
+              },
+              "optional": true
+            }
+          }
         },
         "optional": true
       },
