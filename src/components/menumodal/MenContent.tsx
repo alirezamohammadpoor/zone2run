@@ -254,4 +254,3 @@ function MenContent({ onClose, data }: { onClose: () => void; data: any }) {
   );
 }
 export default MenContent;
-
