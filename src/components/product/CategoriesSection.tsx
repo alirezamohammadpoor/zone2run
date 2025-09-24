@@ -23,7 +23,6 @@ function CategoriesSection() {
           onClick={() => {
             router.push(
               `/products/${category.categoryType}/${category.slug.current}`
-
             );
           }}
         >
