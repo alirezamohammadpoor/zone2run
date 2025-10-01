@@ -1,10 +1,10 @@
 import React from "react";
 import Link from "next/link";
 import ProductCard from "./ProductCard";
-import type { Product } from "@/types/product";
+import type { SanityProduct } from "@/types/sanityProduct";
 
 interface ProductGridProps {
-  products: Array<Product>;
+  products: Array<SanityProduct>;
 }
 
 export default function ProductGrid({ products }: ProductGridProps) {
@@ -13,8 +13,8 @@ export default function ProductGrid({ products }: ProductGridProps) {
       {products?.map((product) => {
         return (
           <Link
-            key={`${product.sanity._id}-${product.shopify.handle}`}
-            href={`/products/item/${product.shopify.handle}`}
+            key={`${product._id}-${product.handle}`}
+            href={`/products/item/${product.handle}`}
             className="hover:cursor-pointer"
           >
             <ProductCard product={product} />

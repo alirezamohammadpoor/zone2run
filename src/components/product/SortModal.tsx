@@ -5,7 +5,7 @@ import { useUrlFilters } from "@/hooks/useUrlFilters";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import SortButtons from "./SortButtons";
 import { FilterButtons } from "./FilterButtons";
-import { Product } from "@/types/product";
+import type { SanityProduct } from "@/types/sanityProduct";
 
 export function SortModal({
   isSortOpen,
@@ -14,7 +14,7 @@ export function SortModal({
 }: {
   isSortOpen: boolean;
   setIsSortOpen: (isOpen: boolean) => void;
-  products: Product[];
+  products: SanityProduct[];
 }) {
   const handleClose = () => {
     setIsSortOpen(false);

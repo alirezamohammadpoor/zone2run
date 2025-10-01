@@ -46,6 +46,6 @@ url
 }`;
 
 export async function getSiteSettings(): Promise<SiteSettings> {
-  const { data } = await sanityFetch({ query: siteSettingsQuery });
+  const data = await sanityFetch(siteSettingsQuery);
   return data as SiteSettings;
 }

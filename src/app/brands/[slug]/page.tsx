@@ -18,15 +18,15 @@ export default async function BrandPage({
   }
 
   // Get brand name from first product (since we don't have a direct brand query)
-  const brandName = products[0]?.sanity?.brand?.name || slug;
+  const brandName = products[0]?.brand?.name || slug;
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        {products[0]?.sanity?.brand?.logo?.asset?._ref && (
+        {products[0]?.brand?.logo && (
           <div className="mb-4">
             <Image
-              src={urlFor(products[0].sanity.brand.logo).url()}
+              src={urlFor(products[0].brand.logo).url()}
               alt={`${brandName} logo`}
               width={100}
               height={100}

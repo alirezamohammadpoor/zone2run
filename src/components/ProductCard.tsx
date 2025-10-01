@@ -3,19 +3,18 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { urlFor } from "@/sanity/lib/image";
 import { useRouter } from "next/navigation";
-import type { Product } from "@/types/product";
+import type { SanityProduct } from "@/types/sanityProduct";
 
 interface ProductCardProps {
-  product: Product;
+  product: SanityProduct;
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
   const router = useRouter();
 
   const handleClick = () => {
-    router.push(`/products/item/${product.shopify.handle}`);
+    router.push(`/products/item/${product.handle}`);
   };
 
   return (
@@ -23,11 +22,11 @@ export default function ProductCard({ product }: ProductCardProps) {
       className=" w-full aspect-[3/4] flex flex-col hover:cursor-pointer"
       onClick={handleClick}
     >
-      {product.sanity.mainImage && (
+      {product.mainImage?.url && (
         <div className="w-full h-full relative bg-gray-100">
           <Image
-            src={urlFor(product.sanity.mainImage).url()}
-            alt={product.sanity.title || "Product"}
+            src={product.mainImage.url}
+            alt={product.mainImage.alt}
             fill
             sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
             className="object-cover"
@@ -35,13 +34,12 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
       )}
       <div className="mt-2 mb-10">
-        <p className="text-base font-medium">{product.sanity.brand?.name}</p>
-        <p className="text-base">
-          {product.sanity.title || "Untitled Product"}
+        <p className="text-base font-medium">
+          {product.brand?.name || product.vendor || "No brand"}
         </p>
+        <p className="text-base h-14">{product.title}</p>
         <p className="text-base mt-2">
-          {product.shopify.priceRange.minVariantPrice.amount}{" "}
-          {product.shopify.priceRange.minVariantPrice.currencyCode}
+          {product.priceRange.minVariantPrice} {"SEK"}
         </p>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { Product } from "@/types/product";
+import type { SanityProduct } from "@/types/sanityProduct";
 
 interface SearchFilters {
   category: string[];
@@ -11,7 +11,7 @@ interface SearchFilters {
 interface SearchState {
   query: string;
   filters: SearchFilters;
-  results: Product[];
+  results: SanityProduct[];
   isLoading: boolean;
   isSearchOpen: boolean;
 }
@@ -19,7 +19,7 @@ interface SearchState {
 interface SearchActions {
   setQuery: (query: string) => void;
   setFilters: (filters: Partial<SearchFilters>) => void;
-  setResults: (results: Product[]) => void;
+  setResults: (results: SanityProduct[]) => void;
   setIsLoading: (loading: boolean) => void;
   setIsSearchOpen: (isOpen: boolean) => void;
   clearSearch: () => void;

@@ -2,6 +2,42 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --font-body-family: "Helvetica Neue", Helvetica, Arial, "Lucida Grande",
+    sans-serif;
+  --font-body-style: normal;
+  --font-body-weight: 400;
+
+  --font-heading-family: "Helvetica Neue", Helvetica, Arial, "Lucida Grande",
+    sans-serif;
+  --font-heading-style: normal;
+  --font-heading-weight: 400;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+html {
+  box-sizing: border-box;
+  height: 100%;
+}
+
+body {
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  grid-template-columns: 100%;
+  min-height: 100%;
+  margin: 0;
+  letter-spacing: 0.03rem;
+  line-height: 1.8;
+  font-family: var(--font-body-family);
+  font-style: var(--font-body-style);
+  font-weight: var(--font-body-weight);
+}
+
 /* Prevent horizontal scrolling on all pages */
 html,
 body {

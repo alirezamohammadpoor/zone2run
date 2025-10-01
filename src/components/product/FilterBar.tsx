@@ -1,9 +1,9 @@
 "use client";
 import React, { useState } from "react";
 import { SortModal } from "./SortModal";
-import { Product } from "@/types/product";
+import type { SanityProduct } from "@/types/sanityProduct";
 
-function FilterBar({ products }: { products: Product[] }) {
+function FilterBar({ products }: { products: SanityProduct[] }) {
   const [isSortOpen, setIsSortOpen] = useState(false);
 
   return (
