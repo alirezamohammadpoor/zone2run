@@ -1,9 +1,13 @@
 "use client";
 
 import { SortOption, useUrlSort } from "@/hooks/useUrlSort";
-import { Product } from "@/types/product";
+import type { SanityProduct } from "@/types/sanityProduct";
 
-export default function SortButtons({ products }: { products: Product[] }) {
+export default function SortButtons({
+  products,
+}: {
+  products: SanityProduct[];
+}) {
   const { sort, updateSort } = useUrlSort();
 
   return (

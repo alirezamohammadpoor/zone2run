@@ -2,10 +2,10 @@ import React from "react";
 import Link from "next/link";
 import ProductCard from "./ProductCard";
 import { useSearchStore } from "@/store/searchStore";
-import type { Product } from "@/types/product";
+import type { SanityProduct } from "@/types/sanityProduct";
 
 interface SearchProductGridProps {
-  products: Array<Product>;
+  products: Array<SanityProduct>;
 }
 
 export default function SearchProductGrid({
@@ -17,8 +17,8 @@ export default function SearchProductGrid({
       {products?.slice(0, 6).map((product) => {
         return (
           <Link
-            key={product.shopify.handle}
-            href={`/products/${product.shopify.handle}`}
+            key={product.handle}
+            href={`/products/${product.handle}`}
             onClick={() => setIsSearchOpen(false)}
             className="hover:cursor-pointer"
           >

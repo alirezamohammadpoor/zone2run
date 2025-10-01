@@ -37,10 +37,6 @@ export default async function MainCategoryPage({
   if (products && products.length > 0) {
     const genders = products.map((p) => p.sanity.gender).filter(Boolean);
     const uniqueGenders = [...new Set(genders)];
-    console.log(`Debug: Found products with genders:`, uniqueGenders);
-    console.log(`Debug: Total products: ${products.length}`);
-  } else {
-    console.log(`Debug: No products found for ${gender}/${mainCategory}`);
   }
 
   if (!products || products.length === 0) {
