@@ -4,26 +4,78 @@ import ProductGallery from "./ProductGallery";
 import VariantSelector from "./VariantSelector";
 import AddToCart from "./AddToCart";
 import { useProductStore } from "@/store/variantStore";
-import { ProductHelper } from "@/types/product";
-import type { Product } from "@/types/product";
+import type { SanityProduct } from "@/types/sanityProduct";
 import { formatPrice } from "@/lib/utils/formatPrice";
 
 interface ProductDetailsProps {
-  product: Product;
+  product: SanityProduct;
 }
 
 function ProductDetails({ product }: ProductDetailsProps) {
   const { selectedVariant } = useProductStore();
-  const helper = new ProductHelper(product);
-  const breadCrumbs = helper.getBreadcrumbs();
-  const brandName = helper.getBrandName();
-  const displayTitle = helper.getDisplayTitle();
+
+  // Simple helper functions for SanityProduct
+  const getBreadcrumbs = () => {
+    const breadcrumbs = [];
+
+    // Add gender
+    if (product.gender === "mens" || product.gender === "womens") {
+      const formattedGender = product.gender === "womens" ? "Women's" : "Men's";
+      const frontendGender = product.gender === "womens" ? "women" : "men";
+      breadcrumbs.push({
+        label: formattedGender,
+        href: `/products/${frontendGender}`,
+      });
+    }
+
+    // Add category hierarchy
+    if (
+      product.category?.categoryType === "sub" &&
+      product.category.parentCategory?.title
+    ) {
+      const frontendGender = product.gender === "womens" ? "women" : "men";
+      breadcrumbs.push({
+        label: product.category.parentCategory.title,
+        href: `/products/${frontendGender}/${product.category.parentCategory.slug}`,
+      });
+      breadcrumbs.push({
+        label: product.category.title,
+        href: `/products/${frontendGender}/${product.category.parentCategory.slug}/${product.category.slug}`,
+      });
+    } else if (product.category?.title) {
+      const frontendGender = product.gender === "womens" ? "women" : "men";
+      breadcrumbs.push({
+        label: product.category.title,
+        href: `/products/${frontendGender}/${product.category.slug}`,
+      });
+    }
+
+    // Add current product
+    breadcrumbs.push({
+      label: product.title,
+      href: `/products/item/${product.handle}`,
+    });
+
+    return breadcrumbs;
+  };
+
+  const getBrandName = () => product.brand?.name || product.vendor;
+  const getDisplayTitle = () => product.title;
+  const getMainImage = () => product.mainImage?.url || "";
+  const getPrice = () => ({
+    amount: product.priceRange.minVariantPrice,
+    currencyCode: "SEK",
+  });
+
+  const breadCrumbs = getBreadcrumbs();
+  const brandName = getBrandName();
+  const displayTitle = getDisplayTitle();
 
   return (
     <div className="">
       <ProductGallery
-        mainImage={product.sanity.mainImage}
-        galleryImages={product.sanity.gallery}
+        mainImage={product.mainImage}
+        galleryImages={[]} // TODO: Add gallery support later
         title={displayTitle}
       />
       <div className="mt-4 ml-2">
@@ -52,8 +104,7 @@ function ProductDetails({ product }: ProductDetailsProps) {
       <div className="flex justify-between items-center">
         <p className="ml-2">{displayTitle}</p>
         <p className="mr-2">
-          {formatPrice(helper.getPrice().amount)}{" "}
-          {helper.getPrice().currencyCode}
+          {formatPrice(getPrice().amount)} {getPrice().currencyCode}
         </p>
       </div>
 
@@ -61,10 +112,10 @@ function ProductDetails({ product }: ProductDetailsProps) {
       <AddToCart
         product={{
           title: displayTitle,
-          handle: product.shopify.handle,
-          productImage: helper.getMainImage() || "",
+          handle: product.handle,
+          productImage: getMainImage(),
           brand: brandName || "",
-          currencyCode: helper.getPrice().currencyCode || "",
+          currencyCode: getPrice().currencyCode,
         }}
         selectedVariant={selectedVariant}
       />

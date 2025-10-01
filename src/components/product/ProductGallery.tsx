@@ -1,11 +1,10 @@
 "use client";
 import React from "react";
 import Image from "next/image";
-import { urlFor } from "@/sanity/lib/image";
 import { useState } from "react";
 
 interface ProductGalleryProps {
-  mainImage: any;
+  mainImage: { url: string; alt: string } | null;
   galleryImages: any[] | null | undefined;
   title?: string;
 }
@@ -26,8 +25,8 @@ function ProductGallery({
       <div className="w-full relative aspect-[4/5] flex items-center justify-center">
         {currentImage && (
           <Image
-            src={urlFor(currentImage).url()}
-            alt={title || "Product"}
+            src={currentImage.url}
+            alt={currentImage.alt || title || "Product"}
             fill
             className="object-cover w-full h-full"
             priority

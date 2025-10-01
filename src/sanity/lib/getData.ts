@@ -1,60 +1,51 @@
 // lib/sanity/getData.ts
 import { client } from "@/sanity/lib/client";
-import type { SanityProduct } from "@/types/sanity";
-import { getShopifyProductByHandle } from "@/lib/shopify/products";
-import { createProduct, type Product } from "@/types/product";
+import type { SanityProduct } from "@/types/sanityProduct";
 
 export async function getSanityProductByHandle(
   handle: string
 ): Promise<SanityProduct | null> {
-  // First try with the original handle
-  let query = `*[_type == "product" && shopifyHandle == $handle][0] {
+  const query = `*[_type == "product" && (shopifyHandle == $handle || store.slug.current == $handle)][0] {
     _id,
-    title,
-    shopifyId,
-    shopifyHandle,
-    shortDescription,
-    description,
-    gender,
-    mainImage {
-      asset-> {
-        url,
-        metadata
-      },
-      alt
+    "title": coalesce(title, store.title),
+    "handle": coalesce(shopifyHandle, store.slug.current),
+    "description": store.descriptionHtml,
+    "vendor": store.vendor,
+    "productType": store.productType,
+    "tags": store.tags,
+    "priceRange": {
+      "minVariantPrice": store.priceRange.minVariantPrice,
+      "maxVariantPrice": store.priceRange.maxVariantPrice
     },
-    
-    gallery[] {
-      asset-> {
-        url,
-        metadata
-      },
-      alt
+    "mainImage": {
+      "url": store.previewImageUrl,
+      "alt": store.title
     },
-    
-    productDetails[] {
-      title,
-      value
+    "options": store.options,
+    "variants": store.variants[]-> {
+      "id": store.gid,
+      "title": store.title,
+      "sku": store.sku,
+      "price": store.price,
+      "compareAtPrice": store.compareAtPrice,
+      "available": store.inventory.isAvailable,
+      "selectedOptions": [
+        select(store.option1 != null => {"name": "Size", "value": store.option1}),
+        select(store.option2 != null => {"name": "Color", "value": store.option2}),
+        select(store.option3 != null => {"name": "Material", "value": store.option3})
+      ]
     },
-    
-    careInstructions,
-    
     category-> {
       _id,
       title,
-      slug {
-        current
-      },
+      "slug": slug.current,
       categoryType,
       parentCategory-> {
         _id,
         title,
-        slug {
-          current
-        }
+        "slug": slug.current
       }
     },
-    
     brand-> {
       _id,
       name,
@@ -64,128 +55,58 @@ export async function getSanityProductByHandle(
         }
       }
     },
-    
-    featured,
-    tags
-  }`;
-
-  try {
-    let sanityProduct = await client.fetch(query, { handle });
-
-    // If not found and handle starts with "distance-lab-", try without the prefix
-    if (!sanityProduct && handle.startsWith("distance-lab-")) {
-      const handleWithoutPrefix = handle.replace("distance-lab-", "");
-      sanityProduct = await client.fetch(query, {
-        handle: handleWithoutPrefix,
-      });
-    }
-
-    // If still not found and handle doesn't start with "distance-lab-", try with the prefix
-    if (!sanityProduct && !handle.startsWith("distance-lab-")) {
-      const handleWithPrefix = `distance-lab-${handle}`;
-      sanityProduct = await client.fetch(query, { handle: handleWithPrefix });
-    }
-
-    return sanityProduct || null;
-  } catch (error) {
-    console.error("Error fetching Sanity product:", error);
-    return null;
-  }
-}
-
-// Additional helper functions you might need
-export async function getSanityProductsByCategory(
-  categorySlug: string
-): Promise<SanityProduct[]> {
-  const query = `*[_type == "product" && category->slug.current == $categorySlug] {
-    _id,
-    title,
-    shopifyHandle,
-    shortDescription,
     gender,
-    subcategory-> {
-      _id,
-      title,
-      slug {
-        current
-      }
-    },
-    mainImage {
-      asset-> {
-        url,
-        metadata
-      },
-      alt
-    },
-    category-> {
-      _id,
-      title,
-      slug {
-        current
-      }
-    },
-    featured,
-    tags
+    featured
   }`;
 
   try {
-    return await client.fetch(query, { categorySlug });
+    return await client.fetch(query, { handle });
   } catch (error) {
-    console.error("Error fetching Sanity products by category:", error);
-    return [];
-  }
-}
-
-export async function getFeaturedSanityProducts(): Promise<SanityProduct[]> {
-  const query = `*[_type == "product" && featured == true] | order(_createdAt desc) {
-    _id,
-    title,
-    shopifyHandle,
-    shortDescription,
-    mainImage {
-      asset-> {
-        url,
-        metadata
-      },
-      alt
-    },
-    category-> {
-      _id,
-      title,
-      slug {
-        current
-      }
-    },
-    featured,
-    tags
-  }`;
-
-  try {
-    return await client.fetch(query);
-  } catch (error) {
-    console.error("Error fetching featured Sanity products:", error);
-    return [];
+    console.error("Error fetching Sanity product by handle:", error);
+    return null;
   }
 }
 
 export async function getAllProducts(): Promise<SanityProduct[]> {
   const query = `*[_type == "product"] {
     _id,
-    title,
-    shopifyHandle,
-    shortDescription,
-    mainImage {
-      asset-> {
-        url,
-        metadata
-      },
-      alt
+    "title": store.title,
+    "handle": store.slug.current,
+    "description": store.descriptionHtml,
+    "vendor": store.vendor,
+    "productType": store.productType,
+    "tags": store.tags,
+    "priceRange": {
+      "minVariantPrice": store.priceRange.minVariantPrice,
+      "maxVariantPrice": store.priceRange.maxVariantPrice
+    },
+    "mainImage": {
+      "url": store.previewImageUrl,
+      "alt": store.title
+    },
+    "options": store.options,
+    "variants": store.variants[]-> {
+      "id": store.gid,
+      "title": store.title,
+      "sku": store.sku,
+      "price": store.price,
+      "compareAtPrice": store.compareAtPrice,
+      "available": store.inventory.isAvailable,
+      "selectedOptions": [
+        select(store.option1 != null => {"name": "Size", "value": store.option1}),
+        select(store.option2 != null => {"name": "Color", "value": store.option2}),
+        select(store.option3 != null => {"name": "Material", "value": store.option3})
+      ]
     },
     category-> {
       _id,
       title,
-      slug {
-        current
+      "slug": slug.current,
+      categoryType,
+      parentCategory-> {
+        _id,
+        title,
+        "slug": slug.current
       }
     },
     brand-> {
@@ -197,16 +118,14 @@ export async function getAllProducts(): Promise<SanityProduct[]> {
         }
       }
     },
-    featured,
-    tags
+    gender,
+    featured
   }`;
 
   try {
-    const products = await client.fetch(query);
-
-    return products;
+    return await client.fetch(query);
   } catch (error) {
-    console.error("Error fetching all Sanity products:", error);
+    console.error("Error fetching all products:", error);
     return [];
   }
 }
@@ -279,60 +198,6 @@ export async function getAllMainCategories() {
   }
 }
 
-export async function getSubcategoriesByParent(parentSlug: string) {
-  const query = `*[_type == "category" && categoryType == "sub" && parentCategory->slug.current == $parentSlug] {
-    _id,
-    title,
-    slug {
-      current
-    },
-    description,
-    "productCount": count(*[_type == "product" && references(^._id)]),
-    sortOrder,
-    parentCategory->{
-      _id,
-      title,
-      slug {
-        current
-      }
-    }
-  } | order(sortOrder asc, title asc)`;
-
-  try {
-    return await client.fetch(query, { parentSlug });
-  } catch (error) {
-    console.error(`Error fetching subcategories for ${parentSlug}:`, error);
-    return [];
-  }
-}
-
-export async function getAllSubcategories(parentSlugs: string[]) {
-  const query = `*[_type == "category" && categoryType == "sub" && parentCategory->slug.current in $parentSlugs] {
-    _id,
-    title,
-    slug {
-      current
-    },
-    description,
-    "productCount": count(*[_type == "product" && references(^._id)]),
-    sortOrder,
-    parentCategory->{
-      _id,
-      title,
-      slug {
-        current
-      }
-    }
-  } | order(sortOrder asc, title asc)`;
-
-  try {
-    return await client.fetch(query, { parentSlugs });
-  } catch (error) {
-    console.error(`Error fetching subcategories for ${parentSlugs}:`, error);
-    return [];
-  }
-}
-
 export async function getCategoryBySlug(slug: string) {
   const query = `*[_type == "category" && slug.current == $slug][0] {
     _id,
@@ -362,27 +227,49 @@ export async function getCategoryBySlug(slug: string) {
 export async function getProductsByCategory(
   categorySlug: string,
   limit?: number
-) {
+): Promise<SanityProduct[]> {
   const query = `*[_type == "product" && (
     category->slug.current == $categorySlug || 
     category->parentCategory->slug.current == $categorySlug
   )] {
     _id,
-    title,
-    shopifyHandle,
-    shortDescription,
-    mainImage {
-      asset-> {
-        url,
-        metadata
-      },
-      alt
+    "title": coalesce(title, store.title),
+    "handle": coalesce(shopifyHandle, store.slug.current),
+    "description": store.descriptionHtml,
+    "vendor": store.vendor,
+    "productType": store.productType,
+    "tags": store.tags,
+    "priceRange": {
+      "minVariantPrice": store.priceRange.minVariantPrice,
+      "maxVariantPrice": store.priceRange.maxVariantPrice
+    },
+    "mainImage": {
+      "url": store.previewImageUrl,
+      "alt": store.title
+    },
+    "options": store.options,
+    "variants": store.variants[]-> {
+      "id": store.gid,
+      "title": store.title,
+      "sku": store.sku,
+      "price": store.price,
+      "compareAtPrice": store.compareAtPrice,
+      "available": store.inventory.isAvailable,
+      "selectedOptions": [
+        select(store.option1 != null => {"name": "Size", "value": store.option1}),
+        select(store.option2 != null => {"name": "Color", "value": store.option2}),
+        select(store.option3 != null => {"name": "Material", "value": store.option3})
+      ]
     },
     category-> {
       _id,
       title,
-      slug {
-        current
+      "slug": slug.current,
+      categoryType,
+      parentCategory-> {
+        _id,
+        title,
+        "slug": slug.current
       }
     },
     brand-> {
@@ -394,70 +281,12 @@ export async function getProductsByCategory(
         }
       }
     },
-    featured,
-    tags
+    gender,
+    featured
   } | order(title asc)${limit ? `[0...${limit}]` : ""}`;
 
   try {
-    const sanityProducts = await client.fetch(query, { categorySlug });
-
-    // Fetch Shopify data for each product
-    const combinedProducts = await Promise.all(
-      sanityProducts.map(async (sanityProduct: any) => {
-        if (!sanityProduct.shopifyHandle) {
-          return null;
-        }
-
-        // Try with distance-lab prefix if needed
-        let shopifyProduct = await getShopifyProductByHandle(
-          sanityProduct.shopifyHandle
-        );
-
-        if (
-          !shopifyProduct &&
-          !sanityProduct.shopifyHandle.startsWith("distance-lab-")
-        ) {
-          shopifyProduct = await getShopifyProductByHandle(
-            `distance-lab-${sanityProduct.shopifyHandle}`
-          );
-        }
-
-        if (!shopifyProduct) {
-          // Only log warning in development
-          if (process.env.NODE_ENV === "development") {
-            console.warn(
-              "Could not find Shopify product for handle:",
-              sanityProduct.shopifyHandle
-            );
-          }
-          return null;
-        }
-
-        return createProduct(shopifyProduct, sanityProduct);
-      })
-    );
-
-    // Filter out null results and deduplicate by Shopify handle
-    const validProducts = combinedProducts.filter(
-      (product): product is Product => product !== null
-    );
-
-    // Deduplicate by Shopify handle (keep the first occurrence)
-    const seenHandles = new Set<string>();
-    const uniqueProducts = validProducts.filter((product) => {
-      const handle = product.shopify.handle;
-      if (seenHandles.has(handle)) {
-        // Only log warning in development
-        if (process.env.NODE_ENV === "development") {
-          console.warn("Duplicate product handle found:", handle);
-        }
-        return false;
-      }
-      seenHandles.add(handle);
-      return true;
-    });
-
-    return uniqueProducts;
+    return await client.fetch(query, { categorySlug });
   } catch (error) {
     console.error(
       `Error fetching products for category ${categorySlug}:`,
@@ -467,42 +296,49 @@ export async function getProductsByCategory(
   }
 }
 
-export async function getProductsByBrand(brandSlug: string, limit?: number) {
+export async function getProductsByBrand(
+  brandSlug: string,
+  limit?: number
+): Promise<SanityProduct[]> {
   const query = `*[_type == "product" && brand->slug.current == $brandSlug] {
     _id,
-    title,
-    shopifyId,
-    shopifyHandle,
-    shortDescription,
-    description,
-    gender,
-    mainImage {
-      asset-> {
-        url,
-        metadata
-      },
-      alt
+    "title": coalesce(title, store.title),
+    "handle": coalesce(shopifyHandle, store.slug.current),
+    "description": store.descriptionHtml,
+    "vendor": store.vendor,
+    "productType": store.productType,
+    "tags": store.tags,
+    "priceRange": {
+      "minVariantPrice": store.priceRange.minVariantPrice,
+      "maxVariantPrice": store.priceRange.maxVariantPrice
     },
-    gallery[] {
-      asset-> {
-        url,
-        metadata
-      },
-      alt
+    "mainImage": {
+      "url": store.previewImageUrl,
+      "alt": store.title
+    },
+    "options": store.options,
+    "variants": store.variants[]-> {
+      "id": store.gid,
+      "title": store.title,
+      "sku": store.sku,
+      "price": store.price,
+      "compareAtPrice": store.compareAtPrice,
+      "available": store.inventory.isAvailable,
+      "selectedOptions": [
+        select(store.option1 != null => {"name": "Size", "value": store.option1}),
+        select(store.option2 != null => {"name": "Color", "value": store.option2}),
+        select(store.option3 != null => {"name": "Material", "value": store.option3})
+      ]
     },
     category-> {
       _id,
       title,
-      slug {
-        current
-      },
+      "slug": slug.current,
       categoryType,
       parentCategory-> {
         _id,
         title,
-        slug {
-          current
-        }
+        "slug": slug.current
       }
     },
     brand-> {
@@ -514,64 +350,22 @@ export async function getProductsByBrand(brandSlug: string, limit?: number) {
         }
       }
     },
-    featured,
-    tags
+    gender,
+    featured
   } | order(title asc)${limit ? `[0...${limit}]` : ""}`;
 
   try {
-    const sanityProducts = await client.fetch(query, { brandSlug });
-
-    // Fetch Shopify data for each product
-    const combinedProducts = await Promise.all(
-      sanityProducts.map(async (sanityProduct: any) => {
-        if (!sanityProduct.shopifyHandle) {
-          console.warn(`No Shopify handle for product: ${sanityProduct.title}`);
-          return null;
-        }
-
-        try {
-          const shopifyProduct = await getShopifyProductByHandle(
-            sanityProduct.shopifyHandle
-          );
-          if (!shopifyProduct) {
-            console.warn(
-              `No Shopify product found for handle: ${sanityProduct.shopifyHandle}`
-            );
-            return null;
-          }
-
-          return createProduct(shopifyProduct, sanityProduct);
-        } catch (error) {
-          console.error(
-            `Error fetching Shopify product for handle ${sanityProduct.shopifyHandle}:`,
-            error
-          );
-          return null;
-        }
-      })
-    );
-
-    // Remove duplicates based on shopifyHandle
-    const uniqueProducts = combinedProducts
-      .filter(Boolean)
-      .reduce((acc, product) => {
-        if (
-          product &&
-          !acc.find((p: any) => p.shopify.handle === product.shopify.handle)
-        ) {
-          acc.push(product);
-        }
-        return acc;
-      }, [] as any[]);
-
-    return uniqueProducts;
+    return await client.fetch(query, { brandSlug });
   } catch (error) {
     console.error(`Error fetching products for brand ${brandSlug}:`, error);
     return [];
   }
 }
 
-export async function getProductsByGender(gender: string, limit?: number) {
+export async function getProductsByGender(
+  gender: string,
+  limit?: number
+): Promise<SanityProduct[]> {
   // Map frontend gender values to database values
   const genderMap: { [key: string]: string } = {
     men: "mens",
@@ -585,39 +379,43 @@ export async function getProductsByGender(gender: string, limit?: number) {
 
   const query = `*[_type == "product" && (gender == $gender || gender == "unisex")] {
     _id,
-    title,
-    shopifyId,
-    shopifyHandle,
-    shortDescription,
-    description,
-    gender,
-    mainImage {
-      asset-> {
-        url,
-        metadata
-      },
-      alt
+    "title": coalesce(title, store.title),
+    "handle": coalesce(shopifyHandle, store.slug.current),
+    "description": store.descriptionHtml,
+    "vendor": store.vendor,
+    "productType": store.productType,
+    "tags": store.tags,
+    "priceRange": {
+      "minVariantPrice": store.priceRange.minVariantPrice,
+      "maxVariantPrice": store.priceRange.maxVariantPrice
     },
-    gallery[] {
-      asset-> {
-        url,
-        metadata
-      },
-      alt
+    "mainImage": {
+      "url": store.previewImageUrl,
+      "alt": store.title
+    },
+    "options": store.options,
+    "variants": store.variants[]-> {
+      "id": store.gid,
+      "title": store.title,
+      "sku": store.sku,
+      "price": store.price,
+      "compareAtPrice": store.compareAtPrice,
+      "available": store.inventory.isAvailable,
+      "selectedOptions": [
+        select(store.option1 != null => {"name": "Size", "value": store.option1}),
+        select(store.option2 != null => {"name": "Color", "value": store.option2}),
+        select(store.option3 != null => {"name": "Material", "value": store.option3})
+      ]
     },
     category-> {
       _id,
       title,
-      slug {
-        current
-      },
+      "slug": slug.current,
       categoryType,
       parentCategory-> {
         _id,
         title,
-        slug {
-          current
-        }
+        "slug": slug.current
       }
     },
     brand-> {
@@ -629,57 +427,12 @@ export async function getProductsByGender(gender: string, limit?: number) {
         }
       }
     },
-    featured,
-    tags
+    gender,
+    featured
   } | order(title asc)${limit ? `[0...${limit}]` : ""}`;
 
   try {
-    const sanityProducts = await client.fetch(query, { gender: dbGender });
-
-    // Fetch Shopify data for each product
-    const combinedProducts = await Promise.all(
-      sanityProducts.map(async (sanityProduct: any) => {
-        if (!sanityProduct.shopifyHandle) {
-          console.warn(`No Shopify handle for product: ${sanityProduct.title}`);
-          return null;
-        }
-
-        try {
-          const shopifyProduct = await getShopifyProductByHandle(
-            sanityProduct.shopifyHandle
-          );
-          if (!shopifyProduct) {
-            console.warn(
-              `No Shopify product found for handle: ${sanityProduct.shopifyHandle}`
-            );
-            return null;
-          }
-
-          return createProduct(shopifyProduct, sanityProduct);
-        } catch (error) {
-          console.error(
-            `Error fetching Shopify product for handle ${sanityProduct.shopifyHandle}:`,
-            error
-          );
-          return null;
-        }
-      })
-    );
-
-    // Remove duplicates based on shopifyHandle
-    const uniqueProducts = combinedProducts
-      .filter(Boolean)
-      .reduce((acc, product) => {
-        if (
-          product &&
-          !acc.find((p: any) => p.shopify.handle === product.shopify.handle)
-        ) {
-          acc.push(product);
-        }
-        return acc;
-      }, [] as any[]);
-
-    return uniqueProducts;
+    return await client.fetch(query, { gender: dbGender });
   } catch (error) {
     console.error(`Error fetching products for gender ${gender}:`, error);
     return [];
@@ -691,7 +444,7 @@ export async function getProductsByPath(
   categoryType: string,
   categorySlug: string,
   limit?: number
-) {
+): Promise<SanityProduct[]> {
   // Map frontend gender values to database values
   const genderMap: { [key: string]: string } = {
     men: "mens",
@@ -719,30 +472,43 @@ export async function getProductsByPath(
         )
       ] {
     _id,
-    title,
-    shopifyHandle,
-    shortDescription,
-    gender,
-    mainImage {
-      asset-> {
-        url,
-        metadata
-      },
-      alt
+    "title": coalesce(title, store.title),
+    "handle": coalesce(shopifyHandle, store.slug.current),
+    "description": store.descriptionHtml,
+    "vendor": store.vendor,
+    "productType": store.productType,
+    "tags": store.tags,
+    "priceRange": {
+      "minVariantPrice": store.priceRange.minVariantPrice,
+      "maxVariantPrice": store.priceRange.maxVariantPrice
+    },
+    "mainImage": {
+      "url": store.previewImageUrl,
+      "alt": store.title
+    },
+    "options": store.options,
+    "variants": store.variants[]-> {
+      "id": store.gid,
+      "title": store.title,
+      "sku": store.sku,
+      "price": store.price,
+      "compareAtPrice": store.compareAtPrice,
+      "available": store.inventory.isAvailable,
+      "selectedOptions": [
+        select(store.option1 != null => {"name": "Size", "value": store.option1}),
+        select(store.option2 != null => {"name": "Color", "value": store.option2}),
+        select(store.option3 != null => {"name": "Material", "value": store.option3})
+      ]
     },
     category-> {
       _id,
       title,
-      slug {
-        current
-      },
+      "slug": slug.current,
       categoryType,
       parentCategory-> {
         _id,
         title,
-        slug {
-          current
-        }
+        "slug": slug.current
       }
     },
     brand-> {
@@ -754,8 +520,8 @@ export async function getProductsByPath(
         }
       }
     },
-    featured,
-    tags
+    gender,
+    featured
   } | order(title asc)${limit ? `[0...${limit}]` : ""}`
       : `*[_type == "product" && 
         (gender == $gender || gender == "unisex") && 
@@ -763,30 +529,43 @@ export async function getProductsByPath(
         category->slug.current == $categorySlug
       ] {
     _id,
-    title,
-    shopifyHandle,
-    shortDescription,
-    gender,
-    mainImage {
-      asset-> {
-        url,
-        metadata
-      },
-      alt
+    "title": coalesce(title, store.title),
+    "handle": coalesce(shopifyHandle, store.slug.current),
+    "description": store.descriptionHtml,
+    "vendor": store.vendor,
+    "productType": store.productType,
+    "tags": store.tags,
+    "priceRange": {
+      "minVariantPrice": store.priceRange.minVariantPrice,
+      "maxVariantPrice": store.priceRange.maxVariantPrice
+    },
+    "mainImage": {
+      "url": store.previewImageUrl,
+      "alt": store.title
+    },
+    "options": store.options,
+    "variants": store.variants[]-> {
+      "id": store.gid,
+      "title": store.title,
+      "sku": store.sku,
+      "price": store.price,
+      "compareAtPrice": store.compareAtPrice,
+      "available": store.inventory.isAvailable,
+      "selectedOptions": [
+        select(store.option1 != null => {"name": "Size", "value": store.option1}),
+        select(store.option2 != null => {"name": "Color", "value": store.option2}),
+        select(store.option3 != null => {"name": "Material", "value": store.option3})
+      ]
     },
     category-> {
       _id,
       title,
-      slug {
-        current
-      },
+      "slug": slug.current,
       categoryType,
       parentCategory-> {
         _id,
         title,
-        slug {
-          current
-        }
+        "slug": slug.current
       }
     },
     brand-> {
@@ -798,74 +577,16 @@ export async function getProductsByPath(
         }
       }
     },
-    featured,
-    tags
+    gender,
+    featured
   } | order(title asc)${limit ? `[0...${limit}]` : ""}`;
 
   try {
-    const sanityProducts = await client.fetch(query, {
+    return await client.fetch(query, {
       gender: dbGender,
       categoryType,
       categorySlug,
     });
-
-    // Fetch Shopify data for each product (same logic as getAllProducts)
-    const combinedProducts = await Promise.all(
-      sanityProducts.map(async (sanityProduct: any) => {
-        if (!sanityProduct.shopifyHandle) {
-          return null;
-        }
-
-        // Try with distance-lab prefix if needed
-        let shopifyProduct = await getShopifyProductByHandle(
-          sanityProduct.shopifyHandle
-        );
-
-        if (
-          !shopifyProduct &&
-          !sanityProduct.shopifyHandle.startsWith("distance-lab-")
-        ) {
-          shopifyProduct = await getShopifyProductByHandle(
-            `distance-lab-${sanityProduct.shopifyHandle}`
-          );
-        }
-
-        if (!shopifyProduct) {
-          // Only log warning in development
-          if (process.env.NODE_ENV === "development") {
-            console.warn(
-              "Could not find Shopify product for handle:",
-              sanityProduct.shopifyHandle
-            );
-          }
-          return null;
-        }
-
-        return createProduct(shopifyProduct, sanityProduct);
-      })
-    );
-
-    // Filter out null results and deduplicate by Shopify handle
-    const validProducts = combinedProducts.filter(
-      (product): product is Product => product !== null
-    );
-
-    // Deduplicate by Shopify handle (keep the first occurrence)
-    const seenHandles = new Set<string>();
-    const uniqueProducts = validProducts.filter((product) => {
-      const handle = product.shopify.handle;
-      if (seenHandles.has(handle)) {
-        // Only log warning in development
-        if (process.env.NODE_ENV === "development") {
-          console.warn("Duplicate product handle found:", handle);
-        }
-        return false;
-      }
-      seenHandles.add(handle);
-      return true;
-    });
-
-    return uniqueProducts;
   } catch (error) {
     console.error(
       `Error fetching products for path ${gender}/${categoryType}/${categorySlug}:`,
@@ -880,7 +601,7 @@ export async function getProductsBySubcategoryIncludingSubSubcategories(
   mainCategorySlug: string,
   subcategorySlug: string,
   limit?: number
-) {
+): Promise<SanityProduct[]> {
   // Map frontend gender values to database values
   const genderMap: { [key: string]: string } = {
     men: "mens",
@@ -908,42 +629,51 @@ export async function getProductsBySubcategoryIncludingSubSubcategories(
     )
   ] {
     _id,
-    title,
-    shopifyHandle,
-    shortDescription,
-    gender,
-    mainImage {
-      asset-> {
-        url,
-        metadata
-      },
-      alt
+    "title": coalesce(title, store.title),
+    "handle": coalesce(shopifyHandle, store.slug.current),
+    "description": store.descriptionHtml,
+    "vendor": store.vendor,
+    "productType": store.productType,
+    "tags": store.tags,
+    "priceRange": {
+      "minVariantPrice": store.priceRange.minVariantPrice,
+      "maxVariantPrice": store.priceRange.maxVariantPrice
+    },
+    "mainImage": {
+      "url": store.previewImageUrl,
+      "alt": store.title
+    },
+    "options": store.options,
+    "variants": store.variants[]-> {
+      "id": store.gid,
+      "title": store.title,
+      "sku": store.sku,
+      "price": store.price,
+      "compareAtPrice": store.compareAtPrice,
+      "available": store.inventory.isAvailable,
+      "selectedOptions": [
+        select(store.option1 != null => {"name": "Size", "value": store.option1}),
+        select(store.option2 != null => {"name": "Color", "value": store.option2}),
+        select(store.option3 != null => {"name": "Material", "value": store.option3})
+      ]
     },
     category-> {
       _id,
       title,
-      slug {
-        current
-      },
+      "slug": slug.current,
       categoryType,
       parentCategory-> {
         _id,
         title,
-        slug {
-          current
-        },
+        "slug": slug.current,
         parentCategory-> {
           _id,
           title,
-          slug {
-            current
-          },
+          "slug": slug.current,
           parentCategory-> {
             _id,
             title,
-            slug {
-              current
-            }
+            "slug": slug.current
           }
         }
       }
@@ -957,74 +687,16 @@ export async function getProductsBySubcategoryIncludingSubSubcategories(
         }
       }
     },
-    featured,
-    tags
+    gender,
+    featured
   } | order(title asc)${limit ? `[0...${limit}]` : ""}`;
 
   try {
-    const sanityProducts = await client.fetch(query, {
+    return await client.fetch(query, {
       gender: dbGender,
       mainCategorySlug,
       subcategorySlug,
     });
-
-    // Fetch Shopify data for each product (same logic as getProductsByPath)
-    const combinedProducts = await Promise.all(
-      sanityProducts.map(async (sanityProduct: any) => {
-        if (!sanityProduct.shopifyHandle) {
-          return null;
-        }
-
-        // Try with distance-lab prefix if needed
-        let shopifyProduct = await getShopifyProductByHandle(
-          sanityProduct.shopifyHandle
-        );
-
-        if (
-          !shopifyProduct &&
-          !sanityProduct.shopifyHandle.startsWith("distance-lab-")
-        ) {
-          shopifyProduct = await getShopifyProductByHandle(
-            `distance-lab-${sanityProduct.shopifyHandle}`
-          );
-        }
-
-        if (!shopifyProduct) {
-          // Only log warning in development
-          if (process.env.NODE_ENV === "development") {
-            console.warn(
-              "Could not find Shopify product for handle:",
-              sanityProduct.shopifyHandle
-            );
-          }
-          return null;
-        }
-
-        return createProduct(shopifyProduct, sanityProduct);
-      })
-    );
-
-    // Filter out null results and deduplicate by Shopify handle
-    const validProducts = combinedProducts.filter(
-      (product): product is Product => product !== null
-    );
-
-    // Deduplicate by Shopify handle (keep the first occurrence)
-    const seenHandles = new Set<string>();
-    const uniqueProducts = validProducts.filter((product) => {
-      const handle = product.shopify.handle;
-      if (seenHandles.has(handle)) {
-        // Only log warning in development
-        if (process.env.NODE_ENV === "development") {
-          console.warn("Duplicate product handle found:", handle);
-        }
-        return false;
-      }
-      seenHandles.add(handle);
-      return true;
-    });
-
-    return uniqueProducts;
   } catch (error) {
     console.error(
       `Error fetching products for subcategory ${subcategorySlug}:`,
@@ -1040,7 +712,7 @@ export async function getProductsByPath3Level(
   subcategorySlug: string,
   subsubcategorySlug: string,
   limit?: number
-) {
+): Promise<SanityProduct[]> {
   // Map frontend gender values to database values
   const genderMap: { [key: string]: string } = {
     men: "mens",
@@ -1061,42 +733,51 @@ export async function getProductsByPath3Level(
     category->parentCategory->parentCategory->slug.current == $mainCategorySlug
   ] {
     _id,
-    title,
-    shopifyHandle,
-    shortDescription,
-    gender,
-    mainImage {
-      asset-> {
-        url,
-        metadata
-      },
-      alt
+    "title": coalesce(title, store.title),
+    "handle": coalesce(shopifyHandle, store.slug.current),
+    "description": store.descriptionHtml,
+    "vendor": store.vendor,
+    "productType": store.productType,
+    "tags": store.tags,
+    "priceRange": {
+      "minVariantPrice": store.priceRange.minVariantPrice,
+      "maxVariantPrice": store.priceRange.maxVariantPrice
+    },
+    "mainImage": {
+      "url": store.previewImageUrl,
+      "alt": store.title
+    },
+    "options": store.options,
+    "variants": store.variants[]-> {
+      "id": store.gid,
+      "title": store.title,
+      "sku": store.sku,
+      "price": store.price,
+      "compareAtPrice": store.compareAtPrice,
+      "available": store.inventory.isAvailable,
+      "selectedOptions": [
+        select(store.option1 != null => {"name": "Size", "value": store.option1}),
+        select(store.option2 != null => {"name": "Color", "value": store.option2}),
+        select(store.option3 != null => {"name": "Material", "value": store.option3})
+      ]
     },
     category-> {
       _id,
       title,
-      slug {
-        current
-      },
+      "slug": slug.current,
       categoryType,
       parentCategory-> {
         _id,
         title,
-        slug {
-          current
-        },
+        "slug": slug.current,
         parentCategory-> {
           _id,
           title,
-          slug {
-            current
-          },
+          "slug": slug.current,
           parentCategory-> {
             _id,
             title,
-            slug {
-              current
-            }
+            "slug": slug.current
           }
         }
       }
@@ -1110,81 +791,22 @@ export async function getProductsByPath3Level(
         }
       }
     },
-    featured,
-    tags
+    gender,
+    featured
   } | order(title asc)${limit ? `[0...${limit}]` : ""}`;
 
   try {
-    const sanityProducts = await client.fetch(query, {
+    return await client.fetch(query, {
       gender: dbGender,
       mainCategorySlug,
       subcategorySlug,
       subsubcategorySlug,
     });
-
-    // Fetch Shopify data for each product (same logic as getAllProducts)
-    const combinedProducts = await Promise.all(
-      sanityProducts.map(async (sanityProduct: any) => {
-        if (!sanityProduct.shopifyHandle) {
-          return null;
-        }
-
-        // Try with distance-lab prefix if needed
-        let shopifyProduct = await getShopifyProductByHandle(
-          sanityProduct.shopifyHandle
-        );
-
-        if (
-          !shopifyProduct &&
-          !sanityProduct.shopifyHandle.startsWith("distance-lab-")
-        ) {
-          shopifyProduct = await getShopifyProductByHandle(
-            `distance-lab-${sanityProduct.shopifyHandle}`
-          );
-        }
-
-        if (!shopifyProduct) {
-          // Only log warning in development
-          if (process.env.NODE_ENV === "development") {
-            console.warn(
-              "Could not find Shopify product for handle:",
-              sanityProduct.shopifyHandle
-            );
-          }
-          return null;
-        }
-
-        return createProduct(shopifyProduct, sanityProduct);
-      })
-    );
-
-    // Filter out null results and deduplicate by Shopify handle
-    const validProducts = combinedProducts.filter(
-      (product): product is Product => product !== null
-    );
-
-    // Deduplicate by Shopify handle (keep the first occurrence)
-    const seenHandles = new Set<string>();
-    const uniqueProducts = validProducts.filter((product) => {
-      const handle = product.shopify.handle;
-      if (seenHandles.has(handle)) {
-        // Only log warning in development
-        if (process.env.NODE_ENV === "development") {
-          console.warn("Duplicate product handle found:", handle);
-        }
-        return false;
-      }
-      seenHandles.add(handle);
-      return true;
-    });
-
-    return uniqueProducts;
   } catch (error) {
     console.error(
       `Error fetching products for 3-level path ${gender}/${mainCategorySlug}/${subcategorySlug}/${subsubcategorySlug}:`,
       error
     );
-
     return [];
   }
 }
@@ -1325,6 +947,267 @@ export async function getProductDescription(productId: string) {
       `Error fetching product description for ${productId}:`,
       error
     );
+    return null;
+  }
+}
+
+export async function getBlogPosts(limit?: number) {
+  const query = `*[_type == "blogPost"] | order(publishedAt desc) {
+    _id,
+    title,
+    slug {
+      current
+    },
+    excerpt,
+    publishedAt,
+    author,
+    category-> {
+      title,
+      slug {
+        current
+      }
+    },
+    featuredImage {
+      asset-> {
+        url,
+        metadata
+      },
+      alt
+    },
+    editorialImage {
+      asset-> {
+        url,
+        metadata
+      },
+      alt
+    },
+    readingTime
+  }${limit ? `[0...${limit}]` : ""}`;
+
+  try {
+    return await client.fetch(query);
+  } catch (error) {
+    console.error("Error fetching blog posts:", error);
+    return [];
+  }
+}
+
+export async function getBlogPost(slug: string) {
+  const query = `*[_type == "blogPost" && slug.current == $slug][0] {
+    _id,
+    title,
+    slug {
+      current
+    },
+    content[] {
+      ...,
+      _type == "image" => {
+        ...,
+        asset-> {
+          url,
+          metadata
+        }
+      }
+    },
+    excerpt,
+    publishedAt,
+    author,
+    readingTime,
+    mediaType,
+    category-> {
+      title,
+      slug {
+        current
+      }
+    },
+    featuredImage {
+      asset-> {
+        url,
+        metadata
+      },
+      alt
+    },
+    featuredVideo {
+      asset-> {
+        url,
+        metadata
+      }
+    },
+    heroHeight
+  }`;
+
+  try {
+    return await client.fetch(query, { slug });
+  } catch (error) {
+    console.error(`Error fetching blog post ${slug}:`, error);
+    return null;
+  }
+}
+
+export async function getProductsByIds(
+  productIds: string[]
+): Promise<SanityProduct[]> {
+  if (productIds.length === 0) return [];
+
+  const query = `*[_id in $productIds] {
+    _id,
+    "title": coalesce(title, store.title),
+    "handle": coalesce(shopifyHandle, store.slug.current),
+    "description": store.descriptionHtml,
+    "vendor": store.vendor,
+    "productType": store.productType,
+    "tags": store.tags,
+    "priceRange": {
+      "minVariantPrice": store.priceRange.minVariantPrice,
+      "maxVariantPrice": store.priceRange.maxVariantPrice
+    },
+    "mainImage": {
+      "url": store.previewImageUrl,
+      "alt": store.title
+    },
+    "options": store.options,
+    "variants": store.variants[]-> {
+      "id": store.gid,
+      "title": store.title,
+      "sku": store.sku,
+      "price": store.price,
+      "compareAtPrice": store.compareAtPrice,
+      "available": store.inventory.isAvailable,
+      "selectedOptions": [
+        select(store.option1 != null => {"name": "Size", "value": store.option1}),
+        select(store.option2 != null => {"name": "Color", "value": store.option2}),
+        select(store.option3 != null => {"name": "Material", "value": store.option3})
+      ]
+    },
+    category-> {
+      _id,
+      title,
+      "slug": slug.current,
+      categoryType,
+      parentCategory-> {
+        _id,
+        title,
+        "slug": slug.current
+      }
+    },
+    "brandRef": brand._ref,
+    brand-> {
+      _id,
+      name,
+      "slug": slug.current,
+      logo {
+        asset-> {
+          url
+        }
+      }
+    },
+    gender,
+    featured
+  }`;
+
+  try {
+    const products = await client.fetch(query, { productIds });
+
+    return products;
+  } catch (error) {
+    console.error("Error fetching products by IDs:", error);
+    return [];
+  }
+}
+
+export async function getHomepage() {
+  const query = `*[_type == "home"][0] {
+    _id,
+    title,
+    modules[] {
+      _key,
+      _type,
+      ...,
+      ...select(_type == "featuredProductsModule" => {
+        featuredProducts[] {
+          ...,
+          product {
+            _ref,
+            _type
+          }
+        }
+      }),
+      ...select(_type == "editorialModule" => {
+        featuredPosts[] {
+          ...,
+          post-> {
+            _id,
+            title,
+            slug {
+              current
+            },
+            excerpt,
+            publishedAt,
+            author,
+            readingTime,
+            category-> {
+              title,
+              slug {
+                current
+              }
+            },
+            featuredImage {
+              asset-> {
+                url,
+                metadata
+              },
+              alt
+            },
+            editorialImage {
+              asset-> {
+                url,
+                metadata
+              },
+              alt
+            }
+          }
+        }
+      }),
+      ...select(_type == "heroModule" => {
+        heroImage {
+          asset-> {
+            url,
+            metadata
+          },
+          alt
+        },
+        heroVideo {
+          asset-> {
+            _ref,
+            url
+          }
+        }
+      }),
+      ...select(_type == "imageModule" => {
+        image {
+          asset-> {
+            url,
+            metadata
+          },
+          alt
+        },
+        video {
+          asset-> {
+            url
+          }
+        },
+        content
+      })
+    },
+    seo {
+      ...
+    }
+  }`;
+
+  try {
+    return await client.fetch(query);
+  } catch (error) {
+    console.error("Error fetching homepage:", error);
     return null;
   }
 }

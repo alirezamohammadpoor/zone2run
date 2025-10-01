@@ -1,18 +1,56 @@
-import { defineConfig } from "sanity";
+import { defineConfig, isDev } from "sanity";
 import { visionTool } from "@sanity/vision";
 import { structureTool } from "sanity/structure";
-import { schema } from "./src/sanity/schemaTypes";
+import { colorInput } from "@sanity/color-input";
+import { imageHotspotArrayPlugin } from "sanity-plugin-hotspot-array";
+import { media, mediaAssetSource } from "sanity-plugin-media";
+import { schemaTypes } from "./src/sanity/schemaTypes";
 import { structure } from "./src/sanity/structure";
+// import { customDocumentActions } from "./src/sanity/customDocumentActions";
+import Navbar from "./src/sanity/studio/Navbar";
+
+const devOnlyPlugins = [visionTool()];
 
 export default defineConfig({
+  name: "default",
+  title: "Shopify Store",
   basePath: "/studio",
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
-  schema,
+
   plugins: [
     structureTool({ structure }),
-    visionTool({
-      defaultApiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION!,
-    }),
+    colorInput(),
+    imageHotspotArrayPlugin(),
+    // customDocumentActions(),
+    media(),
+    ...(isDev ? devOnlyPlugins : []),
   ],
+
+  schema: {
+    types: schemaTypes,
+  },
+
+  form: {
+    file: {
+      assetSources: (previousAssetSources) => {
+        return previousAssetSources.filter(
+          (assetSource) => assetSource !== mediaAssetSource
+        );
+      },
+    },
+    image: {
+      assetSources: (previousAssetSources) => {
+        return previousAssetSources.filter(
+          (assetSource) => assetSource === mediaAssetSource
+        );
+      },
+    },
+  },
+
+  studio: {
+    components: {
+      navbar: Navbar,
+    },
+  },
 });

@@ -2,27 +2,39 @@
 import React, { useState } from "react";
 import { useCartStore } from "@/lib/cart/store";
 import { useProductStore } from "@/store/variantStore";
-import { ProductHelper } from "@/types/product";
-import type { Product } from "@/types/product";
+import type { SanityProduct } from "@/types/sanityProduct";
 
 interface VariantSelectorProps {
-  product: Product;
+  product: SanityProduct;
 }
 
 function VariantSelector({ product }: VariantSelectorProps) {
   const { selectedVariant, setSelectedVariant } = useProductStore();
   const addItem = useCartStore((state) => state.addItem);
 
-  const helper = new ProductHelper(product);
-
   // Get all unique sizes (both available and unavailable)
-  const allSizes = product.shopify.variants
-    .filter((variant) => variant.size)
-    .map((variant) => variant.size!)
-    .filter((size, index, arr) => arr.indexOf(size) === index); // unique
+  const allSizes = product.variants
+    .filter((variant) =>
+      variant.selectedOptions.some((opt) => opt.name === "Size")
+    )
+    .map(
+      (variant) =>
+        variant.selectedOptions.find((opt) => opt.name === "Size")?.value
+    )
+    .filter((size, index, arr) => size && arr.indexOf(size) === index);
 
   // Get available sizes for comparison
-  const availableSizes = helper.getAvailableSizes();
+  const availableSizes = product.variants
+    .filter(
+      (variant) =>
+        variant.available &&
+        variant.selectedOptions.some((opt) => opt.name === "Size")
+    )
+    .map(
+      (variant) =>
+        variant.selectedOptions.find((opt) => opt.name === "Size")?.value
+    )
+    .filter((size, index, arr) => size && arr.indexOf(size) === index);
 
   return (
     <div className="max-w-md mx-auto p-4 mt-4">
@@ -45,19 +57,24 @@ function VariantSelector({ product }: VariantSelectorProps) {
               onClick={() => {
                 if (!isAvailable) return; // Prevent selection of unavailable variants
 
-                // Find the correct Shopify variant for this size
-                const shopifyVariant = product.shopify.variants.find(
-                  (variant) => variant.size === size && variant.availableForSale
+                // Find the correct variant for this size
+                const variant = product.variants.find(
+                  (variant) =>
+                    variant.selectedOptions.find((opt) => opt.name === "Size")
+                      ?.value === size && variant.available
                 );
 
-                if (shopifyVariant) {
+                if (variant && size) {
                   setSelectedVariant({
                     size,
-                    id: shopifyVariant.id, // Use the actual Shopify variant ID
-                    available: shopifyVariant.availableForSale,
-                    title: shopifyVariant.title,
-                    price: shopifyVariant.price.amount,
-                    color: shopifyVariant.color,
+                    id: variant.id,
+                    available: variant.available,
+                    title: variant.title,
+                    price: variant.price,
+                    color:
+                      variant.selectedOptions.find(
+                        (opt) => opt.name === "Color"
+                      )?.value || "",
                   });
                 }
               }}
