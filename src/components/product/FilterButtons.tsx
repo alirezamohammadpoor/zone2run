@@ -45,8 +45,8 @@ export function FilterButtons({ products }: FilterButtonsProps) {
   // Memoize categories
   const categories = useMemo(() => {
     return products.reduce((acc, product) => {
-      const category = product.sanity?.category;
-      const slugCurrent = category?.slug?.current;
+      const category = product.category;
+      const slugCurrent = category?.slug;
       const title = category?.title;
 
       if (!slugCurrent || !title || !category?._id) return acc;

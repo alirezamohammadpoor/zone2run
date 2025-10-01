@@ -25,7 +25,7 @@ export default async function MainCategoryPage({
 
   // Debug: Check what genders are in the results
   if (products && products.length > 0) {
-    const genders = products.map((p) => p.sanity.gender).filter(Boolean);
+    const genders = products.map((p) => p.gender).filter(Boolean);
     const uniqueGenders = [...new Set(genders)];
   }
 

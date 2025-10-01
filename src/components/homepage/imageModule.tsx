@@ -4,15 +4,18 @@ import { urlFor } from "@/sanity/lib/image";
 import PortableTextRenderer from "@/components/PortableTextRenderer";
 
 function ImageModuleComponent({ imageModule }: { imageModule: ImageModule }) {
+  // Type assertion for resolved video asset from GROQ query
+  const video = imageModule.video as any;
+
   return (
     <div className="w-full mt-16">
       <div
         className="relative w-full"
         style={{ height: imageModule.imageHeight }}
       >
-        {imageModule.mediaType === "video" && imageModule.video?.asset?.url ? (
+        {imageModule.mediaType === "video" && video?.asset?.url ? (
           <video
-            src={imageModule.video.asset.url}
+            src={video.asset.url}
             autoPlay
             muted
             loop
