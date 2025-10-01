@@ -16,6 +16,7 @@ import { getProductsByIds } from "@/sanity/lib/getData";
 import type { SanityProduct } from "@/types/sanityProduct";
 
 async function HomePageSanity({ homepage }: { homepage: Home }) {
+  // Force update to ensure correct type import
   // Add error handling and debugging
   if (!homepage) {
     console.error("Homepage data is null or undefined");
