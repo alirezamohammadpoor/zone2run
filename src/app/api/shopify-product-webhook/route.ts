@@ -1,103 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@sanity/client";
-import { createHash } from "crypto";
-import {
-  webhookSanityClient,
-  createOptimizedImageUrl,
-  generateImageFilename,
-  isValidImageUrl,
-  getImageDimensions,
-} from "@/lib/shopify-webhook-utils";
 
 // Sanity client
-const sanityClient = webhookSanityClient;
+const sanityClient = createClient({
+  projectId: process.env.SANITY_PROJECT_ID!,
+  dataset: process.env.SANITY_DATASET || "production",
+  token: process.env.SANITY_API_TOKEN!,
+  useCdn: false,
+  apiVersion: "2023-05-03",
+});
 
-// Shopify client configuration
-const SHOPIFY_STORE = process.env.SHOPIFY_STORE || "zone2run";
-const SHOPIFY_API_TOKEN = process.env.SHOPIFY_ADMIN_API_TOKEN!;
-const SHOPIFY_API_VERSION = "2023-10";
-
-interface ShopifyProduct {
-  id: number;
-  title: string;
-  handle: string;
-  vendor: string;
-  product_type: string;
-  tags: string;
-  images: Array<{
-    id: number;
-    src: string;
-    alt: string;
-    width: number;
-    height: number;
-  }>;
-  variants: Array<{
-    id: number;
-    title: string;
-    price: string;
-    sku: string;
-    inventory_quantity: number;
-  }>;
-}
-
-interface SanityImageAsset {
-  _id: string;
-  url: string;
-  metadata: {
-    dimensions: {
-      width: number;
-      height: number;
-    };
-  };
-}
-
-// Helper function to download and upload image to Sanity
-async function downloadAndUploadImage(
-  imageUrl: string,
-  alt: string = "",
-  productId: string,
-  index: number = 0
-): Promise<string | null> {
-  try {
-    // Validate image URL
-    if (!isValidImageUrl(imageUrl)) {
-      console.error(`Invalid image URL: ${imageUrl}`);
-      return null;
-    }
-
-    // Create optimized image URL
-    const optimizedUrl = createOptimizedImageUrl(imageUrl);
-
-    // Download image
-    const response = await fetch(optimizedUrl);
-    if (!response.ok) {
-      console.error(`Failed to download image: ${response.status}`);
-      return null;
-    }
-
-    const imageBuffer = await response.arrayBuffer();
-    const imageData = Buffer.from(imageBuffer);
-
-    // Get image dimensions
-    const dimensions = await getImageDimensions(optimizedUrl);
-
-    // Create a unique filename
-    const filename = generateImageFilename(imageUrl, productId, index);
-
-    // Upload to Sanity
-    const asset = await sanityClient.assets.upload("image", imageData, {
-      filename: filename,
-      title: alt || "Product Image",
-    });
-
-    return asset._id;
-  } catch (error) {
-    console.error("Error downloading/uploading image:", error);
-    return null;
-  }
-}
-
-// Helper function to extract gender from title, tags, and product type
+// Helper function to extract gender
 function extractGender(
   title: string,
   tags: string,
@@ -137,23 +50,6 @@ function extractGender(
   return "unisex";
 }
 
-// Helper function to map product type to category
-async function mapProductTypeToCategory(
-  productType: string
-): Promise<string | null> {
-  // This would need to be implemented based on your category structure
-  // For now, return a default category
-  const categoryMappings: Record<string, string> = {
-    "T-shirts": "category-t-shirts",
-    Shorts: "category-shorts",
-    Jackets: "category-jackets",
-    Shoes: "category-shoes",
-    // Add more mappings as needed
-  };
-
-  return categoryMappings[productType] || "category-t-shirts";
-}
-
 // Helper function to get or create brand
 async function getOrCreateBrand(vendor: string): Promise<string | null> {
   try {
@@ -185,169 +81,119 @@ async function getOrCreateBrand(vendor: string): Promise<string | null> {
   }
 }
 
-// Main webhook handler
 export async function POST(request: NextRequest) {
   try {
-    const webhook = await request.json();
-    const { topic, id } = webhook;
+    const { limit = 10, offset = 0 } = await request.json().catch(() => ({}));
 
-    console.log(`Received webhook: ${topic} for product ${id}`);
+    console.log(
+      `🔄 Starting sync of existing products (limit: ${limit}, offset: ${offset})...`
+    );
 
-    switch (topic) {
-      case "products/create":
-      case "products/update":
-        await handleProductCreateOrUpdate(webhook);
-        break;
+    // Get existing products from Sanity
+    const existingProducts = await sanityClient.fetch(`
+      *[_type == "product"] | order(_createdAt) [${offset}...${offset + limit}] {
+        _id,
+        shopifyId,
+        title,
+        "vendor": store.vendor,
+        "product_type": store.productType,
+        "tags": store.tags
+      }
+    `);
 
-      case "products/delete":
-        await handleProductDelete(webhook);
-        break;
+    console.log(`📦 Found ${existingProducts.length} products to process`);
 
-      default:
-        console.log(`Unhandled webhook topic: ${topic}`);
+    let updated = 0;
+    let skipped = 0;
+
+    for (const product of existingProducts) {
+      try {
+        console.log(`🔄 Processing: ${product.title}`);
+
+        // Extract gender
+        const gender = extractGender(
+          product.title,
+          product.tags || "",
+          product.product_type || ""
+        );
+
+        // Get or create brand
+        const brandId = await getOrCreateBrand(product.vendor);
+        if (!brandId) {
+          console.log(`⚠️  Skipping - no brand for vendor: ${product.vendor}`);
+          skipped++;
+          continue;
+        }
+
+        // Update product with gender and brand
+        await sanityClient
+          .patch(product._id)
+          .set({
+            gender: gender,
+            brand: {
+              _type: "reference",
+              _ref: brandId,
+            },
+          })
+          .commit();
+
+        console.log(`✅ Updated: ${product.title} (gender: ${gender})`);
+        updated++;
+      } catch (error) {
+        console.error(`❌ Error processing ${product.title}:`, error);
+        skipped++;
+      }
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({
+      success: true,
+      message: `Processed ${existingProducts.length} products`,
+      statistics: {
+        updated,
+        skipped,
+        total: existingProducts.length,
+      },
+    });
   } catch (error) {
-    console.error("Webhook error:", error);
+    console.error("❌ Sync failed:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      {
+        error: "Sync failed",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
       { status: 500 }
     );
   }
 }
 
-async function handleProductCreateOrUpdate(webhook: any) {
-  const product: ShopifyProduct = webhook;
-
+export async function GET(request: NextRequest) {
   try {
-    // Extract gender
-    const gender = extractGender(
-      product.title,
-      product.tags,
-      product.product_type
+    // Get total count of products
+    const totalProducts = await sanityClient.fetch(
+      `count(*[_type == "product"])`
     );
 
-    // Get or create brand
-    const brandId = await getOrCreateBrand(product.vendor);
-    if (!brandId) {
-      throw new Error(`Failed to get/create brand: ${product.vendor}`);
-    }
+    // Get products that need syncing (no gender or brand)
+    const needsSync = await sanityClient.fetch(`
+      count(*[_type == "product" && (!defined(gender) || !defined(brand))])
+    `);
 
-    // Map product type to category
-    const categoryId = await mapProductTypeToCategory(product.product_type);
-
-    // Download and upload images
-    const imageAssets: string[] = [];
-    if (product.images && product.images.length > 0) {
-      console.log(
-        `Processing ${product.images.length} images for product ${product.id}`
-      );
-
-      for (let i = 0; i < product.images.length; i++) {
-        const image = product.images[i];
-        const assetId = await downloadAndUploadImage(
-          image.src,
-          image.alt,
-          product.id.toString(),
-          i
-        );
-        if (assetId) {
-          imageAssets.push(assetId);
-        }
-      }
-    }
-
-    // Create or update product document
-    const productDoc = {
-      _type: "product",
-      shopifyId: product.id.toString(),
-      title: product.title,
-      handle: product.handle,
-      gender: gender,
-      brand: {
-        _type: "reference",
-        _ref: brandId,
+    return NextResponse.json({
+      message: "Existing products sync status",
+      statistics: {
+        totalProducts,
+        needsSync,
+        synced: totalProducts - needsSync,
       },
-      category: categoryId
-        ? {
-            _type: "reference",
-            _ref: categoryId,
-          }
-        : undefined,
-      images: imageAssets.map((assetId) => ({
-        _type: "reference",
-        _ref: assetId,
-      })),
-      store: {
-        _type: "shopifyProduct",
-        id: product.id,
-        title: product.title,
-        handle: product.handle,
-        vendor: product.vendor,
-        productType: product.product_type,
-        tags: product.tags,
-        variants: product.variants.map((variant) => ({
-          _type: "shopifyProductVariant",
-          id: variant.id,
-          title: variant.title,
-          price: parseFloat(variant.price),
-          sku: variant.sku,
-          inventoryQuantity: variant.inventory_quantity,
-        })),
+      endpoints: {
+        sync: "POST /api/sync-existing-products",
+        test: "GET /api/test-webhook",
       },
-    };
-
-    // Check if product already exists
-    const existingProduct = await sanityClient.fetch(
-      `*[_type == "product" && shopifyId == $shopifyId][0]`,
-      { shopifyId: product.id.toString() }
-    );
-
-    if (existingProduct) {
-      // Update existing product
-      await sanityClient.patch(existingProduct._id).set(productDoc).commit();
-
-      console.log(`Updated product: ${product.title}`);
-    } else {
-      // Create new product
-      await sanityClient.create(productDoc);
-      console.log(`Created product: ${product.title}`);
-    }
+    });
   } catch (error) {
-    console.error(`Error processing product ${product.id}:`, error);
-    throw error;
-  }
-}
-
-async function handleProductDelete(webhook: any) {
-  const { id } = webhook;
-
-  try {
-    // Find and delete the product
-    const product = await sanityClient.fetch(
-      `*[_type == "product" && shopifyId == $shopifyId][0]`,
-      { shopifyId: id.toString() }
+    return NextResponse.json(
+      { error: "Failed to get status" },
+      { status: 500 }
     );
-
-    if (product) {
-      // Delete associated images first
-      if (product.images) {
-        for (const imageRef of product.images) {
-          try {
-            await sanityClient.delete(imageRef._ref);
-          } catch (error) {
-            console.error("Error deleting image:", error);
-          }
-        }
-      }
-
-      // Delete the product
-      await sanityClient.delete(product._id);
-      console.log(`Deleted product: ${product.title}`);
-    }
-  } catch (error) {
-    console.error(`Error deleting product ${id}:`, error);
-    throw error;
   }
 }
