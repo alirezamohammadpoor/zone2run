@@ -13,7 +13,7 @@ export function useUrlSort() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const sortParam = searchParams.get("sort") || "";
+  const sortParam = searchParams?.get("sort") || "";
   const sort: SortOption =
     sortParam &&
     ["newest", "price-low", "price-high", "name-a", "name-z"].includes(
@@ -23,7 +23,7 @@ export function useUrlSort() {
       : "newest";
 
   const updateSort = (newSort: SortOption) => {
-    if (newSort === sort) {
+    if (newSort === sort || !searchParams) {
       return;
     }
     const newSearchParams = new URLSearchParams(searchParams.toString());

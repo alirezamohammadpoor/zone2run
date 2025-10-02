@@ -17,23 +17,27 @@ export function useUrlFilters() {
 
   // ✅ keep local state in sync with URL
   const [filters, setFilters] = useState<UrlFilters>({
-    category: searchParams.getAll("category"),
-    brand: searchParams.getAll("brand"),
-    gender: searchParams.getAll("gender"),
-    size: searchParams.getAll("size"),
+    category: searchParams?.getAll("category") || [],
+    brand: searchParams?.getAll("brand") || [],
+    gender: searchParams?.getAll("gender") || [],
+    size: searchParams?.getAll("size") || [],
   });
 
   // When URL changes (e.g. back/forward nav), sync again
   useEffect(() => {
-    setFilters({
-      category: searchParams.getAll("category"),
-      brand: searchParams.getAll("brand"),
-      gender: searchParams.getAll("gender"),
-      size: searchParams.getAll("size"),
-    });
+    if (searchParams) {
+      setFilters({
+        category: searchParams.getAll("category"),
+        brand: searchParams.getAll("brand"),
+        gender: searchParams.getAll("gender"),
+        size: searchParams.getAll("size"),
+      });
+    }
   }, [searchParams]);
 
   const updateFilters = (newFilters: Partial<UrlFilters>) => {
+    if (!searchParams) return;
+
     const newSearchParams = new URLSearchParams(searchParams.toString());
 
     Object.entries(newFilters).forEach(([key, value]) => {
