@@ -101,3 +101,58 @@ export async function getImageDimensions(
     return null;
   }
 }
+
+export async function getSanityCollectionByShopifyId(
+  shopifyCollectionId: string
+): Promise<string | null> {
+  try {
+    const collection = await webhookSanityClient.fetch(
+      `*[_type == "collection" && store.id == $shopifyId][0]`,
+      { shopifyId: parseInt(shopifyCollectionId) }
+    );
+
+    return collection?._id || null;
+  } catch (error) {
+    console.error("Error finding Sanity collection by Shopify ID:", error);
+    return null;
+  }
+}
+
+export async function getSanityCollectionsByShopifyIds(
+  shopifyCollectionIds: string[]
+): Promise<string[]> {
+  try {
+    const collections = await webhookSanityClient.fetch(
+      `*[_type == "collection" && store.id in $shopifyIds] {
+      _id,
+      "shopifyId": store.id}
+      `,
+      { shopifyIds: shopifyCollectionIds.map(Number) }
+    );
+    return collections.map((collection: any) => collection._id);
+  } catch (error) {
+    console.error("Error finding Sanity collections by Shopify IDs:", error);
+    return [];
+  }
+}
+
+export async function getSanityCollectionsByShopifyHandles(
+  shopifyCollectionIds: string[]
+): Promise<string[]> {
+  try {
+    const collections = await webhookSanityClient.fetch(
+      `*[_type == "collection" && store.id in $shopifyIds] {
+        _id,
+        "shopifyId": store.id}
+      `,
+      { shopifyHandles: shopifyCollectionIds }
+    );
+    return collections.map((collection: any) => collection._id);
+  } catch (error) {
+    console.error(
+      "Error finding Sanity collections by Shopify handles:",
+      error
+    );
+    return [];
+  }
+}

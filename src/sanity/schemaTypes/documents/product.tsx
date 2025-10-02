@@ -93,6 +93,14 @@ export const productType = defineType({
       description: "Target gender for this product",
       group: "shopifySync",
     }),
+    defineField({
+      name: "collections",
+      title: "Collections",
+      type: "array",
+      of: [{ type: "reference", to: [{ type: "collection" }] }],
+      group: "shopifySync",
+      description: "Collections that this product belongs to",
+    }),
   ],
   orderings: [
     {

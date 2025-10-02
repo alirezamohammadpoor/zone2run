@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@sanity/client";
+import { getSanityCollectionsByShopifyIds } from "@/lib/shopify-webhook-utils";
 
 // Sanity client
 const sanityClient = createClient({
@@ -91,7 +92,9 @@ export async function POST(request: NextRequest) {
 
     // Get existing products from Sanity
     const existingProducts = await sanityClient.fetch(`
-      *[_type == "product"] | order(_createdAt) [${offset}...${offset + limit}] {
+      *[_type == "product"] | order(_createdAt) [${offset}...${
+      offset + limit
+    }] {
         _id,
         shopifyId,
         title,
