@@ -332,154 +332,32 @@ export function extractGenderFromProduct(
 }
 
 // Helper function to extract category from product data
+// UPDATED: Now uses Shopify product_type directly as category slug
 export function extractCategoryFromProduct(
   title: string,
   productType: string,
   tags: string
 ): string | null {
-  // Primary: Use product_type as the main category source
-  if (productType) {
-    const type = productType.toLowerCase().trim();
+  if (!productType) return null;
 
-    // Direct mapping from product_type to category
-    switch (type) {
-      case "shoes":
-      case "footwear":
-      case "sneakers":
-        // For shoes, check title for more specific category
-        const titleLower = title.toLowerCase();
-        if (titleLower.includes("trail")) return "trail-running";
-        if (titleLower.includes("running")) return "road-running";
-        return "footwear";
-
-      case "tops":
-      case "shirts":
-      case "tees":
-      case "t-shirts":
-        return "tops";
-
-      case "bottoms":
-      case "pants":
-      case "shorts":
-      case "leggings":
-        return "bottoms";
-
-      case "outerwear":
-      case "jackets":
-      case "hoodies":
-      case "sweaters":
-        return "outerwear";
-
-      case "accessories":
-      case "socks":
-      case "hats":
-      case "bags":
-        return "accessories";
-
-      case "running":
-        return "road-running";
-
-      case "trail running":
-        return "trail-running";
-
-      default:
-        // If product_type doesn't match, fall back to title/tags
-        break;
-    }
-  }
-
-  // Fallback: Search in title and tags
-  const searchText = `${title} ${tags || ""}`.toLowerCase();
-
-  // Trail running shoes
-  if (searchText.includes("trail") && searchText.includes("shoes")) {
-    return "trail-running";
-  }
-  if (searchText.includes("trail") && searchText.includes("running")) {
-    return "trail-running";
-  }
-
-  // Road running shoes
-  if (searchText.includes("road") && searchText.includes("shoes")) {
-    return "road-running";
-  }
-  if (
-    searchText.includes("running") &&
-    searchText.includes("shoes") &&
-    !searchText.includes("trail")
-  ) {
-    return "road-running";
-  }
-
-  // General footwear categories
-  if (searchText.includes("shoes") || searchText.includes("sneakers")) {
-    return "footwear";
-  }
-  if (searchText.includes("boots")) {
-    return "footwear";
-  }
-  if (searchText.includes("sandals")) {
-    return "footwear";
-  }
-
-  // Apparel categories
-  if (
-    searchText.includes("shirt") ||
-    searchText.includes("tee") ||
-    searchText.includes("top")
-  ) {
-    return "tops";
-  }
-  if (
-    searchText.includes("pants") ||
-    searchText.includes("shorts") ||
-    searchText.includes("leggings")
-  ) {
-    return "bottoms";
-  }
-  if (
-    searchText.includes("jacket") ||
-    searchText.includes("hoodie") ||
-    searchText.includes("sweater")
-  ) {
-    return "outerwear";
-  }
-
-  // Accessories
-  if (searchText.includes("hat") || searchText.includes("cap")) {
-    return "accessories";
-  }
-  if (searchText.includes("socks")) {
-    return "accessories";
-  }
-  if (searchText.includes("bag") || searchText.includes("pack")) {
-    return "accessories";
-  }
-
-  // Check tags for category hints
-  if (tags) {
-    const tagList = tags
-      .toLowerCase()
-      .split(",")
-      .map((tag) => tag.trim());
-
-    if (tagList.includes("running")) return "road-running";
-    if (tagList.includes("trail")) return "trail-running";
-    if (tagList.includes("footwear")) return "footwear";
-    if (tagList.includes("apparel")) return "tops";
-  }
-
-  return null;
+  // Convert Shopify product_type directly to slug
+  // Example: "Running Shoes" → "running-shoes", "Backpacks" → "backpacks"
+  return productType
+    .toLowerCase()
+    .trim()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
-// Helper function to find or create category in Sanity
+// Helper function to find existing category in Sanity (NO AUTO-CREATE)
 export async function getOrCreateCategory(
   categorySlug: string,
   categoryTitle: string
 ): Promise<string | null> {
   try {
-    // First, try to find existing category by slug
-    let category = await webhookSanityClient.fetch(
+    // Only find existing category by slug
+    const category = await webhookSanityClient.fetch(
       `*[_type == "category" && slug.current == $slug][0]`,
       { slug: categorySlug }
     );
@@ -489,28 +367,82 @@ export async function getOrCreateCategory(
       return category._id;
     }
 
-    // If not found, create new category
-    console.log("📂 Creating new category:", categoryTitle);
-    category = await webhookSanityClient.create({
-      _type: "category",
-      title: categoryTitle,
-      slug: {
-        _type: "slug",
-        current: categorySlug,
-      },
-      categoryType: "main", // Default to main category
-      visibility: {
-        navigation: true,
-        filters: true,
-      },
-      featured: false,
-      sortOrder: 0,
-    });
-
-    console.log("✅ Created new category:", category._id);
-    return category._id;
+    // Do NOT create - just log and return null
+    console.log(`⚠️ Category not found: ${categorySlug} (${categoryTitle})`);
+    return null;
   } catch (error) {
-    console.error("❌ Error finding/creating category:", error);
+    console.error("❌ Error finding category:", error);
     return null;
   }
+}
+
+// ============================================
+// IMAGE PROCESSING FUNCTIONS
+// ============================================
+
+// Helper function to download image from URL
+export async function downloadImage(imageUrl: string): Promise<Buffer> {
+  const response = await fetch(imageUrl);
+  if (!response.ok) {
+    throw new Error(`Failed to download image: ${response.statusText}`);
+  }
+  return Buffer.from(await response.arrayBuffer());
+}
+
+// Helper function to process product images and upload to Sanity
+export async function processProductImages(
+  client: any,
+  images: any[],
+  product: any
+): Promise<{
+  mainImage: any;
+  gallery: any[];
+}> {
+  if (!images || images.length === 0) {
+    return { mainImage: null, gallery: [] };
+  }
+
+  console.log(
+    `🖼️ Processing ${images.length} images for product: ${product.title}`
+  );
+
+  const gallery: any[] = [];
+  let mainImage: any = null;
+
+  for (const [index, image] of images.entries()) {
+    try {
+      // Download image
+      const imageBuffer = await downloadImage(image.src);
+      const filename = generateImageFilename(image.src, product.id, index);
+
+      // Upload to Sanity
+      const imageAsset = await client.assets.upload("image", imageBuffer, {
+        filename,
+        title: `${product.title} - Image ${index + 1}`,
+      });
+
+      const imageObj = {
+        _type: "image",
+        asset: {
+          _type: "reference",
+          _ref: imageAsset._id,
+        },
+        alt: image.altText || `${product.title} - Image ${index + 1}`,
+      };
+
+      // First image is main image, rest go to gallery
+      if (index === 0) {
+        mainImage = imageObj;
+      } else {
+        gallery.push(imageObj);
+      }
+    } catch (error) {
+      console.error(`❌ Error processing image ${index + 1}:`, error);
+    }
+  }
+
+  console.log(
+    `✅ Processed ${gallery.length + (mainImage ? 1 : 0)} images successfully`
+  );
+  return { mainImage, gallery };
 }

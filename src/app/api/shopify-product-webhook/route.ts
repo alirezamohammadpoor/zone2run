@@ -5,6 +5,9 @@ import {
   getOrCreateCategory,
   getSanityCollectionsByShopifyIds,
   webhookSanityClient,
+  downloadImage,
+  generateImageFilename,
+  processProductImages,
 } from "@/lib/shopify-webhook-utils";
 
 export const runtime = "nodejs";
@@ -24,96 +27,9 @@ function idFromGid(gid: string): number {
   return isNaN(id) ? 0 : id;
 }
 
-// Image processing helpers
-async function downloadImage(imageUrl: string): Promise<Buffer> {
-  const response = await fetch(imageUrl);
-  if (!response.ok) {
-    throw new Error(`Failed to download image: ${response.statusText}`);
-  }
-  return Buffer.from(await response.arrayBuffer());
-}
-
-function generateImageFilename(
-  imageUrl: string,
-  productTitle: string,
-  index: number = 0
-): string {
-  const cleanTitle = productTitle.replace(/[^a-zA-Z0-9]/g, "-").toLowerCase();
-  const hash = require("crypto")
-    .createHash("md5")
-    .update(imageUrl)
-    .digest("hex")
-    .substring(0, 8);
-  const extension = imageUrl.split(".").pop()?.split("?")[0] || "jpg";
-  return `${cleanTitle}-${index}-${hash}.${extension}`;
-}
-
-async function processProductImages(
-  client: any,
-  images: any[],
-  product: any,
-  productId: string
-): Promise<{
-  mainImage: any;
-  gallery: any[];
-}> {
-  if (!images || images.length === 0) {
-    return { mainImage: null, gallery: [] };
-  }
-
-  console.log(
-    `🖼️ Processing ${images.length} images for product: ${product.title}`
-  );
-
-  const gallery: any[] = [];
-  let mainImage: any = null;
-
-  for (const [index, image] of images.entries()) {
-    try {
-      console.log(
-        `📥 Processing image ${index + 1}/${images.length}: ${image.src}`
-      );
-
-      // Download image from Shopify
-      const imageBuffer = await downloadImage(image.src);
-
-      // Generate filename with product title
-      const filename = generateImageFilename(image.src, product.title, index);
-
-      // Upload to Sanity
-      const asset = await client.assets.upload("image", imageBuffer, {
-        filename: filename,
-        title: `${product.title} - Image ${index + 1}`,
-        description: image.alt || `${product.title} product image ${index + 1}`,
-      });
-
-      console.log(`✅ Uploaded image to Sanity: ${asset._id} (${filename})`);
-
-      // Create image object for Sanity
-      const imageObj = {
-        _type: "image",
-        asset: { _ref: asset._id },
-        alt: image.alt || `${product.title} image ${index + 1}`,
-        _key: `image-${index}-${Date.now()}`,
-      };
-
-      // First image is main image, rest go to gallery
-      if (index === 0) {
-        mainImage = imageObj;
-      } else {
-        gallery.push(imageObj);
-      }
-    } catch (error) {
-      console.error(`❌ Error processing image ${index + 1}:`, error);
-      // Continue with other images
-    }
-  }
-
-  console.log(
-    `✅ Processed ${gallery.length + (mainImage ? 1 : 0)} images successfully`
-  );
-  return { mainImage, gallery };
-}
+// ============================================
+// IMAGE PROCESSING FUNCTIONS MOVED TO UTILS
+// ============================================
 
 // Simple in-memory cache to prevent duplicate processing
 const processedWebhooks = new Map<string, number>();
@@ -320,29 +236,55 @@ export async function POST(request: Request) {
             .join(" ");
           categoryId = await getOrCreateCategory(categorySlug, categoryTitle);
           console.log("📂 Category ID:", categoryId);
+
+          // Log products with missing categories
+          if (!categoryId) {
+            const fs = require("fs");
+            const logEntry = {
+              productId,
+              title,
+              vendor,
+              productType: payload.product_type,
+              extractedSlug: categorySlug,
+              extractedTitle: categoryTitle,
+              tags,
+              timestamp: new Date().toISOString(),
+            };
+
+            const logFile = "products-missing-categories.json";
+            let existingLogs = [];
+
+            try {
+              if (fs.existsSync(logFile)) {
+                existingLogs = JSON.parse(fs.readFileSync(logFile, "utf8"));
+              }
+            } catch (e) {
+              existingLogs = [];
+            }
+
+            existingLogs.push(logEntry);
+            fs.writeFileSync(logFile, JSON.stringify(existingLogs, null, 2));
+            console.log(`⚠️ Logged to ${logFile}`);
+          }
         }
 
         // Handle product creation vs update
         if (topic === "products/create") {
           console.log("🆕 CREATING NEW PRODUCT...");
 
-          // Process images first
+          // Process product images
           let mainImage = null;
           let gallery: any[] = [];
 
           if (payload.images && payload.images.length > 0) {
             console.log("🖼️ Processing product images...");
-
             const imageData = await processProductImages(
               webhookSanityClient,
               payload.images,
-              payload,
-              productId
+              payload
             );
-
             mainImage = imageData.mainImage;
             gallery = imageData.gallery;
-
             console.log(
               `✅ Processed ${gallery.length + (mainImage ? 1 : 0)} images`
             );
@@ -392,7 +334,7 @@ export async function POST(request: Request) {
                 c.id.toString()
               ),
             }),
-            // Image fields - fail if no images available
+            // Include image fields
             ...(mainImage && { mainImage }),
             ...(gallery.length > 0 && { gallery }),
             // Category and brand will be added after creation
@@ -442,7 +384,7 @@ export async function POST(request: Request) {
             );
           }
 
-          // Validate required fields before creating product
+          // Validate required fields
           const missingFields = [];
           if (!gender) missingFields.push("gender");
           if (!mainImage) missingFields.push("mainImage");
@@ -496,17 +438,14 @@ export async function POST(request: Request) {
           if (sanityProduct) {
             console.log("📝 Found Sanity product:", sanityProduct._id);
 
-            // Process images if they've changed
+            // Process updated product images
             if (payload.images && payload.images.length > 0) {
               console.log("🖼️ Processing updated product images...");
-
               const imageData = await processProductImages(
                 webhookSanityClient,
                 payload.images,
-                payload,
-                productId
+                payload
               );
-
               console.log(
                 `✅ Processed ${
                   imageData.gallery.length + (imageData.mainImage ? 1 : 0)
@@ -579,15 +518,13 @@ export async function POST(request: Request) {
               );
             }
 
-            // Add updated images if they were processed
+            // Process images for updates
             if (payload.images && payload.images.length > 0) {
               const imageData = await processProductImages(
                 webhookSanityClient,
                 payload.images,
-                payload,
-                productId
+                payload
               );
-
               if (imageData.mainImage) {
                 updateData.mainImage = imageData.mainImage;
               }
