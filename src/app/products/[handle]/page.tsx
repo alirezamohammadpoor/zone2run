@@ -9,10 +9,10 @@ import Footer from "@/components/Footer";
 export default async function ProductPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ handle: string }>;
 }) {
-  const id = (await params).id;
-  const product = await getProductByHandle(id);
+  const handle = (await params).handle;
+  const product = await getProductByHandle(handle);
 
   if (!product) {
     notFound();

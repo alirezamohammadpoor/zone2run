@@ -47,14 +47,14 @@ export default function OrderConfirmation() {
                   height={120}
                   className="h-[120px] w-[80px] flex-shrink-0 object-cover cursor-pointer"
                   onClick={() =>
-                    handleNavigate(`/products/item/${item.productHandle}`)
+                    handleNavigate(`/products/${item.productHandle}`)
                   }
                 />
                 <div className="ml-4 flex flex-1 flex-col overflow-hidden">
                   <span
                     className="text-sm font-bold w-full block cursor-pointer"
                     onClick={() =>
-                      handleNavigate(`/products/item/${item.productHandle}`)
+                      handleNavigate(`/products/${item.productHandle}`)
                     }
                   >
                     {item.title}

@@ -14,7 +14,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const router = useRouter();
 
   const handleClick = () => {
-    router.push(`/products/item/${product.handle}`);
+    router.push(`/products/${product.handle}`);
   };
 
   return (

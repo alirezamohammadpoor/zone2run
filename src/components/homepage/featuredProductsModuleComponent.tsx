@@ -87,13 +87,13 @@ function FeaturedProductsModule({
                 key={product._id}
                 className="flex-shrink-0 w-[70vw] aspect-[3/4] flex flex-col hover:cursor-pointer snap-start"
                 onClick={() => {
-                  router.push(`/products/item/${product.handle}`);
+                  router.push(`/products/${product.handle}`);
                 }}
               >
                 <div
                   className="w-full h-full relative bg-gray-100 hover:cursor-pointer"
                   onClick={() => {
-                    router.push(`/products/item/${product.handle}`);
+                    router.push(`/products/${product.handle}`);
                   }}
                 >
                   {selectedImage.url && (
@@ -121,7 +121,7 @@ function FeaturedProductsModule({
                   <p
                     className="text-base hover:underline cursor-pointer"
                     onClick={() => {
-                      router.push(`/products/item/${product.handle}`);
+                      router.push(`/products/${product.handle}`);
                     }}
                   >
                     {product.title}

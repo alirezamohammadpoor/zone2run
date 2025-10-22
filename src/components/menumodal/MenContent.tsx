@@ -76,7 +76,7 @@ function MenContent({ onClose, data }: { onClose: () => void; data: any }) {
       const subcategoryData = await getMainCategoryBySub(subcategorySlug);
       if (subcategoryData?.parentCategory?.slug?.current) {
         router.push(
-          `/products/men/${subcategoryData.parentCategory.slug.current}/${subcategorySlug}`
+          `/mens/${subcategoryData.parentCategory.slug.current}/${subcategorySlug}`
         );
         onClose();
       } else {
@@ -98,13 +98,13 @@ function MenContent({ onClose, data }: { onClose: () => void; data: any }) {
     subSubcategorySlug: string
   ) => {
     router.push(
-      `/products/men/${mainCategorySlug}/${subcategorySlug}/${subSubcategorySlug}`
+      `/mens/${mainCategorySlug}/${subcategorySlug}/${subSubcategorySlug}`
     );
     onClose();
   };
 
   const handleViewAllClick = (categorySlug: string) => {
-    router.push(`/products/men/${categorySlug}`);
+    router.push(`/mens/${categorySlug}`);
     onClose();
   };
 
@@ -112,7 +112,7 @@ function MenContent({ onClose, data }: { onClose: () => void; data: any }) {
     mainCategorySlug: string,
     subcategorySlug: string
   ) => {
-    router.push(`/products/men/${mainCategorySlug}/${subcategorySlug}`);
+    router.push(`/mens/${mainCategorySlug}/${subcategorySlug}`);
     onClose();
   };
 

@@ -14,7 +14,7 @@ export default function ProductGrid({ products }: ProductGridProps) {
         return (
           <Link
             key={`${product._id}-${product.handle}`}
-            href={`/products/item/${product.handle}`}
+            href={`/products/${product.handle}`}
             className="hover:cursor-pointer"
           >
             <ProductCard product={product} />
