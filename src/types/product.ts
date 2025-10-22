@@ -102,39 +102,39 @@ export class ProductHelper {
       const frontendGender = sanity.gender === "womens" ? "women" : "men";
       breadcrumbs.push({
         label: formattedGender,
-        href: `/products/${frontendGender}`,
+        href: `/${frontendGender}s`,
       });
     }
 
     // Add category hierarchy from Sanity
     if (
-      sanity.category?.categoryType === "sub" &&
+      sanity.category?.categoryType === "subcategory" &&
       sanity.category.parentCategory?.title
     ) {
       // Add parent category first
       const frontendGender = sanity.gender === "womens" ? "women" : "men";
       breadcrumbs.push({
         label: sanity.category.parentCategory.title || "",
-        href: `/products/${frontendGender}/${sanity.category.parentCategory.slug?.current}`,
+        href: `/${frontendGender}s/${sanity.category.parentCategory.slug?.current}`,
       });
       // Add subcategory
       breadcrumbs.push({
         label: sanity.category.title || "",
-        href: `/products/${frontendGender}/${sanity.category.parentCategory.slug?.current}/${sanity.category.slug?.current}`,
+        href: `/${frontendGender}s/${sanity.category.parentCategory.slug?.current}/${sanity.category.slug?.current}`,
       });
     } else if (sanity.category?.title) {
       // Add main category
       const frontendGender = sanity.gender === "womens" ? "women" : "men";
       breadcrumbs.push({
         label: sanity.category.title || "",
-        href: `/products/${frontendGender}/${sanity.category.slug?.current}`,
+        href: `/${frontendGender}s/${sanity.category.slug?.current}`,
       });
     }
 
     // Add current product
     breadcrumbs.push({
       label: this.getDisplayTitle() || "",
-      href: `/products/item/${shopify.handle}`,
+      href: `/products/${shopify.handle}`,
     });
 
     return breadcrumbs;

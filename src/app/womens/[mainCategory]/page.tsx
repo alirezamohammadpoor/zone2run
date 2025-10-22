@@ -5,17 +5,18 @@ import ProductGrid from "@/components/ProductGrid";
 export default async function WomensCategoryPage({
   params,
 }: {
-  params: Promise<{ category: string }>;
+  params: Promise<{ mainCategory: string }>;
 }) {
-  const { category } = await params;
+  const { mainCategory } = await params;
 
-  const products = await getProductsByPath("women", "main", category);
+  const products = await getProductsByPath("women", "main", mainCategory);
 
   if (!products || products.length === 0) {
     notFound();
   }
 
-  const categoryTitle = category.charAt(0).toUpperCase() + category.slice(1);
+  const categoryTitle =
+    mainCategory.charAt(0).toUpperCase() + mainCategory.slice(1);
 
   return (
     <div>

@@ -13,7 +13,7 @@ export default function HomeProductCard({ product }: HomeProductCardProps) {
   const router = useRouter();
 
   const handleClick = () => {
-    router.push(`/products/item/${product.handle}`);
+    router.push(`/products/${product.handle}`);
   };
 
   return (

@@ -21,7 +21,7 @@ export default function HomeProductGrid({
         return (
           <Link
             key={product._id}
-            href={`/products/item/${product.handle}`}
+            href={`/products/${product.handle}`}
             className="hover:cursor-pointer"
           >
             <HomeProductCard product={product} />

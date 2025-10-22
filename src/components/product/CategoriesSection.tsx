@@ -21,9 +21,9 @@ function CategoriesSection() {
           key={category._id}
           className="text-sm cursor-pointer hover:text-gray-500"
           onClick={() => {
-            router.push(
-              `/products/${category.categoryType}/${category.slug.current}`
-            );
+            // Navigate to the appropriate gender-based route
+            const gender = category.categoryType === "men" ? "mens" : "womens";
+            router.push(`/${gender}/${category.slug.current}`);
           }}
         >
           {category.title}

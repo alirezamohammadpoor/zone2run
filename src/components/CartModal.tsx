@@ -99,7 +99,7 @@ function CartModal({
                       height={120}
                       className="h-[120px] w-[80px] flex-shrink-0 object-cover cursor-pointer"
                       onClick={() => {
-                        router.push(`/products/item/${item.productHandle}`);
+                        router.push(`/products/${item.productHandle}`);
                         handleClose();
                       }}
                     />
@@ -107,7 +107,7 @@ function CartModal({
                       <span
                         className="text-sm font-bold w-full block cursor-pointer"
                         onClick={() => {
-                          router.push(`/products/item/${item.productHandle}`);
+                          router.push(`/products/${item.productHandle}`);
                           handleClose();
                         }}
                       >
@@ -168,7 +168,7 @@ function CartModal({
                 <button
                   className="text-md font-bold mt-4"
                   onClick={() => {
-                    router.push("/products");
+                    router.push("/");
                     handleClose();
                   }}
                 >

@@ -50,6 +50,12 @@ export interface SanityProduct {
       _id: string;
       title: string;
       slug: string;
+      categoryType: string;
+      parentCategory?: {
+        _id: string;
+        title: string;
+        slug: string;
+      };
     };
   };
   brand: {

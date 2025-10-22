@@ -76,7 +76,7 @@ function WomenContent({ onClose, data }: { onClose: () => void; data: any }) {
       const subcategoryData = await getMainCategoryBySub(subcategorySlug);
       if (subcategoryData?.parentCategory?.slug?.current) {
         router.push(
-          `/products/women/${subcategoryData.parentCategory.slug.current}/${subcategorySlug}`
+          `/womens/${subcategoryData.parentCategory.slug.current}/${subcategorySlug}`
         );
         onClose();
       } else {
@@ -98,13 +98,13 @@ function WomenContent({ onClose, data }: { onClose: () => void; data: any }) {
     subSubcategorySlug: string
   ) => {
     router.push(
-      `/products/women/${mainCategorySlug}/${subcategorySlug}/${subSubcategorySlug}`
+      `/womens/${mainCategorySlug}/${subcategorySlug}/${subSubcategorySlug}`
     );
     onClose();
   };
 
   const handleViewAllClick = (categorySlug: string) => {
-    router.push(`/products/women/${categorySlug}`);
+    router.push(`/womens/${categorySlug}`);
     onClose();
   };
 
@@ -112,7 +112,7 @@ function WomenContent({ onClose, data }: { onClose: () => void; data: any }) {
     mainCategorySlug: string,
     subcategorySlug: string
   ) => {
-    router.push(`/products/women/${mainCategorySlug}/${subcategorySlug}`);
+    router.push(`/womens/${mainCategorySlug}/${subcategorySlug}`);
     onClose();
   };
 
