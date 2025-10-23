@@ -48,7 +48,7 @@ function AddedToCartModal({
 
   return (
     <div
-      className={`fixed top-13 left-0 h-[14vh] right-0 z-50 flex justify-center transform transition-transform duration-500 ease-in-out ${
+      className={`fixed top-10 left-0 h-[15vh] right-0 z-50 flex justify-center transform transition-transform duration-500 ease-in-out ${
         isVisible ? " translate-x-0" : " translate-x-full"
       } `}
     >
@@ -78,7 +78,7 @@ function AddedToCartModal({
                   setIsCartOpen(true);
                   hideAddedToCart();
                 }}
-                className="px-4 py-2 bg-black text-white cursor-pointer hover:bg-gray-800"
+                className="px-4 bg-black text-white cursor-pointer hover:bg-gray-800"
               >
                 View Cart
               </button>
