@@ -38,22 +38,33 @@ function HeroModule({ heroModule }: { heroModule: HeroModule }) {
         )}
 
         <div className={`text-${heroModule.textColor} mt-auto mb-8 relative`}>
-          <h1
-            className={`text-${heroModule.textColor} text-2xl ml-2 font-bold`}
-          >
+          <h1 className={`text-${heroModule.textColor} text-xl ml-2`}>
             {heroModule.heroHeading}
           </h1>
           <p
-            className={`text-${heroModule.textColor} text-md font-medium ml-2 mt-4 w-[70vw]`}
+            className={`text-${heroModule.textColor} text-base ml-2 mt-4 w-[70vw]`}
           >
             {heroModule.heroSubparagraph}
           </p>
-          <div className="flex justify-between items-center">
+          <div className="flex items-center">
             <Link
               href={heroModule.buttonLink || "/"}
-              className={`text-${heroModule.textColor} text-md font-medium ml-2 mt-4`}
+              className={`text-${heroModule.textColor} text-sm ml-2 mt-4 flex items-center`}
             >
               {heroModule.buttonText}
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 5 8"
+                className="w-3 h-3 ml-2 mt-0.5 text-${heroModule.textColor}"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M0.707107 7.70711L0 7L3.14645 3.85355L0 0.707107L0.707107 0L4.56066 3.85355L0.707107 7.70711Z"
+                  fill="currentColor"
+                />
+              </svg>
             </Link>
           </div>
         </div>

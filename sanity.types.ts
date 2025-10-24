@@ -22,75 +22,56 @@ export type PortableTextSimple = Array<{
   }>;
   style?: "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
   listItem?: "bullet" | "number";
-  markDefs?: Array<
-    | ({
-        _key: string;
-      } & LinkProduct)
-    | ({
-        _key: string;
-      } & LinkEmail)
-    | ({
-        _key: string;
-      } & LinkInternal)
-    | ({
-        _key: string;
-      } & LinkExternal)
-  >;
+  markDefs?: Array<{
+    _key: string;
+  } & LinkProduct | {
+    _key: string;
+  } & LinkEmail | {
+    _key: string;
+  } & LinkInternal | {
+    _key: string;
+  } & LinkExternal>;
   level?: number;
   _type: "block";
   _key: string;
 }>;
 
-export type PortableText = Array<
-  | {
-      children?: Array<{
-        marks?: Array<string>;
-        text?: string;
-        _type: "span";
-        _key: string;
-      }>;
-      style?: "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
-      listItem?: "bullet" | "number";
-      markDefs?: Array<
-        | ({
-            _key: string;
-          } & LinkProduct)
-        | ({
-            _key: string;
-          } & LinkEmail)
-        | ({
-            _key: string;
-          } & LinkInternal)
-        | ({
-            _key: string;
-          } & LinkExternal)
-      >;
-      level?: number;
-      _type: "block";
-      _key: string;
-    }
-  | ({
-      _key: string;
-    } & Accordion)
-  | ({
-      _key: string;
-    } & Callout)
-  | ({
-      _key: string;
-    } & Grid)
-  | ({
-      _key: string;
-    } & Images)
-  | ({
-      _key: string;
-    } & ImageWithProductHotspots)
-  | ({
-      _key: string;
-    } & Instagram)
-  | ({
-      _key: string;
-    } & Products)
->;
+export type PortableText = Array<{
+  children?: Array<{
+    marks?: Array<string>;
+    text?: string;
+    _type: "span";
+    _key: string;
+  }>;
+  style?: "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
+  listItem?: "bullet" | "number";
+  markDefs?: Array<{
+    _key: string;
+  } & LinkProduct | {
+    _key: string;
+  } & LinkEmail | {
+    _key: string;
+  } & LinkInternal | {
+    _key: string;
+  } & LinkExternal>;
+  level?: number;
+  _type: "block";
+  _key: string;
+} | {
+  _key: string;
+} & Accordion | {
+  _key: string;
+} & Callout | {
+  _key: string;
+} & Grid | {
+  _key: string;
+} & Images | {
+  _key: string;
+} & ImageWithProductHotspots | {
+  _key: string;
+} & Instagram | {
+  _key: string;
+} & Products>;
 
 export type Settings = {
   _id: string;
@@ -100,14 +81,11 @@ export type Settings = {
   _rev: string;
   menu?: Menu;
   footer?: FooterSettings;
-  customProductOptions?: Array<
-    | ({
-        _key: string;
-      } & CustomProductOptionColor)
-    | ({
-        _key: string;
-      } & CustomProductOptionSize)
-  >;
+  customProductOptions?: Array<{
+    _key: string;
+  } & CustomProductOptionColor | {
+    _key: string;
+  } & CustomProductOptionSize>;
   notFoundPage?: NotFoundPage;
   seo?: Seo;
 };
@@ -115,60 +93,49 @@ export type Settings = {
 export type PortableTextModule = {
   _type: "portableTextModule";
   title?: string;
-  content?: Array<
-    | {
-        children?: Array<{
-          marks?: Array<string>;
-          text?: string;
-          _type: "span";
-          _key: string;
-        }>;
-        style?: "normal" | "h1" | "h2" | "h3" | "h4" | "blockquote";
-        listItem?: "bullet" | "number";
-        markDefs?: Array<{
-          href?: string;
-          target?: "_self" | "_blank";
-          _type: "link";
-          _key: string;
-        }>;
-        level?: number;
-        _type: "block";
-        _key: string;
-      }
-    | {
-        asset?: {
-          _ref: string;
-          _type: "reference";
-          _weak?: boolean;
-          [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-        };
-        media?: unknown;
-        hotspot?: SanityImageHotspot;
-        crop?: SanityImageCrop;
-        alt?: string;
-        _type: "image";
-        _key: string;
-      }
-  >;
+  content?: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal" | "h1" | "h2" | "h3" | "h4" | "blockquote";
+    listItem?: "bullet" | "number";
+    markDefs?: Array<{
+      href?: string;
+      target?: "_self" | "_blank";
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  } | {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+    _key: string;
+  }>;
   maxWidth?: "max-w-2xl" | "max-w-4xl" | "max-w-6xl" | "max-w-full";
   textAlign?: "text-left" | "text-center" | "text-right";
+  source?: string;
+  linkText?: string;
+  link?: string;
 };
 
 export type ImageModule = {
   _type: "imageModule";
   mediaType?: "image" | "video";
-  imageHeight?:
-    | "50vh"
-    | "55vh"
-    | "60vh"
-    | "65vh"
-    | "70vh"
-    | "75vh"
-    | "80vh"
-    | "85vh"
-    | "90vh"
-    | "95vh"
-    | "100vh";
+  imageHeight?: "50vh" | "55vh" | "60vh" | "65vh" | "70vh" | "75vh" | "80vh" | "85vh" | "90vh" | "95vh" | "100vh";
   image?: {
     asset?: {
       _ref: string;
@@ -192,41 +159,38 @@ export type ImageModule = {
     media?: unknown;
     _type: "file";
   };
-  content?: Array<
-    | {
-        children?: Array<{
-          marks?: Array<string>;
-          text?: string;
-          _type: "span";
-          _key: string;
-        }>;
-        style?: "normal" | "h1" | "h2" | "h3" | "h4" | "blockquote";
-        listItem?: "bullet" | "number";
-        markDefs?: Array<{
-          href?: string;
-          target?: "_self" | "_blank";
-          _type: "link";
-          _key: string;
-        }>;
-        level?: number;
-        _type: "block";
-        _key: string;
-      }
-    | {
-        asset?: {
-          _ref: string;
-          _type: "reference";
-          _weak?: boolean;
-          [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-        };
-        media?: unknown;
-        hotspot?: SanityImageHotspot;
-        crop?: SanityImageCrop;
-        alt?: string;
-        _type: "image";
-        _key: string;
-      }
-  >;
+  content?: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal" | "h1" | "h2" | "h3" | "h4" | "blockquote";
+    listItem?: "bullet" | "number";
+    markDefs?: Array<{
+      href?: string;
+      target?: "_self" | "_blank";
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  } | {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+    _key: string;
+  }>;
 };
 
 export type SpotifyPlaylistsModule = {
@@ -255,12 +219,7 @@ export type EditorialModule = {
       _weak?: boolean;
       [internalGroqTypeReferenceTo]?: "blogPost";
     };
-    imageSelection?:
-      | "editorial"
-      | "featured"
-      | "gallery_0"
-      | "gallery_1"
-      | "gallery_2";
+    imageSelection?: "editorial" | "featured" | "gallery_0" | "gallery_1" | "gallery_2";
     _key: string;
   }>;
   buttonText?: string;
@@ -281,13 +240,7 @@ export type FeaturedProductsModule = {
       _weak?: boolean;
       [internalGroqTypeReferenceTo]?: "product";
     };
-    imageSelection?:
-      | "main"
-      | "gallery_0"
-      | "gallery_1"
-      | "gallery_2"
-      | "gallery_3"
-      | "gallery_4";
+    imageSelection?: "main" | "gallery_0" | "gallery_1" | "gallery_2" | "gallery_3" | "gallery_4";
     _type: "productWithImage";
     _key: string;
   }>;
@@ -326,18 +279,7 @@ export type HeroModule = {
   buttonText?: string;
   buttonLink?: string;
   textColor?: "black" | "white";
-  height?:
-    | "100vh"
-    | "95vh"
-    | "90vh"
-    | "85vh"
-    | "80vh"
-    | "75vh"
-    | "70vh"
-    | "65vh"
-    | "60vh"
-    | "55vh"
-    | "50vh";
+  height?: "100vh" | "95vh" | "90vh" | "85vh" | "80vh" | "75vh" | "70vh" | "65vh" | "60vh" | "55vh" | "50vh";
 };
 
 export type MuxVideo = {
@@ -393,19 +335,15 @@ export type ProductReference = {
   productWithVariant?: ProductWithVariant;
 };
 
-export type ProductHotspots = Array<
-  {
-    _key: string;
-  } & Spot
->;
+export type ProductHotspots = Array<{
+  _key: string;
+} & Spot>;
 
 export type Products = {
   _type: "products";
-  products?: Array<
-    {
-      _key: string;
-    } & ProductReference
-  >;
+  products?: Array<{
+    _key: string;
+  } & ProductReference>;
   layout?: "card" | "pill";
 };
 
@@ -443,30 +381,22 @@ export type NotFoundPage = {
 
 export type Menu = {
   _type: "menu";
-  links?: Array<
-    | ({
-        _key: string;
-      } & CollectionGroup)
-    | ({
-        _key: string;
-      } & LinkInternal)
-    | ({
-        _key: string;
-      } & LinkExternal)
-  >;
+  links?: Array<{
+    _key: string;
+  } & CollectionGroup | {
+    _key: string;
+  } & LinkInternal | {
+    _key: string;
+  } & LinkExternal>;
 };
 
-export type MenuLinks = Array<
-  | ({
-      _key: string;
-    } & CollectionGroup)
-  | ({
-      _key: string;
-    } & LinkInternal)
-  | ({
-      _key: string;
-    } & LinkExternal)
->;
+export type MenuLinks = Array<{
+  _key: string;
+} & CollectionGroup | {
+  _key: string;
+} & LinkInternal | {
+  _key: string;
+} & LinkExternal>;
 
 export type Inventory = {
   _type: "inventory";
@@ -512,29 +442,20 @@ export type ImageFeature = {
     crop?: SanityImageCrop;
     _type: "image";
   };
-  variant?:
-    | string
-    | "caption"
-    | "callToAction"
-    | "productHotspots"
-    | "productTags";
+  variant?: string | "caption" | "callToAction" | "productHotspots" | "productTags";
   caption?: string;
   callToAction?: ImageCallToAction;
   productHotspots?: ProductHotspots;
-  productTags?: Array<
-    {
-      _key: string;
-    } & ProductWithVariant
-  >;
+  productTags?: Array<{
+    _key: string;
+  } & ProductWithVariant>;
 };
 
 export type Images = {
   _type: "images";
-  imageFeatures?: Array<
-    {
-      _key: string;
-    } & ImageFeature
-  >;
+  imageFeatures?: Array<{
+    _key: string;
+  } & ImageFeature>;
   fullWidth?: boolean;
   verticalAlign?: "top" | "center" | "bottom";
 };
@@ -542,23 +463,18 @@ export type Images = {
 export type ImageCallToAction = {
   _type: "imageCallToAction";
   title?: string;
-  link?: Array<
-    | ({
-        _key: string;
-      } & LinkInternal)
-    | ({
-        _key: string;
-      } & LinkExternal)
-  >;
+  link?: Array<{
+    _key: string;
+  } & LinkInternal | {
+    _key: string;
+  } & LinkExternal>;
 };
 
 export type Grid = {
   _type: "grid";
-  items?: Array<
-    {
-      _key: string;
-    } & GridItem
-  >;
+  items?: Array<{
+    _key: string;
+  } & GridItem>;
 };
 
 export type GridItem = {
@@ -581,25 +497,20 @@ export type GridItem = {
 
 export type FooterSettings = {
   _type: "footerSettings";
-  links?: Array<
-    | ({
-        _key: string;
-      } & LinkInternal)
-    | ({
-        _key: string;
-      } & LinkExternal)
-  >;
+  links?: Array<{
+    _key: string;
+  } & LinkInternal | {
+    _key: string;
+  } & LinkExternal>;
   text?: PortableTextSimple;
 };
 
 export type CustomProductOptionSize = {
   _type: "customProductOption.size";
   title?: string;
-  sizes?: Array<
-    {
-      _key: string;
-    } & CustomProductOptionSizeObject
-  >;
+  sizes?: Array<{
+    _key: string;
+  } & CustomProductOptionSizeObject>;
 };
 
 export type CustomProductOptionSizeObject = {
@@ -612,11 +523,9 @@ export type CustomProductOptionSizeObject = {
 export type CustomProductOptionColor = {
   _type: "customProductOption.color";
   title?: string;
-  colors?: Array<
-    {
-      _key: string;
-    } & CustomProductOptionColorObject
-  >;
+  colors?: Array<{
+    _key: string;
+  } & CustomProductOptionColorObject>;
 };
 
 export type CustomProductOptionColorObject = {
@@ -668,54 +577,43 @@ export type CallToAction = {
   layout?: "left" | "right";
   title?: string;
   portableText?: string;
-  link?: Array<
-    | ({
-        _key: string;
-      } & LinkInternal)
-    | ({
-        _key: string;
-      } & LinkExternal)
-  >;
-  content?: Array<
-    | {
-        asset?: {
-          _ref: string;
-          _type: "reference";
-          _weak?: boolean;
-          [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-        };
-        media?: unknown;
-        hotspot?: SanityImageHotspot;
-        crop?: SanityImageCrop;
-        _type: "image";
-        _key: string;
-      }
-    | ({
-        _key: string;
-      } & ProductWithVariant)
-  >;
+  link?: Array<{
+    _key: string;
+  } & LinkInternal | {
+    _key: string;
+  } & LinkExternal>;
+  content?: Array<{
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+    _key: string;
+  } | {
+    _key: string;
+  } & ProductWithVariant>;
 };
 
 export type Callout = {
   _type: "callout";
   text?: string;
-  link?: Array<
-    | ({
-        _key: string;
-      } & LinkInternal)
-    | ({
-        _key: string;
-      } & LinkExternal)
-  >;
+  link?: Array<{
+    _key: string;
+  } & LinkInternal | {
+    _key: string;
+  } & LinkExternal>;
 };
 
 export type Accordion = {
   _type: "accordion";
-  groups?: Array<
-    {
-      _key: string;
-    } & AccordionGroup
-  >;
+  groups?: Array<{
+    _key: string;
+  } & AccordionGroup>;
 };
 
 export type AccordionGroup = {
@@ -749,31 +647,27 @@ export type ProductWithVariant = {
 
 export type LinkInternal = {
   _type: "linkInternal";
-  reference?:
-    | {
-        _ref: string;
-        _type: "reference";
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: "collection";
-      }
-    | {
-        _ref: string;
-        _type: "reference";
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: "home";
-      }
-    | {
-        _ref: string;
-        _type: "reference";
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: "page";
-      }
-    | {
-        _ref: string;
-        _type: "reference";
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: "product";
-      };
+  reference?: {
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "collection";
+  } | {
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "home";
+  } | {
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "page";
+  } | {
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "product";
+  };
 };
 
 export type Page = {
@@ -802,26 +696,19 @@ export type Home = {
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
-  modules?: Array<
-    | ({
-        _key: string;
-      } & HeroModule)
-    | ({
-        _key: string;
-      } & FeaturedProductsModule)
-    | ({
-        _key: string;
-      } & EditorialModule)
-    | ({
-        _key: string;
-      } & SpotifyPlaylistsModule)
-    | ({
-        _key: string;
-      } & ImageModule)
-    | ({
-        _key: string;
-      } & PortableTextModule)
-  >;
+  modules?: Array<{
+    _key: string;
+  } & HeroModule | {
+    _key: string;
+  } & FeaturedProductsModule | {
+    _key: string;
+  } & EditorialModule | {
+    _key: string;
+  } & SpotifyPlaylistsModule | {
+    _key: string;
+  } & ImageModule | {
+    _key: string;
+  } & PortableTextModule>;
   seo?: Seo;
 };
 
@@ -834,69 +721,53 @@ export type BlogPost = {
   title?: string;
   slug?: Slug;
   excerpt?: string;
-  content?: Array<
-    | {
-        children?: Array<{
-          marks?: Array<string>;
-          text?: string;
-          _type: "span";
-          _key: string;
-        }>;
-        style?: "normal" | "h1" | "h2" | "h3" | "h4" | "blockquote";
-        listItem?: "bullet" | "number";
-        markDefs?: Array<{
-          href?: string;
-          blank?: boolean;
-          _type: "link";
-          _key: string;
-        }>;
-        level?: number;
-        _type: "block";
-        _key: string;
-      }
-    | {
-        asset?: {
-          _ref: string;
-          _type: "reference";
-          _weak?: boolean;
-          [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-        };
-        media?: unknown;
-        hotspot?: SanityImageHotspot;
-        crop?: SanityImageCrop;
-        alt?: string;
-        caption?: string;
-        _type: "image";
-        _key: string;
-      }
-    | {
-        asset?: {
-          _ref: string;
-          _type: "reference";
-          _weak?: boolean;
-          [internalGroqTypeReferenceTo]?: "sanity.fileAsset";
-        };
-        media?: unknown;
-        _type: "file";
-        _key: string;
-      }
-    | ({
-        _key: string;
-      } & MuxVideo)
-  >;
+  content?: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal" | "h1" | "h2" | "h3" | "h4" | "blockquote";
+    listItem?: "bullet" | "number";
+    markDefs?: Array<{
+      href?: string;
+      blank?: boolean;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  } | {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    caption?: string;
+    _type: "image";
+    _key: string;
+  } | {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.fileAsset";
+    };
+    media?: unknown;
+    _type: "file";
+    _key: string;
+  } | {
+    _key: string;
+  } & MuxVideo>;
   mediaType?: "image" | "video";
-  heroHeight?:
-    | "100vh"
-    | "95vh"
-    | "90vh"
-    | "85vh"
-    | "80vh"
-    | "75vh"
-    | "70vh"
-    | "65vh"
-    | "60vh"
-    | "55vh"
-    | "50vh";
+  heroHeight?: "100vh" | "95vh" | "90vh" | "85vh" | "80vh" | "75vh" | "70vh" | "65vh" | "60vh" | "55vh" | "50vh";
   featuredImage?: {
     asset?: {
       _ref: string;
@@ -1013,6 +884,39 @@ export type Product = {
     [internalGroqTypeReferenceTo]?: "brand";
   };
   gender?: "mens" | "womens" | "unisex" | "kids";
+  collections?: Array<{
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    _key: string;
+    [internalGroqTypeReferenceTo]?: "collection";
+  }>;
+  shopifyCollectionIds?: Array<string>;
+  mainImage?: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  };
+  gallery?: Array<{
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+    _key: string;
+  }>;
 };
 
 export type Brand = {
@@ -1105,11 +1009,9 @@ export type ShopifyProduct = {
   tags?: string;
   priceRange?: PriceRange;
   previewImageUrl?: string;
-  options?: Array<
-    {
-      _key: string;
-    } & Option
-  >;
+  options?: Array<{
+    _key: string;
+  } & Option>;
   variants?: Array<{
     _ref: string;
     _type: "reference";
@@ -1148,30 +1050,28 @@ export type Collection = {
   };
   showHero?: boolean;
   hero?: Hero;
-  modules?: Array<
-    | ({
-        _key: string;
-      } & Callout)
-    | ({
-        _key: string;
-      } & CallToAction)
-    | {
-        asset?: {
-          _ref: string;
-          _type: "reference";
-          _weak?: boolean;
-          [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-        };
-        media?: unknown;
-        hotspot?: SanityImageHotspot;
-        crop?: SanityImageCrop;
-        _type: "image";
-        _key: string;
-      }
-    | ({
-        _key: string;
-      } & Instagram)
-  >;
+  modules?: Array<{
+    _key: string;
+  } & Callout | {
+    _key: string;
+  } & CallToAction | {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+    _key: string;
+  } | {
+    _key: string;
+  } & Instagram>;
+  featured?: boolean;
+  sortOrder?: number;
+  isActive?: boolean;
   store?: ShopifyCollection;
   seo?: Seo;
 };
@@ -1205,11 +1105,9 @@ export type ShopifyCollection = {
   slug?: Slug;
   descriptionHtml?: string;
   imageUrl?: string;
-  rules?: Array<
-    {
-      _key: string;
-    } & CollectionRule
-  >;
+  rules?: Array<{
+    _key: string;
+  } & CollectionRule>;
   disjunctive?: boolean;
   sortOrder?: string;
 };
@@ -1218,22 +1116,16 @@ export type Hero = {
   _type: "hero";
   title?: string;
   description?: string;
-  link?: Array<
-    | ({
-        _key: string;
-      } & LinkInternal)
-    | ({
-        _key: string;
-      } & LinkExternal)
-  >;
-  content?: Array<
-    | ({
-        _key: string;
-      } & ProductWithVariant)
-    | ({
-        _key: string;
-      } & ImageWithProductHotspots)
-  >;
+  link?: Array<{
+    _key: string;
+  } & LinkInternal | {
+    _key: string;
+  } & LinkExternal>;
+  content?: Array<{
+    _key: string;
+  } & ProductWithVariant | {
+    _key: string;
+  } & ImageWithProductHotspots>;
 };
 
 export type ColorTheme = {
@@ -1418,83 +1310,5 @@ export type SanityAssetSourceData = {
   url?: string;
 };
 
-export type AllSanitySchemaTypes =
-  | PortableTextSimple
-  | PortableText
-  | Settings
-  | PortableTextModule
-  | ImageModule
-  | SpotifyPlaylistsModule
-  | EditorialModule
-  | FeaturedProductsModule
-  | HeroModule
-  | MuxVideo
-  | Spot
-  | ProxyString
-  | ProductVariant
-  | ShopifyProductVariant
-  | ProductReference
-  | ProductHotspots
-  | Products
-  | PriceRange
-  | PlaceholderString
-  | Option
-  | NotFoundPage
-  | Menu
-  | MenuLinks
-  | Inventory
-  | Instagram
-  | ImageWithProductHotspots
-  | ImageFeature
-  | Images
-  | ImageCallToAction
-  | Grid
-  | GridItem
-  | FooterSettings
-  | CustomProductOptionSize
-  | CustomProductOptionSizeObject
-  | CustomProductOptionColor
-  | CustomProductOptionColorObject
-  | CollectionRule
-  | CollectionReference
-  | CollectionLinks
-  | CollectionGroup
-  | CallToAction
-  | Callout
-  | Accordion
-  | AccordionGroup
-  | LinkProduct
-  | ProductWithVariant
-  | LinkInternal
-  | Page
-  | Home
-  | BlogPost
-  | BlogCategory
-  | Product
-  | Brand
-  | Category
-  | ShopifyProduct
-  | Collection
-  | Seo
-  | ShopifyCollection
-  | Hero
-  | ColorTheme
-  | LinkExternal
-  | LinkEmail
-  | MediaTag
-  | Color
-  | RgbaColor
-  | HsvaColor
-  | HslaColor
-  | SanityImagePaletteSwatch
-  | SanityImagePalette
-  | SanityImageDimensions
-  | SanityImageHotspot
-  | SanityImageCrop
-  | SanityFileAsset
-  | SanityImageAsset
-  | SanityImageMetadata
-  | Geopoint
-  | Slug
-  | SanityAssetSourceData;
+export type AllSanitySchemaTypes = PortableTextSimple | PortableText | Settings | PortableTextModule | ImageModule | SpotifyPlaylistsModule | EditorialModule | FeaturedProductsModule | HeroModule | MuxVideo | Spot | ProxyString | ProductVariant | ShopifyProductVariant | ProductReference | ProductHotspots | Products | PriceRange | PlaceholderString | Option | NotFoundPage | Menu | MenuLinks | Inventory | Instagram | ImageWithProductHotspots | ImageFeature | Images | ImageCallToAction | Grid | GridItem | FooterSettings | CustomProductOptionSize | CustomProductOptionSizeObject | CustomProductOptionColor | CustomProductOptionColorObject | CollectionRule | CollectionReference | CollectionLinks | CollectionGroup | CallToAction | Callout | Accordion | AccordionGroup | LinkProduct | ProductWithVariant | LinkInternal | Page | Home | BlogPost | BlogCategory | Product | Brand | Category | ShopifyProduct | Collection | Seo | ShopifyCollection | Hero | ColorTheme | LinkExternal | LinkEmail | MediaTag | Color | RgbaColor | HsvaColor | HslaColor | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageHotspot | SanityImageCrop | SanityFileAsset | SanityImageAsset | SanityImageMetadata | Geopoint | Slug | SanityAssetSourceData;
 export declare const internalGroqTypeReferenceTo: unique symbol;
