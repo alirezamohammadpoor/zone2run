@@ -9,13 +9,11 @@ export const heroModule = defineType({
       name: "heroHeading",
       title: "Hero Heading",
       type: "string",
-      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: "heroSubparagraph",
       title: "Hero Subparagraph",
       type: "string",
-      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: "mediaType",
@@ -69,13 +67,11 @@ export const heroModule = defineType({
       name: "buttonText",
       title: "Button Text",
       type: "string",
-      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: "buttonLink",
       title: "Button Link",
       type: "string",
-      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: "textColor",
