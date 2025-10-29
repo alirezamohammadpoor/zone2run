@@ -16,17 +16,30 @@ function getSelectedImage(product: SanityProduct, imageSelection: string) {
     };
   }
 
-  // TODO: Handle gallery images (gallery_0, gallery_1, etc.) - will be implemented later
-  // if (imageSelection.startsWith("gallery_")) {
-  //   const index = parseInt(imageSelection.split("_")[1]);
-  //   const galleryImage = product.gallery?.[index];
-  //   if (galleryImage?.asset?.url) {
-  //     return {
-  //       url: galleryImage.asset.url,
-  //       alt: galleryImage.alt || "Product",
-  //     };
-  //   }
-  // }
+  // Handle gallery images (gallery_0, gallery_1, etc.)
+  if (imageSelection.startsWith("gallery_")) {
+    const index = parseInt(imageSelection.split("_")[1]);
+    const galleryLength = product.gallery?.length || 0;
+
+    // Check if index is valid
+    if (index >= galleryLength) {
+      // Fall back to main image if index doesn't exist
+      return {
+        url: product.mainImage?.url || "",
+        alt: product.mainImage?.alt || "Product",
+      };
+    }
+
+    const galleryImage = product.gallery?.[index];
+
+    // Check if gallery image exists and has URL
+    if (galleryImage?.url) {
+      return {
+        url: galleryImage.url,
+        alt: galleryImage.alt || "Product",
+      };
+    }
+  }
 
   // Fallback to main image
   return {
@@ -54,9 +67,11 @@ function FeaturedProductsModule({
       (item) => item.product?._ref === product._id
     );
 
+    const imageSelection = productItem?.imageSelection || "main";
+
     return {
       product,
-      imageSelection: productItem?.imageSelection || "main",
+      imageSelection,
     };
   });
 
@@ -110,7 +125,10 @@ function FeaturedProductsModule({
 
       {featuredProductsModule.displayType === "grid" ? (
         <HomeProductGrid
-          products={products}
+          products={productsWithImages.map(({ product, imageSelection }) => ({
+            ...product,
+            selectedImage: getSelectedImage(product, imageSelection),
+          }))}
           count={featuredProductsModule.productCount}
         />
       ) : (

@@ -1,6 +1,16 @@
 // lib/sanity/getData.ts
 import { client } from "@/sanity/lib/client";
+import { createClient } from "next-sanity";
+import { apiVersion, dataset, projectId } from "@/sanity/env";
 import type { SanityProduct } from "@/types/sanityProduct";
+
+// Create a non-CDN client for fetching latest data without cache
+const liveClient = createClient({
+  projectId,
+  dataset,
+  apiVersion,
+  useCdn: false, // Disable CDN to get latest published data immediately
+});
 
 export async function getSanityProductByHandle(
   handle: string
@@ -1110,6 +1120,10 @@ export async function getProductsByIds(
       "url": store.previewImageUrl,
       "alt": store.title
     },
+    "gallery": gallery[] {
+      "url": asset->url,
+      alt
+    } | order(_key asc),
     "options": store.options,
     "variants": store.variants[]-> {
       "id": store.gid,
@@ -1277,6 +1291,7 @@ export async function getHomepage() {
       ...select(_type == "featuredProductsModule" => {
         featuredProducts[] {
           ...,
+          imageSelection,
           product {
             _ref,
             _type
@@ -1356,7 +1371,8 @@ export async function getHomepage() {
   }`;
 
   try {
-    return await client.fetch(query);
+    // Use liveClient (no CDN) to get latest published data immediately
+    return await liveClient.fetch(query);
   } catch (error) {
     console.error("Error fetching homepage:", error);
     return null;

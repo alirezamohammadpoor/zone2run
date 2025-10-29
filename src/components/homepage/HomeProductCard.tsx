@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import type { SanityProduct } from "@/types/sanityProduct";
 
 interface HomeProductCardProps {
-  product: SanityProduct;
+  product: SanityProduct & { selectedImage?: { url: string; alt: string } };
 }
 
 export default function HomeProductCard({ product }: HomeProductCardProps) {
@@ -16,16 +16,19 @@ export default function HomeProductCard({ product }: HomeProductCardProps) {
     router.push(`/products/${product.handle}`);
   };
 
+  // Use selectedImage if provided, otherwise fall back to mainImage
+  const imageToUse = product.selectedImage || product.mainImage;
+
   return (
     <div
       className="w-full aspect-[3/4] flex flex-col hover:cursor-pointer"
       onClick={handleClick}
     >
-      {product.mainImage?.url && (
+      {imageToUse?.url && (
         <div className="w-full h-full relative bg-gray-100">
           <Image
-            src={product.mainImage.url}
-            alt={product.mainImage.alt}
+            src={imageToUse.url}
+            alt={imageToUse.alt || "Product"}
             fill
             sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
             className="object-cover"
