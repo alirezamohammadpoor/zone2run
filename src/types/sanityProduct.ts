@@ -21,6 +21,10 @@ export interface SanityProduct {
     url: string;
     alt: string;
   };
+  gallery?: Array<{
+    url: string;
+    alt?: string;
+  }>;
 
   // Options & Variants
   options: Array<{

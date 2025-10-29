@@ -14,7 +14,8 @@ function HeroModule({ heroModule }: { heroModule: HeroModule }) {
   return (
     <div className="w-full">
       <div
-        className={`flex w-full h-[${heroModule.height}] items-center relative`}
+        className="flex w-full items-center relative"
+        style={{ height: heroModule.height || "100vh" }}
       >
         {/* Background Media */}
         {heroModule.mediaType === "image" && heroModule.heroImage?.asset && (
@@ -37,25 +38,39 @@ function HeroModule({ heroModule }: { heroModule: HeroModule }) {
           />
         )}
 
-        <div className={`text-${heroModule.textColor} mt-auto mb-8 relative`}>
-          <h1 className={`text-${heroModule.textColor} text-xl ml-2`}>
+        <div
+          className={`${
+            heroModule.textColor === "white" ? "text-white" : "text-black"
+          } mt-auto mb-8 relative`}
+        >
+          <h1
+            className={`${
+              heroModule.textColor === "white" ? "text-white" : "text-black"
+            } text-xl ml-2`}
+          >
             {heroModule.heroHeading}
           </h1>
           <p
-            className={`text-${heroModule.textColor} text-base ml-2 mt-4 w-[70vw]`}
+            className={`${
+              heroModule.textColor === "white" ? "text-white" : "text-black"
+            } text-base ml-2 mt-4 w-[70vw]`}
           >
             {heroModule.heroSubparagraph}
           </p>
           <div className="flex items-center">
             <Link
               href={heroModule.buttonLink || "/"}
-              className={`text-${heroModule.textColor} text-sm ml-2 mt-4 flex items-center`}
+              className={`${
+                heroModule.textColor === "white" ? "text-white" : "text-black"
+              } text-sm ml-2 mt-4 flex items-center`}
             >
               {heroModule.buttonText}
               <svg
                 aria-hidden="true"
                 viewBox="0 0 5 8"
-                className="w-3 h-3 ml-2 mt-0.5 text-${heroModule.textColor}"
+                className={`w-3 h-3 ml-2 mt-0.5 ${
+                  heroModule.textColor === "white" ? "text-white" : "text-black"
+                }`}
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path

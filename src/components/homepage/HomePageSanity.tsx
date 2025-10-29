@@ -16,15 +16,11 @@ import { getProductsByIds } from "@/sanity/lib/getData";
 import type { SanityProduct } from "@/types/sanityProduct";
 
 async function HomePageSanity({ homepage }: { homepage: Home }) {
-  // Force update to ensure correct type import
-  // Add error handling and debugging
   if (!homepage) {
-    console.error("Homepage data is null or undefined");
     return <div>No homepage data available</div>;
   }
 
   if (!homepage.modules || homepage.modules.length === 0) {
-    console.warn("No modules found in homepage data");
     return <div>No homepage modules configured</div>;
   }
 
@@ -79,19 +75,13 @@ async function HomePageSanity({ homepage }: { homepage: Home }) {
     })
   );
 
-  const getProductsForModule = (moduleKey: string) => {
-    const moduleWithProducts = modulesWithProducts.find(
-      (item) => (item.module as any)._key === moduleKey
-    );
-    return moduleWithProducts?.products || [];
-  };
-
-  const getPostsForModule = (moduleKey: string) => {
-    const moduleWithPosts = modulesWithPosts.find(
-      (item) => (item.module as any)._key === moduleKey
-    );
-    return moduleWithPosts?.posts || [];
-  };
+  // Create maps for quick lookup
+  const featuredProductsMap = new Map(
+    modulesWithProducts.map((item) => [(item.module as any)._key, item])
+  );
+  const editorialModulesMap = new Map(
+    modulesWithPosts.map((item) => [(item.module as any)._key, item])
+  );
 
   return (
     <div className="w-full">
@@ -101,21 +91,25 @@ async function HomePageSanity({ homepage }: { homepage: Home }) {
         }
 
         if (module._type === "featuredProductsModule") {
+          const moduleWithProducts = featuredProductsMap.get(module._key);
+          if (!moduleWithProducts) return null;
           return (
             <FeaturedProductsModuleComponent
               key={module._key}
-              featuredProductsModule={module}
-              products={getProductsForModule(module._key)}
+              featuredProductsModule={moduleWithProducts.module}
+              products={moduleWithProducts.products}
             />
           );
         }
 
         if (module._type === "editorialModule") {
+          const moduleWithPosts = editorialModulesMap.get(module._key);
+          if (!moduleWithPosts) return null;
           return (
             <div key={module._key}>
               <EditorialModuleComponent
-                editorialModule={module}
-                posts={getPostsForModule(module._key)}
+                editorialModule={moduleWithPosts.module}
+                posts={moduleWithPosts.posts}
               />
             </div>
           );
