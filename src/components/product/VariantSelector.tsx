@@ -13,28 +13,30 @@ function VariantSelector({ product }: VariantSelectorProps) {
   const addItem = useCartStore((state) => state.addItem);
 
   // Get all unique sizes (both available and unavailable)
-  const allSizes = product.variants
-    .filter((variant) =>
-      variant.selectedOptions.some((opt) => opt.name === "Size")
-    )
-    .map(
-      (variant) =>
-        variant.selectedOptions.find((opt) => opt.name === "Size")?.value
-    )
-    .filter((size, index, arr) => size && arr.indexOf(size) === index);
+  const allSizes =
+    product.variants
+      ?.filter((variant) =>
+        variant.selectedOptions.some((opt) => opt.name === "Size")
+      )
+      .map(
+        (variant) =>
+          variant.selectedOptions.find((opt) => opt.name === "Size")?.value
+      )
+      .filter((size, index, arr) => size && arr.indexOf(size) === index) || [];
 
   // Get available sizes for comparison
-  const availableSizes = product.variants
-    .filter(
-      (variant) =>
-        variant.available &&
-        variant.selectedOptions.some((opt) => opt.name === "Size")
-    )
-    .map(
-      (variant) =>
-        variant.selectedOptions.find((opt) => opt.name === "Size")?.value
-    )
-    .filter((size, index, arr) => size && arr.indexOf(size) === index);
+  const availableSizes =
+    product.variants
+      ?.filter(
+        (variant) =>
+          variant.available &&
+          variant.selectedOptions.some((opt) => opt.name === "Size")
+      )
+      .map(
+        (variant) =>
+          variant.selectedOptions.find((opt) => opt.name === "Size")?.value
+      )
+      .filter((size, index, arr) => size && arr.indexOf(size) === index) || [];
 
   return (
     <div className="max-w-md mx-auto p-4 mt-4">
@@ -58,7 +60,7 @@ function VariantSelector({ product }: VariantSelectorProps) {
                 if (!isAvailable) return; // Prevent selection of unavailable variants
 
                 // Find the correct variant for this size
-                const variant = product.variants.find(
+                const variant = product.variants?.find(
                   (variant) =>
                     variant.selectedOptions.find((opt) => opt.name === "Size")
                       ?.value === size && variant.available
