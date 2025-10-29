@@ -981,13 +981,12 @@ export async function getMainCategoryBySub(subcategorySlug: string) {
 }
 export async function getProductDescription(productId: string) {
   const query = `*[_type == "product" && _id == $productId] {
-    description,
-    "descriptionRaw": description[].children[].text
+ "htmlDescription": store.htmlDescription
   }[0]`;
 
   try {
     const result = await client.fetch(query, { productId });
-    return result?.descriptionRaw?.join(" ") || null;
+    return result?.htmlDescription || null;
   } catch (error) {
     console.error(
       `Error fetching product description for ${productId}:`,

@@ -135,16 +135,7 @@ function ProductDetails({ product }: ProductDetailsProps) {
       </div>
 
       <VariantSelector product={product} />
-      <AddToCart
-        product={{
-          title: displayTitle,
-          handle: product.handle,
-          productImage: getMainImage(),
-          brand: brandName || "",
-          currencyCode: getPrice().currencyCode,
-        }}
-        selectedVariant={selectedVariant}
-      />
+      <AddToCart product={product} selectedVariant={selectedVariant} />
     </div>
   );
 }
