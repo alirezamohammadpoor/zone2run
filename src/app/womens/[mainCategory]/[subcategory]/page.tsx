@@ -1,4 +1,4 @@
-import { getProductsByPath } from "@/sanity/lib/getData";
+import { getProductsBySubcategoryIncludingSubSubcategories } from "@/sanity/lib/getData";
 import { notFound } from "next/navigation";
 import ProductGrid from "@/components/ProductGrid";
 
@@ -9,7 +9,11 @@ export default async function WomensSubcategoryPage({
 }) {
   const { mainCategory, subcategory } = await params;
 
-  const products = await getProductsByPath("women", "subcategory", subcategory);
+  const products = await getProductsBySubcategoryIncludingSubSubcategories(
+    "women",
+    mainCategory,
+    subcategory
+  );
 
   if (!products || products.length === 0) {
     notFound();

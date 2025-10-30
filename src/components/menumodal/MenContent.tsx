@@ -1,9 +1,5 @@
 "use client";
 
-import {
-  getMainCategoryBySub,
-  getSubSubcategoriesByParentAndGender,
-} from "@/sanity/lib/getData";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -13,9 +9,6 @@ function MenContent({ onClose, data }: { onClose: () => void; data: any }) {
   const [openSubcategories, setOpenSubcategories] = useState<Set<string>>(
     new Set()
   );
-  const [subSubcategories, setSubSubcategories] = useState<{
-    [key: string]: any[];
-  }>({});
 
   const toggleCategory = (categorySlug: string) => {
     setOpenCategories((prev) => {
@@ -29,7 +22,7 @@ function MenContent({ onClose, data }: { onClose: () => void; data: any }) {
     });
   };
 
-  const toggleSubcategory = async (
+  const toggleSubcategory = (
     subcategorySlug: string,
     mainCategorySlug: string
   ) => {
@@ -39,57 +32,17 @@ function MenContent({ onClose, data }: { onClose: () => void; data: any }) {
         newSet.delete(subcategorySlug);
       } else {
         newSet.add(subcategorySlug);
-        // Fetch sub-subcategories when opening
-        fetchSubSubcategories(subcategorySlug, mainCategorySlug);
       }
       return newSet;
     });
   };
 
-  const fetchSubSubcategories = async (
+  const handleSubcategoryClick = (
     subcategorySlug: string,
     mainCategorySlug: string
   ) => {
-    try {
-      const subSubcats = await getSubSubcategoriesByParentAndGender(
-        subcategorySlug,
-        "men"
-      );
-      setSubSubcategories((prev) => ({
-        ...prev,
-        [subcategorySlug]: subSubcats || [],
-      }));
-    } catch (error) {
-      console.error(
-        `Error fetching sub-subcategories for ${subcategorySlug}:`,
-        error
-      );
-      setSubSubcategories((prev) => ({
-        ...prev,
-        [subcategorySlug]: [],
-      }));
-    }
-  };
-
-  const handleSubcategoryClick = async (subcategorySlug: string) => {
-    try {
-      const subcategoryData = await getMainCategoryBySub(subcategorySlug);
-      if (subcategoryData?.parentCategory?.slug?.current) {
-        router.push(
-          `/mens/${subcategoryData.parentCategory.slug.current}/${subcategorySlug}`
-        );
-        onClose();
-      } else {
-        console.error(
-          `No parent category found for subcategory: ${subcategorySlug}`
-        );
-      }
-    } catch (error) {
-      console.error(
-        `Error navigating to subcategory ${subcategorySlug}:`,
-        error
-      );
-    }
+    router.push(`/mens/${mainCategorySlug}/${subcategorySlug}`);
+    onClose();
   };
 
   const handleSubSubcategoryClick = (
@@ -151,7 +104,7 @@ function MenContent({ onClose, data }: { onClose: () => void; data: any }) {
 
               <div
                 className={`mt-2 space-y-2 overflow-hidden transition-all duration-700 ease-in-out ${
-                  isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+                  isOpen ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
                 }`}
               >
                 {/* View All button */}
@@ -168,47 +121,75 @@ function MenContent({ onClose, data }: { onClose: () => void; data: any }) {
                   const isSubOpen = openSubcategories.has(
                     subcategory.slug.current
                   );
-                  const subSubcats =
-                    subSubcategories[subcategory.slug.current] || [];
+                  const subSubcats = subcategory.subSubcategories || [];
 
                   return (
                     <div key={subcategory._id} className="pl-2">
-                      <button
-                        className="text-sm hover:text-gray-500 text-left w-full flex justify-between items-center"
-                        onClick={() =>
-                          toggleSubcategory(subcategory.slug.current, category)
-                        }
-                      >
-                        <span>{subcategory.title}</span>
-                        {subSubcats.length > 0 && (
-                          <svg
-                            aria-hidden="true"
-                            viewBox="0 0 5 8"
-                            style={{
-                              transform: isSubOpen
-                                ? "rotate(90deg)"
-                                : "rotate(0deg)",
-                              transition: "transform 0.3s ease-in-out",
-                            }}
-                            className="w-2 h-2 text-black"
-                            xmlns="http://www.w3.org/2000/svg"
+                      <div className="flex justify-between items-center w-full">
+                        {subSubcats.length > 0 ? (
+                          <>
+                            <button
+                              className="text-sm hover:text-gray-500 text-left flex-1"
+                              onClick={() =>
+                                toggleSubcategory(
+                                  subcategory.slug.current,
+                                  category
+                                )
+                              }
+                            >
+                              {subcategory.title}
+                            </button>
+                            <button
+                              onClick={() =>
+                                toggleSubcategory(
+                                  subcategory.slug.current,
+                                  category
+                                )
+                              }
+                              className="ml-2 p-1"
+                            >
+                              <svg
+                                aria-hidden="true"
+                                viewBox="0 0 5 8"
+                                style={{
+                                  transform: isSubOpen
+                                    ? "rotate(90deg)"
+                                    : "rotate(0deg)",
+                                  transition: "transform 0.3s ease-in-out",
+                                }}
+                                className="w-2 h-2 text-black"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  clipRule="evenodd"
+                                  d="M0.707107 7.70711L0 7L3.14645 3.85355L0 0.707107L0.707107 0L4.56066 3.85355L0.707107 7.70711Z"
+                                  fill="currentColor"
+                                />
+                              </svg>
+                            </button>
+                          </>
+                        ) : (
+                          <button
+                            className="text-sm hover:text-gray-500 text-left flex-1"
+                            onClick={() =>
+                              handleSubcategoryClick(
+                                subcategory.slug.current,
+                                category
+                              )
+                            }
                           >
-                            <path
-                              fillRule="evenodd"
-                              clipRule="evenodd"
-                              d="M0.707107 7.70711L0 7L3.14645 3.85355L0 0.707107L0.707107 0L4.56066 3.85355L0.707107 7.70711Z"
-                              fill="currentColor"
-                            />
-                          </svg>
+                            {subcategory.title}
+                          </button>
                         )}
-                      </button>
+                      </div>
 
                       {/* Sub-subcategories */}
                       {subSubcats.length > 0 && (
                         <div
                           className={`ml-2 space-y-1 overflow-hidden transition-all duration-500 ease-in-out ${
                             isSubOpen
-                              ? "max-h-96 opacity-100"
+                              ? "max-h-[500px] opacity-100"
                               : "max-h-0 opacity-0"
                           }`}
                         >

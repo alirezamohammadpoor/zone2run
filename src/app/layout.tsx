@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Header from "@/components/Header";
+import HeaderServer from "@/components/HeaderServer";
 import { ScrollRestoration } from "@/components/ScrollRestoration";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -19,7 +19,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <ScrollRestoration />
-        <Header />
+        <HeaderServer />
         {children}
         <Analytics />
         <SpeedInsights />

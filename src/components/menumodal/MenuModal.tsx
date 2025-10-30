@@ -2,10 +2,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useModalScroll } from "@/hooks/useModalScroll";
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
-import {
-  getSubcategoriesByParentAndGender,
-  getAllMainCategories,
-} from "@/sanity/lib/getData";
 import MenContent from "./MenContent";
 import WomenContent from "./WomenContent";
 import HelpContent from "./HelpContent";
@@ -15,17 +11,16 @@ import { menuConfig } from "./menuConfig";
 function MenuModal({
   isMenuOpen,
   setIsMenuOpen,
+  menuData,
 }: {
   isMenuOpen: boolean;
   setIsMenuOpen: (isOpen: boolean) => void;
+  menuData?: { [key: string]: any };
 }) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<keyof typeof menuConfig | null>(
     null
   );
-
-  const [menuData, setMenuData] = useState<{ [key: string]: any }>({});
-  const [isLoading, setIsLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
 
   const { unlockScroll } = useModalScrollRestoration();
@@ -51,60 +46,12 @@ function MenuModal({
     setIsMounted(true);
   }, []);
 
+  // Set default tab when data is loaded
   useEffect(() => {
-    const fetchMenuData = async () => {
-      try {
-        // Fetch main categories dynamically from Sanity
-        const mainCategories = await getAllMainCategories();
-
-        if (!mainCategories || mainCategories.length === 0) {
-          console.warn("No main categories found");
-          return;
-        }
-
-        const genders = ["men", "women"];
-        const data: { [key: string]: any } = {};
-
-        for (const gender of genders) {
-          data[gender] = {};
-
-          for (const category of mainCategories) {
-            if (!category.slug?.current) {
-              console.warn(`Category ${category.title} has no slug`);
-              continue;
-            }
-
-            try {
-              const subcategories = await getSubcategoriesByParentAndGender(
-                category.slug.current,
-                gender
-              );
-              data[gender][category.slug.current] = subcategories || [];
-            } catch (categoryError) {
-              console.error(
-                `Error fetching subcategories for ${category.slug.current}:`,
-                categoryError
-              );
-              data[gender][category.slug.current] = [];
-            }
-          }
-        }
-
-        setMenuData(data);
-        // Set default tab to "men" after data is loaded
-        setActiveTab("men");
-      } catch (error) {
-        console.error("Error fetching menu data:", error);
-        // Set empty data structure to prevent UI errors
-        setMenuData({ men: {}, women: {} });
-        setActiveTab("men");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchMenuData();
-  }, []);
+    if (menuData && Object.keys(menuData).length > 0 && activeTab === null) {
+      setActiveTab("men");
+    }
+  }, [menuData, activeTab]);
 
   return (
     <>
@@ -151,7 +98,7 @@ function MenuModal({
 
         {/* Scrollable Content Area */}
         <div className="flex-1 overflow-y-auto">
-          {!isMounted || isLoading ? (
+          {!isMounted || !menuData || Object.keys(menuData).length === 0 ? (
             <div className="p-4 text-center">Loading...</div>
           ) : (
             <>
