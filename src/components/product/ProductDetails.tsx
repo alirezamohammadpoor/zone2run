@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import Link from "next/link";
 import ProductGallery from "./ProductGallery";
 import VariantSelector from "./VariantSelector";
 import AddToCart from "./AddToCart";
@@ -21,39 +22,64 @@ function ProductDetails({ product }: ProductDetailsProps) {
     // Add gender
     if (product.gender === "mens" || product.gender === "womens") {
       const formattedGender = product.gender === "womens" ? "Women's" : "Men's";
-      const frontendGender = product.gender === "womens" ? "women" : "men";
       breadcrumbs.push({
         label: formattedGender,
-        href: `/products/${frontendGender}`,
+        href: `/${product.gender}`,
       });
     }
 
-    // Add category hierarchy
+    // Add category hierarchy - handle 3-level structure (main/sub/specific)
     if (
-      product.category?.categoryType === "sub" &&
-      product.category.parentCategory?.title
+      product.category?.categoryType === "specific" &&
+      product.category.parentCategory?.parentCategory?.title
     ) {
-      const frontendGender = product.gender === "womens" ? "women" : "men";
+      // 3-level: main > sub > specific
+      breadcrumbs.push({
+        label: product.category.parentCategory.parentCategory.title,
+        href: `/${product.gender}/${product.category.parentCategory.parentCategory.slug}`,
+      });
       breadcrumbs.push({
         label: product.category.parentCategory.title,
-        href: `/products/${frontendGender}/${product.category.parentCategory.slug}`,
+        href: `/${product.gender}/${product.category.parentCategory.parentCategory.slug}/${product.category.parentCategory.slug}`,
       });
       breadcrumbs.push({
         label: product.category.title,
-        href: `/products/${frontendGender}/${product.category.parentCategory.slug}/${product.category.slug}`,
+        href: `/${product.gender}/${product.category.parentCategory.parentCategory.slug}/${product.category.parentCategory.slug}/${product.category.slug}`,
+      });
+    } else if (
+      product.category?.categoryType === "subcategory" &&
+      product.category.parentCategory?.title
+    ) {
+      // 2-level: main > sub
+      breadcrumbs.push({
+        label: product.category.parentCategory.title,
+        href: `/${product.gender}/${product.category.parentCategory.slug}`,
+      });
+      breadcrumbs.push({
+        label: product.category.title,
+        href: `/${product.gender}/${product.category.parentCategory.slug}/${product.category.slug}`,
+      });
+    } else if (
+      product.category?.categoryType === "main" &&
+      product.category.title
+    ) {
+      // 1-level: main only
+      breadcrumbs.push({
+        label: product.category.title,
+        href: `/${product.gender}/${product.category.slug}`,
       });
     } else if (product.category?.title) {
-      const frontendGender = product.gender === "womens" ? "women" : "men";
+      // Fallback for any other category type
       breadcrumbs.push({
         label: product.category.title,
-        href: `/products/${frontendGender}/${product.category.slug}`,
+        href: `/${product.gender}/${product.category.slug}`,
       });
     }
 
     // Add current product
     breadcrumbs.push({
       label: product.title,
-      href: `/products/item/${product.handle}`,
+      href: `/products/${product.handle}`,
     });
 
     return breadcrumbs;
@@ -84,12 +110,12 @@ function ProductDetails({ product }: ProductDetailsProps) {
             <span key={index}>
               {index > 0 && " > "}
               {crumb.href ? (
-                <a
+                <Link
                   href={crumb.href}
                   className="hover:text-gray-700 hover:underline cursor-pointer"
                 >
                   {crumb.label}
-                </a>
+                </Link>
               ) : (
                 <span className="text-gray-900">{crumb.label}</span>
               )}
@@ -109,16 +135,7 @@ function ProductDetails({ product }: ProductDetailsProps) {
       </div>
 
       <VariantSelector product={product} />
-      <AddToCart
-        product={{
-          title: displayTitle,
-          handle: product.handle,
-          productImage: getMainImage(),
-          brand: brandName || "",
-          currencyCode: getPrice().currencyCode,
-        }}
-        selectedVariant={selectedVariant}
-      />
+      <AddToCart product={product} selectedVariant={selectedVariant} />
     </div>
   );
 }

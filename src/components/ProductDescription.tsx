@@ -1,15 +1,21 @@
 import React from "react";
-import { getProductDescription } from "@/sanity/lib/getData";
 
-async function ProductDescription({ productId }: { productId: string }) {
-  const productDescription = await getProductDescription(productId);
+function ProductDescription({ description }: { description: string }) {
+  // Strip HTML tags and convert to clean text
+  const cleanDescription = description
+    .replace(/<p>/g, "")
+    .replace(/<\/p>/g, "\n")
+    .replace(/<br\s*\/?>/g, "\n")
+    .replace(/<[^>]*>/g, "") // Remove any remaining HTML tags
+    .trim();
+
   return (
     <div>
       <div className="mt-12 mb-12 ml-2">
-        <p className="font-medium text-sm uppercase mb-2">
-          Product Description
+        <p className="font-medium text-sm mb-2">Product Description</p>
+        <p className="text-sm w-[90vw] text-black whitespace-pre-line">
+          {cleanDescription}
         </p>
-        <p className="text-sm text-black">{productDescription}</p>
       </div>
     </div>
   );

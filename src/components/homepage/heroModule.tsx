@@ -14,7 +14,8 @@ function HeroModule({ heroModule }: { heroModule: HeroModule }) {
   return (
     <div className="w-full">
       <div
-        className={`flex w-full h-[${heroModule.height}] items-center relative`}
+        className="flex w-full items-center relative"
+        style={{ height: heroModule.height || "100vh" }}
       >
         {/* Background Media */}
         {heroModule.mediaType === "image" && heroModule.heroImage?.asset && (
@@ -37,23 +38,48 @@ function HeroModule({ heroModule }: { heroModule: HeroModule }) {
           />
         )}
 
-        <div className={`text-${heroModule.textColor} mt-auto mb-8 relative`}>
+        <div
+          className={`${
+            heroModule.textColor === "white" ? "text-white" : "text-black"
+          } mt-auto mb-8 relative`}
+        >
           <h1
-            className={`text-${heroModule.textColor} text-2xl ml-2 font-bold`}
+            className={`${
+              heroModule.textColor === "white" ? "text-white" : "text-black"
+            } text-xl ml-2`}
           >
             {heroModule.heroHeading}
           </h1>
           <p
-            className={`text-${heroModule.textColor} text-md font-medium ml-2 mt-4 w-[70vw]`}
+            className={`${
+              heroModule.textColor === "white" ? "text-white" : "text-black"
+            } text-base ml-2 mt-2 w-[70vw]`}
           >
             {heroModule.heroSubparagraph}
           </p>
-          <div className="flex justify-between items-center">
+          <div className="flex items-center">
             <Link
               href={heroModule.buttonLink || "/"}
-              className={`text-${heroModule.textColor} text-md font-medium ml-2 mt-4`}
+              className={`${
+                heroModule.textColor === "white" ? "text-white" : "text-black"
+              } text-base ml-2 mt-4 flex items-center`}
             >
               {heroModule.buttonText}
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 5 8"
+                className={`w-3 h-3 ml-1.5 mt-1 ${
+                  heroModule.textColor === "white" ? "text-white" : "text-black"
+                }`}
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M0.707107 7.70711L0 7L3.14645 3.85355L0 0.707107L0.707107 0L4.56066 3.85355L0.707107 7.70711Z"
+                  fill="currentColor"
+                />
+              </svg>
             </Link>
           </div>
         </div>

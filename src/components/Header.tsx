@@ -15,7 +15,7 @@ import { useHasMounted } from "@/hooks/useHasMounted";
 import { Search } from "lucide-react";
 import AddedToCartModal from "./product/AddedToCartModal";
 
-function Header() {
+function Header({ menuData }: { menuData?: { [key: string]: any } }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isSearchOpen, setIsSearchOpen } = useSearchStore();
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -41,7 +41,7 @@ function Header() {
           </button>
         </div>
         <div className="absolute left-1/2 transform -translate-x-1/2">
-          <Link href="/" className="text-lg font-bold cursor-pointer">
+          <Link href="/" className="text-lg cursor-pointer">
             Zone 2
           </Link>
         </div>
@@ -67,7 +67,11 @@ function Header() {
         </div>
       </nav>
 
-      <MenuModal isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
+      <MenuModal
+        isMenuOpen={isMenuOpen}
+        setIsMenuOpen={setIsMenuOpen}
+        menuData={menuData}
+      />
       <SearchModal />
       <CartModal isCartOpen={isCartOpen} setIsCartOpen={setIsCartOpen} />
       <AddedToCartModal isCartOpen={isCartOpen} setIsCartOpen={setIsCartOpen} />

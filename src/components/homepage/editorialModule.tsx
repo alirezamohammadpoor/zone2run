@@ -8,7 +8,7 @@ import Image from "next/image";
 // Helper function to format dates consistently for SSR
 function formatDate(dateString: string) {
   const date = new Date(dateString);
-  return date.toLocaleDateString("en-US", {
+  return date.toLocaleDateString("en-GB", {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
@@ -117,28 +117,26 @@ function EditorialModuleComponent({
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
                 ) : (
-                  <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                    <p className="text-gray-500">No image</p>
+                  <div className="w-full h-full flex items-center justify-center">
+                    <p className="text-black">No image</p>
                   </div>
                 )}
               </div>
 
               <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-gray-500">
+                <div className="flex items-center gap-2 text-sm">
                   <span>{post.category?.title}</span>
                   <span>•</span>
                   <span>{post.readingTime} min read</span>
                 </div>
 
-                <h3 className="text-xl font-semibold text-black group-hover:underline line-clamp-2">
+                <h3 className="text-xl text-black group-hover:underline">
                   {post.title}
                 </h3>
 
-                {post.excerpt && (
-                  <p className="text-gray-600 line-clamp-3">{post.excerpt}</p>
-                )}
+                {post.excerpt && <p className="text-sm">{post.excerpt}</p>}
 
-                <div className="flex items-center justify-between text-sm text-gray-500">
+                <div className="flex items-center justify-between text-sm">
                   <span>By {post.author}</span>
                   <span>{formatDate(post.publishedAt)}</span>
                 </div>

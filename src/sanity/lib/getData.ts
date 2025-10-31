@@ -1,6 +1,16 @@
 // lib/sanity/getData.ts
 import { client } from "@/sanity/lib/client";
+import { createClient } from "next-sanity";
+import { apiVersion, dataset, projectId } from "@/sanity/env";
 import type { SanityProduct } from "@/types/sanityProduct";
+
+// Create a non-CDN client for fetching latest data without cache
+const liveClient = createClient({
+  projectId,
+  dataset,
+  apiVersion,
+  useCdn: false, // Disable CDN to get latest published data immediately
+});
 
 export async function getSanityProductByHandle(
   handle: string
@@ -43,7 +53,13 @@ export async function getSanityProductByHandle(
       parentCategory-> {
         _id,
         title,
-        "slug": slug.current
+        "slug": slug.current,
+        categoryType,
+        parentCategory-> {
+          _id,
+          title,
+          "slug": slug.current
+        }
       }
     },
     brand-> {
@@ -106,7 +122,13 @@ export async function getAllProducts(): Promise<SanityProduct[]> {
       parentCategory-> {
         _id,
         title,
-        "slug": slug.current
+        "slug": slug.current,
+        categoryType,
+        parentCategory-> {
+          _id,
+          title,
+          "slug": slug.current
+        }
       }
     },
     brand-> {
@@ -269,7 +291,13 @@ export async function getProductsByCategory(
       parentCategory-> {
         _id,
         title,
-        "slug": slug.current
+        "slug": slug.current,
+        categoryType,
+        parentCategory-> {
+          _id,
+          title,
+          "slug": slug.current
+        }
       }
     },
     brand-> {
@@ -338,7 +366,13 @@ export async function getProductsByBrand(
       parentCategory-> {
         _id,
         title,
-        "slug": slug.current
+        "slug": slug.current,
+        categoryType,
+        parentCategory-> {
+          _id,
+          title,
+          "slug": slug.current
+        }
       }
     },
     brand-> {
@@ -415,7 +449,13 @@ export async function getProductsByGender(
       parentCategory-> {
         _id,
         title,
-        "slug": slug.current
+        "slug": slug.current,
+        categoryType,
+        parentCategory-> {
+          _id,
+          title,
+          "slug": slug.current
+        }
       }
     },
     brand-> {
@@ -462,12 +502,16 @@ export async function getProductsByPath(
       ? `*[_type == "product" && 
         (gender == $gender || gender == "unisex") && 
         (
+          // Products directly in the main category
+          (category->categoryType == "main" && 
+           category->slug.current == $categorySlug)
+          ||
           // Products directly in subcategories under this main category
-          (category->categoryType == "sub" && 
+          (category->categoryType == "subcategory" && 
            category->parentCategory->slug.current == $categorySlug)
           ||
           // Products in sub-subcategories under subcategories of this main category
-          (category->categoryType == "sub" && 
+          (category->categoryType == "specific" && 
            category->parentCategory->parentCategory->slug.current == $categorySlug)
         )
       ] {
@@ -508,7 +552,13 @@ export async function getProductsByPath(
       parentCategory-> {
         _id,
         title,
-        "slug": slug.current
+        "slug": slug.current,
+        categoryType,
+        parentCategory-> {
+          _id,
+          title,
+          "slug": slug.current
+        }
       }
     },
     brand-> {
@@ -565,7 +615,13 @@ export async function getProductsByPath(
       parentCategory-> {
         _id,
         title,
-        "slug": slug.current
+        "slug": slug.current,
+        categoryType,
+        parentCategory-> {
+          _id,
+          title,
+          "slug": slug.current
+        }
       }
     },
     brand-> {
@@ -618,12 +674,12 @@ export async function getProductsBySubcategoryIncludingSubSubcategories(
     (gender == $gender || gender == "unisex") && 
     (
       // Products directly in the subcategory
-      (category->categoryType == "sub" && 
+      (category->categoryType == "subcategory" && 
        category->slug.current == $subcategorySlug &&
        category->parentCategory->slug.current == $mainCategorySlug)
       ||
       // Products in sub-subcategories under this subcategory
-      (category->categoryType == "sub" && 
+      (category->categoryType == "specific" && 
        category->parentCategory->slug.current == $subcategorySlug &&
        category->parentCategory->parentCategory->slug.current == $mainCategorySlug)
     )
@@ -727,7 +783,7 @@ export async function getProductsByPath3Level(
   // For 3-level categories, find products in the specific sub-subcategory
   const query = `*[_type == "product" && 
     (gender == $gender || gender == "unisex") && 
-    category->categoryType == "sub" && 
+    category->categoryType == "specific" && 
     category->slug.current == $subsubcategorySlug &&
     category->parentCategory->slug.current == $subcategorySlug &&
     category->parentCategory->parentCategory->slug.current == $mainCategorySlug
@@ -827,7 +883,7 @@ export async function getSubSubcategoriesByParentAndGender(
   const dbGender = genderMap[gender] || gender;
 
   const query = `*[_type == "category" && 
-    categoryType == "sub" && 
+    categoryType == "specific" && 
     parentCategory->slug.current == $parentSlug
   ] {
     _id,
@@ -873,9 +929,9 @@ export async function getSubcategoriesByParentAndGender(
 
   const dbGender = genderMap[gender] || gender;
 
-  // Use the same category type as breadcrumbs: "sub"
+  // Use the correct category type for subcategories
   const query = `*[_type == "category" && 
-    categoryType == "sub" && 
+    categoryType == "subcategory" && 
     parentCategory->slug.current == $parentSlug
   ] {
     _id,
@@ -906,7 +962,7 @@ export async function getSubcategoriesByParentAndGender(
 
 export async function getMainCategoryBySub(subcategorySlug: string) {
   const query = `*[_type == "category" && 
-    categoryType == "sub" && 
+    categoryType == "subcategory" && 
     slug.current == $subcategorySlug
   ][0] {
     _id,
@@ -935,13 +991,12 @@ export async function getMainCategoryBySub(subcategorySlug: string) {
 }
 export async function getProductDescription(productId: string) {
   const query = `*[_type == "product" && _id == $productId] {
-    description,
-    "descriptionRaw": description[].children[].text
+ "htmlDescription": store.htmlDescription
   }[0]`;
 
   try {
     const result = await client.fetch(query, { productId });
-    return result?.descriptionRaw?.join(" ") || null;
+    return result?.htmlDescription || null;
   } catch (error) {
     console.error(
       `Error fetching product description for ${productId}:`,
@@ -957,6 +1012,48 @@ export async function getBlogPosts(limit?: number) {
     title,
     slug {
       current
+    },
+    productsModule {
+      ...,
+      featuredProducts[] {
+        ...,
+        product-> {
+          _id,
+          "title": coalesce(title, store.title),
+          "handle": coalesce(shopifyHandle, store.slug.current),
+          brand-> { _id, name },
+          "mainImage": { "url": store.previewImageUrl, "alt": store.title },
+          "gallery": gallery[] { "url": asset->url, alt } | order(_key asc)
+        }
+      }
+    },
+    featuredProductsModule {
+      ...,
+      featuredProducts[] {
+        ...,
+        product-> {
+          _id,
+          "title": coalesce(title, store.title),
+          "handle": coalesce(shopifyHandle, store.slug.current),
+          brand-> { _id, name },
+          "mainImage": { "url": store.previewImageUrl, "alt": store.title },
+          "gallery": gallery[] { "url": asset->url, alt } | order(_key asc)
+        }
+      }
+    },
+    productShowcaseModule {
+      ...,
+      featuredProducts[] {
+        ...,
+        product-> {
+          _id,
+          "title": coalesce(title, store.title),
+          "handle": coalesce(shopifyHandle, store.slug.current),
+          brand-> { _id, name },
+          "mainImage": { "url": store.previewImageUrl, "alt": store.title },
+          "gallery": gallery[] { "url": asset->url, alt } | order(_key asc)
+        }
+      }
     },
     excerpt,
     publishedAt,
@@ -994,18 +1091,32 @@ export async function getBlogPosts(limit?: number) {
 
 export async function getBlogPost(slug: string) {
   const query = `*[_type == "blogPost" && slug.current == $slug][0] {
+    ...,
     _id,
     title,
-    slug {
-      current
-    },
+    slug { current },
     content[] {
       ...,
       _type == "image" => {
         ...,
-        asset-> {
-          url,
-          metadata
+        asset-> { url, metadata }
+      },
+      _type == "blogProductsModule" => {
+        ...,
+        featuredProducts[] {
+          ...,
+          product-> {
+            _id,
+            "title": coalesce(title, store.title),
+            "handle": coalesce(shopifyHandle, store.slug.current),
+            brand-> { _id, name, "slug": slug.current },
+            "priceRange": {
+              "minVariantPrice": store.priceRange.minVariantPrice,
+              "maxVariantPrice": store.priceRange.maxVariantPrice
+            },
+            "mainImage": { "url": store.previewImageUrl, "alt": store.title },
+            "gallery": gallery[] { "url": asset->url, alt } | order(_key asc)
+          }
         }
       }
     },
@@ -1014,30 +1125,33 @@ export async function getBlogPost(slug: string) {
     author,
     readingTime,
     mediaType,
-    category-> {
-      title,
-      slug {
-        current
+    category-> { title, slug { current } },
+    featuredImage { asset-> { url, metadata }, alt },
+    featuredVideo { asset-> { url, metadata } },
+    heroHeight,
+    productsModule {
+      ...,
+      featuredProducts[] {
+        ...,
+        product-> {
+          _id,
+          "title": coalesce(title, store.title),
+          "handle": coalesce(shopifyHandle, store.slug.current),
+          brand-> { _id, name, "slug": slug.current },
+          "priceRange": {
+            "minVariantPrice": store.priceRange.minVariantPrice,
+            "maxVariantPrice": store.priceRange.maxVariantPrice
+          },
+          "mainImage": { "url": store.previewImageUrl, "alt": store.title },
+          "gallery": gallery[] { "url": asset->url, alt } | order(_key asc)
+        }
       }
-    },
-    featuredImage {
-      asset-> {
-        url,
-        metadata
-      },
-      alt
-    },
-    featuredVideo {
-      asset-> {
-        url,
-        metadata
-      }
-    },
-    heroHeight
+    }
   }`;
 
   try {
-    return await client.fetch(query, { slug });
+    const post = await client.fetch(query, { slug });
+    return post;
   } catch (error) {
     console.error(`Error fetching blog post ${slug}:`, error);
     return null;
@@ -1065,6 +1179,10 @@ export async function getProductsByIds(
       "url": store.previewImageUrl,
       "alt": store.title
     },
+    "gallery": gallery[] {
+      "url": asset->url,
+      alt
+    } | order(_key asc),
     "options": store.options,
     "variants": store.variants[]-> {
       "id": store.gid,
@@ -1087,7 +1205,13 @@ export async function getProductsByIds(
       parentCategory-> {
         _id,
         title,
-        "slug": slug.current
+        "slug": slug.current,
+        categoryType,
+        parentCategory-> {
+          _id,
+          title,
+          "slug": slug.current
+        }
       }
     },
     "brandRef": brand._ref,
@@ -1115,6 +1239,106 @@ export async function getProductsByIds(
   }
 }
 
+export async function getAllCollections() {
+  const query = `*[_type == "collection"] | order(store.title asc) {
+    _id,
+    "title": store.title,
+    "slug": store.slug {
+      current
+    }
+  }`;
+
+  try {
+    return await client.fetch(query);
+  } catch (error) {
+    console.error("Error fetching collections:", error);
+    return [];
+  }
+}
+
+export async function getCollectionBySlug(slug: string) {
+  const query = `*[_type == "collection" && store.slug.current == $slug][0]{
+    "title": store.title,
+    "products": *[_type == "product" && references(^._id)]{
+      _id,
+      "title": coalesce(title, store.title),
+      "handle": coalesce(shopifyHandle, store.slug.current),
+      "description": store.descriptionHtml,
+      "vendor": store.vendor,
+      "productType": store.productType,
+      "tags": store.tags,
+      "priceRange": {
+        "minVariantPrice": store.priceRange.minVariantPrice,
+        "maxVariantPrice": store.priceRange.maxVariantPrice
+      },
+      "mainImage": {
+        "url": store.previewImageUrl,
+        "alt": store.title
+      },
+      "options": store.options,
+      "variants": store.variants[]-> {
+        "id": store.gid,
+        "title": store.title,
+        "sku": store.sku,
+        "price": store.price,
+        "compareAtPrice": store.compareAtPrice,
+        "available": store.inventory.isAvailable,
+        "selectedOptions": [
+          select(store.option1 != null => {"name": "Size", "value": store.option1}),
+          select(store.option2 != null => {"name": "Color", "value": store.option2}),
+          select(store.option3 != null => {"name": "Material", "value": store.option3})
+        ]
+      },
+      category-> {
+        _id,
+        title,
+        "slug": slug.current,
+        categoryType,
+        parentCategory-> {
+          _id,
+          title,
+          "slug": slug.current
+        }
+      },
+      brand-> {
+        _id,
+        name,
+        logo {
+          asset-> {
+            url
+          }
+        }
+      },
+      gender,
+      featured
+    }
+  }`;
+
+  try {
+    return await client.fetch(query, { slug });
+  } catch (error) {
+    console.error(`Error fetching collection ${slug}:`, error);
+    return null;
+  }
+}
+
+export async function getCmsPage(slug: string[]) {
+  const fullSlug = slug.join("/");
+  const query = `*[_type == "cmsPage" && slug.current == $fullSlug][0]{
+    _id,
+    title,
+    slug,
+    content
+  }`;
+
+  try {
+    return await client.fetch(query, { fullSlug });
+  } catch (error) {
+    console.error(`Error fetching CMS page ${fullSlug}:`, error);
+    return null;
+  }
+}
+
 export async function getHomepage() {
   const query = `*[_type == "home"][0] {
     _id,
@@ -1126,6 +1350,7 @@ export async function getHomepage() {
       ...select(_type == "featuredProductsModule" => {
         featuredProducts[] {
           ...,
+          imageSelection,
           product {
             _ref,
             _type
@@ -1205,7 +1430,8 @@ export async function getHomepage() {
   }`;
 
   try {
-    return await client.fetch(query);
+    // Use liveClient (no CDN) to get latest published data immediately
+    return await liveClient.fetch(query);
   } catch (error) {
     console.error("Error fetching homepage:", error);
     return null;

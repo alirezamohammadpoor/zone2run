@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Header from "@/components/Header";
+import HeaderServer from "@/components/HeaderServer";
 import { ScrollRestoration } from "@/components/ScrollRestoration";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "Zone2Run",
@@ -19,8 +20,9 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <ScrollRestoration />
-        <Header />
+        <HeaderServer />
         {children}
+        <Footer />
         <Analytics />
         <SpeedInsights />
       </body>

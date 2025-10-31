@@ -1,0 +1,27 @@
+import { getProductsByPath } from "@/sanity/lib/getData";
+import { notFound } from "next/navigation";
+import ProductGrid from "@/components/ProductGrid";
+
+export default async function WomensCategoryPage({
+  params,
+}: {
+  params: Promise<{ mainCategory: string }>;
+}) {
+  const { mainCategory } = await params;
+
+  const products = await getProductsByPath("women", "main", mainCategory);
+
+  if (!products || products.length === 0) {
+    notFound();
+  }
+
+  const categoryTitle =
+    mainCategory.charAt(0).toUpperCase() + mainCategory.slice(1);
+
+  return (
+    <div>
+      <h1 className="text-3xl font-bold mb-8">Women's {categoryTitle}</h1>
+      <ProductGrid products={products} />
+    </div>
+  );
+}

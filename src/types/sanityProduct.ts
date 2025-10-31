@@ -21,6 +21,10 @@ export interface SanityProduct {
     url: string;
     alt: string;
   };
+  gallery?: Array<{
+    url: string;
+    alt?: string;
+  }>;
 
   // Options & Variants
   options: Array<{
@@ -50,11 +54,18 @@ export interface SanityProduct {
       _id: string;
       title: string;
       slug: string;
+      categoryType: string;
+      parentCategory?: {
+        _id: string;
+        title: string;
+        slug: string;
+      };
     };
   };
   brand: {
     _id: string;
     name: string;
+    slug?: string;
     logo?: {
       url: string;
     };
