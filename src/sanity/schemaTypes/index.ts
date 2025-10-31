@@ -53,6 +53,7 @@ import { portableTextModule } from "./homepage/portableTextModule";
 // Blog types
 import { blogPost } from "./blog/blogPost";
 import { blogCategory } from "./blog/blogCategory";
+import { blogProductsModule } from "./blog/blogProductsModule";
 
 // Objects used as annotations must be imported first
 const annotations = [
@@ -109,6 +110,8 @@ const objects = [
   spotifyPlaylistsModule,
   imageModule,
   portableTextModule,
+  // Blog modules
+  blogProductsModule,
 ];
 
 import { portableTextType } from "./portableText/portableTextType";

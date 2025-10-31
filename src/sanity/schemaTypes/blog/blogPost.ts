@@ -104,9 +104,15 @@ export const blogPost = defineType({
             accept: "video/*",
           },
         },
+        { type: "blogProductsModule" },
         { type: "muxVideo" },
       ],
       validation: (Rule) => Rule.required().min(1),
+    }),
+    defineField({
+      name: "productsModule",
+      title: "Products Module",
+      type: "blogProductsModule",
     }),
     defineField({
       name: "mediaType",
@@ -242,18 +248,6 @@ export const blogPost = defineType({
       title: "Reading Time (minutes)",
       type: "number",
       validation: (Rule) => Rule.required().min(1),
-    }),
-    defineField({
-      name: "linkedProducts",
-      title: "Linked Products",
-      type: "array",
-      of: [
-        {
-          type: "reference",
-          to: [{ type: "product" }],
-        },
-      ],
-      description: "Products mentioned or recommended in this post",
     }),
     // SEO FIELDS
     defineField({

@@ -41,7 +41,7 @@ function Header({ menuData }: { menuData?: { [key: string]: any } }) {
           </button>
         </div>
         <div className="absolute left-1/2 transform -translate-x-1/2">
-          <Link href="/" className="text-lg font-bold cursor-pointer">
+          <Link href="/" className="text-lg cursor-pointer">
             Zone 2
           </Link>
         </div>

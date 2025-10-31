@@ -106,9 +106,9 @@ function FeaturedProductsModule({
   };
 
   return (
-    <div className="ml-2 pr-4 w-full">
+    <div className="ml-2 mt-4 pr-4 w-full">
       <div className="py-4 flex justify-between items-center">
-        <h2 className="text-black text-lg font-medium">
+        <h2 className="text-black text-xl">
           {featuredProductsModule.featuredHeading}
         </h2>
         <button
