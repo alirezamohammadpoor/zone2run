@@ -1,6 +1,5 @@
 import { getHomepage } from "@/sanity/lib/getData";
 import HomePageSanity from "@/components/homepage/HomePageSanity";
-import Footer from "@/components/Footer";
 import { notFound } from "next/navigation";
 
 export default async function Home() {
@@ -13,10 +12,7 @@ export default async function Home() {
     }
 
     return (
-      <>
-        <HomePageSanity homepage={homepage} />
-        <Footer />
-      </>
+      <HomePageSanity homepage={homepage} />
     );
   } catch (error) {
     console.error("Error fetching homepage data:", error);

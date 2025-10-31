@@ -5,18 +5,17 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import type { SanityProduct } from "@/types/sanityProduct";
 
-interface HomeProductCardProps {
+interface BlogProductCardProps {
   product: SanityProduct & { selectedImage?: { url: string; alt: string } };
 }
 
-export default function HomeProductCard({ product }: HomeProductCardProps) {
+export default function BlogProductCard({ product }: BlogProductCardProps) {
   const router = useRouter();
 
   const handleClick = () => {
     router.push(`/products/${product.handle}`);
   };
 
-  // Use selectedImage if provided, otherwise fall back to mainImage
   const imageToUse = product.selectedImage || product.mainImage;
 
   return (
@@ -36,8 +35,10 @@ export default function HomeProductCard({ product }: HomeProductCardProps) {
         </div>
       )}
       <div className="mt-2 mb-10">
-        <p className="text-base font-medium">{product.brand?.name}</p>
-        <p className="text-sm">{product.title}</p>
+        <p className="text-sm  cursor-pointer font-medium">
+          {product.brand?.name}
+        </p>
+        <p className="text-sm cursor-pointer">{product.title}</p>
         <p className="text-sm mt-2">
           {product.priceRange.minVariantPrice} {"SEK"}
         </p>

@@ -13,9 +13,7 @@ function PortableTextModuleComponent({
         className={`${portableTextModule.maxWidth} ${portableTextModule.textAlign}`}
       >
         {portableTextModule.title && (
-          <h2 className="text-xl font-bold mb-6 mt-6">
-            {portableTextModule.title}
-          </h2>
+          <h2 className="text-xl mb-6 mt-6">{portableTextModule.title}</h2>
         )}
         <PortableTextRenderer
           value={portableTextModule.content}
@@ -24,14 +22,14 @@ function PortableTextModuleComponent({
         {portableTextModule.link && (
           <Link
             href={portableTextModule.link}
-            className="text-sm mt-2 flex items-center cursor-pointer"
+            className="text-sm mt-2 flex items-center cursor-pointer underline"
             rel="noopener noreferrer"
           >
             {portableTextModule.linkText}
             <svg
               aria-hidden="true"
               viewBox="0 0 5 8"
-              className="w-3 h-3 ml-2 text-black"
+              className="w-3 h-3 ml-1 mt-0.25 text-black"
               xmlns="http://www.w3.org/2000/svg"
             >
               <path

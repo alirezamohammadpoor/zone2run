@@ -1013,6 +1013,48 @@ export async function getBlogPosts(limit?: number) {
     slug {
       current
     },
+    productsModule {
+      ...,
+      featuredProducts[] {
+        ...,
+        product-> {
+          _id,
+          "title": coalesce(title, store.title),
+          "handle": coalesce(shopifyHandle, store.slug.current),
+          brand-> { _id, name },
+          "mainImage": { "url": store.previewImageUrl, "alt": store.title },
+          "gallery": gallery[] { "url": asset->url, alt } | order(_key asc)
+        }
+      }
+    },
+    featuredProductsModule {
+      ...,
+      featuredProducts[] {
+        ...,
+        product-> {
+          _id,
+          "title": coalesce(title, store.title),
+          "handle": coalesce(shopifyHandle, store.slug.current),
+          brand-> { _id, name },
+          "mainImage": { "url": store.previewImageUrl, "alt": store.title },
+          "gallery": gallery[] { "url": asset->url, alt } | order(_key asc)
+        }
+      }
+    },
+    productShowcaseModule {
+      ...,
+      featuredProducts[] {
+        ...,
+        product-> {
+          _id,
+          "title": coalesce(title, store.title),
+          "handle": coalesce(shopifyHandle, store.slug.current),
+          brand-> { _id, name },
+          "mainImage": { "url": store.previewImageUrl, "alt": store.title },
+          "gallery": gallery[] { "url": asset->url, alt } | order(_key asc)
+        }
+      }
+    },
     excerpt,
     publishedAt,
     author,
@@ -1049,18 +1091,32 @@ export async function getBlogPosts(limit?: number) {
 
 export async function getBlogPost(slug: string) {
   const query = `*[_type == "blogPost" && slug.current == $slug][0] {
+    ...,
     _id,
     title,
-    slug {
-      current
-    },
+    slug { current },
     content[] {
       ...,
       _type == "image" => {
         ...,
-        asset-> {
-          url,
-          metadata
+        asset-> { url, metadata }
+      },
+      _type == "blogProductsModule" => {
+        ...,
+        featuredProducts[] {
+          ...,
+          product-> {
+            _id,
+            "title": coalesce(title, store.title),
+            "handle": coalesce(shopifyHandle, store.slug.current),
+            brand-> { _id, name, "slug": slug.current },
+            "priceRange": {
+              "minVariantPrice": store.priceRange.minVariantPrice,
+              "maxVariantPrice": store.priceRange.maxVariantPrice
+            },
+            "mainImage": { "url": store.previewImageUrl, "alt": store.title },
+            "gallery": gallery[] { "url": asset->url, alt } | order(_key asc)
+          }
         }
       }
     },
@@ -1069,30 +1125,33 @@ export async function getBlogPost(slug: string) {
     author,
     readingTime,
     mediaType,
-    category-> {
-      title,
-      slug {
-        current
+    category-> { title, slug { current } },
+    featuredImage { asset-> { url, metadata }, alt },
+    featuredVideo { asset-> { url, metadata } },
+    heroHeight,
+    productsModule {
+      ...,
+      featuredProducts[] {
+        ...,
+        product-> {
+          _id,
+          "title": coalesce(title, store.title),
+          "handle": coalesce(shopifyHandle, store.slug.current),
+          brand-> { _id, name, "slug": slug.current },
+          "priceRange": {
+            "minVariantPrice": store.priceRange.minVariantPrice,
+            "maxVariantPrice": store.priceRange.maxVariantPrice
+          },
+          "mainImage": { "url": store.previewImageUrl, "alt": store.title },
+          "gallery": gallery[] { "url": asset->url, alt } | order(_key asc)
+        }
       }
-    },
-    featuredImage {
-      asset-> {
-        url,
-        metadata
-      },
-      alt
-    },
-    featuredVideo {
-      asset-> {
-        url,
-        metadata
-      }
-    },
-    heroHeight
+    }
   }`;
 
   try {
-    return await client.fetch(query, { slug });
+    const post = await client.fetch(query, { slug });
+    return post;
   } catch (error) {
     console.error(`Error fetching blog post ${slug}:`, error);
     return null;

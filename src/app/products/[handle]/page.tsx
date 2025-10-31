@@ -4,7 +4,6 @@ import ProductDescription from "@/components/ProductDescription";
 import { getProductByHandle } from "@/lib/product/getProductByHandle";
 import React from "react";
 import { notFound } from "next/navigation";
-import Footer from "@/components/Footer";
 
 export default async function ProductPage({
   params,
@@ -52,7 +51,6 @@ export default async function ProductPage({
           </div>
         </div>
       </div>
-      <Footer />
     </>
   );
 }
