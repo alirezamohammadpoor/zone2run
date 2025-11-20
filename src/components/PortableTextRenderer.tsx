@@ -1,4 +1,5 @@
 import { PortableText } from "@portabletext/react";
+import Image from "next/image";
 
 interface PortableTextRendererProps {
   value: any;
@@ -66,10 +67,12 @@ export default function PortableTextRenderer({
               value?.asset?.url && (
                 <div className="mb-4">
                   <div className="relative w-full h-[50vh] overflow-hidden">
-                    <img
+                    <Image
                       src={value.asset.url}
                       alt={value.alt || ""}
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
                     />
                   </div>
                   {value.alt && (

@@ -16,8 +16,7 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-8">{collection.title}</h1>
+    <div>
       {collection.products && collection.products.length > 0 ? (
         <ProductGrid products={collection.products} />
       ) : (

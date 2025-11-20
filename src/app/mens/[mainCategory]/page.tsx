@@ -22,8 +22,6 @@ export default async function MensCategoryPage({
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-8">Men's {categoryTitle}</h1>
-
       {!products || products.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-gray-600 mb-4">
@@ -34,12 +32,7 @@ export default async function MensCategoryPage({
           </p>
         </div>
       ) : (
-        <>
-          <p className="text-sm text-gray-600 mb-4">
-            Found {products.length} products
-          </p>
-          <ProductGrid products={products} />
-        </>
+        <ProductGrid products={products} />
       )}
     </div>
   );

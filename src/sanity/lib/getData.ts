@@ -28,9 +28,13 @@ export async function getSanityProductByHandle(
       "maxVariantPrice": store.priceRange.maxVariantPrice
     },
     "mainImage": {
-      "url": store.previewImageUrl,
-      "alt": store.title
+      "url": coalesce(mainImage.asset->url, store.previewImageUrl),
+      "alt": coalesce(mainImage.alt, store.title)
     },
+    "gallery": gallery[] {
+      "url": asset->url,
+      alt
+    } | order(_key asc),
     "options": store.options,
     "variants": store.variants[]-> {
       "id": store.gid,
@@ -65,6 +69,7 @@ export async function getSanityProductByHandle(
     brand-> {
       _id,
       name,
+      "slug": slug.current,
       logo {
         asset-> {
           url
@@ -97,8 +102,8 @@ export async function getAllProducts(): Promise<SanityProduct[]> {
       "maxVariantPrice": store.priceRange.maxVariantPrice
     },
     "mainImage": {
-      "url": store.previewImageUrl,
-      "alt": store.title
+      "url": coalesce(mainImage.asset->url, store.previewImageUrl),
+      "alt": coalesce(mainImage.alt, store.title)
     },
     "options": store.options,
     "variants": store.variants[]-> {
@@ -266,8 +271,8 @@ export async function getProductsByCategory(
       "maxVariantPrice": store.priceRange.maxVariantPrice
     },
     "mainImage": {
-      "url": store.previewImageUrl,
-      "alt": store.title
+      "url": coalesce(mainImage.asset->url, store.previewImageUrl),
+      "alt": coalesce(mainImage.alt, store.title)
     },
     "options": store.options,
     "variants": store.variants[]-> {
@@ -328,7 +333,8 @@ export async function getProductsByBrand(
   brandSlug: string,
   limit?: number
 ): Promise<SanityProduct[]> {
-  const query = `*[_type == "product" && brand->slug.current == $brandSlug] {
+  // Try exact match first, then case-insensitive match as fallback
+  const query = `*[_type == "product" && (brand->slug.current == $brandSlug || lower(brand->slug.current) == lower($brandSlug))] {
     _id,
     "title": coalesce(title, store.title),
     "handle": coalesce(shopifyHandle, store.slug.current),
@@ -341,8 +347,8 @@ export async function getProductsByBrand(
       "maxVariantPrice": store.priceRange.maxVariantPrice
     },
     "mainImage": {
-      "url": store.previewImageUrl,
-      "alt": store.title
+      "url": coalesce(mainImage.asset->url, store.previewImageUrl),
+      "alt": coalesce(mainImage.alt, store.title)
     },
     "options": store.options,
     "variants": store.variants[]-> {
@@ -378,11 +384,10 @@ export async function getProductsByBrand(
     brand-> {
       _id,
       name,
-      logo {
-        asset-> {
-          url
-        }
-      }
+      description,
+      slug {
+        current
+      },
     },
     gender,
     featured
@@ -424,8 +429,8 @@ export async function getProductsByGender(
       "maxVariantPrice": store.priceRange.maxVariantPrice
     },
     "mainImage": {
-      "url": store.previewImageUrl,
-      "alt": store.title
+      "url": coalesce(mainImage.asset->url, store.previewImageUrl),
+      "alt": coalesce(mainImage.alt, store.title)
     },
     "options": store.options,
     "variants": store.variants[]-> {
@@ -527,8 +532,8 @@ export async function getProductsByPath(
       "maxVariantPrice": store.priceRange.maxVariantPrice
     },
     "mainImage": {
-      "url": store.previewImageUrl,
-      "alt": store.title
+      "url": coalesce(mainImage.asset->url, store.previewImageUrl),
+      "alt": coalesce(mainImage.alt, store.title)
     },
     "options": store.options,
     "variants": store.variants[]-> {
@@ -590,8 +595,8 @@ export async function getProductsByPath(
       "maxVariantPrice": store.priceRange.maxVariantPrice
     },
     "mainImage": {
-      "url": store.previewImageUrl,
-      "alt": store.title
+      "url": coalesce(mainImage.asset->url, store.previewImageUrl),
+      "alt": coalesce(mainImage.alt, store.title)
     },
     "options": store.options,
     "variants": store.variants[]-> {
@@ -696,8 +701,8 @@ export async function getProductsBySubcategoryIncludingSubSubcategories(
       "maxVariantPrice": store.priceRange.maxVariantPrice
     },
     "mainImage": {
-      "url": store.previewImageUrl,
-      "alt": store.title
+      "url": coalesce(mainImage.asset->url, store.previewImageUrl),
+      "alt": coalesce(mainImage.alt, store.title)
     },
     "options": store.options,
     "variants": store.variants[]-> {
@@ -800,8 +805,8 @@ export async function getProductsByPath3Level(
       "maxVariantPrice": store.priceRange.maxVariantPrice
     },
     "mainImage": {
-      "url": store.previewImageUrl,
-      "alt": store.title
+      "url": coalesce(mainImage.asset->url, store.previewImageUrl),
+      "alt": coalesce(mainImage.alt, store.title)
     },
     "options": store.options,
     "variants": store.variants[]-> {
@@ -1022,7 +1027,10 @@ export async function getBlogPosts(limit?: number) {
           "title": coalesce(title, store.title),
           "handle": coalesce(shopifyHandle, store.slug.current),
           brand-> { _id, name },
-          "mainImage": { "url": store.previewImageUrl, "alt": store.title },
+          "mainImage": {
+            "url": coalesce(mainImage.asset->url, store.previewImageUrl),
+            "alt": coalesce(mainImage.alt, store.title)
+          },
           "gallery": gallery[] { "url": asset->url, alt } | order(_key asc)
         }
       }
@@ -1036,7 +1044,10 @@ export async function getBlogPosts(limit?: number) {
           "title": coalesce(title, store.title),
           "handle": coalesce(shopifyHandle, store.slug.current),
           brand-> { _id, name },
-          "mainImage": { "url": store.previewImageUrl, "alt": store.title },
+          "mainImage": {
+            "url": coalesce(mainImage.asset->url, store.previewImageUrl),
+            "alt": coalesce(mainImage.alt, store.title)
+          },
           "gallery": gallery[] { "url": asset->url, alt } | order(_key asc)
         }
       }
@@ -1050,7 +1061,10 @@ export async function getBlogPosts(limit?: number) {
           "title": coalesce(title, store.title),
           "handle": coalesce(shopifyHandle, store.slug.current),
           brand-> { _id, name },
-          "mainImage": { "url": store.previewImageUrl, "alt": store.title },
+          "mainImage": {
+            "url": coalesce(mainImage.asset->url, store.previewImageUrl),
+            "alt": coalesce(mainImage.alt, store.title)
+          },
           "gallery": gallery[] { "url": asset->url, alt } | order(_key asc)
         }
       }
@@ -1114,7 +1128,10 @@ export async function getBlogPost(slug: string) {
               "minVariantPrice": store.priceRange.minVariantPrice,
               "maxVariantPrice": store.priceRange.maxVariantPrice
             },
-            "mainImage": { "url": store.previewImageUrl, "alt": store.title },
+            "mainImage": {
+              "url": coalesce(mainImage.asset->url, store.previewImageUrl),
+              "alt": coalesce(mainImage.alt, store.title)
+            },
             "gallery": gallery[] { "url": asset->url, alt } | order(_key asc)
           }
         }
@@ -1142,7 +1159,10 @@ export async function getBlogPost(slug: string) {
             "minVariantPrice": store.priceRange.minVariantPrice,
             "maxVariantPrice": store.priceRange.maxVariantPrice
           },
-          "mainImage": { "url": store.previewImageUrl, "alt": store.title },
+          "mainImage": {
+            "url": coalesce(mainImage.asset->url, store.previewImageUrl),
+            "alt": coalesce(mainImage.alt, store.title)
+          },
           "gallery": gallery[] { "url": asset->url, alt } | order(_key asc)
         }
       }

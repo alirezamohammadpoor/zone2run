@@ -1,11 +1,13 @@
 "use client";
 
 import { type FeaturedProductsModule } from "../../../sanity.types";
-import React, { useRef } from "react";
+import React, { useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import HomeProductGrid from "./HomeProductGrid";
 import { type SanityProduct } from "@/types/sanityProduct";
+import useEmblaCarousel from "embla-carousel-react";
+import { getBrandUrl } from "@/lib/utils/brandUrls";
 
 // Helper function to get the selected image based on imageSelection
 function getSelectedImage(product: SanityProduct, imageSelection: string) {
@@ -56,10 +58,12 @@ function FeaturedProductsModule({
   products: SanityProduct[];
 }) {
   const router = useRouter();
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    align: "start",
+    containScroll: "trimSnaps",
+    dragFree: false,
+  });
   const isDraggingRef = useRef(false);
-  const startXRef = useRef(0);
-  const startYRef = useRef(0);
 
   // Create a map of products with their selected images
   const productsWithImages = products.map((product) => {
@@ -75,35 +79,78 @@ function FeaturedProductsModule({
     };
   });
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    isDraggingRef.current = false;
-    startXRef.current = e.touches[0].clientX;
-    startYRef.current = e.touches[0].clientY;
-  };
+  // Track dragging state from Embla
+  React.useEffect(() => {
+    if (!emblaApi) return;
 
-  const handleTouchMove = (e: React.TouchEvent) => {
-    const deltaX = Math.abs(e.touches[0].clientX - startXRef.current);
-    const deltaY = Math.abs(e.touches[0].clientY - startYRef.current);
+    let isPointerDown = false;
+    let hasMoved = false;
 
-    // If moved more than 5px, consider it a drag/scroll
-    if (deltaX > 5 || deltaY > 5) {
-      isDraggingRef.current = true;
-    }
-  };
+    const onPointerDown = () => {
+      isPointerDown = true;
+      hasMoved = false;
+      isDraggingRef.current = false;
+    };
 
-  const handleProductClick = (handle: string) => {
-    // Only navigate if user didn't drag/scroll
-    if (!isDraggingRef.current) {
-      router.push(`/products/${handle}`);
-    }
-  };
+    const onPointerMove = () => {
+      if (isPointerDown) {
+        hasMoved = true;
+        isDraggingRef.current = true;
+      }
+    };
 
-  const handleBrandClick = (e: React.MouseEvent, brandId?: string) => {
-    e.stopPropagation();
-    if (!isDraggingRef.current && brandId) {
-      router.push(`/brands/${brandId}`);
-    }
-  };
+    const onPointerUp = () => {
+      if (isPointerDown && hasMoved) {
+        // User was dragging, prevent click
+        isDraggingRef.current = true;
+        setTimeout(() => {
+          isDraggingRef.current = false;
+        }, 100);
+      } else {
+        // User just clicked, allow navigation
+        isDraggingRef.current = false;
+      }
+      isPointerDown = false;
+      hasMoved = false;
+    };
+
+    const onSettle = () => {
+      // Reset after carousel settles
+      isDraggingRef.current = false;
+    };
+
+    emblaApi.on("pointerDown", onPointerDown);
+    emblaApi.on("pointerMove", onPointerMove);
+    emblaApi.on("pointerUp", onPointerUp);
+    emblaApi.on("settle", onSettle);
+
+    return () => {
+      emblaApi.off("pointerDown", onPointerDown);
+      emblaApi.off("pointerMove", onPointerMove);
+      emblaApi.off("pointerUp", onPointerUp);
+      emblaApi.off("settle", onSettle);
+    };
+  }, [emblaApi]);
+
+  const handleProductClick = useCallback(
+    (handle: string) => {
+      // Only navigate if user didn't drag/scroll
+      if (!isDraggingRef.current) {
+        router.push(`/products/${handle}`);
+      }
+    },
+    [router]
+  );
+
+  const handleBrandClick = useCallback(
+    (e: React.MouseEvent, brandSlug?: string) => {
+      e.stopPropagation();
+      if (!isDraggingRef.current && brandSlug) {
+        router.push(getBrandUrl(brandSlug));
+      }
+    },
+    [router]
+  );
 
   return (
     <div className="ml-2 mt-4 pr-4 w-full">
@@ -132,23 +179,14 @@ function FeaturedProductsModule({
           count={featuredProductsModule.productCount}
         />
       ) : (
-        <div
-          ref={scrollRef}
-          className="overflow-x-auto overflow-y-visible scrollbar-hide -mx-2 px-2"
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          style={{
-            WebkitOverflowScrolling: "touch",
-            scrollbarWidth: "none",
-          }}
-        >
+        <div className="overflow-hidden -mx-2 px-2" ref={emblaRef}>
           <div className="flex gap-2">
             {productsWithImages.map(({ product, imageSelection }) => {
               const selectedImage = getSelectedImage(product, imageSelection);
               return (
                 <div
                   key={product._id}
-                  className="flex-shrink-0 w-[70vw] aspect-[3/4] flex flex-col cursor-pointer"
+                  className="flex-shrink-0 w-[70vw] min-w-0 aspect-[3/4] flex flex-col cursor-pointer"
                   onClick={() => handleProductClick(product.handle)}
                 >
                   <div className="w-full h-full relative bg-gray-100">
@@ -166,7 +204,7 @@ function FeaturedProductsModule({
                   <div className="mt-2 mb-10">
                     <p
                       className="text-base font-medium hover:underline cursor-pointer"
-                      onClick={(e) => handleBrandClick(e, product.brand?._id)}
+                      onClick={(e) => handleBrandClick(e, product.brand?.slug)}
                     >
                       {product.brand?.name}
                     </p>

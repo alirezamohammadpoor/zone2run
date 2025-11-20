@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import { PortableText } from "@portabletext/react";
 import BlogProductGrid from "@/components/blog/BlogProductGrid";
+import BlogProductCarousel from "@/components/blog/BlogProductCarousel";
 import type { SanityProduct } from "@/types/sanityProduct";
 
 type BlogProductsDisplayType = "horizontal" | "grid";
@@ -21,7 +22,6 @@ interface BlogProductsModuleValue {
   productCount?: number;
   featuredProducts?: BlogProductsModuleItem[];
 }
-import MuxVideo from "@/components/MuxVideo";
 
 export default async function PostPage({
   params,
@@ -181,80 +181,13 @@ export default async function PostPage({
                         count={value.productCount}
                       />
                     ) : (
-                      <div
-                        className="flex gap-2 overflow-x-auto overflow-y-visible scrollbar-hide -mx-2 px-2"
-                        style={{ WebkitOverflowScrolling: "touch" as any }}
-                      >
-                        {value.featuredProducts?.map(
-                          (item: BlogProductsModuleItem, idx: number) => {
-                            const p = item?.product;
-                            if (!p) return null;
-                            const selection = item?.imageSelection || "main";
-                            let selectedUrl = p.mainImage?.url || "";
-                            if (selection.startsWith("gallery_")) {
-                              const i = parseInt(selection.split("_")[1]);
-                              selectedUrl = p.gallery?.[i]?.url || selectedUrl;
-                            }
-
-                            return (
-                              <a
-                                key={p._id || idx}
-                                href={p.handle ? `/products/${p.handle}` : "#"}
-                                className="group flex-shrink-0 w-[70vw] aspect-[3/4] flex flex-col cursor-pointer"
-                              >
-                                <div className="w-full h-full relative bg-gray-100">
-                                  {selectedUrl && (
-                                    <Image
-                                      src={selectedUrl}
-                                      alt={p.title || "Product"}
-                                      fill
-                                      className="object-cover"
-                                      sizes="(max-width: 768px) 70vw, 33vw"
-                                      draggable={false}
-                                    />
-                                  )}
-                                </div>
-                                <div className="mt-2 mb-10">
-                                  {p.brand?.name && (
-                                    <a
-                                      className="text-base font-medium hover:underline cursor-pointer"
-                                      href={
-                                        p.brand?.slug
-                                          ? `/brands/${p.brand.slug}`
-                                          : "#"
-                                      }
-                                    >
-                                      {p.brand.name}
-                                    </a>
-                                  )}
-                                  <p className="text-base hover:underline cursor-pointer">
-                                    {p.title}
-                                  </p>
-                                  {p.priceRange?.minVariantPrice && (
-                                    <p className="text-base mt-2">
-                                      {p.priceRange.minVariantPrice} SEK
-                                    </p>
-                                  )}
-                                </div>
-                              </a>
-                            );
-                          }
-                        )}
-                      </div>
+                      <BlogProductCarousel
+                        products={value.featuredProducts || []}
+                      />
                     )}
                   </div>
                 ),
-                muxVideo: ({ value }) =>
-                  value?.playbackId ? (
-                    <div className="mb-6">
-                      <MuxVideo playbackId={value.playbackId} />
-                      {value.title && (
-                        <p className="text-sm text-black mt-2 italic">
-                          {value.title}
-                        </p>
-                      )}
-                    </div>
-                  ) : null,
+                // muxVideo custom element removed
               },
             }}
           />

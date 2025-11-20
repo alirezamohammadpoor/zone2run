@@ -7,6 +7,8 @@ import AddToCart from "./AddToCart";
 import { useProductStore } from "@/store/variantStore";
 import type { SanityProduct } from "@/types/sanityProduct";
 import { formatPrice } from "@/lib/utils/formatPrice";
+import { useRouter } from "next/navigation";
+import { getBrandUrl } from "@/lib/utils/brandUrls";
 
 interface ProductDetailsProps {
   product: SanityProduct;
@@ -14,7 +16,7 @@ interface ProductDetailsProps {
 
 function ProductDetails({ product }: ProductDetailsProps) {
   const { selectedVariant } = useProductStore();
-
+  const router = useRouter();
   // Simple helper functions for SanityProduct
   const getBreadcrumbs = () => {
     const breadcrumbs = [];
@@ -101,7 +103,7 @@ function ProductDetails({ product }: ProductDetailsProps) {
     <div className="">
       <ProductGallery
         mainImage={product.mainImage}
-        galleryImages={[]} // TODO: Add gallery support later
+        galleryImages={product.gallery}
         title={displayTitle}
       />
       <div className="mt-4 ml-2">
@@ -125,10 +127,19 @@ function ProductDetails({ product }: ProductDetailsProps) {
       </div>
 
       <div className="flex justify-between items-center mt-4">
-        <p className="ml-2 text-md font-semibold">{brandName}</p>
+        {product.brand?.slug ? (
+          <Link
+            href={getBrandUrl(product.brand.slug)}
+            className="ml-2 text-md font-semibold hover:underline cursor-pointer"
+          >
+            {brandName}
+          </Link>
+        ) : (
+          <p className="ml-2 text-md font-semibold">{brandName}</p>
+        )}
       </div>
       <div className="flex justify-between items-center">
-        <p className="ml-2">{displayTitle}</p>
+        <p className="ml-2 w-[70%]">{displayTitle}</p>
         <p className="mr-2">
           {formatPrice(getPrice().amount)} {getPrice().currencyCode}
         </p>
