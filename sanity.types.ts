@@ -90,6 +90,46 @@ export type Settings = {
   seo?: Seo;
 };
 
+export type NavigationMenu = {
+  _id: string;
+  _type: "navigationMenu";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  men?: {
+    featuredCollections?: Array<{
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      _key: string;
+      [internalGroqTypeReferenceTo]?: "collection";
+    }>;
+  };
+  women?: {
+    featuredCollections?: Array<{
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      _key: string;
+      [internalGroqTypeReferenceTo]?: "collection";
+    }>;
+  };
+  help?: {
+    links?: Array<{
+      label?: string;
+      url?: string;
+      _key: string;
+    }>;
+  };
+  ourSpace?: {
+    links?: Array<{
+      label?: string;
+      url?: string;
+      _key: string;
+    }>;
+  };
+};
+
 export type PortableTextModule = {
   _type: "portableTextModule";
   title?: string;
@@ -1089,6 +1129,19 @@ export type Collection = {
   featured?: boolean;
   sortOrder?: number;
   isActive?: boolean;
+  menuImage?: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
   store?: ShopifyCollection;
   seo?: Seo;
 };
@@ -1327,5 +1380,5 @@ export type SanityAssetSourceData = {
   url?: string;
 };
 
-export type AllSanitySchemaTypes = PortableTextSimple | PortableText | Settings | PortableTextModule | ImageModule | SpotifyPlaylistsModule | EditorialModule | FeaturedProductsModule | HeroModule | MuxVideo | Spot | ProxyString | ProductVariant | ShopifyProductVariant | ProductReference | ProductHotspots | Products | PriceRange | PlaceholderString | Option | NotFoundPage | Menu | MenuLinks | Inventory | Instagram | ImageWithProductHotspots | ImageFeature | Images | ImageCallToAction | Grid | GridItem | FooterSettings | CustomProductOptionSize | CustomProductOptionSizeObject | CustomProductOptionColor | CustomProductOptionColorObject | CollectionRule | CollectionReference | CollectionLinks | CollectionGroup | CallToAction | Callout | Accordion | AccordionGroup | LinkProduct | ProductWithVariant | LinkInternal | Page | Home | BlogPost | BlogCategory | BlogProductsModule | Product | Brand | Category | ShopifyProduct | Collection | Seo | ShopifyCollection | Hero | ColorTheme | LinkExternal | LinkEmail | MediaTag | Color | RgbaColor | HsvaColor | HslaColor | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageHotspot | SanityImageCrop | SanityFileAsset | SanityImageAsset | SanityImageMetadata | Geopoint | Slug | SanityAssetSourceData;
+export type AllSanitySchemaTypes = PortableTextSimple | PortableText | Settings | NavigationMenu | PortableTextModule | ImageModule | SpotifyPlaylistsModule | EditorialModule | FeaturedProductsModule | HeroModule | MuxVideo | Spot | ProxyString | ProductVariant | ShopifyProductVariant | ProductReference | ProductHotspots | Products | PriceRange | PlaceholderString | Option | NotFoundPage | Menu | MenuLinks | Inventory | Instagram | ImageWithProductHotspots | ImageFeature | Images | ImageCallToAction | Grid | GridItem | FooterSettings | CustomProductOptionSize | CustomProductOptionSizeObject | CustomProductOptionColor | CustomProductOptionColorObject | CollectionRule | CollectionReference | CollectionLinks | CollectionGroup | CallToAction | Callout | Accordion | AccordionGroup | LinkProduct | ProductWithVariant | LinkInternal | Page | Home | BlogPost | BlogCategory | BlogProductsModule | Product | Brand | Category | ShopifyProduct | Collection | Seo | ShopifyCollection | Hero | ColorTheme | LinkExternal | LinkEmail | MediaTag | Color | RgbaColor | HsvaColor | HslaColor | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageHotspot | SanityImageCrop | SanityFileAsset | SanityImageAsset | SanityImageMetadata | Geopoint | Slug | SanityAssetSourceData;
 export declare const internalGroqTypeReferenceTo: unique symbol;

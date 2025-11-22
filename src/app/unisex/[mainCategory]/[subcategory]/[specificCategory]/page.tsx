@@ -33,10 +33,6 @@ export default async function UnisexSpecificCategoryPage({
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-8">
-        Unisex {mainCategoryTitle} - {subcategoryTitle} -{" "}
-        {specificCategoryTitle}
-      </h1>
       <ProductGrid products={products} />
     </div>
   );

@@ -29,7 +29,7 @@ export default function BlogProductCard({ product }: BlogProductCardProps) {
             src={imageToUse.url}
             alt={imageToUse.alt || "Product"}
             fill
-            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+            sizes="50vw"
             className="object-cover"
           />
         </div>

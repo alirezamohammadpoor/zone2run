@@ -1,6 +1,7 @@
 import type { StructureResolver } from "sanity/structure";
 
 import homeStructure from "./homeStructure";
+import menuStructure from "./menuStructure";
 import collectionStructure from "./collectionStructure";
 import productStructure from "./productStructure";
 import pageStructure from "./pageStructure";
@@ -16,6 +17,7 @@ export const structure: StructureResolver = (S, context) =>
     .title("Content")
     .items([
       homeStructure(S, context),
+      menuStructure(S, context),
       collectionStructure(S, context),
       productStructure(S, context),
       brandStructure(S),

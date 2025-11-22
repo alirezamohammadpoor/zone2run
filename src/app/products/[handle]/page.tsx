@@ -4,6 +4,7 @@ import ProductDescription from "@/components/ProductDescription";
 import { getProductByHandle } from "@/lib/product/getProductByHandle";
 import React from "react";
 import { notFound } from "next/navigation";
+import RelatedProductsServer from "@/components/product/RelatedProductsServer";
 
 export default async function ProductPage({
   params,
@@ -39,18 +40,13 @@ export default async function ProductPage({
           title="Secure payments"
           content="Your secure payments content here"
         />
-
-        <div className="mt-12 mb-12 ml-2">
-          <h3 className="font-medium text-sm uppercase mb-2">
-            Related Products
-          </h3>
-          <div className="mt-12 mb-12">
-            <h3 className="text-2xl font-medium uppercase mb-2">
-              The Race Collection
-            </h3>
-          </div>
-        </div>
       </div>
+      {product.brand?.slug && (
+        <RelatedProductsServer
+          brandSlug={product.brand.slug}
+          currentProductId={product._id}
+        />
+      )}
     </>
   );
 }

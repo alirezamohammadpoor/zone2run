@@ -1,6 +1,10 @@
 /** @type {import('next').NextConfig} */
+const withBundleAnalyzer = require("@next/bundle-analyzer")({
+  enabled: process.env.ANALYZE === "true",
+});
+
 const nextConfig = {
-  /* config options here */
+  turbopack: {},
   images: {
     remotePatterns: [
       {
@@ -11,53 +15,66 @@ const nextConfig = {
         protocol: "https",
         hostname: "cdn.shopify.com",
       },
-      {
-        protocol: "https",
-        hostname: "cdn.midjourney.com",
-      },
     ],
+    formats: ["image/avif", "image/webp"],
+    minimumCacheTTL: 60,
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    // Disable optimization in development to prevent timeouts
+    unoptimized: process.env.NODE_ENV === "development",
   },
 
-  // Performance optimizations
   experimental: {
-    // Enable faster builds
     optimizePackageImports: ["@sanity/client", "lucide-react"],
   },
 
-  // External packages for server components
-  // Note: Removed @sanity/client to avoid conflict with transpilePackages
-  serverExternalPackages: [],
-
-  // Webpack optimizations (only when not using Turbopack)
   webpack: (config, { dev, isServer }) => {
     // Only apply webpack config when not using Turbopack
-    // Check if we're running with --turbo flag
     const isTurbopack =
       process.argv.includes("--turbo") || process.argv.includes("--turbopack");
 
     if (dev && !isTurbopack) {
       // Optimize file watching in development
       config.watchOptions = {
-        poll: 1000,
+        // Remove polling - let Next.js use native file watching
         aggregateTimeout: 300,
         ignored: [
           "**/node_modules/**",
           "**/.next/**",
           "**/.git/**",
           "**/public/**",
+          "**/tsconfig.tsbuildinfo",
+          "**/.next/types/**",
         ],
       };
+    }
 
-      // Reduce memory usage
+    // Better code splitting for production
+    if (!dev && !isServer) {
       config.optimization = {
         ...config.optimization,
         splitChunks: {
           chunks: "all",
           cacheGroups: {
+            // Separate Sanity Studio into its own chunk
+            sanityStudio: {
+              test: /[\\/]node_modules[\\/](next-sanity|sanity|@sanity)[\\/]/,
+              name: "sanity-studio",
+              priority: 30,
+              chunks: "async",
+            },
+            // Vendor chunk for other node_modules
             vendor: {
               test: /[\\/]node_modules[\\/]/,
               name: "vendors",
+              priority: 10,
               chunks: "all",
+            },
+            // Common chunk for shared code
+            common: {
+              minChunks: 2,
+              priority: 5,
+              reuseExistingChunk: true,
             },
           },
         },
@@ -67,11 +84,11 @@ const nextConfig = {
     return config;
   },
 
-  // Compiler optimizations
+  serverExternalPackages: [],
+
   compiler: {
-    // Remove console logs in production
     removeConsole: process.env.NODE_ENV === "production",
   },
 };
 
-module.exports = nextConfig;
+module.exports = withBundleAnalyzer(nextConfig);

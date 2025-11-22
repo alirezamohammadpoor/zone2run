@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import type { SanityProduct } from "@/types/sanityProduct";
+import { formatPrice } from "@/lib/utils/formatPrice";
 
 interface ProductCardProps {
   product: SanityProduct;
@@ -28,18 +28,20 @@ export default function ProductCard({ product }: ProductCardProps) {
             src={product.mainImage.url}
             alt={product.mainImage.alt}
             fill
-            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+            sizes="50vw"
             className="object-cover"
           />
         </div>
       )}
-      <div className="mt-2 mb-10">
+      <div className="mt-2 mb-4">
         <p className="text-base font-medium">
           {product.brand?.name || product.vendor || "No brand"}
         </p>
-        <p className="text-base h-14">{product.title}</p>
-        <p className="text-base mt-2">
-          {product.priceRange.minVariantPrice} {"SEK"}
+        <p className="text-base line-clamp-2 h-[3rem]">{product.title}</p>
+      </div>
+      <div>
+        <p className="text-base mb-4">
+          {formatPrice(product.priceRange.minVariantPrice)} {"SEK"}
         </p>
       </div>
     </div>

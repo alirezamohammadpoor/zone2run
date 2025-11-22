@@ -65,6 +65,7 @@ export interface SanityProduct {
   brand: {
     _id: string;
     name: string;
+    description?: string;
     slug?: string;
     logo?: {
       url: string;

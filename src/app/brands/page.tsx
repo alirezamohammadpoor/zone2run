@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { urlFor } from "@/sanity/lib/image";
+import { getBrandUrl } from "@/lib/utils/brandUrls";
 
 export default async function BrandsPage() {
   const brands = await getAllBrands();
@@ -19,7 +20,7 @@ export default async function BrandsPage() {
         {brands.map((brand: Brand) => (
           <Link
             key={brand._id}
-            href={`/brands/${brand.slug?.current}`}
+            href={brand.slug?.current ? getBrandUrl(brand.slug.current) : "/brands"}
             className="group block p-6 border rounded-lg hover:shadow-lg transition-shadow"
           >
             {brand.logo?.asset?._ref && (

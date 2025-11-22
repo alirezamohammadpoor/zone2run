@@ -3,11 +3,12 @@ import defineStructure from "./defineStructure";
 
 export default defineStructure<ListItemBuilder>((S) =>
   S.listItem()
-    .title("Collections")
-    .schemaType("collection")
+    .title("Navigation Menu")
+    .schemaType("navigationMenu")
     .child(
-      S.documentTypeList("collection").defaultOrdering([
-        { field: "sortOrder", direction: "asc" },
-      ])
+      S.editor()
+        .title("Navigation Menu")
+        .schemaType("navigationMenu")
+        .documentId("navigationMenu")
     )
 );

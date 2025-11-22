@@ -28,9 +28,13 @@ export async function getSanityProductByHandle(
       "maxVariantPrice": store.priceRange.maxVariantPrice
     },
     "mainImage": {
-      "url": store.previewImageUrl,
-      "alt": store.title
+      "url": coalesce(mainImage.asset->url, store.previewImageUrl),
+      "alt": coalesce(mainImage.alt, store.title)
     },
+    "gallery": gallery[] {
+      "url": asset->url,
+      alt
+    } | order(_key asc),
     "options": store.options,
     "variants": store.variants[]-> {
       "id": store.gid,
@@ -65,6 +69,7 @@ export async function getSanityProductByHandle(
     brand-> {
       _id,
       name,
+      "slug": slug.current,
       logo {
         asset-> {
           url
@@ -97,8 +102,8 @@ export async function getAllProducts(): Promise<SanityProduct[]> {
       "maxVariantPrice": store.priceRange.maxVariantPrice
     },
     "mainImage": {
-      "url": store.previewImageUrl,
-      "alt": store.title
+      "url": coalesce(mainImage.asset->url, store.previewImageUrl),
+      "alt": coalesce(mainImage.alt, store.title)
     },
     "options": store.options,
     "variants": store.variants[]-> {
@@ -266,8 +271,8 @@ export async function getProductsByCategory(
       "maxVariantPrice": store.priceRange.maxVariantPrice
     },
     "mainImage": {
-      "url": store.previewImageUrl,
-      "alt": store.title
+      "url": coalesce(mainImage.asset->url, store.previewImageUrl),
+      "alt": coalesce(mainImage.alt, store.title)
     },
     "options": store.options,
     "variants": store.variants[]-> {
@@ -326,9 +331,27 @@ export async function getProductsByCategory(
 
 export async function getProductsByBrand(
   brandSlug: string,
-  limit?: number
+  limit?: number,
+  gender?: string
 ): Promise<SanityProduct[]> {
-  const query = `*[_type == "product" && brand->slug.current == $brandSlug] {
+  // Map frontend gender values to database values
+  const genderMap: { [key: string]: string } = {
+    men: "mens",
+    women: "womens",
+    mens: "mens",
+    womens: "womens",
+    unisex: "unisex",
+  };
+
+  const dbGender = gender ? genderMap[gender] || gender : null;
+
+  // Build gender filter - if gender provided, filter by gender OR unisex
+  const genderFilter = dbGender
+    ? `&& (gender == $dbGender || gender == "unisex")`
+    : "";
+
+  // Try exact match first, then case-insensitive match as fallback
+  const query = `*[_type == "product" && (brand->slug.current == $brandSlug || lower(brand->slug.current) == lower($brandSlug))${genderFilter}] {
     _id,
     "title": coalesce(title, store.title),
     "handle": coalesce(shopifyHandle, store.slug.current),
@@ -341,8 +364,8 @@ export async function getProductsByBrand(
       "maxVariantPrice": store.priceRange.maxVariantPrice
     },
     "mainImage": {
-      "url": store.previewImageUrl,
-      "alt": store.title
+      "url": coalesce(mainImage.asset->url, store.previewImageUrl),
+      "alt": coalesce(mainImage.alt, store.title)
     },
     "options": store.options,
     "variants": store.variants[]-> {
@@ -378,18 +401,18 @@ export async function getProductsByBrand(
     brand-> {
       _id,
       name,
-      logo {
-        asset-> {
-          url
-        }
-      }
+      description,
+      slug {
+        current
+      },
     },
     gender,
     featured
   } | order(title asc)${limit ? `[0...${limit}]` : ""}`;
 
   try {
-    return await client.fetch(query, { brandSlug });
+    const params = dbGender ? { brandSlug, dbGender } : { brandSlug };
+    return await client.fetch(query, params);
   } catch (error) {
     console.error(`Error fetching products for brand ${brandSlug}:`, error);
     return [];
@@ -424,8 +447,8 @@ export async function getProductsByGender(
       "maxVariantPrice": store.priceRange.maxVariantPrice
     },
     "mainImage": {
-      "url": store.previewImageUrl,
-      "alt": store.title
+      "url": coalesce(mainImage.asset->url, store.previewImageUrl),
+      "alt": coalesce(mainImage.alt, store.title)
     },
     "options": store.options,
     "variants": store.variants[]-> {
@@ -527,8 +550,8 @@ export async function getProductsByPath(
       "maxVariantPrice": store.priceRange.maxVariantPrice
     },
     "mainImage": {
-      "url": store.previewImageUrl,
-      "alt": store.title
+      "url": coalesce(mainImage.asset->url, store.previewImageUrl),
+      "alt": coalesce(mainImage.alt, store.title)
     },
     "options": store.options,
     "variants": store.variants[]-> {
@@ -590,8 +613,8 @@ export async function getProductsByPath(
       "maxVariantPrice": store.priceRange.maxVariantPrice
     },
     "mainImage": {
-      "url": store.previewImageUrl,
-      "alt": store.title
+      "url": coalesce(mainImage.asset->url, store.previewImageUrl),
+      "alt": coalesce(mainImage.alt, store.title)
     },
     "options": store.options,
     "variants": store.variants[]-> {
@@ -696,8 +719,8 @@ export async function getProductsBySubcategoryIncludingSubSubcategories(
       "maxVariantPrice": store.priceRange.maxVariantPrice
     },
     "mainImage": {
-      "url": store.previewImageUrl,
-      "alt": store.title
+      "url": coalesce(mainImage.asset->url, store.previewImageUrl),
+      "alt": coalesce(mainImage.alt, store.title)
     },
     "options": store.options,
     "variants": store.variants[]-> {
@@ -800,8 +823,8 @@ export async function getProductsByPath3Level(
       "maxVariantPrice": store.priceRange.maxVariantPrice
     },
     "mainImage": {
-      "url": store.previewImageUrl,
-      "alt": store.title
+      "url": coalesce(mainImage.asset->url, store.previewImageUrl),
+      "alt": coalesce(mainImage.alt, store.title)
     },
     "options": store.options,
     "variants": store.variants[]-> {
@@ -1022,7 +1045,10 @@ export async function getBlogPosts(limit?: number) {
           "title": coalesce(title, store.title),
           "handle": coalesce(shopifyHandle, store.slug.current),
           brand-> { _id, name },
-          "mainImage": { "url": store.previewImageUrl, "alt": store.title },
+          "mainImage": {
+            "url": coalesce(mainImage.asset->url, store.previewImageUrl),
+            "alt": coalesce(mainImage.alt, store.title)
+          },
           "gallery": gallery[] { "url": asset->url, alt } | order(_key asc)
         }
       }
@@ -1036,7 +1062,10 @@ export async function getBlogPosts(limit?: number) {
           "title": coalesce(title, store.title),
           "handle": coalesce(shopifyHandle, store.slug.current),
           brand-> { _id, name },
-          "mainImage": { "url": store.previewImageUrl, "alt": store.title },
+          "mainImage": {
+            "url": coalesce(mainImage.asset->url, store.previewImageUrl),
+            "alt": coalesce(mainImage.alt, store.title)
+          },
           "gallery": gallery[] { "url": asset->url, alt } | order(_key asc)
         }
       }
@@ -1050,7 +1079,10 @@ export async function getBlogPosts(limit?: number) {
           "title": coalesce(title, store.title),
           "handle": coalesce(shopifyHandle, store.slug.current),
           brand-> { _id, name },
-          "mainImage": { "url": store.previewImageUrl, "alt": store.title },
+          "mainImage": {
+            "url": coalesce(mainImage.asset->url, store.previewImageUrl),
+            "alt": coalesce(mainImage.alt, store.title)
+          },
           "gallery": gallery[] { "url": asset->url, alt } | order(_key asc)
         }
       }
@@ -1114,7 +1146,10 @@ export async function getBlogPost(slug: string) {
               "minVariantPrice": store.priceRange.minVariantPrice,
               "maxVariantPrice": store.priceRange.maxVariantPrice
             },
-            "mainImage": { "url": store.previewImageUrl, "alt": store.title },
+            "mainImage": {
+              "url": coalesce(mainImage.asset->url, store.previewImageUrl),
+              "alt": coalesce(mainImage.alt, store.title)
+            },
             "gallery": gallery[] { "url": asset->url, alt } | order(_key asc)
           }
         }
@@ -1142,7 +1177,10 @@ export async function getBlogPost(slug: string) {
             "minVariantPrice": store.priceRange.minVariantPrice,
             "maxVariantPrice": store.priceRange.maxVariantPrice
           },
-          "mainImage": { "url": store.previewImageUrl, "alt": store.title },
+          "mainImage": {
+            "url": coalesce(mainImage.asset->url, store.previewImageUrl),
+            "alt": coalesce(mainImage.alt, store.title)
+          },
           "gallery": gallery[] { "url": asset->url, alt } | order(_key asc)
         }
       }
@@ -1240,12 +1278,20 @@ export async function getProductsByIds(
 }
 
 export async function getAllCollections() {
-  const query = `*[_type == "collection"] | order(store.title asc) {
+  const query = `*[_type == "collection"] | order(sortOrder asc, store.title asc) {
     _id,
     "title": store.title,
     "slug": store.slug {
       current
-    }
+    },
+    menuImage {
+      asset-> {
+        _id,
+        url
+      },
+      alt
+    },
+    sortOrder
   }`;
 
   try {
@@ -1253,6 +1299,66 @@ export async function getAllCollections() {
   } catch (error) {
     console.error("Error fetching collections:", error);
     return [];
+  }
+}
+
+export async function getMenu() {
+  const query = `*[_type == "navigationMenu"][0] {
+    men {
+      featuredCollections[]-> {
+        _id,
+        "title": store.title,
+        "slug": store.slug {
+          current
+        },
+        menuImage {
+          asset-> {
+            _id,
+            url
+          },
+          alt
+        }
+      }
+    },
+    women {
+      featuredCollections[]-> {
+        _id,
+        "title": store.title,
+        "slug": store.slug {
+          current
+        },
+        menuImage {
+          asset-> {
+            _id,
+            url
+          },
+          alt
+        }
+      }
+    },
+    help {
+      links[] {
+        label,
+        url,
+        _key
+      }
+    },
+    "ourSpace": ourSpace {
+      links[] {
+        label,
+        url,
+        _key
+      }
+    }
+  }`;
+
+  try {
+    const menu = await client.fetch(query);
+    // Return null if document doesn't exist (empty result)
+    return menu || null;
+  } catch (error) {
+    console.error("Error fetching menu:", error);
+    return null;
   }
 }
 

@@ -1,40 +1,101 @@
 "use client";
-import React from "react";
+import useEmblaCarousel from "embla-carousel-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 interface ProductGalleryProps {
   mainImage: { url: string; alt: string } | null;
-  galleryImages: any[] | null | undefined;
+  galleryImages?: Array<{ url: string; alt?: string }> | null;
   title?: string;
 }
 
-function ProductGallery({
+export default function ProductGallery({
   mainImage,
   galleryImages,
   title,
 }: ProductGalleryProps) {
-  const [currentImage, setCurrentImage] = useState(mainImage);
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    loop: true,
+    align: "start",
+  });
+  const [selectedIndex, setSelectedIndex] = useState(0);
 
-  // Step 1: Combine all images into one array
-  const allImages = [mainImage, ...(galleryImages || [])].filter(Boolean);
+  const images = useMemo(() => {
+    const normalizedImages: Array<{ url: string; alt: string }> = [];
+
+    // Add main image first
+    if (mainImage?.url) {
+      normalizedImages.push({
+        url: mainImage.url,
+        alt: mainImage.alt || title || "Product",
+      });
+    }
+
+    // Add gallery images
+    if (galleryImages) {
+      galleryImages.forEach((img) => {
+        if (img?.url) {
+          normalizedImages.push({
+            url: img.url,
+            alt: img.alt || title || "Product",
+          });
+        }
+      });
+    }
+
+    return normalizedImages;
+  }, [mainImage, galleryImages, title]);
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setSelectedIndex(emblaApi.selectedScrollSnap());
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    onSelect();
+    emblaApi.on("select", onSelect);
+    return () => {
+      emblaApi.off("select", onSelect);
+    };
+  }, [emblaApi, onSelect]);
+
+  if (images.length === 0) {
+    return (
+      <div className="w-full relative aspect-[4/5] flex items-center justify-center bg-gray-100">
+        <p className="text-gray-400">No images available</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="w-full">
-      {/* Main Image */}
-      <div className="w-full relative aspect-[4/5] flex items-center justify-center">
-        {currentImage && (
-          <Image
-            src={currentImage.url}
-            alt={currentImage.alt || title || "Product"}
-            fill
-            className="object-cover w-full h-full"
-            priority
-          />
-        )}
+    <div className="relative w-full">
+      <div className="overflow-hidden" ref={emblaRef}>
+        <div className="flex">
+          {images.map((image, index) => (
+            <div
+              key={`${image.url}-${index}`}
+              className="relative aspect-[4/5] min-w-full flex-shrink-0"
+            >
+              <Image
+                src={image.url}
+                alt={image.alt}
+                fill
+                className="object-cover"
+                priority={index === 0}
+                sizes="100vw"
+                draggable={false}
+              />
+            </div>
+          ))}
+        </div>
       </div>
+
+      {images.length > 1 && (
+        <div className="absolute bottom-4 right-0 px-3 py-1 text-sm text-black">
+          {selectedIndex + 1} / {images.length}
+        </div>
+      )}
     </div>
   );
 }
-
-export default ProductGallery;
