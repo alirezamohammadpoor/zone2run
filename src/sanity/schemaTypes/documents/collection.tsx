@@ -114,6 +114,24 @@ export const collectionType = defineType({
       initialValue: true,
     }),
     defineField({
+      name: "menuImage",
+      title: "Menu Image",
+      type: "image",
+      description: "Image displayed in the menu carousel",
+      options: {
+        hotspot: true,
+      },
+      fields: [
+        {
+          name: "alt",
+          type: "string",
+          title: "Alternative Text",
+          description: "Important for accessibility",
+        },
+      ],
+      group: "editorial",
+    }),
+    defineField({
       name: "store",
       title: "Shopify",
       type: "shopifyCollection",
@@ -128,6 +146,11 @@ export const collectionType = defineType({
     }),
   ],
   orderings: [
+    {
+      name: "sortOrder",
+      title: "Manual Order",
+      by: [{ field: "sortOrder", direction: "asc" }],
+    },
     {
       name: "titleAsc",
       title: "Title (A-Z)",

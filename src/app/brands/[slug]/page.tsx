@@ -8,12 +8,15 @@ import { brand } from "../../../sanity.types";
 
 export default async function BrandPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ gender?: string }>;
 }) {
   const { slug } = await params;
+  const { gender } = await searchParams;
   const decodedSlug = decodeBrandSlug(slug);
-  const products = await getProductsByBrand(decodedSlug);
+  const products = await getProductsByBrand(decodedSlug, undefined, gender);
 
   if (!products || products.length === 0) {
     notFound();

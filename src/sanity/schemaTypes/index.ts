@@ -141,9 +141,10 @@ const documents = [
 ];
 
 import { homeType } from "./singletons/homeType";
+import { navigationMenuType } from "./singletons/menuType";
 import { settingsType } from "./singletons/settingsType";
 
-const singletons = [homeType, settingsType];
+const singletons = [homeType, navigationMenuType, settingsType];
 
 export const schemaTypes = [
   ...annotations,

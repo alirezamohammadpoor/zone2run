@@ -2,19 +2,32 @@ import { getAllMainCategories } from "@/sanity/lib/getData";
 import {
   getSubcategoriesByParentAndGender,
   getSubSubcategoriesByParentAndGender,
+  getAllBrands,
+  getMenu,
 } from "@/sanity/lib/getData";
 import Header from "./Header";
+import type { MenuData, MenuConfig } from "@/types/menu";
 
 export default async function HeaderServer() {
   // Fetch main categories
   const mainCategories = await getAllMainCategories();
+  const brands = await getAllBrands();
+  const menuConfig = await getMenu();
+
+  if (!menuConfig) {
+    console.warn("No menu configuration found");
+  }
+
+  if (!brands || brands.length === 0) {
+    console.warn("No brands found");
+  }
 
   if (!mainCategories || mainCategories.length === 0) {
     console.warn("No main categories found");
   }
 
   const genders = ["men", "women"];
-  const menuData: { [key: string]: any } = {};
+  const menuData: MenuData = {};
 
   for (const gender of genders) {
     menuData[gender] = {};
@@ -68,5 +81,7 @@ export default async function HeaderServer() {
     }
   }
 
-  return <Header menuData={menuData} />;
+  return (
+    <Header menuData={menuData} brands={brands} menuConfig={menuConfig} />
+  );
 }

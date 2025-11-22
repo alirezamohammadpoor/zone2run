@@ -6,21 +6,26 @@ import MenContent from "./MenContent";
 import WomenContent from "./WomenContent";
 import HelpContent from "./HelpContent";
 import OurSpaceContent from "./OurSpaceContent";
-import { menuConfig } from "./menuConfig";
+import type { BrandMenuItem, MenuData, MenuConfig } from "@/types/menu";
+
+const TABS = ["men", "women", "help", "Our Space"] as const;
+type TabType = (typeof TABS)[number];
 
 function MenuModal({
   isMenuOpen,
   setIsMenuOpen,
   menuData,
+  brands,
+  menuConfig,
 }: {
   isMenuOpen: boolean;
   setIsMenuOpen: (isOpen: boolean) => void;
-  menuData?: { [key: string]: any };
+  menuData?: MenuData;
+  brands?: BrandMenuItem[];
+  menuConfig?: MenuConfig;
 }) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<keyof typeof menuConfig | null>(
-    null
-  );
+  const [activeTab, setActiveTab] = useState<TabType | null>(null);
   const [isMounted, setIsMounted] = useState(false);
 
   const { unlockScroll } = useModalScrollRestoration();
@@ -65,8 +70,8 @@ function MenuModal({
         {/* Fixed Header */}
         <div className="bg-white z-10 h-16 flex-shrink-0">
           {/* Modal Header */}
-          <div className="text-xs flex justify-between items-center h-8 relative mt-4 px-4">
-            <span className="text-sm font-bold">Zone 2</span>
+          <div className="text-xs flex justify-between items-center h-8 relative mt-4 px-2">
+            <span className="text-xs"></span>
             <button
               className="mr-2 text-xs hover:text-gray-500"
               onClick={handleClose}
@@ -74,21 +79,18 @@ function MenuModal({
               Close
             </button>
           </div>
-          <div className="border-b border-gray-300 w-full mt-2"></div>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex border-b border-gray-300 flex-shrink-0">
-          {Object.keys(menuConfig).map((tab) => (
+        <div className="flex flex-shrink-0">
+          {TABS.map((tab) => (
             <button
               key={tab}
-              className={`flex-1 py-3 text-sm ${
-                activeTab === tab ? "border-b-2 border-black" : ""
+              className={`flex-1 text-xs py-2 ${
+                activeTab === tab ? "border-b-[1.5px] border-black" : ""
               }`}
               onClick={() =>
-                setActiveTab(
-                  activeTab === tab ? null : (tab as typeof activeTab)
-                )
+                setActiveTab(activeTab === tab ? null : (tab as TabType))
               }
             >
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -99,31 +101,35 @@ function MenuModal({
         {/* Scrollable Content Area */}
         <div className="flex-1 overflow-y-auto">
           {!isMounted || !menuData || Object.keys(menuData).length === 0 ? (
-            <div className="p-4 text-center">Loading...</div>
+            <div className="p-2 text-center">Loading...</div>
           ) : (
             <>
               {activeTab === "men" && (
                 <MenContent
                   onClose={handleClose}
                   data={menuData["men"] || {}}
+                  brands={brands}
+                  featuredCollections={menuConfig?.men?.featuredCollections}
                 />
               )}
               {activeTab === "women" && (
                 <WomenContent
                   onClose={handleClose}
                   data={menuData["women"] || {}}
+                  brands={brands}
+                  featuredCollections={menuConfig?.women?.featuredCollections}
                 />
               )}
               {activeTab === "help" && (
                 <HelpContent
                   onClose={handleClose}
-                  data={menuData["help"] || {}}
+                  links={menuConfig?.help?.links}
                 />
               )}
               {activeTab === "Our Space" && (
                 <OurSpaceContent
                   onClose={handleClose}
-                  data={menuData["Our Space"] || {}}
+                  links={menuConfig?.ourSpace?.links}
                 />
               )}
             </>

@@ -14,8 +14,17 @@ import { useCartStore } from "@/lib/cart/store";
 import { useHasMounted } from "@/hooks/useHasMounted";
 import { Search } from "lucide-react";
 import AddedToCartModal from "./product/AddedToCartModal";
+import type { BrandMenuItem, MenuData, MenuConfig } from "@/types/menu";
 
-function Header({ menuData }: { menuData?: { [key: string]: any } }) {
+function Header({
+  menuData,
+  brands,
+  menuConfig,
+}: {
+  menuData?: MenuData;
+  brands?: BrandMenuItem[];
+  menuConfig?: MenuConfig;
+}) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isSearchOpen, setIsSearchOpen } = useSearchStore();
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -71,6 +80,8 @@ function Header({ menuData }: { menuData?: { [key: string]: any } }) {
         isMenuOpen={isMenuOpen}
         setIsMenuOpen={setIsMenuOpen}
         menuData={menuData}
+        brands={brands}
+        menuConfig={menuConfig}
       />
       <SearchModal />
       <CartModal isCartOpen={isCartOpen} setIsCartOpen={setIsCartOpen} />

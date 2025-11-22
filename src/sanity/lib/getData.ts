@@ -331,10 +331,27 @@ export async function getProductsByCategory(
 
 export async function getProductsByBrand(
   brandSlug: string,
-  limit?: number
+  limit?: number,
+  gender?: string
 ): Promise<SanityProduct[]> {
+  // Map frontend gender values to database values
+  const genderMap: { [key: string]: string } = {
+    men: "mens",
+    women: "womens",
+    mens: "mens",
+    womens: "womens",
+    unisex: "unisex",
+  };
+
+  const dbGender = gender ? genderMap[gender] || gender : null;
+
+  // Build gender filter - if gender provided, filter by gender OR unisex
+  const genderFilter = dbGender
+    ? `&& (gender == $dbGender || gender == "unisex")`
+    : "";
+
   // Try exact match first, then case-insensitive match as fallback
-  const query = `*[_type == "product" && (brand->slug.current == $brandSlug || lower(brand->slug.current) == lower($brandSlug))] {
+  const query = `*[_type == "product" && (brand->slug.current == $brandSlug || lower(brand->slug.current) == lower($brandSlug))${genderFilter}] {
     _id,
     "title": coalesce(title, store.title),
     "handle": coalesce(shopifyHandle, store.slug.current),
@@ -394,7 +411,8 @@ export async function getProductsByBrand(
   } | order(title asc)${limit ? `[0...${limit}]` : ""}`;
 
   try {
-    return await client.fetch(query, { brandSlug });
+    const params = dbGender ? { brandSlug, dbGender } : { brandSlug };
+    return await client.fetch(query, params);
   } catch (error) {
     console.error(`Error fetching products for brand ${brandSlug}:`, error);
     return [];
@@ -1260,12 +1278,20 @@ export async function getProductsByIds(
 }
 
 export async function getAllCollections() {
-  const query = `*[_type == "collection"] | order(store.title asc) {
+  const query = `*[_type == "collection"] | order(sortOrder asc, store.title asc) {
     _id,
     "title": store.title,
     "slug": store.slug {
       current
-    }
+    },
+    menuImage {
+      asset-> {
+        _id,
+        url
+      },
+      alt
+    },
+    sortOrder
   }`;
 
   try {
@@ -1273,6 +1299,66 @@ export async function getAllCollections() {
   } catch (error) {
     console.error("Error fetching collections:", error);
     return [];
+  }
+}
+
+export async function getMenu() {
+  const query = `*[_type == "navigationMenu"][0] {
+    men {
+      featuredCollections[]-> {
+        _id,
+        "title": store.title,
+        "slug": store.slug {
+          current
+        },
+        menuImage {
+          asset-> {
+            _id,
+            url
+          },
+          alt
+        }
+      }
+    },
+    women {
+      featuredCollections[]-> {
+        _id,
+        "title": store.title,
+        "slug": store.slug {
+          current
+        },
+        menuImage {
+          asset-> {
+            _id,
+            url
+          },
+          alt
+        }
+      }
+    },
+    help {
+      links[] {
+        label,
+        url,
+        _key
+      }
+    },
+    "ourSpace": ourSpace {
+      links[] {
+        label,
+        url,
+        _key
+      }
+    }
+  }`;
+
+  try {
+    const menu = await client.fetch(query);
+    // Return null if document doesn't exist (empty result)
+    return menu || null;
+  } catch (error) {
+    console.error("Error fetching menu:", error);
+    return null;
   }
 }
 
