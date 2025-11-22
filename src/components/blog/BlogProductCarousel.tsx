@@ -3,6 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import useEmblaCarousel from "embla-carousel-react";
+import { getBrandUrl } from "@/lib/utils/brandUrls";
 import type { SanityProduct } from "@/types/sanityProduct";
 
 interface BlogProductCarouselProps {

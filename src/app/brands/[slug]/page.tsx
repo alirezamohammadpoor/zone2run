@@ -1,10 +1,7 @@
 import { getProductsByBrand } from "@/sanity/lib/getData";
 import { notFound } from "next/navigation";
 import ProductGrid from "@/components/ProductGrid";
-import Image from "next/image";
-import { urlFor } from "@/sanity/lib/image";
 import { decodeBrandSlug } from "@/lib/utils/brandUrls";
-import { brand } from "../../../sanity.types";
 
 export default async function BrandPage({
   params,

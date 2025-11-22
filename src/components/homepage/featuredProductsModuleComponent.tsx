@@ -83,51 +83,26 @@ function FeaturedProductsModule({
   React.useEffect(() => {
     if (!emblaApi) return;
 
-    let isPointerDown = false;
-    let hasMoved = false;
+    let isDragging = false;
 
-    const onPointerDown = () => {
-      isPointerDown = true;
-      hasMoved = false;
-      isDraggingRef.current = false;
-    };
-
-    const onPointerMove = () => {
-      if (isPointerDown) {
-        hasMoved = true;
-        isDraggingRef.current = true;
-      }
-    };
-
-    const onPointerUp = () => {
-      if (isPointerDown && hasMoved) {
-        // User was dragging, prevent click
-        isDraggingRef.current = true;
-        setTimeout(() => {
-          isDraggingRef.current = false;
-        }, 100);
-      } else {
-        // User just clicked, allow navigation
-        isDraggingRef.current = false;
-      }
-      isPointerDown = false;
-      hasMoved = false;
+    const onScroll = () => {
+      isDragging = true;
+      isDraggingRef.current = true;
     };
 
     const onSettle = () => {
       // Reset after carousel settles
-      isDraggingRef.current = false;
+      isDragging = false;
+      setTimeout(() => {
+        isDraggingRef.current = false;
+      }, 100);
     };
 
-    emblaApi.on("pointerDown", onPointerDown);
-    emblaApi.on("pointerMove", onPointerMove);
-    emblaApi.on("pointerUp", onPointerUp);
+    emblaApi.on("scroll", onScroll);
     emblaApi.on("settle", onSettle);
 
     return () => {
-      emblaApi.off("pointerDown", onPointerDown);
-      emblaApi.off("pointerMove", onPointerMove);
-      emblaApi.off("pointerUp", onPointerUp);
+      emblaApi.off("scroll", onScroll);
       emblaApi.off("settle", onSettle);
     };
   }, [emblaApi]);
