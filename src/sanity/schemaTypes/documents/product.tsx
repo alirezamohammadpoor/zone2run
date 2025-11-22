@@ -108,8 +108,7 @@ export const productType = defineType({
       type: "array",
       of: [{ type: "string" }],
       group: "shopifySync",
-      description: "Raw Shopify collection IDs for debugging and verification",
-      readOnly: true,
+      description: "Raw Shopify collection IDs for debugging and verification. Can be edited manually to fix incorrect data.",
     }),
     defineField({
       name: "mainImage",

@@ -157,6 +157,124 @@ export async function getSanityCollectionsByShopifyHandles(
   }
 }
 
+// Get products in a collection from Shopify
+export async function getCollectionProducts(
+  collectionId: string
+): Promise<Array<{ id: number; title: string; handle: string }>> {
+  try {
+    const shopDomain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+    const apiKey = process.env.SHOPIFY_ADMIN_API_TOKEN;
+
+    if (!shopDomain || !apiKey) {
+      throw new Error("Missing Shopify credentials");
+    }
+
+    // Try collection products endpoint first (works for both manual and smart collections)
+    const productsUrl = `https://${shopDomain}/admin/api/unstable/collections/${collectionId}/products.json?limit=250`;
+    console.log("🔗 Collection Products API URL:", productsUrl);
+
+    const response = await fetch(productsUrl, {
+      headers: {
+        "X-Shopify-Access-Token": apiKey,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      const products = data.products || [];
+      console.log(
+        `📦 Found ${products.length} products in collection ${collectionId}`
+      );
+
+      return products.map((product: any) => ({
+        id: product.id,
+        title: product.title,
+        handle: product.handle,
+      }));
+    }
+
+    // Fallback: Try collects API for manual collections
+    console.log(
+      "⚠️ Collection products endpoint failed, trying collects API..."
+    );
+    const collectsUrl = `https://${shopDomain}/admin/api/unstable/collects.json?collection_id=${collectionId}&limit=250`;
+    const collectsResponse = await fetch(collectsUrl, {
+      headers: {
+        "X-Shopify-Access-Token": apiKey,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (collectsResponse.ok) {
+      const collectsData = await collectsResponse.json();
+      const collects = collectsData.collects || [];
+      console.log(
+        `📦 Found ${collects.length} collects in collection ${collectionId}`
+      );
+
+      if (collects.length === 0) {
+        return [];
+      }
+
+      // Get product IDs from collects
+      const productIds = collects.map((collect: any) => collect.product_id);
+
+      // Fetch product details in batches
+      const products: Array<{ id: number; title: string; handle: string }> = [];
+      const batchSize = 50;
+
+      for (let i = 0; i < productIds.length; i += batchSize) {
+        const batch = productIds.slice(i, i + batchSize);
+        const productDetails = await Promise.all(
+          batch.map(async (productId: number) => {
+            try {
+              const productUrl = `https://${shopDomain}/admin/api/unstable/products/${productId}.json`;
+              const productResponse = await fetch(productUrl, {
+                headers: {
+                  "X-Shopify-Access-Token": apiKey,
+                  "Content-Type": "application/json",
+                },
+              });
+
+              if (productResponse.ok) {
+                const productData = await productResponse.json();
+                return {
+                  id: productData.product.id,
+                  title: productData.product.title,
+                  handle: productData.product.handle,
+                };
+              }
+            } catch (error) {
+              console.error(`Error fetching product ${productId}:`, error);
+            }
+            return null;
+          })
+        );
+
+        products.push(
+          ...(productDetails.filter(Boolean) as Array<{
+            id: number;
+            title: string;
+            handle: string;
+          }>)
+        );
+      }
+
+      console.log(`✅ Retrieved ${products.length} products from collection`);
+      return products;
+    }
+
+    console.log(
+      `❌ Both endpoints failed: ${response.status} and ${collectsResponse.status}`
+    );
+    return [];
+  } catch (error) {
+    console.error("Error fetching collection products from Shopify:", error);
+    return [];
+  }
+}
+
 // Shopify API helper functions
 export async function getProductCollections(
   productId: string
