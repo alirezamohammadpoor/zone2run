@@ -1,6 +1,6 @@
 import React from "react";
 import { notFound } from "next/navigation";
-import ProductGrid from "@/components/ProductGrid";
+import ProductGridWithImages from "@/components/ProductGridWithImages";
 import { getCollectionBySlug } from "@/sanity/lib/getData";
 
 interface CollectionPageProps {
@@ -18,7 +18,11 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
   return (
     <div>
       {collection.products && collection.products.length > 0 ? (
-        <ProductGrid products={collection.products} />
+        <ProductGridWithImages
+          products={collection.products}
+          editorialImages={collection.editorialImages}
+          productsPerImage={2}
+        />
       ) : (
         <p>No products found in this collection.</p>
       )}

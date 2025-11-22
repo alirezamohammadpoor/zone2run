@@ -1,0 +1,642 @@
+[
+  {
+    "productId": "15297392247108",
+    "title": "Men's Mionn Softshell Overshirt",
+    "vendor": "Veilance",
+    "productType": "Mens Shirts",
+    "extractedSlug": "mens-shirts",
+    "extractedTitle": "Mens Shirts",
+    "tags": "Men's Clothing, Mens Shirts",
+    "timestamp": "2025-11-22T15:11:45.997Z"
+  },
+  {
+    "productId": "15296365199684",
+    "title": "Women's Tempo Shorts",
+    "vendor": "Unna",
+    "productType": "Shorts & Skirts",
+    "extractedSlug": "shorts-and-skirts",
+    "extractedTitle": "Shorts And Skirts",
+    "tags": "Women's Clothing, Women's Shorts & Skirts",
+    "timestamp": "2025-11-22T17:04:55.812Z"
+  },
+  {
+    "productId": "15296368771396",
+    "title": "Women's Tempo Shorts",
+    "vendor": "Unna",
+    "productType": "Shorts & Skirts",
+    "extractedSlug": "shorts-and-skirts",
+    "extractedTitle": "Shorts And Skirts",
+    "tags": "Women's Clothing, Women's Shorts & Skirts",
+    "timestamp": "2025-11-22T17:05:02.216Z"
+  },
+  {
+    "productId": "15296369066308",
+    "title": "Women's Shiny Long Sleeve",
+    "vendor": "Unna",
+    "productType": "Dam Longsleeve T-shirtS",
+    "extractedSlug": "dam-longsleeve-t-shirts",
+    "extractedTitle": "Dam Longsleeve T Shirts",
+    "tags": "Dam Longsleeve T-shirtS, Women's Clothing",
+    "timestamp": "2025-11-22T17:05:05.825Z"
+  },
+  {
+    "productId": "15296370475332",
+    "title": "Wavy Tee",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Men's Clothing, Men's Running Clothes",
+    "timestamp": "2025-11-22T17:05:10.846Z"
+  },
+  {
+    "productId": "15296370671940",
+    "title": "Flow Shorts 3\"",
+    "vendor": "Unna",
+    "productType": "Shorts & Skirts",
+    "extractedSlug": "shorts-and-skirts",
+    "extractedTitle": "Shorts And Skirts",
+    "tags": "Women's Clothing, Women's Shorts & Skirts",
+    "timestamp": "2025-11-22T17:05:11.074Z"
+  },
+  {
+    "productId": "15296370770244",
+    "title": "Men's Zip Up Wool Layer",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Men's Clothing, Men's Running Clothes",
+    "timestamp": "2025-11-22T17:05:12.294Z"
+  },
+  {
+    "productId": "15296370835780",
+    "title": "Women's Gradient LS",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Women's Clothing, Women's Running Clothes",
+    "timestamp": "2025-11-22T17:05:14.318Z"
+  },
+  {
+    "productId": "15296371065156",
+    "title": "Flow Shorts 5\"",
+    "vendor": "Unna",
+    "productType": "Shorts & Skirts",
+    "extractedSlug": "shorts-and-skirts",
+    "extractedTitle": "Shorts And Skirts",
+    "tags": "Women's Clothing, Women's Shorts & Skirts",
+    "timestamp": "2025-11-22T17:05:17.582Z"
+  },
+  {
+    "productId": "15296371884356",
+    "title": "Women's Slow Motion Shorts",
+    "vendor": "Unna",
+    "productType": "Shorts & Skirts",
+    "extractedSlug": "shorts-and-skirts",
+    "extractedTitle": "Shorts And Skirts",
+    "tags": "Women's Clothing, Women's Shorts & Skirts",
+    "timestamp": "2025-11-22T17:05:21.669Z"
+  },
+  {
+    "productId": "15296374112580",
+    "title": "Women's Zip Up Wool Layer",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Women's Clothing, Women's Running Clothes",
+    "timestamp": "2025-11-22T17:05:32.382Z"
+  },
+  {
+    "productId": "15296374669636",
+    "title": "Women's Good Place Tights",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Women's Clothing, Women's Running Clothes",
+    "timestamp": "2025-11-22T17:05:38.226Z"
+  },
+  {
+    "productId": "15296376209732",
+    "title": "Women's Everywhere Tights",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Women's Clothing, Women's Running Clothes",
+    "timestamp": "2025-11-22T17:05:45.073Z"
+  },
+  {
+    "productId": "15296376275268",
+    "title": "Women's Smiles Run Shorts",
+    "vendor": "Unna",
+    "productType": "Shorts & Skirts",
+    "extractedSlug": "shorts-and-skirts",
+    "extractedTitle": "Shorts And Skirts",
+    "tags": "Women's Clothing, Women's Shorts & Skirts",
+    "timestamp": "2025-11-22T17:05:45.370Z"
+  },
+  {
+    "productId": "15296371884356",
+    "title": "Women's Slow Motion Shorts",
+    "vendor": "Unna",
+    "productType": "Shorts & Skirts",
+    "extractedSlug": "shorts-and-skirts",
+    "extractedTitle": "Shorts And Skirts",
+    "tags": "Women's Clothing, Women's Shorts & Skirts",
+    "timestamp": "2025-11-22T17:08:50.104Z"
+  },
+  {
+    "productId": "15296374112580",
+    "title": "Women's Zip Up Wool Layer",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Women's Clothing, Women's Running Clothes",
+    "timestamp": "2025-11-22T17:08:51.418Z"
+  },
+  {
+    "productId": "15296376209732",
+    "title": "Women's Everywhere Tights",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Women's Clothing, Women's Running Clothes",
+    "timestamp": "2025-11-22T17:08:53.072Z"
+  },
+  {
+    "productId": "15296376275268",
+    "title": "Women's Smiles Run Shorts",
+    "vendor": "Unna",
+    "productType": "Shorts & Skirts",
+    "extractedSlug": "shorts-and-skirts",
+    "extractedTitle": "Shorts And Skirts",
+    "tags": "Women's Clothing, Women's Shorts & Skirts",
+    "timestamp": "2025-11-22T17:08:53.376Z"
+  },
+  {
+    "productId": "15296376930628",
+    "title": "Women's Slow Motion Shorts",
+    "vendor": "Unna",
+    "productType": "Shorts & Skirts",
+    "extractedSlug": "shorts-and-skirts",
+    "extractedTitle": "Shorts And Skirts",
+    "tags": "Women's Clothing, Women's Shorts & Skirts",
+    "timestamp": "2025-11-22T17:08:58.353Z"
+  },
+  {
+    "productId": "15296377160004",
+    "title": "Women's Balance Crop Top",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Women's Clothing, Women's Running Clothes",
+    "timestamp": "2025-11-22T17:08:58.813Z"
+  },
+  {
+    "productId": "15296377422148",
+    "title": "Women's Good Place Shorts",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Women's Clothing, Women's Running Clothes",
+    "timestamp": "2025-11-22T17:09:02.429Z"
+  },
+  {
+    "productId": "15296377585988",
+    "title": "Good Place Bra",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Women's Clothing, Women's Running Clothes",
+    "timestamp": "2025-11-22T17:09:02.480Z"
+  },
+  {
+    "productId": "15296377749828",
+    "title": "Women's Good Place Shorts",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Women's Clothing, Women's Running Clothes",
+    "timestamp": "2025-11-22T17:09:04.834Z"
+  },
+  {
+    "productId": "15296374669636",
+    "title": "Women's Good Place Tights",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Women's Clothing, Women's Running Clothes",
+    "timestamp": "2025-11-22T17:09:06.549Z"
+  },
+  {
+    "productId": "15296379486532",
+    "title": "Women's Tempo Shorts",
+    "vendor": "Unna",
+    "productType": "Shorts & Skirts",
+    "extractedSlug": "shorts-and-skirts",
+    "extractedTitle": "Shorts And Skirts",
+    "tags": "Women's Clothing, Women's Shorts & Skirts",
+    "timestamp": "2025-11-22T17:09:12.800Z"
+  },
+  {
+    "productId": "15296379552068",
+    "title": "Women's Smiles Run Jacket",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Women's Clothing, Women's Running Clothes",
+    "timestamp": "2025-11-22T17:09:13.015Z"
+  },
+  {
+    "productId": "15296371884356",
+    "title": "Women's Slow Motion Shorts",
+    "vendor": "Unna",
+    "productType": "Shorts & Skirts",
+    "extractedSlug": "shorts-and-skirts",
+    "extractedTitle": "Shorts And Skirts",
+    "tags": "Women's Clothing, Women's Shorts & Skirts",
+    "timestamp": "2025-11-22T17:13:56.931Z"
+  },
+  {
+    "productId": "15296374112580",
+    "title": "Women's Zip Up Wool Layer",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Women's Clothing, Women's Running Clothes",
+    "timestamp": "2025-11-22T17:13:58.072Z"
+  },
+  {
+    "productId": "15296376275268",
+    "title": "Women's Smiles Run Shorts",
+    "vendor": "Unna",
+    "productType": "Shorts & Skirts",
+    "extractedSlug": "shorts-and-skirts",
+    "extractedTitle": "Shorts And Skirts",
+    "tags": "Women's Clothing, Women's Shorts & Skirts",
+    "timestamp": "2025-11-22T17:13:59.232Z"
+  },
+  {
+    "productId": "15296376209732",
+    "title": "Women's Everywhere Tights",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Women's Clothing, Women's Running Clothes",
+    "timestamp": "2025-11-22T17:14:00.110Z"
+  },
+  {
+    "productId": "15296376930628",
+    "title": "Women's Slow Motion Shorts",
+    "vendor": "Unna",
+    "productType": "Shorts & Skirts",
+    "extractedSlug": "shorts-and-skirts",
+    "extractedTitle": "Shorts And Skirts",
+    "tags": "Women's Clothing, Women's Shorts & Skirts",
+    "timestamp": "2025-11-22T17:14:04.979Z"
+  },
+  {
+    "productId": "15296377160004",
+    "title": "Women's Balance Crop Top",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Women's Clothing, Women's Running Clothes",
+    "timestamp": "2025-11-22T17:14:05.058Z"
+  },
+  {
+    "productId": "15296377585988",
+    "title": "Good Place Bra",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Women's Clothing, Women's Running Clothes",
+    "timestamp": "2025-11-22T17:14:08.933Z"
+  },
+  {
+    "productId": "15296377422148",
+    "title": "Women's Good Place Shorts",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Women's Clothing, Women's Running Clothes",
+    "timestamp": "2025-11-22T17:14:09.458Z"
+  },
+  {
+    "productId": "15296377749828",
+    "title": "Women's Good Place Shorts",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Women's Clothing, Women's Running Clothes",
+    "timestamp": "2025-11-22T17:14:11.109Z"
+  },
+  {
+    "productId": "15296374669636",
+    "title": "Women's Good Place Tights",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Women's Clothing, Women's Running Clothes",
+    "timestamp": "2025-11-22T17:14:12.854Z"
+  },
+  {
+    "productId": "15296379486532",
+    "title": "Women's Tempo Shorts",
+    "vendor": "Unna",
+    "productType": "Shorts & Skirts",
+    "extractedSlug": "shorts-and-skirts",
+    "extractedTitle": "Shorts And Skirts",
+    "tags": "Women's Clothing, Women's Shorts & Skirts",
+    "timestamp": "2025-11-22T17:14:19.653Z"
+  },
+  {
+    "productId": "15296379552068",
+    "title": "Women's Smiles Run Jacket",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Women's Clothing, Women's Running Clothes",
+    "timestamp": "2025-11-22T17:14:19.829Z"
+  },
+  {
+    "productId": "15296371884356",
+    "title": "Women's Slow Motion Shorts",
+    "vendor": "Unna",
+    "productType": "Shorts & Skirts",
+    "extractedSlug": "shorts-and-skirts",
+    "extractedTitle": "Shorts And Skirts",
+    "tags": "Women's Clothing, Women's Shorts & Skirts",
+    "timestamp": "2025-11-22T17:36:03.718Z"
+  },
+  {
+    "productId": "15296374112580",
+    "title": "Women's Zip Up Wool Layer",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Women's Clothing, Women's Running Clothes",
+    "timestamp": "2025-11-22T17:36:04.621Z"
+  },
+  {
+    "productId": "15296376275268",
+    "title": "Women's Smiles Run Shorts",
+    "vendor": "Unna",
+    "productType": "Shorts & Skirts",
+    "extractedSlug": "shorts-and-skirts",
+    "extractedTitle": "Shorts And Skirts",
+    "tags": "Women's Clothing, Women's Shorts & Skirts",
+    "timestamp": "2025-11-22T17:36:05.810Z"
+  },
+  {
+    "productId": "15296376209732",
+    "title": "Women's Everywhere Tights",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Women's Clothing, Women's Running Clothes",
+    "timestamp": "2025-11-22T17:36:06.175Z"
+  },
+  {
+    "productId": "15296377160004",
+    "title": "Women's Balance Crop Top",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Women's Clothing, Women's Running Clothes",
+    "timestamp": "2025-11-22T17:36:11.547Z"
+  },
+  {
+    "productId": "15296376930628",
+    "title": "Women's Slow Motion Shorts",
+    "vendor": "Unna",
+    "productType": "Shorts & Skirts",
+    "extractedSlug": "shorts-and-skirts",
+    "extractedTitle": "Shorts And Skirts",
+    "tags": "Women's Clothing, Women's Shorts & Skirts",
+    "timestamp": "2025-11-22T17:36:11.836Z"
+  },
+  {
+    "productId": "15296377585988",
+    "title": "Good Place Bra",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Women's Clothing, Women's Running Clothes",
+    "timestamp": "2025-11-22T17:36:15.211Z"
+  },
+  {
+    "productId": "15296377422148",
+    "title": "Women's Good Place Shorts",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Women's Clothing, Women's Running Clothes",
+    "timestamp": "2025-11-22T17:36:16.337Z"
+  },
+  {
+    "productId": "15296377749828",
+    "title": "Women's Good Place Shorts",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Women's Clothing, Women's Running Clothes",
+    "timestamp": "2025-11-22T17:36:18.063Z"
+  },
+  {
+    "productId": "15296374669636",
+    "title": "Women's Good Place Tights",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Women's Clothing, Women's Running Clothes",
+    "timestamp": "2025-11-22T17:36:19.742Z"
+  },
+  {
+    "productId": "15296379552068",
+    "title": "Women's Smiles Run Jacket",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Women's Clothing, Women's Running Clothes",
+    "timestamp": "2025-11-22T17:36:26.304Z"
+  },
+  {
+    "productId": "15296379486532",
+    "title": "Women's Tempo Shorts",
+    "vendor": "Unna",
+    "productType": "Shorts & Skirts",
+    "extractedSlug": "shorts-and-skirts",
+    "extractedTitle": "Shorts And Skirts",
+    "tags": "Women's Clothing, Women's Shorts & Skirts",
+    "timestamp": "2025-11-22T17:36:26.617Z"
+  },
+  {
+    "productId": "15297392247108",
+    "title": "Men's Mion Softshell Overshirt",
+    "vendor": "Veilance",
+    "productType": "Mens Shirts",
+    "extractedSlug": "mens-shirts",
+    "extractedTitle": "Mens Shirts",
+    "tags": "Men's Clothing, Mens Shirts",
+    "timestamp": "2025-11-22T17:41:25.713Z"
+  },
+  {
+    "productId": "15297392247108",
+    "title": "Men's Mionn Softshell Overshirt",
+    "vendor": "Veilance",
+    "productType": "Mens Shirts",
+    "extractedSlug": "mens-shirts",
+    "extractedTitle": "Mens Shirts",
+    "tags": "Men's Clothing, Mens Shirts",
+    "timestamp": "2025-11-22T17:46:32.440Z"
+  },
+  {
+    "productId": "15296371884356",
+    "title": "Women's Slow Motion Shorts",
+    "vendor": "Unna",
+    "productType": "Shorts & Skirts",
+    "extractedSlug": "shorts-and-skirts",
+    "extractedTitle": "Shorts And Skirts",
+    "tags": "Women's Clothing, Women's Shorts & Skirts",
+    "timestamp": "2025-11-22T18:06:10.527Z"
+  },
+  {
+    "productId": "15296374112580",
+    "title": "Women's Zip Up Wool Layer",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Women's Clothing, Women's Running Clothes",
+    "timestamp": "2025-11-22T18:06:11.271Z"
+  },
+  {
+    "productId": "15296376209732",
+    "title": "Women's Everywhere Tights",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Women's Clothing, Women's Running Clothes",
+    "timestamp": "2025-11-22T18:06:12.540Z"
+  },
+  {
+    "productId": "15296376275268",
+    "title": "Women's Smiles Run Shorts",
+    "vendor": "Unna",
+    "productType": "Shorts & Skirts",
+    "extractedSlug": "shorts-and-skirts",
+    "extractedTitle": "Shorts And Skirts",
+    "tags": "Women's Clothing, Women's Shorts & Skirts",
+    "timestamp": "2025-11-22T18:06:17.391Z"
+  },
+  {
+    "productId": "15296377160004",
+    "title": "Women's Balance Crop Top",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Women's Clothing, Women's Running Clothes",
+    "timestamp": "2025-11-22T18:06:18.147Z"
+  },
+  {
+    "productId": "15296377585988",
+    "title": "Good Place Bra",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Women's Clothing, Women's Running Clothes",
+    "timestamp": "2025-11-22T18:06:21.824Z"
+  },
+  {
+    "productId": "15296377422148",
+    "title": "Women's Good Place Shorts",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Women's Clothing, Women's Running Clothes",
+    "timestamp": "2025-11-22T18:06:22.321Z"
+  },
+  {
+    "productId": "15296376930628",
+    "title": "Women's Slow Motion Shorts",
+    "vendor": "Unna",
+    "productType": "Shorts & Skirts",
+    "extractedSlug": "shorts-and-skirts",
+    "extractedTitle": "Shorts And Skirts",
+    "tags": "Women's Clothing, Women's Shorts & Skirts",
+    "timestamp": "2025-11-22T18:06:23.278Z"
+  },
+  {
+    "productId": "15296377749828",
+    "title": "Women's Good Place Shorts",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Women's Clothing, Women's Running Clothes",
+    "timestamp": "2025-11-22T18:06:24.600Z"
+  },
+  {
+    "productId": "15296374669636",
+    "title": "Women's Good Place Tights",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Women's Clothing, Women's Running Clothes",
+    "timestamp": "2025-11-22T18:06:26.129Z"
+  },
+  {
+    "productId": "15296379552068",
+    "title": "Women's Smiles Run Jacket",
+    "vendor": "Unna",
+    "productType": "Running Clothes",
+    "extractedSlug": "running-clothes",
+    "extractedTitle": "Running Clothes",
+    "tags": "Women's Clothing, Women's Running Clothes",
+    "timestamp": "2025-11-22T18:06:32.392Z"
+  },
+  {
+    "productId": "15296379486532",
+    "title": "Women's Tempo Shorts",
+    "vendor": "Unna",
+    "productType": "Shorts & Skirts",
+    "extractedSlug": "shorts-and-skirts",
+    "extractedTitle": "Shorts And Skirts",
+    "tags": "Women's Clothing, Women's Shorts & Skirts",
+    "timestamp": "2025-11-22T18:06:33.094Z"
+  }
+]

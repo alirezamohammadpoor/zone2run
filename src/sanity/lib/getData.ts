@@ -201,6 +201,33 @@ export async function getAllBrands() {
     return [];
   }
 }
+
+export async function getBrandBySlug(slug: string) {
+  const query = `*[_type == "brand" && slug.current == $slug][0] {
+    _id,
+    name,
+    description,
+    editorialImages[] {
+      _key,
+      image {
+        asset-> {
+          _id,
+          url
+        },
+        alt
+      },
+      caption
+    }
+  }`;
+
+  try {
+    return await client.fetch(query, { slug });
+  } catch (error) {
+    console.error(`Error fetching brand ${slug}:`, error);
+    return null;
+  }
+}
+
 export async function getAllMainCategories() {
   const query = `*[_type == "category" && categoryType == "main"] {
     _id,
@@ -1363,65 +1390,104 @@ export async function getMenu() {
 }
 
 export async function getCollectionBySlug(slug: string) {
-  const query = `*[_type == "collection" && store.slug.current == $slug][0]{
+  // Try exact match first, then case-insensitive match as fallback
+  const collectionQuery = `*[_type == "collection" && (store.slug.current == $slug || lower(store.slug.current) == lower($slug))][0]{
+    _id,
     "title": store.title,
-    "products": *[_type == "product" && references(^._id)]{
-      _id,
-      "title": coalesce(title, store.title),
-      "handle": coalesce(shopifyHandle, store.slug.current),
-      "description": store.descriptionHtml,
-      "vendor": store.vendor,
-      "productType": store.productType,
-      "tags": store.tags,
-      "priceRange": {
-        "minVariantPrice": store.priceRange.minVariantPrice,
-        "maxVariantPrice": store.priceRange.maxVariantPrice
-      },
-      "mainImage": {
-        "url": store.previewImageUrl,
-        "alt": store.title
-      },
-      "options": store.options,
-      "variants": store.variants[]-> {
-        "id": store.gid,
-        "title": store.title,
-        "sku": store.sku,
-        "price": store.price,
-        "compareAtPrice": store.compareAtPrice,
-        "available": store.inventory.isAvailable,
-        "selectedOptions": [
-          select(store.option1 != null => {"name": "Size", "value": store.option1}),
-          select(store.option2 != null => {"name": "Color", "value": store.option2}),
-          select(store.option3 != null => {"name": "Material", "value": store.option3})
-        ]
-      },
-      category-> {
-        _id,
-        title,
-        "slug": slug.current,
-        categoryType,
-        parentCategory-> {
+    "shopifyId": store.id,
+    editorialImages[] {
+      _key,
+      image {
+        asset-> {
           _id,
-          title,
-          "slug": slug.current
-        }
+          url
+        },
+        alt
       },
-      brand-> {
-        _id,
-        name,
-        logo {
-          asset-> {
-            url
-          }
-        }
-      },
-      gender,
-      featured
+      caption
     }
   }`;
 
+  const productsQuery = `*[_type == "product" && (references($collectionId) || (defined(shopifyCollectionIds) && $shopifyIdStr in shopifyCollectionIds))]{
+    _id,
+    "title": coalesce(title, store.title),
+    "handle": coalesce(shopifyHandle, store.slug.current),
+    "description": store.descriptionHtml,
+    "vendor": store.vendor,
+    "productType": store.productType,
+    "tags": store.tags,
+    "priceRange": {
+      "minVariantPrice": store.priceRange.minVariantPrice,
+      "maxVariantPrice": store.priceRange.maxVariantPrice
+    },
+    "mainImage": {
+      "url": store.previewImageUrl,
+      "alt": store.title
+    },
+    "options": store.options,
+    "variants": store.variants[]-> {
+      "id": store.gid,
+      "title": store.title,
+      "sku": store.sku,
+      "price": store.price,
+      "compareAtPrice": store.compareAtPrice,
+      "available": store.inventory.isAvailable,
+      "selectedOptions": [
+        select(store.option1 != null => {"name": "Size", "value": store.option1}),
+        select(store.option2 != null => {"name": "Color", "value": store.option2}),
+        select(store.option3 != null => {"name": "Material", "value": store.option3})
+      ]
+    },
+    category-> {
+      _id,
+      title,
+      "slug": slug.current,
+      categoryType,
+      parentCategory-> {
+        _id,
+        title,
+        "slug": slug.current
+      }
+    },
+    brand-> {
+      _id,
+      name,
+      logo {
+        asset-> {
+          url
+        }
+      }
+    },
+    gender,
+    featured
+  }`;
+
   try {
-    return await client.fetch(query, { slug });
+    const collection = await client.fetch(collectionQuery, { slug });
+    if (!collection) return null;
+
+    // Fetch products using both collection reference and Shopify ID
+    // Convert shopifyId to string for array matching
+    const shopifyIdStr = collection.shopifyId
+      ? collection.shopifyId.toString()
+      : "";
+
+    let products = await client.fetch(productsQuery, {
+      collectionId: collection._id,
+      shopifyIdStr: shopifyIdStr,
+    });
+
+    // Log for debugging if no products found
+    if ((!products || products.length === 0) && collection.shopifyId) {
+      console.log(
+        `⚠️ No products found for collection "${collection.title}" (Shopify ID: ${collection.shopifyId})`
+      );
+    }
+
+    return {
+      ...collection,
+      products: products || [],
+    };
   } catch (error) {
     console.error(`Error fetching collection ${slug}:`, error);
     return null;

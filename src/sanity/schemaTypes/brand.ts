@@ -1,4 +1,4 @@
-import { defineField, defineType } from "sanity";
+import { defineArrayMember, defineField, defineType } from "sanity";
 
 export default defineType({
   name: "brand",
@@ -66,6 +66,57 @@ export default defineType({
       type: "boolean",
       initialValue: false,
       description: "Show this brand in featured sections",
+    }),
+    defineField({
+      name: "editorialImages",
+      title: "Editorial Images",
+      type: "array",
+      description:
+        "Full-width images to display between products on brand page. Drag to reorder.",
+      of: [
+        defineArrayMember({
+          type: "object",
+          fields: [
+            defineField({
+              name: "image",
+              title: "Image",
+              type: "image",
+              options: {
+                hotspot: true,
+              },
+              fields: [
+                {
+                  name: "alt",
+                  type: "string",
+                  title: "Alternative Text",
+                  description: "Important for SEO and accessibility",
+                },
+              ],
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: "caption",
+              title: "Caption",
+              type: "string",
+              description: "Optional caption text for the image",
+            }),
+          ],
+          preview: {
+            select: {
+              title: "caption",
+              media: "image",
+              position: "position",
+            },
+            prepare({ title, media }) {
+              return {
+                title: title || "Editorial Image",
+                subtitle: "Appears after every 6 products",
+                media,
+              };
+            },
+          },
+        }),
+      ],
     }),
     defineField({
       name: "seo",
