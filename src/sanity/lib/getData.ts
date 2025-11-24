@@ -1395,6 +1395,7 @@ export async function getCollectionBySlug(slug: string) {
     _id,
     "title": store.title,
     "shopifyId": store.id,
+    description,
     editorialImages[] {
       _key,
       image {
