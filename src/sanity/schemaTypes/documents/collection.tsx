@@ -37,6 +37,14 @@ export const collectionType = defineType({
       options: { field: "store.slug.current" },
     }),
     defineField({
+      name: "description",
+      title: "Collection Description",
+      type: "text",
+      rows: 4,
+      description: "Editorial description for this collection",
+      group: "editorial",
+    }),
+    defineField({
       name: "colorTheme",
       type: "reference",
       to: [{ type: "colorTheme" }],
