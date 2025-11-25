@@ -77,7 +77,27 @@ export async function getSanityProductByHandle(
       }
     },
     gender,
-    featured
+    featured,
+    "colorVariants": colorVariants[]-> {
+      _id,
+      "title": coalesce(title, store.title),
+      "handle": coalesce(shopifyHandle, store.slug.current),
+      "mainImage": {
+        "url": coalesce(mainImage.asset->url, store.previewImageUrl),
+        "alt": coalesce(mainImage.alt, store.title)
+      }
+    },
+    editorialImages[] {
+      _key,
+      image {
+        asset-> {
+          _id,
+          url
+        },
+        alt
+      },
+      caption
+    }
   }`;
 
   try {
@@ -1406,6 +1426,10 @@ export async function getCollectionBySlug(slug: string) {
         alt
       },
       caption
+    },
+    "curatedProducts": curatedProducts[]-> {
+      _id,
+      "handle": coalesce(shopifyHandle, store.slug.current)
     }
   }`;
 
@@ -1460,7 +1484,8 @@ export async function getCollectionBySlug(slug: string) {
       }
     },
     gender,
-    featured
+    featured,
+    "createdAt": store.createdAt
   }`;
 
   try {
@@ -1483,6 +1508,41 @@ export async function getCollectionBySlug(slug: string) {
       console.log(
         `⚠️ No products found for collection "${collection.title}" (Shopify ID: ${collection.shopifyId})`
       );
+    }
+
+    // Apply sorting logic based on curatedProducts
+    if (collection.curatedProducts && collection.curatedProducts.length > 0) {
+      // Create a Map of curated product IDs to their index (for ordering)
+      const curatedIds = new Map(
+        collection.curatedProducts.map((p: any, idx: number) => [p._id, idx])
+      );
+
+      // Sort products: curated ones first (by array index), then others (by creation date)
+      products.sort((a: any, b: any) => {
+        const aInCurated = curatedIds.has(a._id);
+        const bInCurated = curatedIds.has(b._id);
+
+        if (aInCurated && bInCurated) {
+          const aIdx = curatedIds.get(a._id) ?? 0;
+          const bIdx = curatedIds.get(b._id) ?? 0;
+          // Sort by ascending index so first item in array shows first
+          return Number(aIdx) - Number(bIdx);
+        }
+        if (aInCurated) return -1;
+        if (bInCurated) return 1;
+
+        // Both not in curated - sort by creation date (newest first)
+        const aDate = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const bDate = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return Number(bDate) - Number(aDate);
+      });
+    } else {
+      // Default: newest first (by creation date)
+      products.sort((a: any, b: any) => {
+        const aDate = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const bDate = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return Number(bDate) - Number(aDate);
+      });
     }
 
     return {

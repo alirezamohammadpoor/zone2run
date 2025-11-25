@@ -638,5 +638,105 @@
     "extractedTitle": "Shorts And Skirts",
     "tags": "Women's Clothing, Women's Shorts & Skirts",
     "timestamp": "2025-11-22T18:06:33.094Z"
+  },
+  {
+    "productId": "15296236781892",
+    "title": "Speedgoat 2 X UNNA Astral / Galaxy",
+    "vendor": "HOKA",
+    "productType": "Trail Running Shoes",
+    "extractedSlug": "trail-running-shoes",
+    "extractedTitle": "Trail Running Shoes",
+    "tags": "Men's Footwear, Men's Running Shoes",
+    "timestamp": "2025-11-24T13:22:19.040Z"
+  },
+  {
+    "productId": "15296230818116",
+    "title": "Speedgoat 2 X UNNA Sea Ice / Cosmic Grey",
+    "vendor": "HOKA",
+    "productType": "Trail Running Shoes",
+    "extractedSlug": "trail-running-shoes",
+    "extractedTitle": "Trail Running Shoes",
+    "tags": "Men's Footwear, Men's Running Shoes",
+    "timestamp": "2025-11-24T13:22:22.120Z"
+  },
+  {
+    "productId": "15305224454468",
+    "title": "Women's SOAR X Altra Mont Blanc Carbon Trail Shoe",
+    "vendor": "Soar Running",
+    "productType": "Trail Running Shoes",
+    "extractedSlug": "trail-running-shoes",
+    "extractedTitle": "Trail Running Shoes",
+    "tags": "Altra, SOAR, Women's Trail Running Shoes",
+    "timestamp": "2025-11-24T16:27:34.078Z"
+  },
+  {
+    "productId": "15305220948292",
+    "title": "SOAR X Altra Mont Blanc Carbon Trail Shoes",
+    "vendor": "Soar Running",
+    "productType": "Trail Running Shoes",
+    "extractedSlug": "trail-running-shoes",
+    "extractedTitle": "Trail Running Shoes",
+    "tags": "Altra, Men's Trail Running Shoes, SOAR",
+    "timestamp": "2025-11-24T16:37:18.536Z"
+  },
+  {
+    "productId": "15296360055108",
+    "title": "Women's SOAR X Altra Trail Race Shorts",
+    "vendor": "Soar Running",
+    "productType": "Shorts & Skirts",
+    "extractedSlug": "shorts-and-skirts",
+    "extractedTitle": "Shorts And Skirts",
+    "tags": "Altra, SOAR, Women's Clothing, Women's Shorts & Skirts",
+    "timestamp": "2025-11-24T16:38:18.319Z"
+  },
+  {
+    "productId": "15305224454468",
+    "title": "Women's SOAR X Altra Mont Blanc Carbon Trail Shoe",
+    "vendor": "Soar Running",
+    "productType": "Trail Running Shoes",
+    "extractedSlug": "trail-running-shoes",
+    "extractedTitle": "Trail Running Shoes",
+    "tags": "Altra, SOAR, Women's Trail Running Shoes",
+    "timestamp": "2025-11-24T16:38:32.590Z"
+  },
+  {
+    "productId": "15296353108292",
+    "title": "Solaris 2.0 Race Vest / Kayo®",
+    "vendor": "Soar Running",
+    "productType": "Mens Tanks",
+    "extractedSlug": "mens-tanks",
+    "extractedTitle": "Mens Tanks",
+    "tags": "Men's Clothing, Mens Tanks",
+    "timestamp": "2025-11-24T16:45:07.113Z"
+  },
+  {
+    "productId": "15296354386244",
+    "title": "Race Vest",
+    "vendor": "Soar Running",
+    "productType": "Mens Tanks",
+    "extractedSlug": "mens-tanks",
+    "extractedTitle": "Mens Tanks",
+    "tags": "Men's Clothing, Mens Tanks",
+    "timestamp": "2025-11-24T16:45:09.241Z"
+  },
+  {
+    "productId": "15296359432516",
+    "title": "Men's Race Vest",
+    "vendor": "Soar Running",
+    "productType": "Mens Tanks",
+    "extractedSlug": "mens-tanks",
+    "extractedTitle": "Mens Tanks",
+    "tags": "Men's Clothing, Mens Tanks",
+    "timestamp": "2025-11-24T16:45:09.458Z"
+  },
+  {
+    "productId": "15305220948292",
+    "title": "SOAR X Altra Mont Blanc Carbon Trail Shoes",
+    "vendor": "Soar Running",
+    "productType": "Trail Running Shoes",
+    "extractedSlug": "trail-running-shoes",
+    "extractedTitle": "Trail Running Shoes",
+    "tags": "Altra, Men's Trail Running Shoes, SOAR",
+    "timestamp": "2025-11-24T17:04:25.957Z"
   }
 ]

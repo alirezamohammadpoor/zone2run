@@ -16,7 +16,7 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
 
   return (
     <div>
-      <div className="mb-12 px-2">
+      <div className="mb-6 px-2">
         <h1 className="text-2xl mt-4">{collection.title}</h1>
         <p className="text-sm mt-2">{collection.description || ""}</p>
       </div>

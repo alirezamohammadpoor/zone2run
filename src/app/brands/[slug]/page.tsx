@@ -30,7 +30,7 @@ export default async function BrandPage({
 
   return (
     <div>
-      <div className="mb-12 px-2">
+      <div className="mb-6 px-2">
         <h1 className="text-2xl mt-4">{brandName}</h1>
         <p className="text-sm mt-2">{brandDescription}</p>
       </div>

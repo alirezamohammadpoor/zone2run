@@ -2,7 +2,7 @@ import { TagIcon } from "@sanity/icons";
 import pluralize from "pluralize-esm";
 import ProductHiddenInput from "../../inputs/ProductHidden";
 import ShopifyDocumentStatus from "../../media/ShopifyDocumentStatus";
-import { defineField, defineType } from "sanity";
+import { defineArrayMember, defineField, defineType } from "sanity";
 import { getPriceRange } from "../../getPriceRange";
 import { GROUPS } from "../../constants";
 
@@ -128,6 +128,65 @@ export const productType = defineType({
       of: [{ type: "image" }],
       group: "editorial",
       description: "Additional product images from Shopify",
+    }),
+    defineField({
+      name: "colorVariants",
+      title: "Color Variants",
+      type: "array",
+      of: [{ type: "reference", to: [{ type: "product" }] }],
+      group: "editorial",
+      description: "Link to other color variants of this product (e.g., same product in different colors)",
+    }),
+    defineField({
+      name: "editorialImages",
+      title: "Editorial Images",
+      type: "array",
+      description:
+        "Full-width images to display on product page. Drag to reorder.",
+      of: [
+        defineArrayMember({
+          type: "object",
+          fields: [
+            defineField({
+              name: "image",
+              title: "Image",
+              type: "image",
+              options: {
+                hotspot: true,
+              },
+              fields: [
+                {
+                  name: "alt",
+                  type: "string",
+                  title: "Alternative Text",
+                  description: "Important for SEO and accessibility",
+                },
+              ],
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: "caption",
+              title: "Caption",
+              type: "string",
+              description: "Optional caption text for the image",
+            }),
+          ],
+          preview: {
+            select: {
+              title: "caption",
+              media: "image",
+            },
+            prepare({ title, media }) {
+              return {
+                title: title || "Editorial Image",
+                subtitle: "Product editorial image",
+                media,
+              };
+            },
+          },
+        }),
+      ],
+      group: "editorial",
     }),
   ],
   orderings: [

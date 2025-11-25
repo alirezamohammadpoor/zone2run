@@ -68,6 +68,12 @@ export default function ProductGallery({
     );
   }
 
+  // Calculate progress percentage
+  const totalImages = images.length;
+  const currentImageNumber = selectedIndex + 1;
+  const progressPercentage =
+    totalImages > 0 ? (currentImageNumber / totalImages) * 100 : 0;
+
   return (
     <div className="relative w-full">
       <div className="overflow-hidden" ref={emblaRef}>
@@ -94,6 +100,16 @@ export default function ProductGallery({
       {images.length > 1 && (
         <div className="absolute bottom-4 right-0 px-3 py-1 text-sm text-black">
           {selectedIndex + 1} / {images.length}
+        </div>
+      )}
+
+      {/* Progress bar - percentage based */}
+      {images.length > 1 && (
+        <div className="flex w-full h-[1.5px] bg-gray-300">
+          <div
+            className="h-full bg-black transition-all duration-300"
+            style={{ width: `${progressPercentage}%` }}
+          />
         </div>
       )}
     </div>

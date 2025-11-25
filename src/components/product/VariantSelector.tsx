@@ -39,8 +39,8 @@ function VariantSelector({ product }: VariantSelectorProps) {
       .filter((size, index, arr) => size && arr.indexOf(size) === index) || [];
 
   return (
-    <div className="max-w-md mx-auto p-4 mt-4">
-      <h3 className="mb-2 text-sm font-medium">Select Size</h3>
+    <div className="mx-2 mt-4">
+      <h3 className="mb-2 text-sm">Select Size</h3>
       <div
         className={`grid gap-2 ${
           allSizes.length === 1 && allSizes[0]?.toLowerCase() === "one size"
@@ -64,8 +64,8 @@ function VariantSelector({ product }: VariantSelectorProps) {
                 !isAvailable
                   ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
                   : isSelected
-                    ? "bg-black text-white border-black"
-                    : "border-gray-300 hover:bg-black hover:text-white hover:border-black"
+                  ? "bg-black text-white border-black"
+                  : "border-gray-300 hover:bg-black hover:text-white hover:border-black"
               }`}
               onClick={() => {
                 if (!isAvailable) return; // Prevent selection of unavailable variants
@@ -98,9 +98,6 @@ function VariantSelector({ product }: VariantSelectorProps) {
           );
         })}
       </div>
-      <p className="mt-2 text-xs text-gray-500">
-        Find your size with our size guide.
-      </p>
     </div>
   );
 }
