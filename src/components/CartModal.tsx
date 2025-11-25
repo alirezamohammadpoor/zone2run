@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useCartStore } from "@/lib/cart/store";
 import { formatPrice } from "@/lib/utils/formatPrice";
 import { createCart, addToCart } from "@/lib/shopify/cart";
+import CartSkeleton from "@/components/skeletons/CartSkeleton";
 
 function CartModal({
   isCartOpen,
@@ -177,9 +178,7 @@ function CartModal({
               </div>
             )
           ) : (
-            <div className="flex w-full overflow-hidden mt-8">
-              <span className="text-sm">Loading cart...</span>
-            </div>
+            <CartSkeleton />
           )}
         </div>
 
