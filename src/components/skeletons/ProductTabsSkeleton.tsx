@@ -12,8 +12,11 @@ export default function ProductTabsSkeleton() {
       </div>
 
       {/* Tab Content Skeleton */}
-      <div className="ml-2 mt-4">
-        <SkeletonText width="full" height="base" lines={4} />
+      <div className="ml-2 mt-4 space-y-2">
+        <SkeletonText width="full" size="base" />
+        <SkeletonText width="full" size="base" />
+        <SkeletonText width="full" size="base" />
+        <SkeletonText width="full" size="base" />
       </div>
     </div>
   );
