@@ -5,6 +5,7 @@ import { getAllProducts } from "@/lib/product/getAllProducts";
 import { useSearchStore } from "@/store/searchStore";
 import { useModalScroll } from "@/hooks/useModalScroll";
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
+import SearchResultsSkeleton from "@/components/skeletons/SearchResultsSkeleton";
 
 function SearchModal() {
   const router = useRouter();
@@ -99,7 +100,11 @@ function SearchModal() {
           <span className="text-gray-500 text-sm ml-4 block mt-16 mb-4">
             Suggested products
           </span>
-          <SearchProductGrid products={results} />
+          {isLoading ? (
+            <SearchResultsSkeleton />
+          ) : (
+            <SearchProductGrid products={results} />
+          )}
         </div>
       </div>
     </>

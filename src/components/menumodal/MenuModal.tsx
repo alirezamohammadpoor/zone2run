@@ -6,6 +6,7 @@ import MenContent from "./MenContent";
 import WomenContent from "./WomenContent";
 import HelpContent from "./HelpContent";
 import OurSpaceContent from "./OurSpaceContent";
+import MenuContentSkeleton from "@/components/skeletons/MenuContentSkeleton";
 import type { BrandMenuItem, MenuData, MenuConfig } from "@/types/menu";
 
 const TABS = ["men", "women", "help", "Our Space"] as const;
@@ -101,7 +102,7 @@ function MenuModal({
         {/* Scrollable Content Area */}
         <div className="flex-1 overflow-y-auto">
           {!isMounted || !menuData || Object.keys(menuData).length === 0 ? (
-            <div className="p-2 text-center">Loading...</div>
+            <MenuContentSkeleton />
           ) : (
             <>
               {activeTab === "men" && (
