@@ -182,8 +182,55 @@ export const collectionType = defineType({
             prepare({ title, media }) {
               return {
                 title: title || "Editorial Image",
-                subtitle: "Appears after every 6 products",
+                subtitle: "Appears after every 2 products",
                 media,
+              };
+            },
+          },
+        }),
+      ],
+      group: "editorial",
+    }),
+    defineField({
+      name: "curatedProducts",
+      title: "Curated Product Order",
+      type: "array",
+      description:
+        "Manually order products in this collection. Drag to reorder. If empty, products will be shown in default order (newest first).",
+      of: [
+        defineArrayMember({
+          type: "reference",
+          to: [{ type: "product" }],
+          options: {
+            filter: ({ document }: { document?: any }) => {
+              // @ts-ignore - document type is complex in Sanity
+              const collectionId = document?._id;
+              // @ts-ignore
+              const shopifyId = document?.store?.id;
+
+              if (!collectionId) {
+                return { filter: "", params: {} };
+              }
+
+              // Filter to show only products that are already in this collection
+              // Products that reference this collection OR have this collection's Shopify ID
+              const shopifyIdStr = shopifyId ? shopifyId.toString() : "";
+
+              if (shopifyIdStr) {
+                return {
+                  filter: `_type == "product" && ($collectionId in collections[]._ref || (defined(shopifyCollectionIds) && $shopifyIdStr in shopifyCollectionIds))`,
+                  params: {
+                    collectionId,
+                    shopifyIdStr,
+                  },
+                };
+              }
+
+              return {
+                filter: `_type == "product" && $collectionId in collections[]._ref`,
+                params: {
+                  collectionId,
+                },
               };
             },
           },

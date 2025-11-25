@@ -1,10 +1,14 @@
 import ProductDetails from "@/components/product/ProductDetails";
-import CollapsibleSection from "@/components/CollapsibleSection";
-import ProductDescription from "@/components/ProductDescription";
 import { getProductByHandle } from "@/lib/product/getProductByHandle";
 import React from "react";
 import { notFound } from "next/navigation";
 import RelatedProductsServer from "@/components/product/RelatedProductsServer";
+import ColorVariants from "@/components/product/ColorVariants";
+import ProductEditorialImages from "@/components/product/ProductEditorialImages";
+import ProductTabs from "@/components/product/ProductTabs";
+// A/B Test: Old collapsible sections (commented out)
+// import CollapsibleSection from "@/components/CollapsibleSection";
+// import ProductDescription from "@/components/ProductDescription";
 
 export default async function ProductPage({
   params,
@@ -22,8 +26,16 @@ export default async function ProductPage({
     <>
       <div>
         <ProductDetails product={product} />
-        <ProductDescription description={product.description} />
+        <ColorVariants
+          colorVariants={product.colorVariants}
+          currentProductId={product._id}
+        />
 
+        {/* A/B Test: New tabbed interface */}
+        <ProductTabs description={product.description} />
+
+        {/* A/B Test: Old collapsible sections (commented out for A/B testing)
+        <ProductDescription description={product.description} />
         <CollapsibleSection
           title="Product Details"
           content="Your product details content here"
@@ -40,6 +52,9 @@ export default async function ProductPage({
           title="Secure payments"
           content="Your secure payments content here"
         />
+        */}
+
+        <ProductEditorialImages editorialImages={product.editorialImages} />
       </div>
       {product.brand?.slug && (
         <RelatedProductsServer

@@ -57,10 +57,10 @@ function AddToCart({ product, selectedVariant }: AddToCartProps) {
   };
 
   return (
-    <div className="flex justify-center items-center">
+    <div className="mx-2 mt-2">
       <button
         className={`
-            w-[95%] h-[50px] mt-2 transition-colors duration-300 ease-in-out
+            w-full h-[50px] transition-colors duration-300 ease-in-out
             ${
               !selectedVariant
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed border border-gray-300"

@@ -28,6 +28,50 @@ function idFromGid(gid: string): number {
   return isNaN(id) ? 0 : id;
 }
 
+// Helper function to find brand by vendor name (case-insensitive, handles variations)
+async function findBrandByVendor(
+  client: any,
+  vendor: string
+): Promise<any | null> {
+  if (!vendor) return null;
+
+  // Normalize vendor name for comparison (lowercase, trim)
+  const normalizedVendor = vendor.toLowerCase().trim();
+
+  // Try exact match first
+  let brand = await client.fetch(
+    `*[_type == "brand" && name == $vendorName][0]`,
+    { vendorName: vendor }
+  );
+
+  if (brand) return brand;
+
+  // Try case-insensitive exact match
+  brand = await client.fetch(
+    `*[_type == "brand" && lower(name) == $normalizedVendor][0]`,
+    { normalizedVendor }
+  );
+
+  if (brand) return brand;
+
+  // Try partial match - find brands where name contains vendor or vendor contains name
+  // This handles cases like "SOAR" vs "Soar running"
+  const allBrands = await client.fetch(`*[_type == "brand"] { _id, name }`);
+
+  for (const b of allBrands) {
+    const normalizedBrandName = (b.name || "").toLowerCase().trim();
+    if (
+      normalizedBrandName === normalizedVendor ||
+      normalizedBrandName.includes(normalizedVendor) ||
+      normalizedVendor.includes(normalizedBrandName)
+    ) {
+      return b;
+    }
+  }
+
+  return null;
+}
+
 // ============================================
 // IMAGE PROCESSING FUNCTIONS MOVED TO UTILS
 // ============================================
@@ -344,10 +388,7 @@ export async function POST(request: Request) {
           // Handle brand creation BEFORE transaction (required field)
           if (vendor) {
             try {
-              let brand = await webhookSanityClient.fetch(
-                `*[_type == "brand" && name == $vendorName][0]`,
-                { vendorName: vendor }
-              );
+              let brand = await findBrandByVendor(webhookSanityClient, vendor);
 
               if (!brand) {
                 // Create new brand
@@ -480,26 +521,68 @@ export async function POST(request: Request) {
             if (vendor) {
               // Find or create brand from vendor
               try {
-                let brand = await webhookSanityClient.fetch(
-                  `*[_type == "brand" && name == $vendorName][0]`,
-                  { vendorName: vendor }
-                );
+                // Check if product already has a brand assigned
+                const currentBrandRef = sanityProduct?.brand?._ref;
+                let currentBrandName = null;
 
-                if (!brand) {
-                  // Create new brand
-                  brand = await webhookSanityClient.create({
-                    _type: "brand",
-                    name: vendor,
-                    slug: {
-                      current: vendor.toLowerCase().replace(/\s+/g, "-"),
-                    },
-                  });
-                  console.log("📝 Created new brand:", brand._id);
-                } else {
-                  console.log("📝 Found existing brand:", brand._id);
+                if (currentBrandRef) {
+                  // Fetch current brand to check its name
+                  const currentBrand = await webhookSanityClient.fetch(
+                    `*[_id == $brandId][0] { _id, name }`,
+                    { brandId: currentBrandRef }
+                  );
+                  currentBrandName = currentBrand?.name;
                 }
 
-                updateData.brand = { _ref: brand._id };
+                // Normalize vendor and current brand name for comparison
+                const normalizedVendor = vendor.toLowerCase().trim();
+                const normalizedCurrentBrand = currentBrandName
+                  ?.toLowerCase()
+                  .trim();
+
+                // Check if current brand name matches vendor (case-insensitive) or is a variation
+                // This preserves manual brand name changes (e.g., "SOAR" vs "Soar running")
+                const brandMatchesVendor =
+                  currentBrandName &&
+                  (normalizedCurrentBrand === normalizedVendor ||
+                    normalizedCurrentBrand.includes(normalizedVendor) ||
+                    normalizedVendor.includes(normalizedCurrentBrand));
+
+                if (brandMatchesVendor) {
+                  console.log(
+                    `ℹ️ Brand name matches vendor (${currentBrandName} ~= ${vendor}), preserving manual change`
+                  );
+                } else {
+                  // Find or create brand
+                  let brand = await findBrandByVendor(
+                    webhookSanityClient,
+                    vendor
+                  );
+
+                  if (!brand) {
+                    // Create new brand
+                    brand = await webhookSanityClient.create({
+                      _type: "brand",
+                      name: vendor,
+                      slug: {
+                        current: vendor.toLowerCase().replace(/\s+/g, "-"),
+                      },
+                    });
+                    console.log("📝 Created new brand:", brand._id);
+                  } else {
+                    console.log("📝 Found existing brand:", brand._id);
+                  }
+
+                  // Only update if brand changed
+                  if (currentBrandRef !== brand._id) {
+                    updateData.brand = { _ref: brand._id };
+                    console.log(
+                      `🔄 Updating brand from ${currentBrandRef} to ${brand._id}`
+                    );
+                  } else {
+                    console.log("ℹ️ Brand unchanged, skipping update");
+                  }
+                }
               } catch (error) {
                 console.error("❌ Error handling brand:", error);
               }
@@ -745,7 +828,13 @@ export async function POST(request: Request) {
             );
 
             console.log(
-              `🎯 Found ${allProductsWithCollection.length} products to check (${shopifyProducts.length} should have collection, ${allProductsWithCollection.length - shopifyProducts.length} may need removal)`
+              `🎯 Found ${
+                allProductsWithCollection.length
+              } products to check (${
+                shopifyProducts.length
+              } should have collection, ${
+                allProductsWithCollection.length - shopifyProducts.length
+              } may need removal)`
             );
 
             // Batch update products using transaction
@@ -777,13 +866,12 @@ export async function POST(request: Request) {
                         _ref: ref,
                         _key: `collection-${ref}-${idx}`,
                       }))
-                    : [
-                        ...currentCollectionRefs,
-                        collectionDocument._id,
-                      ].map((ref: string, idx: number) => ({
-                        _ref: ref,
-                        _key: `collection-${ref}-${idx}`,
-                      }));
+                    : [...currentCollectionRefs, collectionDocument._id].map(
+                        (ref: string, idx: number) => ({
+                          _ref: ref,
+                          _key: `collection-${ref}-${idx}`,
+                        })
+                      );
 
                   const newShopifyIds = hasShopifyId
                     ? currentShopifyIds
@@ -982,21 +1070,28 @@ export async function POST(request: Request) {
               if (shopifyProducts.length > 0) {
                 // Find all products in Sanity that currently have this collection ID
                 // (both those that should have it and those that shouldn't)
-                const allProductsWithCollection = await webhookSanityClient.fetch(
-                  `*[_type == "product" && (store.id in $shopifyIds || (defined(shopifyCollectionIds) && $collectionIdStr in shopifyCollectionIds))] {
+                const allProductsWithCollection =
+                  await webhookSanityClient.fetch(
+                    `*[_type == "product" && (store.id in $shopifyIds || (defined(shopifyCollectionIds) && $collectionIdStr in shopifyCollectionIds))] {
                     _id,
                     "shopifyId": store.id,
                     collections[] { _ref },
                     shopifyCollectionIds
                   }`,
-                  {
-                    shopifyIds: shopifyProducts.map((p) => p.id),
-                    collectionIdStr: collectionId.toString(),
-                  }
-                );
+                    {
+                      shopifyIds: shopifyProducts.map((p) => p.id),
+                      collectionIdStr: collectionId.toString(),
+                    }
+                  );
 
                 console.log(
-                  `🎯 Found ${allProductsWithCollection.length} products to check (${shopifyProducts.length} should have collection, ${allProductsWithCollection.length - shopifyProducts.length} may need removal)`
+                  `🎯 Found ${
+                    allProductsWithCollection.length
+                  } products to check (${
+                    shopifyProducts.length
+                  } should have collection, ${
+                    allProductsWithCollection.length - shopifyProducts.length
+                  } may need removal)`
                 );
 
                 // Batch update products using transaction
@@ -1024,17 +1119,18 @@ export async function POST(request: Request) {
                     // Product should be in collection - add if missing
                     if (!hasCollectionRef || !hasShopifyId) {
                       const newCollections = hasCollectionRef
-                        ? currentCollectionRefs.map((ref: string, idx: number) => ({
-                            _ref: ref,
-                            _key: `collection-${ref}-${idx}`,
-                          }))
-                        : [
-                            ...currentCollectionRefs,
-                            sanityCollection._id,
-                          ].map((ref: string, idx: number) => ({
-                            _ref: ref,
-                            _key: `collection-${ref}-${idx}`,
-                          }));
+                        ? currentCollectionRefs.map(
+                            (ref: string, idx: number) => ({
+                              _ref: ref,
+                              _key: `collection-${ref}-${idx}`,
+                            })
+                          )
+                        : [...currentCollectionRefs, sanityCollection._id].map(
+                            (ref: string, idx: number) => ({
+                              _ref: ref,
+                              _key: `collection-${ref}-${idx}`,
+                            })
+                          );
 
                       const newShopifyIds = hasShopifyId
                         ? currentShopifyIds
@@ -1105,7 +1201,8 @@ export async function POST(request: Request) {
                   for (const product of productsWithCollection) {
                     const currentCollectionRefs =
                       product.collections?.map((c: any) => c._ref) || [];
-                    const currentShopifyIds = product.shopifyCollectionIds || [];
+                    const currentShopifyIds =
+                      product.shopifyCollectionIds || [];
 
                     const newCollections = currentCollectionRefs
                       .filter((ref: string) => ref !== sanityCollection._id)
