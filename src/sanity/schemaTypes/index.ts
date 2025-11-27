@@ -126,6 +126,7 @@ import { colorThemeType } from "./documents/colorTheme";
 import { pageType } from "./documents/page";
 import { productType } from "./documents/product";
 import { productVariantType } from "./documents/productVariant";
+import { homepageVersionType } from "./documents/homepageVersion";
 
 const documents = [
   brandType,
@@ -135,6 +136,7 @@ const documents = [
   pageType,
   productType,
   productVariantType,
+  homepageVersionType,
   // Blog documents
   blogPost,
   blogCategory,
@@ -143,8 +145,9 @@ const documents = [
 import { homeType } from "./singletons/homeType";
 import { navigationMenuType } from "./singletons/menuType";
 import { settingsType } from "./singletons/settingsType";
+import { siteSettingsType } from "./singletons/siteSettings";
 
-const singletons = [homeType, navigationMenuType, settingsType];
+const singletons = [homeType, navigationMenuType, settingsType, siteSettingsType];
 
 export const schemaTypes = [
   ...annotations,
