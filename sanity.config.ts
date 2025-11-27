@@ -8,6 +8,7 @@ import { schemaTypes } from "./src/sanity/schemaTypes";
 import { structure } from "./src/sanity/structure";
 // import { customDocumentActions } from "./src/sanity/customDocumentActions";
 import Navbar from "./src/sanity/studio/Navbar";
+import Footer from "./src/sanity/studio/Footer";
 
 const devOnlyPlugins = [visionTool()];
 
@@ -51,6 +52,7 @@ export default defineConfig({
   studio: {
     components: {
       navbar: Navbar,
+      footer: Footer,
     },
   },
 });
