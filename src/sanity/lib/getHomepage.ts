@@ -1,13 +1,4 @@
-import { createClient } from "next-sanity";
-import { apiVersion, dataset, projectId } from "@/sanity/env";
-
-// Create a non-CDN client for fetching latest data without cache
-const liveClient = createClient({
-  projectId,
-  dataset,
-  apiVersion,
-  useCdn: false, // Disable CDN to get latest published data immediately
-});
+import { getClient } from "./client";
 
 // Shared modules projection for both queries
 const modulesProjection = `modules[] {
@@ -92,7 +83,9 @@ const modulesProjection = `modules[] {
   })
 }`;
 
-export async function getHomepage() {
+export async function getHomepage(preview = false) {
+  const client = getClient(preview);
+
   // First try to get homepage via siteSettings (new system)
   // Use _id == "siteSettings" to target the singleton specifically
   const siteSettingsQuery = `*[_id == "siteSettings"][0] {
@@ -118,14 +111,14 @@ export async function getHomepage() {
 
   try {
     // Try new system first
-    const homepage = await liveClient.fetch(siteSettingsQuery);
-    
+    const homepage = await client.fetch(siteSettingsQuery);
+
     if (homepage) {
       return homepage;
     }
-    
+
     // Fallback to old system during migration
-    return await liveClient.fetch(fallbackQuery);
+    return await client.fetch(fallbackQuery);
   } catch (error) {
     console.error("Error fetching homepage:", error);
     return null;

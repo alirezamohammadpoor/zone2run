@@ -10,12 +10,17 @@ function HeroModule({ heroModule }: { heroModule: HeroModule }) {
 
   const videoUrl = heroVideo?.asset?.url;
   const shouldShowVideo = heroModule.mediaType === "video" && !!videoUrl;
+  
+  // Ensure height is always a valid vh value
+  const height = heroModule.height && heroModule.height.includes('vh') 
+    ? heroModule.height 
+    : "100vh";
 
   return (
     <div className="w-full">
       <div
         className="flex w-full items-center relative"
-        style={{ height: heroModule.height || "100vh" }}
+        style={{ height, minHeight: height }}
       >
         {/* Background Media */}
         {heroModule.mediaType === "image" && heroModule.heroImage?.asset && (
