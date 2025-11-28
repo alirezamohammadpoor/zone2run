@@ -5,18 +5,25 @@ export function useModalScroll(isOpen: boolean) {
     if (isOpen) {
       document.body.classList.add("modal-open");
     } else {
+      // Remove class AND reset all inline styles when closing
       document.body.classList.remove("modal-open");
-    }
-
-    // Cleanup on unmount
-    return () => {
-      document.body.classList.remove("modal-open");
-      // Reset body styles in case they were set by scroll restoration
       document.body.style.position = "";
       document.body.style.top = "";
       document.body.style.width = "";
       document.body.style.left = "";
       document.body.style.right = "";
+      document.body.style.overflow = "";
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.classList.remove("modal-open");
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      document.body.style.overflow = "";
     };
   }, [isOpen]);
 }

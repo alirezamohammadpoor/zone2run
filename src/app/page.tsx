@@ -1,10 +1,13 @@
+import { draftMode } from "next/headers";
 import { getHomepage } from "@/sanity/lib/getData";
 import HomePageSanity from "@/components/homepage/HomePageSanity";
 import { notFound } from "next/navigation";
 
 export default async function Home() {
+  const { isEnabled: isPreview } = await draftMode();
+
   try {
-    const homepage = await getHomepage();
+    const homepage = await getHomepage(isPreview);
 
     if (!homepage) {
       console.error("No homepage data found");
