@@ -3,8 +3,8 @@
 import { type FeaturedProductsModule } from "../../../sanity.types";
 import React, { useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import HomeProductGrid from "./HomeProductGrid";
+import ProductCard from "@/components/ProductCard";
 import { type SanityProduct } from "@/types/sanityProduct";
 import useEmblaCarousel from "embla-carousel-react";
 import { getBrandUrl } from "@/lib/utils/brandUrls";
@@ -83,16 +83,12 @@ function FeaturedProductsModule({
   React.useEffect(() => {
     if (!emblaApi) return;
 
-    let isDragging = false;
-
     const onScroll = () => {
-      isDragging = true;
       isDraggingRef.current = true;
     };
 
     const onSettle = () => {
       // Reset after carousel settles
-      isDragging = false;
       setTimeout(() => {
         isDraggingRef.current = false;
       }, 100);
@@ -118,23 +114,22 @@ function FeaturedProductsModule({
   );
 
   const handleBrandClick = useCallback(
-    (e: React.MouseEvent, brandSlug?: string) => {
-      e.stopPropagation();
-      if (!isDraggingRef.current && brandSlug) {
-        router.push(getBrandUrl(brandSlug));
+    (slug: string) => {
+      if (!isDraggingRef.current) {
+        router.push(getBrandUrl(slug));
       }
     },
     [router]
   );
 
   return (
-    <div className="ml-2 mt-4 pr-4 w-full">
+    <div className="px-2 py-4 w-full">
       <div className="py-4 flex justify-between items-center">
-        <h2 className="text-black text-xl">
+        <h2 className="text-black text-xl xl:text-2xl">
           {featuredProductsModule.featuredHeading}
         </h2>
         <button
-          className="text-black text-sm hover:underline cursor-pointer"
+          className="text-black text-sm hover:underline cursor-pointer xl:text-base"
           onClick={() => {
             router.push(
               featuredProductsModule.featuredButtonLink || "/products"
@@ -159,38 +154,17 @@ function FeaturedProductsModule({
             {productsWithImages.map(({ product, imageSelection }) => {
               const selectedImage = getSelectedImage(product, imageSelection);
               return (
-                <div
+                <ProductCard
                   key={product._id}
-                  className="flex-shrink-0 w-[70vw] min-w-0 aspect-[3/4] flex flex-col cursor-pointer"
+                  product={{
+                    ...product,
+                    selectedImage,
+                  }}
+                  className="flex-shrink-0 w-[70vw] min-w-0"
+                  sizes="(max-width: 768px) 70vw, 33vw"
                   onClick={() => handleProductClick(product.handle)}
-                >
-                  <div className="w-full h-full relative bg-gray-100">
-                    {selectedImage.url && (
-                      <Image
-                        src={selectedImage.url}
-                        alt={selectedImage.alt || "Product"}
-                        className="w-full h-full object-cover"
-                        fill
-                        sizes="(max-width: 768px) 70vw, 33vw"
-                        draggable={false}
-                      />
-                    )}
-                  </div>
-                  <div className="mt-2 mb-10">
-                    <p
-                      className="text-base font-medium hover:underline cursor-pointer"
-                      onClick={(e) => handleBrandClick(e, product.brand?.slug)}
-                    >
-                      {product.brand?.name}
-                    </p>
-                    <p className="text-base hover:underline cursor-pointer">
-                      {product.title}
-                    </p>
-                    <p className="text-base mt-2">
-                      {product.priceRange.minVariantPrice} SEK
-                    </p>
-                  </div>
-                </div>
+                  onBrandClick={handleBrandClick}
+                />
               );
             })}
           </div>

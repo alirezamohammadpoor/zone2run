@@ -5,33 +5,45 @@ import Link from "next/link";
 import { urlFor } from "@/sanity/lib/image";
 
 function HeroModule({ heroModule }: { heroModule: HeroModule }) {
-  // Type assertion for resolved assets from GROQ query
-  const heroVideo = heroModule.heroVideo as any;
+  // Type assertion for resolved video asset from GROQ query
+  const heroVideo = heroModule.heroVideo as {
+    asset?: { url?: string };
+  } | null;
 
   const videoUrl = heroVideo?.asset?.url;
   const shouldShowVideo = heroModule.mediaType === "video" && !!videoUrl;
-  
+
   // Ensure height is always a valid vh value
-  const height = heroModule.height && heroModule.height.includes('vh') 
-    ? heroModule.height 
-    : "100vh";
+  const height =
+    heroModule.height && heroModule.height.includes("vh")
+      ? heroModule.height
+      : "100vh";
+
+  // Get hotspot data for image positioning (defaults to center)
+  const hotspot = heroModule.heroImage?.hotspot;
+  const objectPosition =
+    hotspot?.x !== undefined && hotspot?.y !== undefined
+      ? `${hotspot.x * 100}% ${hotspot.y * 100}%`
+      : "center center";
 
   return (
     <div className="w-full">
       <div
-        className="flex w-full items-center relative"
+        className="flex w-full items-center relative overflow-hidden"
         style={{ height, minHeight: height }}
       >
-        {/* Background Media */}
+        {/* Background Image with hotspot-based positioning */}
         {heroModule.mediaType === "image" && heroModule.heroImage?.asset && (
           <Image
             src={urlFor(heroModule.heroImage).url()}
             alt={heroModule.heroImage.alt || ""}
             className="absolute inset-0 w-full h-full object-cover"
+            style={{ objectPosition }}
             fill
           />
         )}
 
+        {/* Video */}
         {shouldShowVideo && videoUrl && (
           <video
             src={videoUrl}
@@ -46,19 +58,19 @@ function HeroModule({ heroModule }: { heroModule: HeroModule }) {
         <div
           className={`${
             heroModule.textColor === "white" ? "text-white" : "text-black"
-          } mt-auto mb-8 relative`}
+          } mt-auto mb-8 relative z-20`}
         >
           <h1
             className={`${
               heroModule.textColor === "white" ? "text-white" : "text-black"
-            } text-xl ml-2`}
+            } text-xl md:text-2xl lg:text-3xl xl:text-4xl ml-2`}
           >
             {heroModule.heroHeading}
           </h1>
           <p
             className={`${
               heroModule.textColor === "white" ? "text-white" : "text-black"
-            } text-base ml-2 mt-2 w-[70vw]`}
+            } text-base md:text-lg xl:text-xl ml-2 mt-2 w-[70vw] md:w-[60vw] lg:w-[50vw]`}
           >
             {heroModule.heroSubparagraph}
           </p>
@@ -67,13 +79,13 @@ function HeroModule({ heroModule }: { heroModule: HeroModule }) {
               href={heroModule.buttonLink || "/"}
               className={`${
                 heroModule.textColor === "white" ? "text-white" : "text-black"
-              } text-base ml-2 mt-4 flex items-center`}
+              } text-base md:text-lg xl:text-xl ml-2 mt-4 flex items-center`}
             >
               {heroModule.buttonText}
               <svg
                 aria-hidden="true"
                 viewBox="0 0 5 8"
-                className={`w-3 h-3 ml-1.5 mt-1 ${
+                className={`w-3 h-3 lg:w-4 lg:h-4 ml-1.5 mt-1 ${
                   heroModule.textColor === "white" ? "text-white" : "text-black"
                 }`}
                 xmlns="http://www.w3.org/2000/svg"

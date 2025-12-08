@@ -122,11 +122,11 @@ function EditorialModuleComponent({
   return (
     <div className="px-2 mt-16 mb-8 w-full">
       <div className="py-4 flex justify-between items-center">
-        <h2 className="text-black text-lg font-medium">
+        <h2 className="text-black text-lg md:text-xl font-medium">
           {editorialModule.title}
         </h2>
         <button
-          className="text-black text-sm hover:underline cursor-pointer"
+          className="text-black text-sm md:text-base hover:underline cursor-pointer"
           onClick={() => {
             router.push(editorialModule.buttonLink || "/blog/editorials");
           }}
@@ -142,28 +142,32 @@ function EditorialModuleComponent({
             return (
               <div
                 key={post._id}
-                className="flex-shrink-0 w-[80vw] min-w-0 cursor-pointer"
+                className="flex-shrink-0 w-[60vw] md:w-[40vw] lg:w-[30vw] xl:w-[25vw] min-w-0 cursor-pointer"
                 onClick={() => handlePostClick(post)}
               >
-                <div className="relative w-full h-[50vh] overflow-hidden">
+                <div className="relative h-[40vh] md:h-[45vh] xl:h-[50vh] overflow-hidden">
                   {selectedImage.url && (
                     <Image
                       src={selectedImage.url}
                       alt={selectedImage.alt}
-                      className="w-full h-full object-contain"
+                      className="w-full h-full object-cover"
                       fill
                       draggable={false}
                     />
                   )}
                 </div>
 
-                <div className="mt-2 mb-10 space-y-1">
+                <div className="pt-2 pb-4 space-y-1">
                   <div className="flex items-center gap-2 text-sm"></div>
 
-                  <h3 className="text-lg text-black">{post.title}</h3>
+                  <h3 className="text-lg md:text-xl text-black">
+                    {post.title}
+                  </h3>
 
                   {post.excerpt && (
-                    <p className="text-xs line-clamp-2">{post.excerpt}</p>
+                    <p className="text-xs md:text-sm line-clamp-2">
+                      {post.excerpt}
+                    </p>
                   )}
                 </div>
               </div>
