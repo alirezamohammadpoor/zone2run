@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import ProductCard from "@/components/ProductCard";
 import HomeProductGrid from "@/components/homepage/HomeProductGrid";
 import { type SanityProduct } from "@/types/sanityProduct";
 import useEmblaCarousel from "embla-carousel-react";
@@ -45,7 +45,7 @@ function RelatedProducts({
   }, [emblaApi]);
 
   const handleProductClick = useCallback(
-    (e: React.MouseEvent, handle: string) => {
+    (handle: string) => {
       if (!isDragging) {
         router.push(`/products/${handle}`);
       }
@@ -54,10 +54,9 @@ function RelatedProducts({
   );
 
   const handleBrandClick = useCallback(
-    (e: React.MouseEvent, brandSlug?: string) => {
-      e.stopPropagation();
-      if (!isDragging && brandSlug) {
-        router.push(getBrandUrl(brandSlug));
+    (slug: string) => {
+      if (!isDragging) {
+        router.push(getBrandUrl(slug));
       }
     },
     [router, isDragging]
@@ -83,40 +82,14 @@ function RelatedProducts({
         <div className="overflow-hidden -mx-2 px-2" ref={emblaRef}>
           <div className="flex gap-2">
             {products.map((product) => (
-              <div
+              <ProductCard
                 key={product._id}
-                className={`flex-shrink-0 w-[70vw] min-w-0 aspect-[3/4] flex flex-col cursor-pointer ${
-                  isDragging ? "pointer-events-none" : ""
-                }`}
-                onClick={(e) => handleProductClick(e, product.handle)}
-              >
-                <div className="w-full h-full relative bg-gray-100">
-                  {product.mainImage?.url && (
-                    <Image
-                      src={product.mainImage.url}
-                      alt={product.mainImage.alt || product.title || "Product"}
-                      fill
-                      className="object-cover"
-                      sizes="70vw"
-                      draggable={false}
-                    />
-                  )}
-                </div>
-                <div className="mt-2 mb-10">
-                  <p
-                    className="text-base font-medium hover:underline cursor-pointer"
-                    onClick={(e) => handleBrandClick(e, product.brand?.slug)}
-                  >
-                    {product.brand?.name}
-                  </p>
-                  <p className="text-base hover:underline cursor-pointer">
-                    {product.title}
-                  </p>
-                  <p className="text-base mt-2">
-                    {product.priceRange.minVariantPrice} SEK
-                  </p>
-                </div>
-              </div>
+                product={product}
+                className="flex-shrink-0 w-[70vw] aspect-[2/3]"
+                sizes="70vw"
+                onClick={() => handleProductClick(product.handle)}
+                onBrandClick={handleBrandClick}
+              />
             ))}
           </div>
         </div>

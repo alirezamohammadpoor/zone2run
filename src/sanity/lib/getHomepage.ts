@@ -57,11 +57,11 @@ const modulesProjection = `modules[] {
         url,
         metadata
       },
-      alt
+      alt,
+      hotspot
     },
     heroVideo {
       asset-> {
-        _ref,
         url
       }
     }
@@ -80,6 +80,47 @@ const modulesProjection = `modules[] {
       }
     },
     content
+  }),
+  ...select(_type == "portableTextModule" => {
+    contentType,
+    layout,
+    mediaType,
+    mediaPosition,
+    mediaHeight,
+    productSource,
+    productPosition,
+    collection {
+      _ref,
+      _type
+    },
+    image {
+      asset-> {
+        url,
+        metadata
+      },
+      alt,
+      hotspot
+    },
+    video {
+      asset-> {
+        url
+      }
+    },
+    featuredProducts[] {
+      ...,
+      imageSelection,
+      product {
+        _ref,
+        _type
+      }
+    },
+    featuredHeading,
+    featuredSubheading,
+    displayType,
+    displayTypeDesktop,
+    productCount,
+    featuredButtonLink,
+    featuredButtonText
   })
 }`;
 

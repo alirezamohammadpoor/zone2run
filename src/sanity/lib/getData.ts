@@ -18,25 +18,16 @@ export {
   getSubcategoriesByParentAndGender,
 } from "./getCategories";
 
-export {
-  getAllBrands,
-  getBrandBySlug,
-} from "./getBrands";
+export { getAllBrands, getBrandBySlug } from "./getBrands";
 
 export {
   getAllCollections,
   getCollectionBySlug,
+  getProductsByCollectionId,
 } from "./getCollections";
 
-export {
-  getBlogPosts,
-  getBlogPost,
-} from "./getBlog";
+export { getBlogPosts, getBlogPost } from "./getBlog";
 
-export {
-  getHomepage,
-} from "./getHomepage";
+export { getHomepage } from "./getHomepage";
 
-export {
-  getMenu,
-} from "./getMenu";
+export { getMenu } from "./getMenu";

@@ -32,6 +32,8 @@ export const heroModule = defineType({
       name: "heroImage",
       title: "Hero Image",
       type: "image",
+      description:
+        "Use the hotspot tool to set the focal point for responsive cropping",
       options: {
         hotspot: true,
       },

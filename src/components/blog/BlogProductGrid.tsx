@@ -1,6 +1,5 @@
 import React from "react";
-import Link from "next/link";
-import BlogProductCard from "./BlogProductCard";
+import ProductCard from "@/components/ProductCard";
 import type { SanityProduct } from "@/types/sanityProduct";
 
 interface BlogProductGridProps {
@@ -18,17 +17,14 @@ export default function BlogProductGrid({
 
   return (
     <div className="grid grid-cols-2 gap-2">
-      {displayProducts?.map((product) => {
-        return (
-          <Link
-            key={product._id}
-            href={`/products/${product.handle}`}
-            className="hover:cursor-pointer"
-          >
-            <BlogProductCard product={product} />
-          </Link>
-        );
-      })}
+      {displayProducts?.map((product) => (
+        <ProductCard
+          key={product._id}
+          product={product}
+          className="w-full"
+          sizes="50vw"
+        />
+      ))}
     </div>
   );
 }

@@ -81,7 +81,7 @@ export default function ProductGallery({
           {images.map((image, index) => (
             <div
               key={`${image.url}-${index}`}
-              className="relative aspect-[4/5] min-w-full flex-shrink-0"
+              className="relative aspect-[2/3] min-w-full flex-shrink-0"
             >
               <Image
                 src={image.url}

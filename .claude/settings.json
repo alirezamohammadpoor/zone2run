@@ -1,0 +1,7 @@
+{
+  "projectContext": {
+    "name": "Zone2Run",
+    "description": "Headless e-commerce platform for running/athletic apparel",
+    "stack": ["Next.js 16", "Sanity CMS", "Shopify Storefront API", "Tailwind CSS", "Zustand", "TypeScript", "Vercel"]
+  }
+}
