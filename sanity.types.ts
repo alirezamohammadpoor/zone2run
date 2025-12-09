@@ -1075,6 +1075,14 @@ export type BlogPost = {
   featured?: boolean;
   tags?: Array<string>;
   readingTime?: number;
+  featuredCollection?: {
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "collection";
+  };
+  featuredCollectionLimit?: number;
+  featuredCollectionDisplayType?: "grid" | "horizontal";
   seo?: {
     metaTitle?: string;
     metaDescription?: string;

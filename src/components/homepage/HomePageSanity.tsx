@@ -16,6 +16,7 @@ import {
   getProductsByIds,
   getProductsByCollectionId,
 } from "@/sanity/lib/getData";
+import { getBlogPosts } from "@/sanity/lib/getBlog";
 import type { SanityProduct } from "@/types/sanityProduct";
 
 async function HomePageSanity({ homepage }: { homepage: Home }) {
@@ -112,20 +113,20 @@ async function HomePageSanity({ homepage }: { homepage: Home }) {
     })
   );
 
-  // Fetch blog posts for editorial modules
+  // Fetch blog posts for editorial modules - always use latest posts
   const editorialModules = homepage.modules?.filter(
     (module: any) => module._type === "editorialModule"
   ) as EditorialModule[];
 
+  // Fetch latest blog posts once for all editorial modules
+  const latestBlogPosts = await getBlogPosts(10);
+
   const modulesWithPosts = await Promise.all(
     editorialModules.map(async (module) => {
-      // The posts are already resolved in the editorialModule, so we can use them directly
-      const orderedPosts =
-        module.featuredPosts?.map((item) => item.post).filter(Boolean) || [];
-
+      // Use the latest blog posts instead of curated list
       return {
         module: module as EditorialModule,
-        posts: orderedPosts,
+        posts: latestBlogPosts || [],
       };
     })
   );

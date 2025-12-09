@@ -48,42 +48,43 @@ function AddedToCartModal({
 
   return (
     <div
-      className={`fixed top-10 left-0 h-[15vh] right-0 z-50 flex justify-center transform transition-transform duration-500 ease-in-out ${
+      className={`fixed top-16 right-0 h-[15vh] z-50 flex justify-center transform transition-transform duration-500 ease-in-out w-full xl:w-[25vw] overflow-hidden ${
         isVisible ? " translate-x-0" : " translate-x-full"
       } `}
     >
-      <div className="bg-white w-full">
+      <div className="bg-white w-full flex flex-col h-full overflow-hidden">
         {/* Product Info */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 flex-1 min-h-0 p-2">
           {lastAddedProduct.image && (
             <Image
               src={lastAddedProduct.image}
               alt={lastAddedProduct.title}
-              width={100}
-              height={100}
-              className="object-cover"
+              width={80}
+              height={80}
+              className="object-cover flex-shrink-0"
             />
           )}
-          <div className="text-left w-full">
-            <h3 className="font-semibold">{lastAddedProduct.brand}</h3>
-            <p className="text-sm">{lastAddedProduct.title}</p>
-            <p className="text-sm">Size: {lastAddedProduct.size}</p>
-            <p className="text-sm">
+          <div className="text-left">
+            <h3 className="text-xs font-semibold">{lastAddedProduct.brand}</h3>
+            <p className="text-xs">{lastAddedProduct.title}</p>
+            <p className="text-xs">Size: {lastAddedProduct.size}</p>
+            <p className="text-xs">
               Price: {formatPrice(lastAddedProduct.price)}{" "}
               {lastAddedProduct.currencyCode}
             </p>
-            <div className="flex justify-end mr-2">
-              <button
-                onClick={() => {
-                  setIsCartOpen(true);
-                  hideAddedToCart();
-                }}
-                className="px-4 bg-black text-white cursor-pointer hover:bg-gray-800"
-              >
-                View Cart
-              </button>
-            </div>
           </div>
+        </div>
+        {/* View Cart Button - Always at bottom */}
+        <div className="flex justify-end px-4">
+          <button
+            onClick={() => {
+              setIsCartOpen(true);
+              hideAddedToCart();
+            }}
+            className="px-4 py-1 bg-black text-white text-xs cursor-pointer hover:bg-gray-800"
+          >
+            View Cart
+          </button>
         </div>
       </div>
     </div>

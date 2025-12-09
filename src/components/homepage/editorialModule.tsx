@@ -74,14 +74,11 @@ function EditorialModuleComponent({
   const isDraggingRef = useRef(false);
 
   // Create a map of posts with their selected images
+  // Use editorial image by default for latest posts
   const postsWithImages = posts.map((post) => {
-    const postItem = editorialModule.featuredPosts?.find(
-      (item) => item.post?._ref === post._id
-    );
-
     return {
       post,
-      imageSelection: postItem?.imageSelection || "editorial",
+      imageSelection: "editorial",
     };
   });
 

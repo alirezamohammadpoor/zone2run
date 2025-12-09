@@ -156,7 +156,21 @@ export async function getBlogPost(slug: string) {
           "gallery": gallery[] { "url": asset->url, alt } | order(_key asc)
         }
       }
-    }
+    },
+    featuredCollection-> {
+      _id,
+      title,
+      "slug": slug.current,
+      store {
+        gid,
+        title,
+        slug {
+          current
+        }
+      }
+    },
+    featuredCollectionLimit,
+    featuredCollectionDisplayType
   }`;
 
   try {

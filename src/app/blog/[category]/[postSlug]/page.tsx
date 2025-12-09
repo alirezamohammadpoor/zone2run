@@ -1,4 +1,4 @@
-import { getBlogPost } from "@/sanity/lib/getData";
+import { getBlogPost, getProductsByCollectionId } from "@/sanity/lib/getData";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { PortableText } from "@portabletext/react";
@@ -32,6 +32,15 @@ export default async function PostPage({
   const post = await getBlogPost(postSlug);
 
   if (!post) return notFound();
+
+  // Fetch products from featured collection if set
+  let collectionProducts: SanityProduct[] = [];
+  if (post.featuredCollection?._id) {
+    const allProducts = await getProductsByCollectionId(post.featuredCollection._id);
+    collectionProducts = post.featuredCollectionLimit
+      ? allProducts.slice(0, post.featuredCollectionLimit)
+      : allProducts;
+  }
 
   return (
     <div className="w-full">
@@ -197,6 +206,40 @@ export default async function PostPage({
           </p>
         )}
       </div>
+
+      {/* Featured Collection Products */}
+      {collectionProducts.length > 0 && (
+        <div className="w-full px-2 py-8">
+          <div className="py-4 flex justify-between items-center">
+            <h2 className="text-black text-lg font-medium">
+              {post.featuredCollection?.title || "Featured Products"}
+            </h2>
+            {post.featuredCollection?.slug && (
+              <a
+                href={`/collections/${post.featuredCollection.slug}`}
+                className="text-black text-sm hover:underline cursor-pointer"
+              >
+                View All
+              </a>
+            )}
+          </div>
+          {post.featuredCollectionDisplayType === "horizontal" ? (
+            <BlogProductCarousel
+              products={collectionProducts.map((p) => ({
+                product: p,
+                imageSelection: "main",
+              }))}
+            />
+          ) : (
+            <BlogProductGrid
+              products={collectionProducts.map((p) => ({
+                ...p,
+                selectedImage: p.mainImage,
+              }))}
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 }

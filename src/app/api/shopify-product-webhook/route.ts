@@ -28,6 +28,18 @@ function idFromGid(gid: string): number {
   return isNaN(id) ? 0 : id;
 }
 
+// Helper function to normalize strings for brand matching
+// Removes special characters, apostrophes, hyphens, etc.
+function normalizeForMatching(str: string): string {
+  return str
+    .toLowerCase()
+    .trim()
+    .replace(/[''`´]/g, "") // Remove apostrophes and similar
+    .replace(/[-–—]/g, "") // Remove hyphens and dashes
+    .replace(/[^\w\s]/g, "") // Remove other special characters
+    .replace(/\s+/g, " "); // Normalize whitespace
+}
+
 // Helper function to find brand by vendor name (case-insensitive, handles variations)
 async function findBrandByVendor(
   client: any,
@@ -37,6 +49,7 @@ async function findBrandByVendor(
 
   // Normalize vendor name for comparison (lowercase, trim)
   const normalizedVendor = vendor.toLowerCase().trim();
+  const strippedVendor = normalizeForMatching(vendor);
 
   // Try exact match first
   let brand = await client.fetch(
@@ -54,17 +67,35 @@ async function findBrandByVendor(
 
   if (brand) return brand;
 
-  // Try partial match - find brands where name contains vendor or vendor contains name
-  // This handles cases like "SOAR" vs "Soar running"
+  // Try matching with special characters removed
+  // This handles "Arc'teryx" vs "Arcteryx", "Maison Kitsuné" vs "Maison Kitsune", etc.
   const allBrands = await client.fetch(`*[_type == "brand"] { _id, name }`);
 
   for (const b of allBrands) {
     const normalizedBrandName = (b.name || "").toLowerCase().trim();
+    const strippedBrandName = normalizeForMatching(b.name || "");
+
+    // Check exact match after stripping special characters
+    if (strippedBrandName === strippedVendor) {
+      console.log(`🔗 Brand match found: "${b.name}" matches vendor "${vendor}" (after normalization)`);
+      return b;
+    }
+
+    // Check partial match (original logic)
     if (
       normalizedBrandName === normalizedVendor ||
       normalizedBrandName.includes(normalizedVendor) ||
       normalizedVendor.includes(normalizedBrandName)
     ) {
+      return b;
+    }
+
+    // Check partial match with stripped strings
+    if (
+      strippedBrandName.includes(strippedVendor) ||
+      strippedVendor.includes(strippedBrandName)
+    ) {
+      console.log(`🔗 Brand partial match: "${b.name}" matches vendor "${vendor}" (after normalization)`);
       return b;
     }
   }
@@ -1047,13 +1078,28 @@ export async function POST(request: Request) {
               console.log("ℹ️ No updates needed for Sanity collection");
             }
 
+            // Check if any products currently reference this collection
+            const productsInCollection = await webhookSanityClient.fetch(
+              `count(*[_type == "product" && (references($collectionId) || (defined(shopifyCollectionIds) && $collectionIdStr in shopifyCollectionIds))])`,
+              {
+                collectionId: sanityCollection._id,
+                collectionIdStr: collectionId.toString(),
+              }
+            );
+            const hasNoProducts = productsInCollection === 0;
+
             // Sync products from Shopify - get all products that belong to this collection
             // This works for both manual and smart collections
+            // Also sync if no products are currently in the collection (first-time sync)
             if (
               rulesChanged ||
               !sanityCollection.store?.rules ||
-              sanityCollection.store.rules.length === 0
+              sanityCollection.store.rules.length === 0 ||
+              hasNoProducts
             ) {
+              if (hasNoProducts) {
+                console.log("🆕 Collection has no products - performing initial sync...");
+              }
               console.log("🔍 Syncing products from Shopify collection...");
 
               // Get products from Shopify for this collection
@@ -1237,10 +1283,145 @@ export async function POST(request: Request) {
               );
             }
           } else {
+            // Collection doesn't exist in Sanity - create it
             console.log(
-              "⚠️ Sanity collection not found for Shopify ID:",
+              "🆕 Collection not found in Sanity - creating new collection for Shopify ID:",
               collectionId
             );
+
+            // Create new collection document
+            const collectionDocument = {
+              _id: buildCollectionDocumentId(parseInt(collectionId)),
+              _type: "collection",
+              store: {
+                id: parseInt(collectionId),
+                gid: `gid://shopify/Collection/${collectionId}`,
+                title: title,
+                handle: handle,
+                descriptionHtml: descriptionHtml,
+                imageUrl: imageUrl,
+                rules:
+                  rules?.map((rule: any, index: number) => ({
+                    _key: `rule-${index}-${Date.now()}`,
+                    _type: "object",
+                    column: rule.column?.toUpperCase() as Uppercase<string>,
+                    condition: rule.condition,
+                    relation: rule.relation?.toUpperCase() as Uppercase<string>,
+                  })) || [],
+                disjunctive: disjunctive,
+                sortOrder:
+                  sortOrder?.toUpperCase().replace("-", "_") || "UNKNOWN",
+                slug: {
+                  _type: "slug",
+                  current: handle,
+                },
+                createdAt: payload.updated_at,
+                updatedAt: payload.updated_at,
+                isDeleted: false,
+              },
+              featured: false,
+              sortOrder: 0,
+              isActive: true,
+            };
+
+            // Create the collection
+            const createTransaction = webhookSanityClient.transaction();
+            createTransaction.createIfNotExists(collectionDocument);
+            await createTransaction.commit();
+
+            console.log(
+              "✅ New collection created successfully:",
+              collectionDocument._id
+            );
+
+            // Sync products from Shopify
+            console.log("🔍 Syncing products from Shopify collection...");
+            const shopifyProducts = await getCollectionProducts(collectionId);
+            console.log(
+              `📦 Found ${shopifyProducts.length} products in Shopify collection`
+            );
+
+            if (shopifyProducts.length > 0) {
+              const shopifyProductIds = new Set(
+                shopifyProducts.map((p) => p.id.toString())
+              );
+
+              const allProductsWithCollection =
+                await webhookSanityClient.fetch(
+                  `*[_type == "product" && store.id in $shopifyIds] {
+                    _id,
+                    "shopifyId": store.id,
+                    collections[] { _ref },
+                    shopifyCollectionIds
+                  }`,
+                  {
+                    shopifyIds: shopifyProducts.map((p) => p.id),
+                  }
+                );
+
+              console.log(
+                `🎯 Found ${allProductsWithCollection.length} products to update`
+              );
+
+              const syncTransaction = webhookSanityClient.transaction();
+              let addedCount = 0;
+
+              for (const product of allProductsWithCollection) {
+                const currentCollectionRefs =
+                  product.collections?.map((c: any) => c._ref) || [];
+                const currentShopifyIds = product.shopifyCollectionIds || [];
+                const productShopifyId = product.shopifyId?.toString();
+
+                const shouldHaveCollection =
+                  productShopifyId && shopifyProductIds.has(productShopifyId);
+                const hasCollectionRef = currentCollectionRefs.includes(
+                  collectionDocument._id
+                );
+                const hasShopifyId = currentShopifyIds.includes(
+                  collectionId.toString()
+                );
+
+                if (shouldHaveCollection && (!hasCollectionRef || !hasShopifyId)) {
+                  const newCollections = hasCollectionRef
+                    ? currentCollectionRefs.map((ref: string, idx: number) => ({
+                        _ref: ref,
+                        _key: `collection-${ref}-${idx}`,
+                      }))
+                    : [...currentCollectionRefs, collectionDocument._id].map(
+                        (ref: string, idx: number) => ({
+                          _ref: ref,
+                          _key: `collection-${ref}-${idx}`,
+                        })
+                      );
+
+                  const newShopifyIds = hasShopifyId
+                    ? currentShopifyIds
+                    : [...currentShopifyIds, collectionId.toString()];
+
+                  syncTransaction.patch(product._id, (patch) =>
+                    patch.set({
+                      collections: newCollections,
+                      shopifyCollectionIds: newShopifyIds,
+                    })
+                  );
+
+                  addedCount++;
+                }
+              }
+
+              if (addedCount > 0) {
+                await syncTransaction.commit();
+                console.log(
+                  `✅ Added ${addedCount} products to new collection`
+                );
+              } else {
+                console.log(
+                  "ℹ️ All products already have correct collection references"
+                );
+              }
+            } else {
+              console.log("ℹ️ No products found in Shopify collection");
+            }
           }
         } else if (topic === "collections/delete") {
           console.log("🗑️ DELETING COLLECTION...");
