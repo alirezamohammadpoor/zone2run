@@ -5,6 +5,7 @@ import {
   getAllBrands,
   getMenu,
 } from "@/sanity/lib/getData";
+import { getBlogPosts } from "@/sanity/lib/getBlog";
 import Header from "./Header";
 import type { MenuData, MenuConfig } from "@/types/menu";
 
@@ -13,6 +14,7 @@ export default async function HeaderServer() {
   const mainCategories = await getAllMainCategories();
   const brands = await getAllBrands();
   const menuConfig = await getMenu();
+  const blogPosts = await getBlogPosts(10);
 
   if (!menuConfig) {
     console.warn("No menu configuration found");
@@ -82,6 +84,6 @@ export default async function HeaderServer() {
   }
 
   return (
-    <Header menuData={menuData} brands={brands} menuConfig={menuConfig} />
+    <Header menuData={menuData} brands={brands} menuConfig={menuConfig} blogPosts={blogPosts} />
   );
 }

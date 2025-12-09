@@ -72,6 +72,26 @@ export type MenuData = {
   };
 };
 
+export type BlogPostMenuItem = {
+  _id: string;
+  title: string;
+  slug: {
+    current: string;
+  };
+  category?: {
+    title: string;
+    slug: {
+      current: string;
+    };
+  };
+  featuredImage?: {
+    asset?: {
+      url: string;
+    };
+    alt?: string;
+  };
+};
+
 export type MenuConfig = {
   men?: {
     featuredCollections?: CollectionMenuItem[];
