@@ -57,10 +57,10 @@ function AddToCart({ product, selectedVariant }: AddToCartProps) {
   };
 
   return (
-    <div className="mx-2 mt-2">
+    <div className="mt-4">
       <button
         className={`
-            w-full h-[50px] transition-colors duration-300 ease-in-out
+            w-full h-[50px] text-xs transition-colors duration-300 ease-in-out
             ${
               !selectedVariant
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed border border-gray-300"

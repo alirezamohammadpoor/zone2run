@@ -19,6 +19,7 @@ export default function ProductGallery({
     align: "start",
   });
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [isHovering, setIsHovering] = useState(false);
 
   const images = useMemo(() => {
     const normalizedImages: Array<{ url: string; alt: string }> = [];
@@ -51,6 +52,14 @@ export default function ProductGallery({
     setSelectedIndex(emblaApi.selectedScrollSnap());
   }, [emblaApi]);
 
+  const scrollPrev = useCallback(() => {
+    if (emblaApi) emblaApi.scrollPrev();
+  }, [emblaApi]);
+
+  const scrollNext = useCallback(() => {
+    if (emblaApi) emblaApi.scrollNext();
+  }, [emblaApi]);
+
   useEffect(() => {
     if (!emblaApi) return;
     onSelect();
@@ -75,21 +84,25 @@ export default function ProductGallery({
     totalImages > 0 ? (currentImageNumber / totalImages) * 100 : 0;
 
   return (
-    <div className="relative w-full">
+    <div
+      className="relative w-full xl:w-[72vw]"
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+    >
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex">
           {images.map((image, index) => (
             <div
               key={`${image.url}-${index}`}
-              className="relative aspect-[2/3] min-w-full flex-shrink-0"
+              className="relative aspect-[4/5] flex-[0_0_100%] xl:flex-[0_0_36vw] xl:h-[92vh]"
             >
               <Image
                 src={image.url}
                 alt={image.alt}
                 fill
-                className="object-cover"
+                className="object-contain"
                 priority={index === 0}
-                sizes="100vw"
+                sizes="(min-width: 1280px) 50vw, 100vw"
                 draggable={false}
               />
             </div>
@@ -97,15 +110,66 @@ export default function ProductGallery({
         </div>
       </div>
 
+      {/* Navigation Arrows - show on hover when multiple images */}
       {images.length > 1 && (
-        <div className="absolute bottom-4 right-0 px-3 py-1 text-sm text-black">
+        <>
+          {/* Previous Arrow */}
+          <button
+            onClick={scrollPrev}
+            className={`absolute left-4 top-1/2 -translate-y-1/2 p-2 transition-opacity duration-300 ${
+              isHovering ? "opacity-100" : "opacity-0"
+            }`}
+            aria-label="Previous image"
+          >
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 5 8"
+              className="w-4 h-4 text-black rotate-180"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                fillRule="evenodd"
+                clipRule="evenodd"
+                d="M0.707107 7.70711L0 7L3.14645 3.85355L0 0.707107L0.707107 0L4.56066 3.85355L0.707107 7.70711Z"
+                fill="currentColor"
+              />
+            </svg>
+          </button>
+
+          {/* Next Arrow */}
+          <button
+            onClick={scrollNext}
+            className={`absolute right-4 top-1/2 -translate-y-1/2 p-2 transition-opacity duration-300 ${
+              isHovering ? "opacity-100" : "opacity-0"
+            }`}
+            aria-label="Next image"
+          >
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 5 8"
+              className="w-4 h-4 text-black"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                fillRule="evenodd"
+                clipRule="evenodd"
+                d="M0.707107 7.70711L0 7L3.14645 3.85355L0 0.707107L0.707107 0L4.56066 3.85355L0.707107 7.70711Z"
+                fill="currentColor"
+              />
+            </svg>
+          </button>
+        </>
+      )}
+
+      {images.length > 1 && (
+        <div className="absolute bottom-4 right-0 px-3 py-1 text-xs text-black">
           {selectedIndex + 1} / {images.length}
         </div>
       )}
 
       {/* Progress bar - percentage based */}
       {images.length > 1 && (
-        <div className="flex w-full h-[1.5px] bg-gray-300">
+        <div className="flex w-full h-[2px] bg-gray-300">
           <div
             className="h-full bg-black transition-all duration-300"
             style={{ width: `${progressPercentage}%` }}

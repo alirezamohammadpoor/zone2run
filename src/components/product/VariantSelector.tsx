@@ -39,8 +39,7 @@ function VariantSelector({ product }: VariantSelectorProps) {
       .filter((size, index, arr) => size && arr.indexOf(size) === index) || [];
 
   return (
-    <div className="mx-2 mt-4">
-      <h3 className="mb-2 text-sm">Select Size</h3>
+    <div className="mt-6">
       <div
         className={`grid gap-2 ${
           allSizes.length === 1 && allSizes[0]?.toLowerCase() === "one size"
@@ -58,7 +57,7 @@ function VariantSelector({ product }: VariantSelectorProps) {
           return (
             <button
               key={size}
-              className={`py-1 px-4 border text-center transition-colors ${
+              className={`py-1 px-4 border text-center text-xs transition-colors ${
                 isOneSize ? "w-full" : ""
               } ${
                 !isAvailable

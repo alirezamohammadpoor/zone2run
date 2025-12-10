@@ -85,8 +85,8 @@ function RelatedProducts({
               <ProductCard
                 key={product._id}
                 product={product}
-                className="flex-shrink-0 w-[70vw] aspect-[2/3]"
-                sizes="70vw"
+                className="flex-shrink-0 w-[70vw] xl:w-[30vw] aspect-[4/5]"
+                sizes="(min-width: 1280px) 25vw, 70vw"
                 onClick={() => handleProductClick(product.handle)}
                 onBrandClick={handleBrandClick}
               />
