@@ -48,43 +48,44 @@ function AddedToCartModal({
 
   return (
     <div
-      className={`fixed top-16 right-0 h-[15vh] z-50 flex justify-center transform transition-transform duration-500 ease-in-out w-full xl:w-[25vw] overflow-hidden ${
+      className={`fixed top-16 right-0 h-[13vh] z-50 flex justify-center transform transition-transform duration-500 ease-in-out w-full xl:w-[27vw] overflow-hidden ${
         isVisible ? " translate-x-0" : " translate-x-full"
       } `}
     >
-      <div className="bg-white w-full flex flex-col h-full overflow-hidden">
-        {/* Product Info */}
-        <div className="flex items-center gap-4 flex-1 min-h-0 p-2">
-          {lastAddedProduct.image && (
+      <div className="bg-white w-full flex h-full overflow-hidden">
+        {/* Product Image */}
+        {lastAddedProduct.image && (
+          <div className="relative h-full aspect-[4/5] flex-shrink-0">
             <Image
               src={lastAddedProduct.image}
               alt={lastAddedProduct.title}
-              width={80}
-              height={80}
-              className="object-cover flex-shrink-0"
+              fill
+              className="object-contain"
             />
-          )}
-          <div className="text-left">
-            <h3 className="text-xs font-semibold">{lastAddedProduct.brand}</h3>
+          </div>
+        )}
+        {/* Product Info + Button */}
+        <div className="flex flex-col flex-1">
+          <div className="text-left flex flex-col justify-center h-full px-2 mt-4">
+            <p className="text-xs font-semibold">{lastAddedProduct.brand}</p>
             <p className="text-xs">{lastAddedProduct.title}</p>
-            <p className="text-xs">Size: {lastAddedProduct.size}</p>
             <p className="text-xs">
-              Price: {formatPrice(lastAddedProduct.price)}{" "}
+              {formatPrice(lastAddedProduct.price)}{" "}
               {lastAddedProduct.currencyCode}
             </p>
+            <p className="text-xs">Size: {lastAddedProduct.size}</p>
+            <div className="flex justify-end mt-auto">
+              <button
+                onClick={() => {
+                  setIsCartOpen(true);
+                  hideAddedToCart();
+                }}
+                className="px-4 py-1 bg-black text-white text-xs cursor-pointer"
+              >
+                View Cart
+              </button>
+            </div>
           </div>
-        </div>
-        {/* View Cart Button - Always at bottom */}
-        <div className="flex justify-end px-4">
-          <button
-            onClick={() => {
-              setIsCartOpen(true);
-              hideAddedToCart();
-            }}
-            className="px-4 py-1 bg-black text-white text-xs cursor-pointer hover:bg-gray-800"
-          >
-            View Cart
-          </button>
         </div>
       </div>
     </div>

@@ -45,14 +45,14 @@ export default function ProductEditorialImages({
             return (
               <div
                 key={item._key}
-                className="flex-shrink-0 w-[70vw] min-w-0 aspect-[3/4] relative bg-gray-100"
+                className="flex-shrink-0 w-[70vw] xl:w-[30vw] aspect-[4/5] relative"
               >
                 <Image
                   src={urlFor(item.image).url()}
                   alt={item.image.alt || item.caption || "Editorial image"}
                   fill
                   className="object-cover"
-                  sizes="70vw"
+                  sizes="(min-width: 1280px) 30vw, 70vw"
                   draggable={false}
                 />
                 {item.caption && (

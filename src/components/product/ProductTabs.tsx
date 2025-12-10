@@ -1,76 +1,59 @@
 "use client";
 
 import { useState } from "react";
-import ProductDescription from "@/components/ProductDescription";
-
-const TABS = [
-  "Product Description",
-  "Product Details",
-  "Shipping and Returns",
-  "Payments",
-] as const;
-
-type TabType = (typeof TABS)[number];
 
 interface ProductTabsProps {
-  description: string;
   productDetails?: string;
   shippingAndReturns?: string;
   payments?: string;
 }
 
-export default function ProductTabs({
-  description,
-  productDetails = "Your product details content here",
-  shippingAndReturns = "Your shipping and returns content here",
-  payments = "Your secure payments content here",
-}: ProductTabsProps) {
-  const [activeTab, setActiveTab] = useState<TabType>("Product Description");
+interface CollapsibleProps {
+  title: string;
+  children: React.ReactNode;
+  defaultOpen?: boolean;
+}
+
+function Collapsible({ title, children, defaultOpen = false }: CollapsibleProps) {
+  const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <div className="mt-12 mb-12">
-      {/* Tab Navigation */}
-      <div className="flex border-b">
-        {TABS.map((tab) => (
-          <button
-            key={tab}
-            className={`flex-1 text-xs py-2 ${
-              activeTab === tab
-                ? "border-b-[1.5px] border-black font-medium"
-                : "text-gray-600"
-            }`}
-            onClick={() => setActiveTab(tab)}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
+    <div className="border-b py-3">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full text-left flex justify-between items-center"
+      >
+        <span className="font-medium text-xs">{title}</span>
+        <span className="text-xl">{open ? "−" : "+"}</span>
+      </button>
 
-      {/* Tab Content */}
-      <div>
-        {activeTab === "Product Description" && (
-          <ProductDescription description={description} />
-        )}
-
-        {activeTab === "Product Details" && (
-          <div className="ml-2 mt-4 text-sm text-gray-700 whitespace-pre-line">
-            {productDetails}
-          </div>
-        )}
-
-        {activeTab === "Shipping and Returns" && (
-          <div className="ml-2 mt-4 text-sm text-gray-700 whitespace-pre-line">
-            {shippingAndReturns}
-          </div>
-        )}
-
-        {activeTab === "Payments" && (
-          <div className="ml-2 mt-4 text-sm text-gray-700 whitespace-pre-line">
-            {payments}
-          </div>
-        )}
-      </div>
+      {open && (
+        <div className="mt-2 text-xs text-gray-700 whitespace-pre-line">
+          {children}
+        </div>
+      )}
     </div>
   );
 }
 
+export default function ProductTabs({
+  productDetails = "Your product details content here",
+  shippingAndReturns = "Your shipping and returns content here",
+  payments = "Your secure payments content here",
+}: ProductTabsProps) {
+  return (
+    <div className="mt-8 mb-12">
+      <Collapsible title="Product Details">
+        {productDetails}
+      </Collapsible>
+
+      <Collapsible title="Shipping and Returns">
+        {shippingAndReturns}
+      </Collapsible>
+
+      <Collapsible title="Payments">
+        {payments}
+      </Collapsible>
+    </div>
+  );
+}
