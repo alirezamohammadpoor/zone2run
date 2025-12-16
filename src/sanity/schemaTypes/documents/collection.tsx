@@ -140,6 +140,38 @@ export const collectionType = defineType({
       group: "editorial",
     }),
     defineField({
+      name: "gridLayout",
+      title: "Grid Layout",
+      type: "string",
+      description: "Choose the grid layout style for this collection",
+      options: {
+        list: [
+          { title: "4 columns (image 2x2)", value: "4col" },
+          { title: "3 columns (image same as product)", value: "3col" },
+        ],
+        layout: "radio",
+      },
+      initialValue: "4col",
+      group: "editorial",
+    }),
+    defineField({
+      name: "productsPerImage",
+      title: "Products Per Editorial Image",
+      type: "number",
+      description:
+        "Number of products to show before each editorial image. Choose based on collection size.",
+      options: {
+        list: [
+          { title: "2 products", value: 2 },
+          { title: "4 products", value: 4 },
+          { title: "6 products", value: 6 },
+          { title: "8 products", value: 8 },
+        ],
+      },
+      initialValue: 4,
+      group: "editorial",
+    }),
+    defineField({
       name: "editorialImages",
       title: "Editorial Images",
       type: "array",

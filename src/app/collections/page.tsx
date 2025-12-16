@@ -7,7 +7,7 @@ export default async function CollectionsPage() {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-8">All Collections</h1>
+      <h1 className="text-base mb-8">All Collections</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {collections.map((collection: any) => (
           <Link
@@ -15,7 +15,7 @@ export default async function CollectionsPage() {
             href={`/collections/${collection.slug.current}`}
           >
             <div className="border p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow">
-              <h2 className="text-xl font-semibold">{collection.title}</h2>
+              <h2 className="text-base">{collection.title}</h2>
             </div>
           </Link>
         ))}

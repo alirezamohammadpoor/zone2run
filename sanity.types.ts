@@ -1360,6 +1360,7 @@ export type Collection = {
     alt?: string;
     _type: "image";
   };
+  productsPerImage?: 2 | 4 | 6 | 8;
   editorialImages?: Array<{
     image?: {
       asset?: {

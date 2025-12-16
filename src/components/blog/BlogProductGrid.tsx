@@ -1,4 +1,3 @@
-import React from "react";
 import ProductCard from "@/components/ProductCard";
 import type { SanityProduct } from "@/types/sanityProduct";
 
@@ -16,13 +15,13 @@ export default function BlogProductGrid({
   const displayProducts = count ? products.slice(0, count) : products;
 
   return (
-    <div className="grid grid-cols-2 gap-2">
+    <div className="grid grid-cols-2 xl:grid-cols-4 gap-2">
       {displayProducts?.map((product) => (
         <ProductCard
           key={product._id}
           product={product}
           className="w-full"
-          sizes="50vw"
+          sizes="(max-width: 1280px) 50vw, 25vw"
         />
       ))}
     </div>

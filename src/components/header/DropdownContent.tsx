@@ -279,7 +279,7 @@ export default function DropdownContent({
                     </div>
                   )}
                 </div>
-                <p className="text-sm mt-2 group-hover:underline">
+                <p className="text-xs mt-2 group-hover:underline">
                   {collection.title}
                 </p>
               </div>

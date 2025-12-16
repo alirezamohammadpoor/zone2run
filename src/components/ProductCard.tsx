@@ -62,15 +62,17 @@ export default function ProductCard({
       )}
       <div className="pt-2 pb-4">
         <p
-          className={`text-sm font-medium ${onBrandClick ? "hover:underline cursor-pointer" : ""}`}
+          className={`text-xs font-medium ${
+            onBrandClick ? "hover:underline cursor-pointer" : ""
+          }`}
           onClick={(e) => handleBrandClick(e, product.brand?.slug)}
         >
           {product.brand?.name || product.vendor || ""}
         </p>
-        <p className={`text-sm ${onBrandClick ? "hover:underline" : ""}`}>
+        <p className={`text-xs ${onBrandClick ? "hover:underline" : ""}`}>
           {product.title}
         </p>
-        <p className="text-sm pt-2">
+        <p className="text-xs pt-2">
           {formatPrice(product.priceRange.minVariantPrice)} SEK
         </p>
       </div>

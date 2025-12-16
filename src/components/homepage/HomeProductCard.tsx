@@ -36,9 +36,9 @@ export default function HomeProductCard({ product }: HomeProductCardProps) {
         </div>
       )}
       <div className="mt-2 mb-10">
-        <p className="text-base font-medium">{product.brand?.name}</p>
-        <p className="text-sm">{product.title}</p>
-        <p className="text-sm mt-2">
+        <p className="text-xs font-medium">{product.brand?.name}</p>
+        <p className="text-xs">{product.title}</p>
+        <p className="text-xs mt-4">
           {product.priceRange.minVariantPrice} {"SEK"}
         </p>
       </div>

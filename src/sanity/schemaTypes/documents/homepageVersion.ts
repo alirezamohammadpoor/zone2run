@@ -22,7 +22,6 @@ export const homepageVersionType = defineType({
       type: "array",
       of: [
         defineArrayMember({ type: "heroModule" }),
-        defineArrayMember({ type: "featuredProductsModule" }),
         defineArrayMember({ type: "editorialModule" }),
         defineArrayMember({ type: "spotifyPlaylistsModule" }),
         defineArrayMember({ type: "imageModule" }),

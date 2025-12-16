@@ -267,13 +267,13 @@ function ContentModuleComponent({
       (contentModule.featuredHeading || contentModule.featuredButtonText) && (
         <div className="flex justify-between items-center">
           {contentModule.featuredHeading && (
-            <h2 className="text-black text-xl xl:text-2xl">
+            <h2 className="text-black text-base">
               {contentModule.featuredHeading}
             </h2>
           )}
           {contentModule.featuredButtonText && (
             <button
-              className="text-black text-sm hover:underline cursor-pointer xl:text-base"
+              className="text-black text-xs hover:underline cursor-pointer"
               onClick={() => {
                 router.push(contentModule.featuredButtonLink || "/products");
               }}
@@ -368,20 +368,20 @@ function ContentModuleComponent({
     return (
       <div className={textWidth}>
         {contentModule.title && (
-          <h2 className={`text-xl xl:text-2xl ${isSplitLayout ? "" : "mt-6"}`}>
+          <h2 className={`text-base ${isSplitLayout ? "" : "mt-6"}`}>
             {contentModule.title}
           </h2>
         )}
         {contentModule.content && (
           <PortableTextRenderer
             value={contentModule.content}
-            className="text-sm w-full xl:text-base xl:w-[30vw]"
+            className="text-xs w-full xl:w-[30vw]"
           />
         )}
         {contentModule.link && (
           <Link
             href={contentModule.link}
-            className="text-sm mt-2 flex items-center cursor-pointer underline xl:text-base"
+            className="text-xs mt-2 flex items-center cursor-pointer underline"
             rel="noopener noreferrer"
           >
             {contentModule.linkText}
@@ -401,7 +401,7 @@ function ContentModuleComponent({
           </Link>
         )}
         {contentModule.source && (
-          <p className="text-sm text-gray-500 mt-2 xl:text-base">
+          <p className="text-xs text-gray-500 mt-2">
             {contentModule.source}
           </p>
         )}

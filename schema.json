@@ -8934,6 +8934,31 @@
         },
         "optional": true
       },
+      "productsPerImage": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "number",
+              "value": 2
+            },
+            {
+              "type": "number",
+              "value": 4
+            },
+            {
+              "type": "number",
+              "value": 6
+            },
+            {
+              "type": "number",
+              "value": 8
+            }
+          ]
+        },
+        "optional": true
+      },
       "editorialImages": {
         "type": "objectAttribute",
         "value": {

@@ -2,6 +2,8 @@ import { getProductsByBrand, getBrandBySlug } from "@/sanity/lib/getData";
 import { notFound } from "next/navigation";
 import ProductGridWithImages from "@/components/ProductGridWithImages";
 import { decodeBrandSlug } from "@/lib/utils/brandUrls";
+import Image from "next/image";
+import { urlFor } from "@/sanity/lib/image";
 
 export default async function BrandPage({
   params,
@@ -28,16 +30,50 @@ export default async function BrandPage({
   const brandDescription =
     brand?.description || products[0]?.brand?.description || "";
 
+  // Extract first editorial image for header, rest for grid
+  const firstEditorialImage = brand?.editorialImages?.[0];
+  const remainingEditorialImages = brand?.editorialImages?.slice(1);
+
   return (
     <div>
-      <div className="mb-6 px-2">
-        <h1 className="text-2xl mt-4">{brandName}</h1>
-        <p className="text-sm mt-2">{brandDescription}</p>
+      {/* Header: Description + First editorial image */}
+      <div className="mb-12 px-2 xl:flex xl:justify-between xl:items-start xl:gap-8">
+        <div className="xl:w-1/3">
+          <h1 className="text-base mt-4">{brandName}</h1>
+          <p className="text-xs mt-2">{brandDescription}</p>
+          {/* Mobile: First editorial image below description */}
+          {firstEditorialImage?.image?.asset?.url && (
+            <div className="block xl:hidden mt-4">
+              <div className="relative aspect-[4/5]">
+                <Image
+                  src={urlFor(firstEditorialImage.image).url()}
+                  alt={firstEditorialImage.image.alt || brandName}
+                  fill
+                  className="object-cover"
+                  sizes="100vw"
+                />
+              </div>
+            </div>
+          )}
+        </div>
+        {/* XL: First editorial image on right */}
+        {firstEditorialImage?.image?.asset?.url && (
+          <div className="hidden xl:block xl:w-1/2 pl-2">
+            <div className="relative aspect-[4/5]">
+              <Image
+                src={urlFor(firstEditorialImage.image).url()}
+                alt={firstEditorialImage.image.alt || brandName}
+                fill
+                className="object-cover"
+                sizes="25vw"
+              />
+            </div>
+          </div>
+        )}
       </div>
       <ProductGridWithImages
         products={products}
-        editorialImages={brand?.editorialImages}
-        productsPerImage={4}
+        editorialImages={remainingEditorialImages}
       />
     </div>
   );
