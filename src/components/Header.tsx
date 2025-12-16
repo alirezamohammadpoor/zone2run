@@ -12,7 +12,12 @@ import { useHasMounted } from "@/hooks/useHasMounted";
 import { Search } from "lucide-react";
 import AddedToCartModal from "./product/AddedToCartModal";
 import DesktopDropdown from "./header/DesktopDropdown";
-import type { BrandMenuItem, MenuData, MenuConfig, BlogPostMenuItem } from "@/types/menu";
+import type {
+  BrandMenuItem,
+  MenuData,
+  MenuConfig,
+  BlogPostMenuItem,
+} from "@/types/menu";
 
 type DropdownType = "men" | "women" | "help" | "ourSpace" | null;
 
@@ -98,7 +103,7 @@ function Header({
         </div>
 
         <div className="absolute left-1/2 transform -translate-x-1/2">
-          <Link href="/" className="text-lg cursor-pointer">
+          <Link href="/" className="text-base cursor-pointer">
             Zone 2
           </Link>
         </div>

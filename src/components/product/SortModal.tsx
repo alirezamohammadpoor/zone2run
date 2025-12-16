@@ -30,17 +30,17 @@ export function SortModal({
       >
         {/* Fixed Header */}
         <div className="flex-shrink-0 bg-white z-10 h-16">
-          <div className="text-sm flex justify-between items-center h-8 relative mt-4 px-4">
+          <div className="text-xs flex justify-between items-center h-8 relative mt-4 px-4">
             <p>Filter & Sort</p>
             <button
-              className="mr-2 text-sm hover:text-gray-500"
+              className="mr-2 text-xs hover:text-gray-500"
               onClick={handleClose}
             >
               Close
             </button>
           </div>
           <div className="border-b border-gray-300 w-full mt-2 "></div>
-          <p className="text-sm ml-4 mt-2">Sort</p>
+          <p className="text-xs ml-4 mt-2">Sort</p>
 
           <SortButtons products={products} />
           <FilterButtons products={products} />

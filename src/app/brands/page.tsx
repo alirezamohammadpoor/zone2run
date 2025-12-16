@@ -15,12 +15,14 @@ export default async function BrandsPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-8">All Brands</h1>
+      <h1 className="text-base mb-8">All Brands</h1>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {brands.map((brand: Brand) => (
           <Link
             key={brand._id}
-            href={brand.slug?.current ? getBrandUrl(brand.slug.current) : "/brands"}
+            href={
+              brand.slug?.current ? getBrandUrl(brand.slug.current) : "/brands"
+            }
             className="group block p-6 border rounded-lg hover:shadow-lg transition-shadow"
           >
             {brand.logo?.asset?._ref && (
@@ -34,11 +36,11 @@ export default async function BrandsPage() {
                 />
               </div>
             )}
-            <h3 className="text-lg font-semibold group-hover:text-blue-600 transition-colors">
+            <h3 className="text-base group-hover:text-blue-600 transition-colors">
               {brand.name}
             </h3>
             {brand.description && (
-              <p className="text-gray-600 text-sm mt-2 line-clamp-2">
+              <p className="text-gray-600 text-xs mt-2 line-clamp-2">
                 {brand.description}
               </p>
             )}

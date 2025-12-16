@@ -360,7 +360,7 @@ function MenContent({
       {featuredCollections && featuredCollections.length > 0 && (
         <div>
           <div className="px-2 mt-4">
-            <span className="text-sm">Featured Collections</span>
+            <span className="text-xs">Featured Collections</span>
 
             {/* Collection carousel */}
             <div className="mt-2 overflow-hidden -mx-2 px-2" ref={emblaRef}>
@@ -400,7 +400,7 @@ function MenContent({
                         )}
                       </div>
                       <div className="mt-2 mb-4">
-                        <p className="text-sm hover:underline cursor-pointer">
+                        <p className="text-xs hover:underline cursor-pointer">
                           {collection.title}
                         </p>
                       </div>

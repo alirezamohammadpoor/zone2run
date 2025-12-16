@@ -44,7 +44,6 @@ import { muxVideo } from "./objects/muxVideo";
 
 // Homepage module types
 import { heroModule } from "./homepage/heroModule";
-import { featuredProductsModule } from "./homepage/featuredProductsModule";
 import { editorialModule } from "./homepage/editorialModule";
 import { spotifyPlaylistsModule } from "./homepage/spotifyPlaylistsModule";
 import { imageModule } from "./homepage/imageModule";
@@ -105,7 +104,6 @@ const objects = [
   muxVideo,
   // Homepage modules
   heroModule,
-  featuredProductsModule,
   editorialModule,
   spotifyPlaylistsModule,
   imageModule,

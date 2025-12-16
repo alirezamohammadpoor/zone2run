@@ -9,8 +9,8 @@ function FilterBar({ products }: { products: SanityProduct[] }) {
   return (
     <div>
       <div className="flex fixed bottom-0 w-full h-12 z-50 bg-white justify-between items-center px-4">
-        <button className="text-sm ml-2">View</button>
-        <button className="text-sm mr-2" onClick={() => setIsSortOpen(true)}>
+        <button className="text-xs ml-2">View</button>
+        <button className="text-xs mr-2" onClick={() => setIsSortOpen(true)}>
           Filter & Sort
         </button>
       </div>

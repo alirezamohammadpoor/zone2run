@@ -1,4 +1,3 @@
-import React from "react";
 import Link from "next/link";
 import ProductCard from "./ProductCard";
 import type { SanityProduct } from "@/types/sanityProduct";
@@ -9,7 +8,7 @@ interface ProductGridProps {
 
 export default function ProductGrid({ products }: ProductGridProps) {
   return (
-    <div className="grid grid-cols-2 gap-2 mx-2">
+    <div className="grid grid-cols-2 xl:grid-cols-4 gap-2 mx-2">
       {products?.map((product) => {
         return (
           <Link

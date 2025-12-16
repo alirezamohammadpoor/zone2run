@@ -119,11 +119,11 @@ function EditorialModuleComponent({
   return (
     <div className="px-2 mt-16 mb-8 w-full">
       <div className="py-4 flex justify-between items-center">
-        <h2 className="text-black text-lg md:text-xl font-medium">
+        <h2 className="text-black text-base">
           {editorialModule.title}
         </h2>
         <button
-          className="text-black text-sm md:text-base hover:underline cursor-pointer"
+          className="text-black text-xs hover:underline cursor-pointer"
           onClick={() => {
             router.push(editorialModule.buttonLink || "/blog/editorials");
           }}
@@ -155,14 +155,14 @@ function EditorialModuleComponent({
                 </div>
 
                 <div className="pt-2 pb-4 space-y-1">
-                  <div className="flex items-center gap-2 text-sm"></div>
+                  <div className="flex items-center gap-2 text-xs"></div>
 
-                  <h3 className="text-lg md:text-xl text-black">
+                  <h3 className="text-base text-black">
                     {post.title}
                   </h3>
 
                   {post.excerpt && (
-                    <p className="text-xs md:text-sm line-clamp-2">
+                    <p className="text-xs line-clamp-2">
                       {post.excerpt}
                     </p>
                   )}

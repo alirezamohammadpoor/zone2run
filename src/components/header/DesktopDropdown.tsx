@@ -46,13 +46,13 @@ export default function DesktopDropdown({
     const links = menuConfig?.help?.links || [];
     return (
       <div className="py-4 px-4">
-        <h3 className="text-sm font-medium mb-4">Help & Support</h3>
+        <h3 className="text-base mb-4">Help & Support</h3>
         <div className="space-y-3">
           {links.map((link, index) => (
             <button
               key={link._key || index}
               onClick={() => handleLinkClick(link.url)}
-              className="block text-sm hover:text-gray-500"
+              className="block text-xs hover:text-gray-500"
             >
               {link.label}
             </button>
@@ -130,7 +130,7 @@ export default function DesktopDropdown({
                       </div>
                     )}
                   </div>
-                  <p className="text-sm mt-2 group-hover:underline">
+                  <p className="text-xs mt-2 group-hover:underline">
                     {post.title}
                   </p>
                 </div>

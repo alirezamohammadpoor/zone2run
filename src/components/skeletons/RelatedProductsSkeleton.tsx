@@ -12,7 +12,7 @@ export default function RelatedProductsSkeleton({
     <div className="mx-2 my-4">
       <div className="flex gap-2 overflow-hidden">
         {Array.from({ length: count }).map((_, index) => (
-          <div key={index} className="flex-shrink-0 w-[70vw]">
+          <div key={index} className="flex-shrink-0 w-[70vw] min-w-0 xl:w-[30vw]">
             <ProductCardSkeleton />
           </div>
         ))}

@@ -63,14 +63,14 @@ function HeroModule({ heroModule }: { heroModule: HeroModule }) {
           <h1
             className={`${
               heroModule.textColor === "white" ? "text-white" : "text-black"
-            } text-xl md:text-2xl lg:text-3xl xl:text-4xl ml-2`}
+            } text-base ml-2`}
           >
             {heroModule.heroHeading}
           </h1>
           <p
             className={`${
               heroModule.textColor === "white" ? "text-white" : "text-black"
-            } text-base md:text-lg xl:text-xl ml-2 mt-2 w-[70vw] md:w-[60vw] lg:w-[50vw]`}
+            } text-xs ml-2 mt-2 w-[70vw] md:w-[60vw] lg:w-[50vw]`}
           >
             {heroModule.heroSubparagraph}
           </p>
@@ -79,13 +79,13 @@ function HeroModule({ heroModule }: { heroModule: HeroModule }) {
               href={heroModule.buttonLink || "/"}
               className={`${
                 heroModule.textColor === "white" ? "text-white" : "text-black"
-              } text-base md:text-lg xl:text-xl ml-2 mt-4 flex items-center`}
+              } text-xs ml-2 mt-4 flex items-center`}
             >
               {heroModule.buttonText}
               <svg
                 aria-hidden="true"
                 viewBox="0 0 5 8"
-                className={`w-3 h-3 lg:w-4 lg:h-4 ml-1.5 mt-1 ${
+                className={`w-2 h-2 ml-1.5 mt-0.5 ${
                   heroModule.textColor === "white" ? "text-white" : "text-black"
                 }`}
                 xmlns="http://www.w3.org/2000/svg"
