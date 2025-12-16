@@ -19,7 +19,6 @@ const homepage: SchemaTypeDefinition = {
       description: "Add, remove, and reorder homepage sections",
       of: [
         { type: "heroModule" },
-        { type: "featuredProductsModule" },
         { type: "editorialModule" },
         { type: "spotifyPlaylistsModule" },
         { type: "imageModule" },
