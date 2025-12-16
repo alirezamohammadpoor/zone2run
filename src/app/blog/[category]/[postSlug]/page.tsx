@@ -36,7 +36,9 @@ export default async function PostPage({
   // Fetch products from featured collection if set
   let collectionProducts: SanityProduct[] = [];
   if (post.featuredCollection?._id) {
-    const allProducts = await getProductsByCollectionId(post.featuredCollection._id);
+    const allProducts = await getProductsByCollectionId(
+      post.featuredCollection._id
+    );
     collectionProducts = post.featuredCollectionLimit
       ? allProducts.slice(0, post.featuredCollectionLimit)
       : allProducts;
@@ -46,7 +48,7 @@ export default async function PostPage({
     <div className="w-full">
       {/* HERO */}
       <div
-        className="relative w-full overflow-hidden mb-2"
+        className="relative w-full overflow-hidden mb-2 xl:mb-4"
         style={{ height: post.heroHeight }}
       >
         {post.mediaType === "video" && post.featuredVideo?.asset?.url ? (
@@ -56,7 +58,7 @@ export default async function PostPage({
             muted
             loop
             playsInline
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain"
           />
         ) : post.featuredImage?.asset?.url ? (
           <Image
@@ -64,6 +66,13 @@ export default async function PostPage({
             alt={post.featuredImage.alt || ""}
             fill
             className="object-cover"
+            style={{
+              objectPosition: post.featuredImage.hotspot
+                ? `${post.featuredImage.hotspot.x * 100}% ${
+                    post.featuredImage.hotspot.y * 100
+                  }%`
+                : "center",
+            }}
           />
         ) : (
           <div className="w-full h-full bg-black flex items-center justify-center">
@@ -73,33 +82,33 @@ export default async function PostPage({
       </div>
 
       {/* TITLE & META */}
-      <div className="w-full px-2 py-2">
-        <h1 className="text-2xl mb-6">{post.title}</h1>
-        <div className="flex items-center gap-4 text-sm mb-6">
+      <div className="w-full px-2 py-2 xl:max-w-4xl xl:mx-auto xl:px-4 xl:py-4">
+        <h1 className="text-base mb-6">{post.title}</h1>
+        <div className="flex items-center gap-4 text-xs mb-6">
           <span>By {post.author}</span>
           <span>{post.readingTime} min read</span>
           <span>{new Date(post.publishedAt).toLocaleDateString()}</span>
         </div>
-        {post.excerpt && <p className="text-sm">{post.excerpt}</p>}
+        {post.excerpt && <p className="text-xs">{post.excerpt}</p>}
       </div>
 
       {/* CONTENT */}
-      <div className="w-full px-2 py-2">
+      <div className="w-full px-2 py-2 xl:max-w-4xl xl:mx-auto xl:px-4">
         {post.content?.length ? (
           <PortableText
             value={post.content}
             components={{
               block: {
                 normal: ({ children }) => (
-                  <p className="mb-6 leading-relaxed">{children}</p>
+                  <p className="mb-6 leading-relaxed text-xs">{children}</p>
                 ),
                 h1: ({ children }) => (
-                  <h1 className="text-3xl mb-8 mt-4 first:mt-0 font-normal [&_strong]:font-normal [&_b]:font-normal">
+                  <h1 className="text-base mb-8 mt-4 first:mt-0 font-normal [&_strong]:font-normal [&_b]:font-normal">
                     {children}
                   </h1>
                 ),
                 h2: ({ children }) => (
-                  <h2 className="text-2xl mb-6 mt-4 font-normal [&_strong]:font-normal [&_b]:font-normal">
+                  <h2 className="text-base mb-6 mt-4 font-normal [&_strong]:font-normal [&_b]:font-normal">
                     {children}
                   </h2>
                 ),
@@ -129,16 +138,16 @@ export default async function PostPage({
                 image: ({ value }) =>
                   value?.asset?.url && (
                     <div className="mb-4">
-                      <div className="relative w-full h-[50vh] overflow-hidden">
+                      <div className="relative w-full h-[50vh] xl:h-[70vh] overflow-hidden">
                         <Image
                           src={value.asset.url}
                           alt={value.alt || ""}
                           fill
-                          className="object-cover"
+                          className="object-contain"
                         />
                       </div>
                       {value.caption && (
-                        <p className="text-md text-black mt-2 italic">
+                        <p className="text-xs text-black mt-2 italic text-center">
                           {value.caption}
                         </p>
                       )}
@@ -149,15 +158,15 @@ export default async function PostPage({
                 }: {
                   value: BlogProductsModuleValue;
                 }) => (
-                  <div className="ml-2 pr-4 w-full">
+                  <div className="ml-2 pr-4 w-full xl:ml-0 xl:pr-0">
                     <div className="py-4 flex justify-between items-center">
-                      <h2 className="text-black text-lg font-medium">
+                      <h2 className="text-black text-base font-medium">
                         {value.featuredHeading}
                       </h2>
                       {value.featuredButtonText && value.featuredButtonLink && (
                         <a
                           href={value.featuredButtonLink}
-                          className="text-black text-sm hover:underline cursor-pointer"
+                          className="text-black text-xs hover:underline cursor-pointer"
                         >
                           {value.featuredButtonText}
                         </a>
@@ -201,7 +210,7 @@ export default async function PostPage({
             }}
           />
         ) : (
-          <p className="text-black italic">
+          <p className="text-black italic text-xs">
             No content available for this blog post.
           </p>
         )}
@@ -209,15 +218,15 @@ export default async function PostPage({
 
       {/* Featured Collection Products */}
       {collectionProducts.length > 0 && (
-        <div className="w-full px-2 py-8">
+        <div className="w-full px-2 py-8 xl:max-w-4xl xl:mx-auto xl:px-4">
           <div className="py-4 flex justify-between items-center">
-            <h2 className="text-black text-lg font-medium">
+            <h2 className="text-black text-base font-medium">
               {post.featuredCollection?.title || "Featured Products"}
             </h2>
             {post.featuredCollection?.slug && (
               <a
                 href={`/collections/${post.featuredCollection.slug}`}
-                className="text-black text-sm hover:underline cursor-pointer"
+                className="text-black text-xs hover:underline cursor-pointer"
               >
                 View All
               </a>

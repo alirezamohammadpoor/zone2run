@@ -98,8 +98,6 @@ export type HomepageVersion = {
     _key: string;
   } & HeroModule | {
     _key: string;
-  } & FeaturedProductsModule | {
-    _key: string;
   } & EditorialModule | {
     _key: string;
   } & SpotifyPlaylistsModule | {
@@ -427,28 +425,6 @@ export type EditorialModule = {
   }>;
   buttonText?: string;
   buttonLink?: string;
-};
-
-export type FeaturedProductsModule = {
-  _type: "featuredProductsModule";
-  title?: string;
-  displayType?: "horizontal" | "grid";
-  productCount?: number;
-  featuredHeading?: string;
-  featuredSubheading?: string;
-  featuredProducts?: Array<{
-    product?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "product";
-    };
-    imageSelection?: "main" | "gallery_0" | "gallery_1" | "gallery_2" | "gallery_3" | "gallery_4";
-    _type: "productWithImage";
-    _key: string;
-  }>;
-  featuredButtonLink?: string;
-  featuredButtonText?: string;
 };
 
 export type HeroModule = {
@@ -941,8 +917,6 @@ export type Home = {
     _key: string;
   } & HeroModule | {
     _key: string;
-  } & FeaturedProductsModule | {
-    _key: string;
   } & EditorialModule | {
     _key: string;
   } & SpotifyPlaylistsModule | {
@@ -1360,6 +1334,7 @@ export type Collection = {
     alt?: string;
     _type: "image";
   };
+  gridLayout?: "4col" | "3col";
   productsPerImage?: 2 | 4 | 6 | 8;
   editorialImages?: Array<{
     image?: {
@@ -1540,5 +1515,5 @@ export type Geopoint = {
   alt?: number;
 };
 
-export type AllSanitySchemaTypes = PortableTextSimple | PortableText | SiteSettings | HomepageVersion | Seo | Settings | NotFoundPage | FooterSettings | Menu | NavigationMenu | BlogProductsModule | PortableTextModule | ImageModule | SpotifyPlaylistsModule | EditorialModule | FeaturedProductsModule | HeroModule | MuxVideo | Spot | ShopifyProductVariant | ShopifyProduct | ShopifyCollection | ProxyString | ProductWithVariant | ProductVariant | Inventory | ProductReference | ProductHotspots | Products | PriceRange | PlaceholderString | Option | MenuLinks | Instagram | ImageWithProductHotspots | ImageFeature | Images | ImageCallToAction | Hero | Grid | GridItem | CustomProductOptionSize | CustomProductOptionSizeObject | CustomProductOptionColor | CustomProductOptionColorObject | Color | CollectionRule | CollectionReference | CollectionLinks | CollectionGroup | CallToAction | Callout | Accordion | AccordionGroup | LinkProduct | LinkInternal | Page | Slug | Home | SanityImageCrop | SanityImageHotspot | BlogPost | BlogCategory | Product | Brand | Category | Collection | ColorTheme | LinkExternal | LinkEmail | MediaTag | RgbaColor | HsvaColor | HslaColor | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageMetadata | SanityFileAsset | SanityAssetSourceData | SanityImageAsset | Geopoint;
+export type AllSanitySchemaTypes = PortableTextSimple | PortableText | SiteSettings | HomepageVersion | Seo | Settings | NotFoundPage | FooterSettings | Menu | NavigationMenu | BlogProductsModule | PortableTextModule | ImageModule | SpotifyPlaylistsModule | EditorialModule | HeroModule | MuxVideo | Spot | ShopifyProductVariant | ShopifyProduct | ShopifyCollection | ProxyString | ProductWithVariant | ProductVariant | Inventory | ProductReference | ProductHotspots | Products | PriceRange | PlaceholderString | Option | MenuLinks | Instagram | ImageWithProductHotspots | ImageFeature | Images | ImageCallToAction | Hero | Grid | GridItem | CustomProductOptionSize | CustomProductOptionSizeObject | CustomProductOptionColor | CustomProductOptionColorObject | Color | CollectionRule | CollectionReference | CollectionLinks | CollectionGroup | CallToAction | Callout | Accordion | AccordionGroup | LinkProduct | LinkInternal | Page | Slug | Home | SanityImageCrop | SanityImageHotspot | BlogPost | BlogCategory | Product | Brand | Category | Collection | ColorTheme | LinkExternal | LinkEmail | MediaTag | RgbaColor | HsvaColor | HslaColor | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageMetadata | SanityFileAsset | SanityAssetSourceData | SanityImageAsset | Geopoint;
 export declare const internalGroqTypeReferenceTo: unique symbol;

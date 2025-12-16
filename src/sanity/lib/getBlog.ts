@@ -133,7 +133,7 @@ export async function getBlogPost(slug: string) {
     readingTime,
     mediaType,
     category-> { title, slug { current } },
-    featuredImage { asset-> { url, metadata }, alt },
+    featuredImage { asset-> { url, metadata }, alt, hotspot, crop },
     featuredVideo { asset-> { url, metadata } },
     heroHeight,
     productsModule {
