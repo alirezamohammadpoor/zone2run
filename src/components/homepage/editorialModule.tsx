@@ -117,8 +117,8 @@ function EditorialModuleComponent({
   );
 
   return (
-    <div className="px-2 mt-16 mb-8 w-full">
-      <div className="py-4 flex justify-between items-center">
+    <div className="px-2 my-8 md:my-12 xl:my-16 w-full">
+      <div className="flex justify-between items-center">
         <h2 className="text-black text-base">
           {editorialModule.title}
         </h2>

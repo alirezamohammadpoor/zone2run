@@ -178,7 +178,7 @@ function ContentModuleComponent({
             isFullWidth
               ? "w-full"
               : isSplitLayout
-              ? "w-full xl:w-[33vw]"
+              ? "w-full xl:w-[50vw]"
               : "w-full"
           }`}
           style={{
@@ -212,7 +212,7 @@ function ContentModuleComponent({
             isFullWidth
               ? "w-full"
               : isSplitLayout
-              ? "w-full xl:w-[33vw]"
+              ? "w-full xl:w-[50vw]"
               : "w-full"
           }`}
           style={{
@@ -296,7 +296,7 @@ function ContentModuleComponent({
             : undefined
         }
         columns={
-          isMediaWithProductsSplit ? "4-lg" : isSplitLayout ? "2" : "auto"
+          isMediaWithProductsSplit ? "3-lg" : isSplitLayout ? "2" : "auto"
         }
       />
     );
@@ -358,7 +358,7 @@ function ContentModuleComponent({
     // For text-with-media: text is 50vw, media is 33vw
     const textWidth =
       isSplitLayout && contentType === "text-with-products"
-        ? "w-full xl:w-[33vw] flex-shrink-0"
+        ? "w-full xl:w-[50vw] flex-shrink-0"
         : isSplitLayout
         ? "w-full xl:w-[50vw] flex-shrink-0"
         : `${contentModule.maxWidth || "max-w-4xl"} ${
@@ -401,72 +401,58 @@ function ContentModuleComponent({
           </Link>
         )}
         {contentModule.source && (
-          <p className="text-xs text-gray-500 mt-2">
-            {contentModule.source}
-          </p>
+          <p className="text-xs text-gray-500 mt-2">{contentModule.source}</p>
         )}
       </div>
     );
   };
 
+  // Section spacing class for consistent margins between modules
+  const sectionSpacing = "my-8 md:my-12 xl:my-16";
+
   // Full-width media layout (media on top, text below)
   if (isFullWidth && contentType === "text-with-media") {
     return (
-      <div className="w-full">
+      <div className={`w-full ${sectionSpacing}`}>
         {renderMedia()}
-        <div className="px-2 py-8">{renderContent()}</div>
+        <div className="px-2 pt-8">{renderContent()}</div>
       </div>
     );
   }
 
   // Split layout (side-by-side on larger screens, stacked on mobile)
   if (isSplitLayout) {
-    const isMediaLeft = contentModule.mediaPosition === "left";
-    // Products on RIGHT by default (so text is on LEFT)
-    const productPositionValue = (contentModule as any).productPosition;
-    const isProductsLeft = productPositionValue === "left";
-
     if (contentType === "text-with-media") {
-      // Media 33vw, text 50vw, rest is gap
+      // Media on left, text on right (center aligned)
       return (
-        <div className="w-full px-2 py-2">
-          <div className="flex flex-col xl:flex-row xl:justify-between items-start gap-4 xl:gap-0">
-            {isMediaLeft && renderMedia()}
-            {renderContent()}
-            {!isMediaLeft && renderMedia()}
+        <div className={`w-full ${sectionSpacing}`}>
+          <div className="flex flex-col xl:flex-row xl:justify-between xl:items-center gap-8">
+            {renderMedia()}
+            <div className="px-2 xl:px-0 xl:pr-2">{renderContent()}</div>
           </div>
         </div>
       );
     }
 
     if (contentType === "text-with-products") {
-      // Text 33vw, products 50vw, rest is gap
+      // Products on left, text on right (center aligned)
       return (
-        <div className="w-full px-2 py-2">
-          <div className="flex flex-col xl:flex-row xl:justify-between items-start gap-4 xl:gap-0">
-            {isProductsLeft ? (
-              <>
-                {renderProducts()}
-                {renderContent()}
-              </>
-            ) : (
-              <>
-                {renderContent()}
-                {renderProducts()}
-              </>
-            )}
+        <div className={`w-full ${sectionSpacing}`}>
+          <div className="flex flex-col xl:flex-row xl:justify-between xl:items-center gap-8">
+            <div className="px-2">{renderProducts()}</div>
+            <div className="px-2 xl:px-0 xl:pr-2">{renderContent()}</div>
           </div>
         </div>
       );
     }
 
     if (contentType === "media-with-products") {
-      // Media + Products layout: video 33vw, products 50vw, rest is gap
+      // Media + Products layout: side by side (same spacing as media + text)
       return (
-        <div className="w-full px-2 py-2">
-          <div className="flex flex-col xl:flex-row xl:justify-between items-start gap-4 xl:gap-0">
+        <div className={`w-full ${sectionSpacing}`}>
+          <div className="flex flex-col xl:flex-row xl:justify-between xl:items-center gap-8">
             {renderMedia()}
-            {renderProducts()}
+            <div className="px-2 xl:px-0 xl:pr-2">{renderProducts()}</div>
           </div>
         </div>
       );
@@ -475,29 +461,43 @@ function ContentModuleComponent({
 
   // Single column layout or products-only
   if (contentType === "products-only") {
-    return <div className="w-full px-2 py-2">{renderProducts()}</div>;
+    return <div className={`w-full px-2 ${sectionSpacing}`}>{renderProducts()}</div>;
   }
 
   // Single column media-with-products
   if (contentType === "media-with-products") {
     return (
-      <div className="w-full px-2 py-2">
-        <div className="flex flex-col gap-8">
-          {renderMedia()}
-          {renderProducts()}
-        </div>
+      <div className={`w-full ${sectionSpacing}`}>
+        {renderMedia()}
+        <div className="px-2 pt-8">{renderProducts()}</div>
       </div>
     );
   }
 
-  // Text only or single column with media/products
-  return (
-    <div className="w-full px-2 py-2">
-      <div className="flex flex-col gap-8">
-        {contentType === "text-with-media" && renderMedia()}
-        {contentType === "text-with-products" && renderProducts()}
-        {renderContent()}
+  // Text with media - media on top, text below
+  if (contentType === "text-with-media") {
+    return (
+      <div className={`w-full ${sectionSpacing}`}>
+        {renderMedia()}
+        <div className="px-2 pt-8">{renderContent()}</div>
       </div>
+    );
+  }
+
+  // Text with products - products on top, text below
+  if (contentType === "text-with-products") {
+    return (
+      <div className={`w-full ${sectionSpacing}`}>
+        <div className="px-2">{renderProducts()}</div>
+        <div className="px-2 pt-8">{renderContent()}</div>
+      </div>
+    );
+  }
+
+  // Text only
+  return (
+    <div className={`w-full px-2 ${sectionSpacing}`}>
+      {renderContent()}
     </div>
   );
 }
