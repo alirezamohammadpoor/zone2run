@@ -147,18 +147,24 @@ export type NotFoundPage = {
   _type: "notFoundPage";
   title?: string;
   body?: string;
-  collection?: {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "collection";
+  image?: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
   };
-  colorTheme?: {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "colorTheme";
-  };
+  buttons?: Array<{
+    text?: string;
+    link?: string;
+    _key: string;
+  }>;
 };
 
 export type FooterSettings = {
@@ -609,6 +615,22 @@ export type Option = {
   values?: Array<string>;
 };
 
+export type SanityImageCrop = {
+  _type: "sanity.imageCrop";
+  top?: number;
+  bottom?: number;
+  left?: number;
+  right?: number;
+};
+
+export type SanityImageHotspot = {
+  _type: "sanity.imageHotspot";
+  x?: number;
+  y?: number;
+  height?: number;
+  width?: number;
+};
+
 export type MenuLinks = Array<{
   _key: string;
 } & CollectionGroup | {
@@ -925,22 +947,6 @@ export type Home = {
     _key: string;
   } & PortableTextModule>;
   seo?: Seo;
-};
-
-export type SanityImageCrop = {
-  _type: "sanity.imageCrop";
-  top?: number;
-  bottom?: number;
-  left?: number;
-  right?: number;
-};
-
-export type SanityImageHotspot = {
-  _type: "sanity.imageHotspot";
-  x?: number;
-  y?: number;
-  height?: number;
-  width?: number;
 };
 
 export type BlogPost = {
@@ -1515,5 +1521,5 @@ export type Geopoint = {
   alt?: number;
 };
 
-export type AllSanitySchemaTypes = PortableTextSimple | PortableText | SiteSettings | HomepageVersion | Seo | Settings | NotFoundPage | FooterSettings | Menu | NavigationMenu | BlogProductsModule | PortableTextModule | ImageModule | SpotifyPlaylistsModule | EditorialModule | HeroModule | MuxVideo | Spot | ShopifyProductVariant | ShopifyProduct | ShopifyCollection | ProxyString | ProductWithVariant | ProductVariant | Inventory | ProductReference | ProductHotspots | Products | PriceRange | PlaceholderString | Option | MenuLinks | Instagram | ImageWithProductHotspots | ImageFeature | Images | ImageCallToAction | Hero | Grid | GridItem | CustomProductOptionSize | CustomProductOptionSizeObject | CustomProductOptionColor | CustomProductOptionColorObject | Color | CollectionRule | CollectionReference | CollectionLinks | CollectionGroup | CallToAction | Callout | Accordion | AccordionGroup | LinkProduct | LinkInternal | Page | Slug | Home | SanityImageCrop | SanityImageHotspot | BlogPost | BlogCategory | Product | Brand | Category | Collection | ColorTheme | LinkExternal | LinkEmail | MediaTag | RgbaColor | HsvaColor | HslaColor | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageMetadata | SanityFileAsset | SanityAssetSourceData | SanityImageAsset | Geopoint;
+export type AllSanitySchemaTypes = PortableTextSimple | PortableText | SiteSettings | HomepageVersion | Seo | Settings | NotFoundPage | FooterSettings | Menu | NavigationMenu | BlogProductsModule | PortableTextModule | ImageModule | SpotifyPlaylistsModule | EditorialModule | HeroModule | MuxVideo | Spot | ShopifyProductVariant | ShopifyProduct | ShopifyCollection | ProxyString | ProductWithVariant | ProductVariant | Inventory | ProductReference | ProductHotspots | Products | PriceRange | PlaceholderString | Option | SanityImageCrop | SanityImageHotspot | MenuLinks | Instagram | ImageWithProductHotspots | ImageFeature | Images | ImageCallToAction | Hero | Grid | GridItem | CustomProductOptionSize | CustomProductOptionSizeObject | CustomProductOptionColor | CustomProductOptionColorObject | Color | CollectionRule | CollectionReference | CollectionLinks | CollectionGroup | CallToAction | Callout | Accordion | AccordionGroup | LinkProduct | LinkInternal | Page | Slug | Home | BlogPost | BlogCategory | Product | Brand | Category | Collection | ColorTheme | LinkExternal | LinkEmail | MediaTag | RgbaColor | HsvaColor | HslaColor | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageMetadata | SanityFileAsset | SanityAssetSourceData | SanityImageAsset | Geopoint;
 export declare const internalGroqTypeReferenceTo: unique symbol;

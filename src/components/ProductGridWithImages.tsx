@@ -187,7 +187,9 @@ export default function ProductGridWithImages({
   // If no images, fallback to regular ProductGrid
   if (!editorialImages || editorialImages.length === 0) {
     return (
-      <div className={`grid grid-cols-2 ${xlGridCols} gap-2 mx-2`}>
+      <div
+        className={`grid grid-cols-2 ${xlGridCols} gap-2 px-2 my-8 md:my-12 xl:my-16`}
+      >
         {products?.map((product) => (
           <Link
             key={`${product._id}-${product.handle}`}
@@ -214,9 +216,9 @@ export default function ProductGridWithImages({
   );
 
   return (
-    <>
+    <div className="my-8 md:my-12 xl:my-16">
       {/* Mobile grid */}
-      <div className="grid grid-cols-2 gap-2 mx-2 xl:hidden">
+      <div className="grid grid-cols-2 gap-2 px-2 xl:hidden">
         <GridContent
           gridItems={mobileGridItems}
           isMobile={true}
@@ -225,13 +227,13 @@ export default function ProductGridWithImages({
       </div>
 
       {/* XL grid */}
-      <div className={`hidden xl:grid ${xlGridCols} gap-2 mx-2`}>
+      <div className={`hidden xl:grid ${xlGridCols} gap-2 px-2`}>
         <GridContent
           gridItems={xlGridItems}
           isMobile={false}
           gridLayout={gridLayout}
         />
       </div>
-    </>
+    </div>
   );
 }

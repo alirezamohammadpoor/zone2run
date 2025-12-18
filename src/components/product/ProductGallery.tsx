@@ -85,7 +85,7 @@ export default function ProductGallery({
 
   return (
     <div
-      className="relative w-full xl:w-[72vw]"
+      className="relative w-full xl:w-[45vw]"
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
