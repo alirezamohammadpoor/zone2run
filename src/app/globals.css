@@ -25,29 +25,25 @@ html {
   height: 100%;
 }
 
+/* Prevent horizontal scrolling - use clip instead of hidden to allow sticky positioning */
+html,
+body {
+  max-width: 100vw;
+}
+
 body {
   display: grid;
   grid-template-rows: auto auto 1fr auto;
   grid-template-columns: 100%;
   min-height: 100%;
   margin: 0;
+  padding-top: 64px; /* Fixed header height (h-16 = 64px) */
+  overflow-x: clip;
   letter-spacing: 0.03rem;
   line-height: 1.8;
   font-family: var(--font-body-family);
   font-style: var(--font-body-style);
   font-weight: var(--font-body-weight);
-}
-
-/* Prevent horizontal scrolling on all pages */
-html,
-body {
-  overflow-x: hidden;
-  max-width: 100vw;
-}
-
-/* Add padding for fixed header */
-body {
-  padding-top: 64px; /* Match header height (h-16 = 64px) */
 }
 
 /* Prevent body scroll when modal is open */
