@@ -109,7 +109,7 @@ function Header({
         </div>
 
         <div className="flex items-center gap-2 px-2">
-          {/* <button
+          <button
             onClick={() => {
               lockScroll();
               setIsSearchOpen(true);
