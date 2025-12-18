@@ -64,7 +64,7 @@ function CartModal({
     <>
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 top-16 bg-black/30 backdrop-blur-sm z-40 transition-opacity duration-300 ${
+        className={`fixed inset-0 bg-black/30 backdrop-blur-sm z-40 transition-opacity duration-300 ${
           isCartOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         onClick={handleClose}
@@ -72,13 +72,13 @@ function CartModal({
       {/* Modal */}
       <div
         className={
-          "fixed top-16 right-0 h-[calc(100vh-4rem)] w-full bg-white z-50 transform transition-transform duration-300 flex flex-col xl:w-[25vw] xl:h-[calc(100vh-4rem)]" +
+          "fixed top-0 right-0 h-screen w-full bg-white z-50 transform transition-transform duration-300 flex flex-col xl:w-[25vw]" +
           (isCartOpen ? " translate-x-0" : " translate-x-full")
         }
       >
         {/* Fixed Header */}
         <div className="flex-shrink-0 bg-white z-10 h-16">
-          <div className="text-xs flex justify-between items-center h-8 relative mt-4 px-4">
+          <div className="text-xs flex justify-between items-center h-8 relative mt-4 px-2">
             <span>Cart</span>
             <button
               className="mr-2 text-xs hover:text-gray-500"
@@ -91,7 +91,7 @@ function CartModal({
         </div>
 
         {/* Scrollable Content Area */}
-        <div className="flex-1 min-h-0 overflow-y-auto px-4">
+        <div className="flex-1 min-h-0 overflow-y-auto px-2">
           {hasMounted ? (
             items.length > 0 ? (
               <div className="py-4">
@@ -201,15 +201,15 @@ function CartModal({
 
         {/* Fixed Bottom Section */}
         <div className="flex-shrink-0 border-t border-gray-300 bg-white h-60">
-          <div className="px-4 py-4 h-full flex flex-col justify-between">
+          <div className="px-2 py-4 h-full flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <div className="flex flex-col gap-2.5">
+              <div className="flex flex-col gap-2">
                 <p className="text-xs">Shipping</p>
                 <p className="text-xs">Subtotal (excl. VAT)</p>
                 <p className="text-xs text-gray-500">VAT (25%)</p>
                 <p className="text-xs font-semibold">Total (incl. VAT)</p>
               </div>
-              <div className="flex flex-col gap-2.5 items-end">
+              <div className="flex flex-col gap-2 items-end">
                 <p className="text-xs text-gray-500">Calculated at checkout</p>
                 <p className="text-xs">
                   {hasMounted && totalPrice

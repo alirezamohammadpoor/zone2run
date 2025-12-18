@@ -46,7 +46,7 @@ export default function DesktopDropdown({
     const links = menuConfig?.help?.links || [];
     return (
       <div className="py-4 px-4">
-        <h3 className="text-base mb-4">Help & Support</h3>
+        <h3 className="text-sm mb-4">Help & Support</h3>
         <div className="space-y-3">
           {links.map((link, index) => (
             <button

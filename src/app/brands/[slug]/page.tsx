@@ -37,9 +37,9 @@ export default async function BrandPage({
   return (
     <div>
       {/* Header: Description + First editorial image */}
-      <div className="px-2 xl:flex xl:justify-between xl:items-start xl:gap-8">
+      <div className="px-2 mb-8 md:mb-12 xl:mb-16 xl:flex xl:justify-between xl:items-start xl:gap-8">
         <div className="xl:w-1/3">
-          <h1 className="text-base">{brandName}</h1>
+          <h1 className="text-sm">{brandName}</h1>
           <p className="text-xs mt-2">{brandDescription}</p>
           {/* Mobile: First editorial image below description */}
           {firstEditorialImage?.image?.asset?.url && (

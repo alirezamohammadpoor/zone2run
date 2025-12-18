@@ -3,7 +3,7 @@ import { SkeletonText, BaseSkeleton } from "./index";
 
 export default function MenuContentSkeleton() {
   return (
-    <div className="p-2">
+    <div className="px-2">
       <div className="mb-6">
         <SkeletonText width="1/3" size="base" className="mb-4" />
         <div className="space-y-2">

@@ -3,19 +3,18 @@ import { SkeletonImage, BaseSkeleton } from "./index";
 
 export default function ProductGallerySkeleton() {
   return (
-    <div className="relative w-full xl:w-[72vw]">
+    <div className="relative w-full xl:w-[45vw] overflow-hidden">
       {/* Mobile: single image */}
       <div className="xl:hidden">
         <SkeletonImage aspectRatio="4/5" />
       </div>
 
-      {/* XL: carousel with multiple visible images */}
-      <div className="hidden xl:flex gap-2 overflow-hidden">
-        <div className="flex-[0_0_36vw] h-[92vh]">
-          <BaseSkeleton className="w-full h-full" />
-        </div>
-        <div className="flex-[0_0_36vw] h-[92vh]">
-          <BaseSkeleton className="w-full h-full" />
+      {/* XL: carousel - matches ProductGallery structure */}
+      <div className="hidden xl:block overflow-hidden">
+        <div className="flex">
+          <div className="flex-[0_0_45vw] h-[92vh]">
+            <BaseSkeleton className="w-full h-full" />
+          </div>
         </div>
       </div>
 

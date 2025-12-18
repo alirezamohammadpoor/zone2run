@@ -49,8 +49,8 @@ function Header({
   };
   return (
     <header className="fixed top-0 left-0 right-0 z-40 bg-white shadow-sm">
-      <nav className="text-sm flex justify-between items-center h-12 relative bg-white xl:px-16 h-16 text-xs">
-        <div className="flex items-center gap-4 ml-4">
+      <nav className="text-sm flex justify-between items-center h-12 xl:h-16 relative bg-white xl:px-16 text-xs">
+        <div className="flex items-center gap-2 ml-4">
           {/* Mobile: Hamburger menu */}
           <button
             aria-label="Open menu"
@@ -66,7 +66,7 @@ function Header({
           </button>
 
           {/* Desktop: Nav links */}
-          <div className="hidden xl:flex items-center gap-4">
+          <div className="hidden xl:flex items-center gap-2">
             <button
               onClick={() => handleNavClick("men")}
               className={`hover:text-gray-500 cursor-pointer ${
@@ -103,12 +103,12 @@ function Header({
         </div>
 
         <div className="absolute left-1/2 transform -translate-x-1/2">
-          <Link href="/" className="text-base cursor-pointer">
+          <Link href="/" className="text-sm cursor-pointer">
             Zone 2
           </Link>
         </div>
 
-        <div className="flex items-center gap-4 mr-4">
+        <div className="flex items-center gap-2 px-2">
           <button
             onClick={() => {
               lockScroll();

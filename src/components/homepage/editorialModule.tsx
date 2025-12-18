@@ -119,7 +119,7 @@ function EditorialModuleComponent({
   return (
     <div className="px-2 my-8 md:my-12 xl:my-16 w-full">
       <div className="flex justify-between items-center">
-        <h2 className="text-black text-base">
+        <h2 className="text-black text-sm">
           {editorialModule.title}
         </h2>
         <button
@@ -157,7 +157,7 @@ function EditorialModuleComponent({
                 <div className="pt-2 pb-4 space-y-1">
                   <div className="flex items-center gap-2 text-xs"></div>
 
-                  <h3 className="text-base text-black">
+                  <h3 className="text-sm text-black">
                     {post.title}
                   </h3>
 

@@ -35,7 +35,7 @@ export default function ColorVariants({
   }
 
   return (
-    <div className="max-w-md mx-auto p-4 mt-4">
+    <div className="w-full px-2 max-w-md mx-auto my-8 md:my-12 xl:my-16">
       <h3 className="mb-2 text-sm font-medium">Available Colors</h3>
       <div className="flex gap-2 flex-wrap">
         {otherVariants.map((variant) => (

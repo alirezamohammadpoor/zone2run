@@ -9,7 +9,7 @@ export default function EditorialImageSkeleton({
   showCaption = false,
 }: EditorialImageSkeletonProps) {
   return (
-    <div className="w-full h-[50vh] relative bg-gray-100 my-2">
+    <div className="w-full h-[50vh] md:h-[60vh] xl:h-[70vh] relative bg-gray-100 my-2">
       <BaseSkeleton className="w-full h-full" />
       {showCaption && (
         <div className="absolute bottom-0 left-0 right-0 bg-black/50 p-2">

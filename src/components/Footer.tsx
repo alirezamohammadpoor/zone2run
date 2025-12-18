@@ -51,9 +51,7 @@ function FooterColumnComponent({
 
   return (
     <div className={`flex flex-col ${className || ""}`}>
-      {column.title && (
-        <p className="mb-4 text-sm font-medium">{column.title}</p>
-      )}
+      {column.title && <p className="mb-4 text-sm">{column.title}</p>}
       {column.links && column.links.length > 0 && (
         <ul className="space-y-2">
           {column.links.map((link, idx) => (
