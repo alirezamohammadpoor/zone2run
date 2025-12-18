@@ -42,7 +42,7 @@ export default function ProductTabs({
   payments = "Your secure payments content here",
 }: ProductTabsProps) {
   return (
-    <div className="mt-8 mb-12">
+    <div className="my-8 md:my-12 xl:my-16">
       <Collapsible title="Product Details">
         {productDetails}
       </Collapsible>

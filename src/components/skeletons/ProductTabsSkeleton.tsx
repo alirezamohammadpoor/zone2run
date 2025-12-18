@@ -3,7 +3,7 @@ import { SkeletonText, BaseSkeleton } from "./index";
 
 export default function ProductTabsSkeleton() {
   return (
-    <div className="mt-12 mb-12">
+    <div className="my-8 md:my-12 xl:my-16">
       {/* Tab Navigation Skeleton */}
       <div className="flex border-b">
         {Array.from({ length: 4 }).map((_, index) => (

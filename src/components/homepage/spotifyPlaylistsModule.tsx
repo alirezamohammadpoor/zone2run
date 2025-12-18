@@ -14,7 +14,7 @@ function SpotifyPlaylistsModuleComponent({
   return (
     <div className="px-2 my-8 md:my-12 xl:my-16 w-full">
       <div className="flex justify-between items-center">
-        <h2 className="text-black text-base">
+        <h2 className="text-black text-sm">
           {spotifyPlaylistsModule.title}
         </h2>
         <button
@@ -27,7 +27,7 @@ function SpotifyPlaylistsModuleComponent({
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
         {spotifyPlaylistsModule.playlists?.map((playlist, index) => (
           <div key={index} className="group">
             <div className="w-full mb-4">

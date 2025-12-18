@@ -64,7 +64,7 @@ function SearchModal() {
         {/* Fixed Header */}
         <div className="bg-white z-10 h-16 flex-shrink-0">
           {/* Modal Header */}
-          <div className="text-xs flex justify-between items-center h-8 relative mt-4 px-4">
+          <div className="text-xs flex justify-between items-center h-8 relative mt-4 px-2">
             <span>Search</span>
             <button
               className="mr-2 text-xs hover:text-gray-500"
@@ -83,21 +83,21 @@ function SearchModal() {
             <input
               type="text"
               placeholder="What are you looking for?"
-              className="w-[100%] mx-auto px-4 py-2 border-b border-gray-300 text-base font-light focus:outline-none"
+              className="w-[100%] mx-auto px-2 py-2 border-b border-gray-300 text-sm font-light focus:outline-none"
             />
           </div>
 
-          <span className="text-gray-500 text-xs ml-4 block mt-16">
+          <span className="text-gray-500 text-xs ml-2 block mt-16">
             Suggested pages
           </span>
 
-          <span className="text-xs ml-4 block mt-4">FAQ</span>
-          <span className="text-xs ml-4 block mt-2">
+          <span className="text-xs ml-2 block mt-4">FAQ</span>
+          <span className="text-xs ml-2 block mt-2">
             Contact us
           </span>
-          <span className="text-xs ml-4 block mt-2">About us</span>
+          <span className="text-xs ml-2 block mt-2">About us</span>
 
-          <span className="text-gray-500 text-xs ml-4 block mt-16 mb-4">
+          <span className="text-gray-500 text-xs ml-2 block mt-16 mb-4">
             Suggested products
           </span>
           {isLoading ? (

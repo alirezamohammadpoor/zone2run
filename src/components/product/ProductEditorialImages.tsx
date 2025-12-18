@@ -35,7 +35,7 @@ export default function ProductEditorialImages({
   }
 
   return (
-    <div className="ml-2 mt-10 mb-12 pr-4 w-full">
+    <div className="ml-2 my-8 md:my-12 xl:my-16 pr-2 w-full">
       <div className="overflow-hidden -mx-2 px-2" ref={emblaRef}>
         <div className="flex gap-2">
           {editorialImages.map((item) => {

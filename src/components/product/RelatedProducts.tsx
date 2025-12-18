@@ -65,7 +65,7 @@ function RelatedProducts({
   if (!products?.length) return null;
 
   return (
-    <div className="ml-2 mt-10 mb-12 pr-4 w-full">
+    <div className="ml-2 my-8 md:my-12 xl:my-16 pr-2 w-full">
       <div className="py-4 flex justify-between items-center">
         <h2 className="text-black text-xl">More from {brandName}</h2>
         <button

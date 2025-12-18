@@ -12,7 +12,7 @@ export default function ProductDetailsSkeleton() {
       <div className="w-full px-2 xl:w-1/2 xl:flex xl:flex-col xl:justify-center xl:items-center">
         <div className="w-full xl:max-w-md">
           {/* Breadcrumbs skeleton */}
-          <div className="mt-4 xl:mt-2">
+          <div className="mt-4 md:mt-6 xl:mt-2">
             <SkeletonText width="3/4" size="sm" />
           </div>
 
@@ -28,14 +28,14 @@ export default function ProductDetailsSkeleton() {
           </div>
 
           {/* Description skeleton */}
-          <div className="mt-4 xl:w-[90%]">
+          <div className="mt-4 md:mt-6 xl:w-[90%]">
             <SkeletonText width="full" size="sm" className="mb-1" />
             <SkeletonText width="full" size="sm" className="mb-1" />
             <SkeletonText width="3/4" size="sm" />
           </div>
 
           {/* Variant selector skeleton */}
-          <div className="mt-4">
+          <div className="mt-4 md:mt-6">
             <SkeletonText width="1/3" size="sm" className="mb-2" />
             <div className="grid grid-cols-5 gap-2">
               {Array.from({ length: 5 }).map((_, index) => (

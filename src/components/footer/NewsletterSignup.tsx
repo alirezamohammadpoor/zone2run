@@ -43,7 +43,7 @@ export default function NewsletterSignup({
 
   if (isSubmitted) {
     return (
-      <div className="w-full mb-8">
+      <div className="w-full mb-8 md:mb-12 xl:mb-16">
         <p className="text-xs">
           {newsletter.successMessage || "Thanks for subscribing!"}
         </p>
@@ -52,9 +52,9 @@ export default function NewsletterSignup({
   }
 
   return (
-    <div className="w-full mb-8">
-      <p className="text-sm mb-4">{newsletter.heading}</p>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+    <div className="w-full mb-8 md:mb-12 xl:mb-16">
+      <p className="text-sm mb-4 md:mb-6">{newsletter.heading}</p>
+      <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-2">
         <input
           type="email"
           value={email}
@@ -64,7 +64,7 @@ export default function NewsletterSignup({
         />
         <button
           type="submit"
-          className="w-full h-[50px] text-sm bg-black text-white cursor-pointer"
+          className="w-full md:w-auto md:px-8 h-[50px] text-sm bg-black text-white cursor-pointer"
         >
           SUBSCRIBE
         </button>
