@@ -37,7 +37,7 @@ export default async function RootLayout({
             {children}
             <FooterContent />
           </div>
-          <StickyFooter />
+          {/* <StickyFooter /> */}
         </main>
         <Analytics />
         <SpeedInsights />

@@ -127,15 +127,15 @@ async function HomePageSanity({ homepage }: { homepage: Home }) {
           );
         }
 
-        if (module._type === "spotifyPlaylistsModule") {
-          return (
-            <div key={module._key}>
-              <SpotifyPlaylistsModuleComponent
-                spotifyPlaylistsModule={module}
-              />
-            </div>
-          );
-        }
+        // if (module._type === "spotifyPlaylistsModule") {
+        //   return (
+        //     <div key={module._key}>
+        //       <SpotifyPlaylistsModuleComponent
+        //         spotifyPlaylistsModule={module}
+        //       />
+        //     </div>
+        //   );
+        // }
 
         if (module._type === "imageModule") {
           return (
