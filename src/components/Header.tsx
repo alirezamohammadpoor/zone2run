@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import MenuModal from "./menumodal/MenuModal";
 import SearchModal from "./SearchModal";
-import { useSearchStore } from "@/store/searchStore";
+// import { useSearchStore } from "@/store/searchStore";
 import CartModal from "./CartModal";
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
 import { useCartStore } from "@/lib/cart/store";
@@ -109,7 +109,7 @@ function Header({
         </div>
 
         <div className="flex items-center gap-2 px-2">
-          <button
+          {/* <button
             onClick={() => {
               lockScroll();
               setIsSearchOpen(true);

@@ -77,8 +77,8 @@ function CartModal({
         }
       >
         {/* Fixed Header */}
-        <div className="flex-shrink-0 bg-white z-10 h-16">
-          <div className="text-xs flex justify-between items-center h-8 relative mt-4 px-2">
+        <div className="flex-shrink-0 bg-white z-10 h-12 xl:h-16 border-b border-gray-300">
+          <div className="text-xs flex justify-between items-center h-full px-2">
             <span>Cart</span>
             <button
               className="text-xs hover:text-gray-500"
