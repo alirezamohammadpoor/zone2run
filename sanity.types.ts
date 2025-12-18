@@ -163,12 +163,43 @@ export type NotFoundPage = {
 
 export type FooterSettings = {
   _type: "footerSettings";
-  links?: Array<{
-    _key: string;
-  } & LinkInternal | {
-    _key: string;
-  } & LinkExternal>;
-  text?: PortableTextSimple;
+  newsletter?: {
+    heading?: string;
+    placeholder?: string;
+    buttonText?: string;
+    successMessage?: string;
+  };
+  column1?: {
+    title?: string;
+    links?: Array<{
+      label?: string;
+      url?: string;
+      isExternal?: boolean;
+      _type: "link";
+      _key: string;
+    }>;
+  };
+  column2?: {
+    title?: string;
+    links?: Array<{
+      label?: string;
+      url?: string;
+      isExternal?: boolean;
+      _type: "link";
+      _key: string;
+    }>;
+  };
+  column3?: {
+    title?: string;
+    links?: Array<{
+      label?: string;
+      url?: string;
+      isExternal?: boolean;
+      _type: "link";
+      _key: string;
+    }>;
+  };
+  copyrightText?: string;
 };
 
 export type Menu = {
