@@ -5,7 +5,7 @@ import type { SanityProduct } from "@/types/sanityProduct";
 interface HomeProductGridProps {
   products: Array<SanityProduct>;
   count?: number;
-  columns?: "2" | "4" | "4-lg" | "auto"; // "auto" = 2 on mobile, 4 on xl; "4-lg" = 4 on lg+
+  columns?: "2" | "2-lg" | "3-lg" | "4" | "4-lg" | "auto"; // "auto" = 2 on mobile, 4 on xl; "3-lg" = 3 on lg+; "4-lg" = 4 on lg+
 }
 
 export default function HomeProductGrid({
@@ -19,6 +19,8 @@ export default function HomeProductGrid({
   const gridClass =
     columns === "2"
       ? "grid grid-cols-2 gap-2"
+      : columns === "3-lg"
+      ? "grid grid-cols-2 lg:grid-cols-3 gap-2"
       : columns === "4"
       ? "grid grid-cols-2 xl:grid-cols-4 gap-2"
       : columns === "4-lg"

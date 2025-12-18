@@ -12,7 +12,7 @@ function ImageModuleComponent({ imageModule }: { imageModule: ImageModule }) {
   const videoUrl = video?.asset?.url;
 
   return (
-    <div className="w-full mt-16">
+    <div className="w-full my-8 md:my-12 xl:my-16">
       <div
         className="relative w-full"
         style={{ height: imageModule.imageHeight }}
@@ -38,7 +38,7 @@ function ImageModuleComponent({ imageModule }: { imageModule: ImageModule }) {
       {imageModule.content && (
         <PortableTextRenderer
           value={imageModule.content}
-          className="mt-8 max-w-4xl ml-2"
+          className="mt-8 max-w-4xl px-2"
         />
       )}
     </div>

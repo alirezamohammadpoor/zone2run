@@ -56,7 +56,7 @@ function ProductInfo({ product }: ProductInfoProps) {
         </div>
 
         {cleanDescription && (
-          <p className="mt-4 text-xs text-black whitespace-pre-line xl:w-[90%]">
+          <p className="mt-4 text-xs text-black whitespace-pre-line xl:w-[100%]">
             {cleanDescription}
           </p>
         )}
