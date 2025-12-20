@@ -37,6 +37,14 @@ export const collectionType = defineType({
       options: { field: "store.slug.current" },
     }),
     defineField({
+      name: "description",
+      title: "Collection Description",
+      type: "text",
+      rows: 4,
+      description: "Editorial description for this collection",
+      group: "editorial",
+    }),
+    defineField({
       name: "colorTheme",
       type: "reference",
       to: [{ type: "colorTheme" }],
@@ -114,6 +122,155 @@ export const collectionType = defineType({
       initialValue: true,
     }),
     defineField({
+      name: "menuImage",
+      title: "Menu Image",
+      type: "image",
+      description: "Image displayed in the menu carousel",
+      options: {
+        hotspot: true,
+      },
+      fields: [
+        {
+          name: "alt",
+          type: "string",
+          title: "Alternative Text",
+          description: "Important for accessibility",
+        },
+      ],
+      group: "editorial",
+    }),
+    defineField({
+      name: "gridLayout",
+      title: "Grid Layout",
+      type: "string",
+      description: "Choose the grid layout style for this collection",
+      options: {
+        list: [
+          { title: "4 columns (image 2x2)", value: "4col" },
+          { title: "3 columns (image same as product)", value: "3col" },
+        ],
+        layout: "radio",
+      },
+      initialValue: "4col",
+      group: "editorial",
+    }),
+    defineField({
+      name: "productsPerImage",
+      title: "Products Per Editorial Image",
+      type: "number",
+      description:
+        "Number of products to show before each editorial image. Choose based on collection size.",
+      options: {
+        list: [
+          { title: "2 products", value: 2 },
+          { title: "4 products", value: 4 },
+          { title: "6 products", value: 6 },
+          { title: "8 products", value: 8 },
+        ],
+      },
+      initialValue: 4,
+      group: "editorial",
+    }),
+    defineField({
+      name: "editorialImages",
+      title: "Editorial Images",
+      type: "array",
+      description:
+        "Full-width images to display between products on collection page. Drag to reorder.",
+      of: [
+        defineArrayMember({
+          type: "object",
+          fields: [
+            defineField({
+              name: "image",
+              title: "Image",
+              type: "image",
+              options: {
+                hotspot: true,
+              },
+              fields: [
+                {
+                  name: "alt",
+                  type: "string",
+                  title: "Alternative Text",
+                  description: "Important for SEO and accessibility",
+                },
+              ],
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: "caption",
+              title: "Caption",
+              type: "string",
+              description: "Optional caption text for the image",
+            }),
+          ],
+          preview: {
+            select: {
+              title: "caption",
+              media: "image",
+              position: "position",
+            },
+            prepare({ title, media }) {
+              return {
+                title: title || "Editorial Image",
+                subtitle: "Appears after every 2 products",
+                media,
+              };
+            },
+          },
+        }),
+      ],
+      group: "editorial",
+    }),
+    defineField({
+      name: "curatedProducts",
+      title: "Curated Product Order",
+      type: "array",
+      description:
+        "Manually order products in this collection. Drag to reorder. If empty, products will be shown in default order (newest first).",
+      of: [
+        defineArrayMember({
+          type: "reference",
+          to: [{ type: "product" }],
+          options: {
+            filter: ({ document }: { document?: any }) => {
+              // @ts-ignore - document type is complex in Sanity
+              const collectionId = document?._id;
+              // @ts-ignore
+              const shopifyId = document?.store?.id;
+
+              if (!collectionId) {
+                return { filter: "", params: {} };
+              }
+
+              // Filter to show only products that are already in this collection
+              // Products that reference this collection OR have this collection's Shopify ID
+              const shopifyIdStr = shopifyId ? shopifyId.toString() : "";
+
+              if (shopifyIdStr) {
+                return {
+                  filter: `_type == "product" && ($collectionId in collections[]._ref || (defined(shopifyCollectionIds) && $shopifyIdStr in shopifyCollectionIds))`,
+                  params: {
+                    collectionId,
+                    shopifyIdStr,
+                  },
+                };
+              }
+
+              return {
+                filter: `_type == "product" && $collectionId in collections[]._ref`,
+                params: {
+                  collectionId,
+                },
+              };
+            },
+          },
+        }),
+      ],
+      group: "editorial",
+    }),
+    defineField({
       name: "store",
       title: "Shopify",
       type: "shopifyCollection",
@@ -128,6 +285,11 @@ export const collectionType = defineType({
     }),
   ],
   orderings: [
+    {
+      name: "sortOrder",
+      title: "Manual Order",
+      by: [{ field: "sortOrder", direction: "asc" }],
+    },
     {
       name: "titleAsc",
       title: "Title (A-Z)",

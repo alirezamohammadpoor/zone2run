@@ -1,5 +1,6 @@
 import {
   getProductCollections,
+  getCollectionProducts,
   extractGenderFromProduct,
   extractCategoryFromProduct,
   getOrCreateCategory,
@@ -25,6 +26,81 @@ function idFromGid(gid: string): number {
   const parts = gid.split("/");
   const id = Number(parts[parts.length - 1]);
   return isNaN(id) ? 0 : id;
+}
+
+// Helper function to normalize strings for brand matching
+// Removes special characters, apostrophes, hyphens, etc.
+function normalizeForMatching(str: string): string {
+  return str
+    .toLowerCase()
+    .trim()
+    .replace(/[''`´]/g, "") // Remove apostrophes and similar
+    .replace(/[-–—]/g, "") // Remove hyphens and dashes
+    .replace(/[^\w\s]/g, "") // Remove other special characters
+    .replace(/\s+/g, " "); // Normalize whitespace
+}
+
+// Helper function to find brand by vendor name (case-insensitive, handles variations)
+async function findBrandByVendor(
+  client: any,
+  vendor: string
+): Promise<any | null> {
+  if (!vendor) return null;
+
+  // Normalize vendor name for comparison (lowercase, trim)
+  const normalizedVendor = vendor.toLowerCase().trim();
+  const strippedVendor = normalizeForMatching(vendor);
+
+  // Try exact match first
+  let brand = await client.fetch(
+    `*[_type == "brand" && name == $vendorName][0]`,
+    { vendorName: vendor }
+  );
+
+  if (brand) return brand;
+
+  // Try case-insensitive exact match
+  brand = await client.fetch(
+    `*[_type == "brand" && lower(name) == $normalizedVendor][0]`,
+    { normalizedVendor }
+  );
+
+  if (brand) return brand;
+
+  // Try matching with special characters removed
+  // This handles "Arc'teryx" vs "Arcteryx", "Maison Kitsuné" vs "Maison Kitsune", etc.
+  const allBrands = await client.fetch(`*[_type == "brand"] { _id, name }`);
+
+  for (const b of allBrands) {
+    const normalizedBrandName = (b.name || "").toLowerCase().trim();
+    const strippedBrandName = normalizeForMatching(b.name || "");
+
+    // Check exact match after stripping special characters
+    if (strippedBrandName === strippedVendor) {
+      console.log(`🔗 Brand match found: "${b.name}" matches vendor "${vendor}" (after normalization)`);
+      return b;
+    }
+
+    // Check partial match (original logic)
+    if (
+      normalizedBrandName === normalizedVendor ||
+      normalizedBrandName.includes(normalizedVendor) ||
+      normalizedVendor.includes(normalizedBrandName)
+    ) {
+      return b;
+    }
+
+    // Check partial match with stripped strings
+    if (
+      strippedBrandName.includes(strippedVendor) ||
+      strippedVendor.includes(strippedBrandName)
+    ) {
+      console.log(`🔗 Brand partial match: "${b.name}" matches vendor "${vendor}" (after normalization)`);
+      return b;
+    }
+  }
+
+  return null;
 }
 
 // ============================================
@@ -343,10 +419,7 @@ export async function POST(request: Request) {
           // Handle brand creation BEFORE transaction (required field)
           if (vendor) {
             try {
-              let brand = await webhookSanityClient.fetch(
-                `*[_type == "brand" && name == $vendorName][0]`,
-                { vendorName: vendor }
-              );
+              let brand = await findBrandByVendor(webhookSanityClient, vendor);
 
               if (!brand) {
                 // Create new brand
@@ -479,26 +552,68 @@ export async function POST(request: Request) {
             if (vendor) {
               // Find or create brand from vendor
               try {
-                let brand = await webhookSanityClient.fetch(
-                  `*[_type == "brand" && name == $vendorName][0]`,
-                  { vendorName: vendor }
-                );
+                // Check if product already has a brand assigned
+                const currentBrandRef = sanityProduct?.brand?._ref;
+                let currentBrandName = null;
 
-                if (!brand) {
-                  // Create new brand
-                  brand = await webhookSanityClient.create({
-                    _type: "brand",
-                    name: vendor,
-                    slug: {
-                      current: vendor.toLowerCase().replace(/\s+/g, "-"),
-                    },
-                  });
-                  console.log("📝 Created new brand:", brand._id);
-                } else {
-                  console.log("📝 Found existing brand:", brand._id);
+                if (currentBrandRef) {
+                  // Fetch current brand to check its name
+                  const currentBrand = await webhookSanityClient.fetch(
+                    `*[_id == $brandId][0] { _id, name }`,
+                    { brandId: currentBrandRef }
+                  );
+                  currentBrandName = currentBrand?.name;
                 }
 
-                updateData.brand = { _ref: brand._id };
+                // Normalize vendor and current brand name for comparison
+                const normalizedVendor = vendor.toLowerCase().trim();
+                const normalizedCurrentBrand = currentBrandName
+                  ?.toLowerCase()
+                  .trim();
+
+                // Check if current brand name matches vendor (case-insensitive) or is a variation
+                // This preserves manual brand name changes (e.g., "SOAR" vs "Soar running")
+                const brandMatchesVendor =
+                  currentBrandName &&
+                  (normalizedCurrentBrand === normalizedVendor ||
+                    normalizedCurrentBrand.includes(normalizedVendor) ||
+                    normalizedVendor.includes(normalizedCurrentBrand));
+
+                if (brandMatchesVendor) {
+                  console.log(
+                    `ℹ️ Brand name matches vendor (${currentBrandName} ~= ${vendor}), preserving manual change`
+                  );
+                } else {
+                  // Find or create brand
+                  let brand = await findBrandByVendor(
+                    webhookSanityClient,
+                    vendor
+                  );
+
+                  if (!brand) {
+                    // Create new brand
+                    brand = await webhookSanityClient.create({
+                      _type: "brand",
+                      name: vendor,
+                      slug: {
+                        current: vendor.toLowerCase().replace(/\s+/g, "-"),
+                      },
+                    });
+                    console.log("📝 Created new brand:", brand._id);
+                  } else {
+                    console.log("📝 Found existing brand:", brand._id);
+                  }
+
+                  // Only update if brand changed
+                  if (currentBrandRef !== brand._id) {
+                    updateData.brand = { _ref: brand._id };
+                    console.log(
+                      `🔄 Updating brand from ${currentBrandRef} to ${brand._id}`
+                    );
+                  } else {
+                    console.log("ℹ️ Brand unchanged, skipping update");
+                  }
+                }
               } catch (error) {
                 console.error("❌ Error handling brand:", error);
               }
@@ -712,6 +827,181 @@ export async function POST(request: Request) {
             "✅ New collection created successfully:",
             collectionDocument._id
           );
+
+          // Sync products from Shopify - get all products that belong to this collection
+          console.log("🔍 Syncing products from Shopify collection...");
+
+          // Get products from Shopify for this collection
+          const shopifyProducts = await getCollectionProducts(collectionId);
+          console.log(
+            `📦 Found ${shopifyProducts.length} products in Shopify collection`
+          );
+
+          // Get Shopify product IDs that should be in this collection
+          const shopifyProductIds = new Set(
+            shopifyProducts.map((p) => p.id.toString())
+          );
+
+          if (shopifyProducts.length > 0) {
+            // Find all products in Sanity that currently have this collection ID
+            // (both those that should have it and those that shouldn't)
+            const allProductsWithCollection = await webhookSanityClient.fetch(
+              `*[_type == "product" && (store.id in $shopifyIds || (defined(shopifyCollectionIds) && $collectionIdStr in shopifyCollectionIds))] {
+                _id,
+                "shopifyId": store.id,
+                collections[] { _ref },
+                shopifyCollectionIds
+              }`,
+              {
+                shopifyIds: shopifyProducts.map((p) => p.id),
+                collectionIdStr: collectionId.toString(),
+              }
+            );
+
+            console.log(
+              `🎯 Found ${
+                allProductsWithCollection.length
+              } products to check (${
+                shopifyProducts.length
+              } should have collection, ${
+                allProductsWithCollection.length - shopifyProducts.length
+              } may need removal)`
+            );
+
+            // Batch update products using transaction
+            const transaction = webhookSanityClient.transaction();
+            let addedCount = 0;
+            let removedCount = 0;
+
+            for (const product of allProductsWithCollection) {
+              const currentCollectionRefs =
+                product.collections?.map((c: any) => c._ref) || [];
+              const currentShopifyIds = product.shopifyCollectionIds || [];
+              const productShopifyId = product.shopifyId?.toString();
+
+              // Check if product should be in this collection
+              const shouldHaveCollection =
+                productShopifyId && shopifyProductIds.has(productShopifyId);
+              const hasCollectionRef = currentCollectionRefs.includes(
+                collectionDocument._id
+              );
+              const hasShopifyId = currentShopifyIds.includes(
+                collectionId.toString()
+              );
+
+              if (shouldHaveCollection) {
+                // Product should be in collection - add if missing
+                if (!hasCollectionRef || !hasShopifyId) {
+                  const newCollections = hasCollectionRef
+                    ? currentCollectionRefs.map((ref: string, idx: number) => ({
+                        _ref: ref,
+                        _key: `collection-${ref}-${idx}`,
+                      }))
+                    : [...currentCollectionRefs, collectionDocument._id].map(
+                        (ref: string, idx: number) => ({
+                          _ref: ref,
+                          _key: `collection-${ref}-${idx}`,
+                        })
+                      );
+
+                  const newShopifyIds = hasShopifyId
+                    ? currentShopifyIds
+                    : [...currentShopifyIds, collectionId.toString()];
+
+                  transaction.patch(product._id, (patch) =>
+                    patch.set({
+                      collections: newCollections,
+                      shopifyCollectionIds: newShopifyIds,
+                    })
+                  );
+
+                  addedCount++;
+                }
+              } else {
+                // Product should NOT be in collection - remove if present
+                if (hasCollectionRef || hasShopifyId) {
+                  const newCollections = currentCollectionRefs
+                    .filter((ref: string) => ref !== collectionDocument._id)
+                    .map((ref: string, idx: number) => ({
+                      _ref: ref,
+                      _key: `collection-${ref}-${idx}`,
+                    }));
+
+                  const newShopifyIds = currentShopifyIds.filter(
+                    (id: string) => id !== collectionId.toString()
+                  );
+
+                  transaction.patch(product._id, (patch) =>
+                    patch.set({
+                      collections: newCollections,
+                      shopifyCollectionIds: newShopifyIds,
+                    })
+                  );
+
+                  removedCount++;
+                }
+              }
+            }
+
+            if (addedCount > 0 || removedCount > 0) {
+              await transaction.commit();
+              console.log(
+                `✅ Updated products: ${addedCount} added, ${removedCount} removed from collection`
+              );
+            } else {
+              console.log(
+                "ℹ️ All products already have correct collection references"
+              );
+            }
+          } else {
+            // No products in Shopify collection - remove from all products that have it
+            const productsWithCollection = await webhookSanityClient.fetch(
+              `*[_type == "product" && (references($collectionId) || (defined(shopifyCollectionIds) && $collectionIdStr in shopifyCollectionIds))] {
+                _id,
+                collections[] { _ref },
+                shopifyCollectionIds
+              }`,
+              {
+                collectionId: collectionDocument._id,
+                collectionIdStr: collectionId.toString(),
+              }
+            );
+
+            if (productsWithCollection.length > 0) {
+              const transaction = webhookSanityClient.transaction();
+
+              for (const product of productsWithCollection) {
+                const currentCollectionRefs =
+                  product.collections?.map((c: any) => c._ref) || [];
+                const currentShopifyIds = product.shopifyCollectionIds || [];
+
+                const newCollections = currentCollectionRefs
+                  .filter((ref: string) => ref !== collectionDocument._id)
+                  .map((ref: string, idx: number) => ({
+                    _ref: ref,
+                    _key: `collection-${ref}-${idx}`,
+                  }));
+
+                const newShopifyIds = currentShopifyIds.filter(
+                  (id: string) => id !== collectionId.toString()
+                );
+
+                transaction.patch(product._id, (patch) =>
+                  patch.set({
+                    collections: newCollections,
+                    shopifyCollectionIds: newShopifyIds,
+                  })
+                );
+              }
+
+              await transaction.commit();
+              console.log(
+                `✅ Removed collection from ${productsWithCollection.length} products (collection is empty)`
+              );
+            } else {
+              console.log("ℹ️ No products found in Shopify collection");
+            }
+          }
         } else if (topic === "collections/update") {
           console.log("🔄 UPDATING EXISTING COLLECTION...");
 
@@ -752,6 +1042,28 @@ export async function POST(request: Request) {
               updatedAt: payload.updated_at,
             };
 
+            // Check if rules actually changed before syncing products
+            const existingRules = sanityCollection.store?.rules || [];
+            const rulesChanged =
+              JSON.stringify(
+                existingRules
+                  .map((r: any) => ({
+                    column: r.column,
+                    relation: r.relation,
+                    condition: r.condition,
+                  }))
+                  .sort()
+              ) !==
+              JSON.stringify(
+                (rules || [])
+                  .map((r: any) => ({
+                    column: r.column?.toUpperCase(),
+                    relation: r.relation?.toUpperCase(),
+                    condition: r.condition,
+                  }))
+                  .sort()
+              );
+
             if (Object.keys(updateData).length > 0) {
               await webhookSanityClient
                 .patch(sanityCollection._id)
@@ -765,11 +1077,351 @@ export async function POST(request: Request) {
             } else {
               console.log("ℹ️ No updates needed for Sanity collection");
             }
+
+            // Check if any products currently reference this collection
+            const productsInCollection = await webhookSanityClient.fetch(
+              `count(*[_type == "product" && (references($collectionId) || (defined(shopifyCollectionIds) && $collectionIdStr in shopifyCollectionIds))])`,
+              {
+                collectionId: sanityCollection._id,
+                collectionIdStr: collectionId.toString(),
+              }
+            );
+            const hasNoProducts = productsInCollection === 0;
+
+            // Sync products from Shopify - get all products that belong to this collection
+            // This works for both manual and smart collections
+            // Also sync if no products are currently in the collection (first-time sync)
+            if (
+              rulesChanged ||
+              !sanityCollection.store?.rules ||
+              sanityCollection.store.rules.length === 0 ||
+              hasNoProducts
+            ) {
+              if (hasNoProducts) {
+                console.log("🆕 Collection has no products - performing initial sync...");
+              }
+              console.log("🔍 Syncing products from Shopify collection...");
+
+              // Get products from Shopify for this collection
+              const shopifyProducts = await getCollectionProducts(collectionId);
+              console.log(
+                `📦 Found ${shopifyProducts.length} products in Shopify collection`
+              );
+
+              // Get Shopify product IDs that should be in this collection
+              const shopifyProductIds = new Set(
+                shopifyProducts.map((p) => p.id.toString())
+              );
+
+              if (shopifyProducts.length > 0) {
+                // Find all products in Sanity that currently have this collection ID
+                // (both those that should have it and those that shouldn't)
+                const allProductsWithCollection =
+                  await webhookSanityClient.fetch(
+                    `*[_type == "product" && (store.id in $shopifyIds || (defined(shopifyCollectionIds) && $collectionIdStr in shopifyCollectionIds))] {
+                    _id,
+                    "shopifyId": store.id,
+                    collections[] { _ref },
+                    shopifyCollectionIds
+                  }`,
+                    {
+                      shopifyIds: shopifyProducts.map((p) => p.id),
+                      collectionIdStr: collectionId.toString(),
+                    }
+                  );
+
+                console.log(
+                  `🎯 Found ${
+                    allProductsWithCollection.length
+                  } products to check (${
+                    shopifyProducts.length
+                  } should have collection, ${
+                    allProductsWithCollection.length - shopifyProducts.length
+                  } may need removal)`
+                );
+
+                // Batch update products using transaction
+                const transaction = webhookSanityClient.transaction();
+                let addedCount = 0;
+                let removedCount = 0;
+
+                for (const product of allProductsWithCollection) {
+                  const currentCollectionRefs =
+                    product.collections?.map((c: any) => c._ref) || [];
+                  const currentShopifyIds = product.shopifyCollectionIds || [];
+                  const productShopifyId = product.shopifyId?.toString();
+
+                  // Check if product should be in this collection
+                  const shouldHaveCollection =
+                    productShopifyId && shopifyProductIds.has(productShopifyId);
+                  const hasCollectionRef = currentCollectionRefs.includes(
+                    sanityCollection._id
+                  );
+                  const hasShopifyId = currentShopifyIds.includes(
+                    collectionId.toString()
+                  );
+
+                  if (shouldHaveCollection) {
+                    // Product should be in collection - add if missing
+                    if (!hasCollectionRef || !hasShopifyId) {
+                      const newCollections = hasCollectionRef
+                        ? currentCollectionRefs.map(
+                            (ref: string, idx: number) => ({
+                              _ref: ref,
+                              _key: `collection-${ref}-${idx}`,
+                            })
+                          )
+                        : [...currentCollectionRefs, sanityCollection._id].map(
+                            (ref: string, idx: number) => ({
+                              _ref: ref,
+                              _key: `collection-${ref}-${idx}`,
+                            })
+                          );
+
+                      const newShopifyIds = hasShopifyId
+                        ? currentShopifyIds
+                        : [...currentShopifyIds, collectionId.toString()];
+
+                      transaction.patch(product._id, (patch) =>
+                        patch.set({
+                          collections: newCollections,
+                          shopifyCollectionIds: newShopifyIds,
+                        })
+                      );
+
+                      addedCount++;
+                    }
+                  } else {
+                    // Product should NOT be in collection - remove if present
+                    if (hasCollectionRef || hasShopifyId) {
+                      const newCollections = currentCollectionRefs
+                        .filter((ref: string) => ref !== sanityCollection._id)
+                        .map((ref: string, idx: number) => ({
+                          _ref: ref,
+                          _key: `collection-${ref}-${idx}`,
+                        }));
+
+                      const newShopifyIds = currentShopifyIds.filter(
+                        (id: string) => id !== collectionId.toString()
+                      );
+
+                      transaction.patch(product._id, (patch) =>
+                        patch.set({
+                          collections: newCollections,
+                          shopifyCollectionIds: newShopifyIds,
+                        })
+                      );
+
+                      removedCount++;
+                    }
+                  }
+                }
+
+                if (addedCount > 0 || removedCount > 0) {
+                  await transaction.commit();
+                  console.log(
+                    `✅ Updated products: ${addedCount} added, ${removedCount} removed from collection`
+                  );
+                } else {
+                  console.log(
+                    "ℹ️ All products already have correct collection references"
+                  );
+                }
+              } else {
+                // No products in Shopify collection - remove from all products that have it
+                const productsWithCollection = await webhookSanityClient.fetch(
+                  `*[_type == "product" && (references($collectionId) || (defined(shopifyCollectionIds) && $collectionIdStr in shopifyCollectionIds))] {
+                    _id,
+                    collections[] { _ref },
+                    shopifyCollectionIds
+                  }`,
+                  {
+                    collectionId: sanityCollection._id,
+                    collectionIdStr: collectionId.toString(),
+                  }
+                );
+
+                if (productsWithCollection.length > 0) {
+                  const transaction = webhookSanityClient.transaction();
+
+                  for (const product of productsWithCollection) {
+                    const currentCollectionRefs =
+                      product.collections?.map((c: any) => c._ref) || [];
+                    const currentShopifyIds =
+                      product.shopifyCollectionIds || [];
+
+                    const newCollections = currentCollectionRefs
+                      .filter((ref: string) => ref !== sanityCollection._id)
+                      .map((ref: string, idx: number) => ({
+                        _ref: ref,
+                        _key: `collection-${ref}-${idx}`,
+                      }));
+
+                    const newShopifyIds = currentShopifyIds.filter(
+                      (id: string) => id !== collectionId.toString()
+                    );
+
+                    transaction.patch(product._id, (patch) =>
+                      patch.set({
+                        collections: newCollections,
+                        shopifyCollectionIds: newShopifyIds,
+                      })
+                    );
+                  }
+
+                  await transaction.commit();
+                  console.log(
+                    `✅ Removed collection from ${productsWithCollection.length} products (collection is empty)`
+                  );
+                } else {
+                  console.log("ℹ️ No products found in Shopify collection");
+                }
+              }
+            } else {
+              console.log(
+                "ℹ️ Collection rules unchanged - skipping product sync"
+              );
+            }
           } else {
+            // Collection doesn't exist in Sanity - create it
             console.log(
-              "⚠️ Sanity collection not found for Shopify ID:",
+              "🆕 Collection not found in Sanity - creating new collection for Shopify ID:",
               collectionId
             );
+
+            // Create new collection document
+            const collectionDocument = {
+              _id: buildCollectionDocumentId(parseInt(collectionId)),
+              _type: "collection",
+              store: {
+                id: parseInt(collectionId),
+                gid: `gid://shopify/Collection/${collectionId}`,
+                title: title,
+                handle: handle,
+                descriptionHtml: descriptionHtml,
+                imageUrl: imageUrl,
+                rules:
+                  rules?.map((rule: any, index: number) => ({
+                    _key: `rule-${index}-${Date.now()}`,
+                    _type: "object",
+                    column: rule.column?.toUpperCase() as Uppercase<string>,
+                    condition: rule.condition,
+                    relation: rule.relation?.toUpperCase() as Uppercase<string>,
+                  })) || [],
+                disjunctive: disjunctive,
+                sortOrder:
+                  sortOrder?.toUpperCase().replace("-", "_") || "UNKNOWN",
+                slug: {
+                  _type: "slug",
+                  current: handle,
+                },
+                createdAt: payload.updated_at,
+                updatedAt: payload.updated_at,
+                isDeleted: false,
+              },
+              featured: false,
+              sortOrder: 0,
+              isActive: true,
+            };
+
+            // Create the collection
+            const createTransaction = webhookSanityClient.transaction();
+            createTransaction.createIfNotExists(collectionDocument);
+            await createTransaction.commit();
+
+            console.log(
+              "✅ New collection created successfully:",
+              collectionDocument._id
+            );
+
+            // Sync products from Shopify
+            console.log("🔍 Syncing products from Shopify collection...");
+            const shopifyProducts = await getCollectionProducts(collectionId);
+            console.log(
+              `📦 Found ${shopifyProducts.length} products in Shopify collection`
+            );
+
+            if (shopifyProducts.length > 0) {
+              const shopifyProductIds = new Set(
+                shopifyProducts.map((p) => p.id.toString())
+              );
+
+              const allProductsWithCollection =
+                await webhookSanityClient.fetch(
+                  `*[_type == "product" && store.id in $shopifyIds] {
+                    _id,
+                    "shopifyId": store.id,
+                    collections[] { _ref },
+                    shopifyCollectionIds
+                  }`,
+                  {
+                    shopifyIds: shopifyProducts.map((p) => p.id),
+                  }
+                );
+
+              console.log(
+                `🎯 Found ${allProductsWithCollection.length} products to update`
+              );
+
+              const syncTransaction = webhookSanityClient.transaction();
+              let addedCount = 0;
+
+              for (const product of allProductsWithCollection) {
+                const currentCollectionRefs =
+                  product.collections?.map((c: any) => c._ref) || [];
+                const currentShopifyIds = product.shopifyCollectionIds || [];
+                const productShopifyId = product.shopifyId?.toString();
+
+                const shouldHaveCollection =
+                  productShopifyId && shopifyProductIds.has(productShopifyId);
+                const hasCollectionRef = currentCollectionRefs.includes(
+                  collectionDocument._id
+                );
+                const hasShopifyId = currentShopifyIds.includes(
+                  collectionId.toString()
+                );
+
+                if (shouldHaveCollection && (!hasCollectionRef || !hasShopifyId)) {
+                  const newCollections = hasCollectionRef
+                    ? currentCollectionRefs.map((ref: string, idx: number) => ({
+                        _ref: ref,
+                        _key: `collection-${ref}-${idx}`,
+                      }))
+                    : [...currentCollectionRefs, collectionDocument._id].map(
+                        (ref: string, idx: number) => ({
+                          _ref: ref,
+                          _key: `collection-${ref}-${idx}`,
+                        })
+                      );
+
+                  const newShopifyIds = hasShopifyId
+                    ? currentShopifyIds
+                    : [...currentShopifyIds, collectionId.toString()];
+
+                  syncTransaction.patch(product._id, (patch) =>
+                    patch.set({
+                      collections: newCollections,
+                      shopifyCollectionIds: newShopifyIds,
+                    })
+                  );
+
+                  addedCount++;
+                }
+              }
+
+              if (addedCount > 0) {
+                await syncTransaction.commit();
+                console.log(
+                  `✅ Added ${addedCount} products to new collection`
+                );
+              } else {
+                console.log(
+                  "ℹ️ All products already have correct collection references"
+                );
+              }
+            } else {
+              console.log("ℹ️ No products found in Shopify collection");
+            }
           }
         } else if (topic === "collections/delete") {
           console.log("🗑️ DELETING COLLECTION...");
@@ -782,6 +1434,61 @@ export async function POST(request: Request) {
 
           if (sanityCollection) {
             console.log("📝 Found Sanity collection:", sanityCollection._id);
+
+            // Find all products that reference this collection
+            const productsWithCollection = await webhookSanityClient.fetch(
+              `*[_type == "product" && references($collectionId)] {
+                _id,
+                collections[] { _ref },
+                shopifyCollectionIds
+              }`,
+              { collectionId: sanityCollection._id }
+            );
+
+            console.log(
+              `🔗 Found ${productsWithCollection.length} products referencing this collection`
+            );
+
+            // Remove collection reference from all products
+            if (productsWithCollection.length > 0) {
+              const transaction = webhookSanityClient.transaction();
+              let updatedCount = 0;
+
+              for (const product of productsWithCollection) {
+                const currentCollectionRefs =
+                  product.collections?.map((c: any) => c._ref) || [];
+                const currentShopifyIds = product.shopifyCollectionIds || [];
+
+                // Remove this collection from references
+                const newCollections = currentCollectionRefs
+                  .filter((ref: string) => ref !== sanityCollection._id)
+                  .map((ref: string, idx: number) => ({
+                    _ref: ref,
+                    _key: `collection-${ref}-${idx}`,
+                  }));
+
+                // Remove from shopifyCollectionIds
+                const newShopifyIds = currentShopifyIds.filter(
+                  (id: string) => id !== collectionId.toString()
+                );
+
+                transaction.patch(product._id, (patch) =>
+                  patch.set({
+                    collections: newCollections,
+                    shopifyCollectionIds: newShopifyIds,
+                  })
+                );
+
+                updatedCount++;
+              }
+
+              if (updatedCount > 0) {
+                await transaction.commit();
+                console.log(
+                  `✅ Removed collection reference from ${updatedCount} products`
+                );
+              }
+            }
 
             // Soft delete the collection
             await webhookSanityClient

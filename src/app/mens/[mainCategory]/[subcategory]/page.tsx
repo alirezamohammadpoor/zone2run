@@ -26,9 +26,6 @@ export default async function MensSubcategoryPage({
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-8">
-        Men's {categoryTitle} - {subcategoryTitle}
-      </h1>
       <ProductGrid products={products} />
     </div>
   );

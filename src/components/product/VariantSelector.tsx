@@ -39,17 +39,27 @@ function VariantSelector({ product }: VariantSelectorProps) {
       .filter((size, index, arr) => size && arr.indexOf(size) === index) || [];
 
   return (
-    <div className="max-w-md mx-auto p-4 mt-4">
-      <h3 className="mb-2 text-sm font-medium">Select Size</h3>
-      <div className="grid grid-cols-5 gap-2">
+    <div className="mt-6">
+      <div
+        className={`grid gap-2 ${
+          allSizes.length === 1 && allSizes[0]?.toLowerCase() === "one size"
+            ? "grid-cols-1"
+            : "grid-cols-5"
+        }`}
+      >
         {allSizes.map((size) => {
           const isAvailable = availableSizes.includes(size);
           const isSelected = selectedVariant?.size === size;
+          const isOneSize =
+            size?.toLowerCase() === "one size" ||
+            size?.toLowerCase() === "onesize";
 
           return (
             <button
               key={size}
-              className={`py-1 px-4 border  text-center transition-colors ${
+              className={`py-1 px-4 border text-center text-xs transition-colors ${
+                isOneSize ? "w-full" : ""
+              } ${
                 !isAvailable
                   ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
                   : isSelected
@@ -87,9 +97,6 @@ function VariantSelector({ product }: VariantSelectorProps) {
           );
         })}
       </div>
-      <p className="mt-2 text-xs text-gray-500">
-        Find your size with our size guide.
-      </p>
     </div>
   );
 }

@@ -108,29 +108,82 @@ const ShopifyDelete = (
       ),
       onCancel: onComplete,
       onConfirm: async () => {
-        // Delete current document (including draft)
-        const transaction = client.transaction();
-        if (published?._id) {
-          transaction.delete(published._id);
-        }
-        if (draft?._id) {
-          transaction.delete(draft._id);
-        }
+        const collectionId = published?._id || draft?._id;
+        
+        if (collectionId) {
+          try {
+            // Find all products that reference this collection
+            const productsWithCollection = await client.fetch(
+              `*[_type == "product" && references($collectionId)] {
+                _id,
+                collections[] { _ref },
+                shopifyCollectionIds
+              }`,
+              { collectionId }
+            );
 
-        try {
-          await transaction.commit();
-          // Navigate back to collections root
-          router.navigateUrl({ path: "/structure/collections" });
-        } catch (err) {
-          let message = "Unknown Error";
-          if (err instanceof Error) message = err.message;
+            // Remove collection reference from all products
+            if (productsWithCollection.length > 0) {
+              const productTransaction = client.transaction();
+              
+              for (const product of productsWithCollection) {
+                const currentCollectionRefs =
+                  product.collections?.map((c: any) => c._ref) || [];
+                const currentShopifyIds = product.shopifyCollectionIds || [];
+                const shopifyCollectionId = published?.store?.id?.toString() || 
+                                          draft?.store?.id?.toString();
 
-          toast.push({
-            status: "error",
-            title: message,
-          });
-        } finally {
-          // Signal that the action is complete
+                // Remove this collection from references
+                const newCollections = currentCollectionRefs
+                  .filter((ref: string) => ref !== collectionId)
+                  .map((ref: string, idx: number) => ({
+                    _ref: ref,
+                    _key: `collection-${ref}-${idx}`,
+                  }));
+
+                // Remove from shopifyCollectionIds if we have the Shopify ID
+                const newShopifyIds = shopifyCollectionId
+                  ? currentShopifyIds.filter(
+                      (id: string) => id !== shopifyCollectionId
+                    )
+                  : currentShopifyIds;
+
+                productTransaction.patch(product._id, (patch) =>
+                  patch.set({
+                    collections: newCollections,
+                    shopifyCollectionIds: newShopifyIds,
+                  })
+                );
+              }
+
+              await productTransaction.commit();
+            }
+
+            // Delete current document (including draft)
+            const transaction = client.transaction();
+            if (published?._id) {
+              transaction.delete(published._id);
+            }
+            if (draft?._id) {
+              transaction.delete(draft._id);
+            }
+
+            await transaction.commit();
+            // Navigate back to collections root
+            router.navigateUrl({ path: "/structure/collections" });
+          } catch (err) {
+            let message = "Unknown Error";
+            if (err instanceof Error) message = err.message;
+
+            toast.push({
+              status: "error",
+              title: message,
+            });
+          } finally {
+            // Signal that the action is complete
+            onComplete();
+          }
+        } else {
           onComplete();
         }
       },

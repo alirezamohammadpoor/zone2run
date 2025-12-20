@@ -11,7 +11,6 @@ export default async function MensPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-8">Men's Products</h1>
       <ProductGrid products={products} />
     </div>
   );

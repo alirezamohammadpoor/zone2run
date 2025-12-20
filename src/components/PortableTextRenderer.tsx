@@ -1,4 +1,5 @@
 import { PortableText } from "@portabletext/react";
+import Image from "next/image";
 
 interface PortableTextRendererProps {
   value: any;
@@ -18,24 +19,24 @@ export default function PortableTextRenderer({
         components={{
           block: {
             normal: ({ children }) => (
-              <p className="mb-4 leading-relaxed">{children}</p>
+              <p className="mb-4 md:mb-6 leading-relaxed text-xs">{children}</p>
             ),
             h1: ({ children }) => (
-              <h1 className="text-4xl font-bold mb-8 mt-4 first:mt-0">
+              <h1 className="text-sm mb-8 md:mb-10 mt-4 md:mt-6 first:mt-0">
                 {children}
               </h1>
             ),
             h2: ({ children }) => (
-              <h2 className="text-3xl font-bold mb-6 mt-4">{children}</h2>
+              <h2 className="text-sm mb-6 md:mb-8 mt-4 md:mt-6">{children}</h2>
             ),
             h3: ({ children }) => (
-              <h3 className="text-2xl font-bold mb-4 mt-4">{children}</h3>
+              <h3 className="text-sm mb-4 mt-4">{children}</h3>
             ),
             h4: ({ children }) => (
-              <h4 className="text-xl font-bold mb-4 mt-4">{children}</h4>
+              <h4 className="text-sm mb-4 mt-4">{children}</h4>
             ),
             blockquote: ({ children }) => (
-              <blockquote className="border-l-4 border-gray-300 pl-4 italic my-6">
+              <blockquote className="border-l-4 border-gray-300 pl-4 italic my-6 md:my-8 text-xs">
                 {children}
               </blockquote>
             ),
@@ -66,14 +67,16 @@ export default function PortableTextRenderer({
               value?.asset?.url && (
                 <div className="mb-4">
                   <div className="relative w-full h-[50vh] overflow-hidden">
-                    <img
+                    <Image
                       src={value.asset.url}
                       alt={value.alt || ""}
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
                     />
                   </div>
                   {value.alt && (
-                    <p className="text-md text-gray-600 mt-2 italic">
+                    <p className="text-xs text-gray-600 mt-2 italic">
                       {value.alt}
                     </p>
                   )}

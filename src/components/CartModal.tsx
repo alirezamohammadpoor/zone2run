@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useCartStore } from "@/lib/cart/store";
 import { formatPrice } from "@/lib/utils/formatPrice";
 import { createCart, addToCart } from "@/lib/shopify/cart";
+import CartSkeleton from "@/components/skeletons/CartSkeleton";
 
 function CartModal({
   isCartOpen,
@@ -61,29 +62,35 @@ function CartModal({
 
   return (
     <>
+      {/* Backdrop */}
+      <div
+        className={`fixed inset-0 bg-black/30 backdrop-blur-sm z-40 transition-opacity duration-300 ${
+          isCartOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={handleClose}
+      />
       {/* Modal */}
       <div
         className={
-          "fixed top-0 right-0 h-screen w-full bg-white z-50 transform transition-transform duration-300 flex flex-col" +
+          "fixed top-0 right-0 h-screen w-full bg-white z-50 transform transition-transform duration-300 flex flex-col xl:w-[25vw]" +
           (isCartOpen ? " translate-x-0" : " translate-x-full")
         }
       >
         {/* Fixed Header */}
-        <div className="flex-shrink-0 bg-white z-10 h-16">
-          <div className="text-sm flex justify-between items-center h-8 relative mt-4 px-4">
+        <div className="flex-shrink-0 bg-white z-10 h-12 xl:h-16 border-b border-gray-300">
+          <div className="text-xs flex justify-between items-center h-full px-2">
             <span>Cart</span>
             <button
-              className="mr-2 text-sm hover:text-gray-500"
+              className="text-xs hover:text-gray-500"
               onClick={handleClose}
             >
               Close
             </button>
           </div>
-          <div className="border-b border-gray-300 w-full mt-2 "></div>
         </div>
 
         {/* Scrollable Content Area */}
-        <div className="flex-1 min-h-0 overflow-y-auto px-4">
+        <div className="flex-1 min-h-0 overflow-y-auto px-2">
           {hasMounted ? (
             items.length > 0 ? (
               <div className="py-4">
@@ -104,38 +111,48 @@ function CartModal({
                       }}
                     />
                     <div className="ml-4 flex flex-1 flex-col overflow-hidden">
+                      {item.brand && (
+                        <span
+                          className="text-xs font-medium w-full block cursor-pointer"
+                          onClick={() => {
+                            router.push(`/products/${item.productHandle}`);
+                            handleClose();
+                          }}
+                        >
+                          {item.brand}
+                        </span>
+                      )}
                       <span
-                        className="text-sm font-bold w-full block cursor-pointer"
+                        className="text-xs w-full block cursor-pointer"
                         onClick={() => {
                           router.push(`/products/${item.productHandle}`);
                           handleClose();
                         }}
                       >
-                        {item.brand && `${item.brand} - `}
                         {item.title}
                       </span>
-                      <span className="text-sm block mt-1">
+                      <span className="text-xs block mt-1">
                         Size: {item.size}
                       </span>
-                      <span className="text-sm block mt-1">
+                      <span className="text-xs block mt-1">
                         Color: {item.color}
                       </span>
-                      <span className="text-sm block mt-1">
+                      <span className="text-xs block mt-1">
                         {formatPrice(item.price?.amount)}{" "}
                         {item.price?.currencyCode}
                       </span>
                       <div className="mt-4 w-full flex items-center">
                         <button
-                          className="text-sm mr-4 cursor-pointer hover:text-gray-600"
+                          className="text-xs mr-4 cursor-pointer hover:text-gray-600"
                           onClick={() =>
                             handleDecreaseQuantity(item.id, item.quantity)
                           }
                         >
                           -
                         </button>
-                        <span className="text-sm">{item.quantity}</span>
+                        <span className="text-xs">{item.quantity}</span>
                         <button
-                          className="text-sm ml-4 cursor-pointer hover:text-gray-600"
+                          className="text-xs ml-4 cursor-pointer hover:text-gray-600"
                           onClick={() =>
                             handleIncreaseQuantity(item.id, item.quantity)
                           }
@@ -143,7 +160,7 @@ function CartModal({
                           +
                         </button>
                         <button
-                          className="text-sm ml-auto mr-4 cursor-pointer underline font-bold"
+                          className="text-xs ml-auto mr-4 cursor-pointer hover:text-gray-600"
                           onClick={() => removeItem(item.id)}
                         >
                           Remove
@@ -153,7 +170,7 @@ function CartModal({
                   </div>
                 ))}
                 <button
-                  className="text-sm cursor-pointer underline font-bold w-full text-center mb-4"
+                  className="text-xs cursor-pointer hover:text-gray-600 w-full text-center mb-4"
                   onClick={() => {
                     removeAllItems();
                     console.log("🛒 Cart cleared");
@@ -164,9 +181,9 @@ function CartModal({
               </div>
             ) : (
               <div className="flex w-full overflow-hidden justify-center items-center h-full flex-col">
-                <p className="text-md">Your cart is currently empty</p>
+                <p className="text-xs">Your cart is currently empty</p>
                 <button
-                  className="text-md font-bold mt-4"
+                  className="text-xs font-bold mt-4"
                   onClick={() => {
                     router.push("/");
                     handleClose();
@@ -177,50 +194,48 @@ function CartModal({
               </div>
             )
           ) : (
-            <div className="flex w-full overflow-hidden mt-8">
-              <span className="text-sm">Loading cart...</span>
-            </div>
+            <CartSkeleton />
           )}
         </div>
 
         {/* Fixed Bottom Section */}
         <div className="flex-shrink-0 border-t border-gray-300 bg-white h-60">
-          <div className="px-4 py-4 h-full flex flex-col justify-between">
+          <div className="px-2 py-4 h-full flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <div className="flex flex-col gap-2.5">
-                <p className="text-sm">Shipping</p>
-                <p className="text-sm">Subtotal (excl. VAT)</p>
-                <p className="text-sm text-gray-500">VAT (25%)</p>
-                <p className="text-sm font-semibold">Total (incl. VAT)</p>
+              <div className="flex flex-col gap-2">
+                <p className="text-xs">Shipping</p>
+                <p className="text-xs">Subtotal (excl. VAT)</p>
+                <p className="text-xs text-gray-500">VAT (25%)</p>
+                <p className="text-xs font-semibold">Total (incl. VAT)</p>
               </div>
-              <div className="flex flex-col gap-2.5 items-end">
-                <p className="text-sm text-gray-500">Calculated at checkout</p>
-                <p className="text-sm">
+              <div className="flex flex-col gap-2 items-end">
+                <p className="text-xs text-gray-500">Calculated at checkout</p>
+                <p className="text-xs">
                   {hasMounted && totalPrice
                     ? `${formatPrice(totalPrice / 1.25)} ${
                         items[0]?.price?.currencyCode || "SEK"
                       }`
-                    : "Loading..."}
+                    : ""}
                 </p>
-                <p className="text-sm text-gray-500">
+                <p className="text-xs text-gray-500">
                   {hasMounted && totalPrice
                     ? `${formatPrice(totalPrice * 0.2)} ${
                         items[0]?.price?.currencyCode || "SEK"
                       }`
-                    : "Loading..."}
+                    : ""}
                 </p>
-                <p className="text-sm font-semibold">
+                <p className="text-xs font-semibold">
                   {hasMounted && totalPrice
                     ? `${formatPrice(totalPrice)} ${
                         items[0]?.price?.currencyCode || "SEK"
                       }`
-                    : "Loading..."}
+                    : ""}
                 </p>
               </div>
             </div>
 
             <button
-              className="mt-10 bg-black text-white text-base py-3 w-full cursor-pointer hover:bg-gray-800 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
+              className="mt-10 bg-black text-white text-xs py-3 w-full cursor-pointer hover:bg-gray-800 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
               onClick={async () => {
                 if (items.length === 0) return;
                 console.log("🛒 Checkout button clicked");

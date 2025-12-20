@@ -5,5 +5,9 @@ export default defineStructure<ListItemBuilder>((S) =>
   S.listItem()
     .title("Collections")
     .schemaType("collection")
-    .child(S.documentTypeList("collection"))
+    .child(
+      S.documentTypeList("collection").defaultOrdering([
+        { field: "sortOrder", direction: "asc" },
+      ])
+    )
 );

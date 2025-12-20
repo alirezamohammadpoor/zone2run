@@ -29,17 +29,17 @@ export default function BlogProductCard({ product }: BlogProductCardProps) {
             src={imageToUse.url}
             alt={imageToUse.alt || "Product"}
             fill
-            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+            sizes="(max-width: 1280px) 50vw, 25vw"
             className="object-cover"
           />
         </div>
       )}
       <div className="mt-2 mb-10">
-        <p className="text-sm  cursor-pointer font-medium">
+        <p className="text-xs cursor-pointer font-medium">
           {product.brand?.name}
         </p>
-        <p className="text-sm cursor-pointer">{product.title}</p>
-        <p className="text-sm mt-2">
+        <p className="text-xs cursor-pointer">{product.title}</p>
+        <p className="text-xs mt-2">
           {product.priceRange.minVariantPrice} {"SEK"}
         </p>
       </div>

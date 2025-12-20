@@ -1,25 +1,47 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 function OurSpaceContent({
   onClose,
-  data,
+  links,
 }: {
   onClose: () => void;
-  data: any;
+  links?: Array<{ label: string; url: string; _key?: string }>;
 }) {
+  const router = useRouter();
+
+  const handleLinkClick = (url: string) => {
+    if (url.startsWith("http")) {
+      window.open(url, "_blank");
+    } else {
+      router.push(url);
+      onClose();
+    }
+  };
+
+  if (!links || links.length === 0) {
+    return (
+      <div className="p-6">
+        <h2 className="text-xl font-semibold mb-4">Our Space</h2>
+        <p className="text-gray-500">No links configured.</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="p-6">
-      <h2 className="text-xl font-semibold mb-4">Our Space</h2>
-      <div className="space-y-4">
-        <p className="text-gray-600">
-          This section will contain information about our physical space,
-          events, and community.
-        </p>
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <p className="text-sm text-gray-500">
-            Placeholder content - Our Space section coming soon
-          </p>
-        </div>
+    <div className="px-2 py-2">
+      <h2 className="text-sm font-semibold mb-4">Our Space</h2>
+      <div className="space-y-2">
+        {links.map((link, index) => (
+          <button
+            key={link._key || index}
+            className="text-xs hover:text-gray-500 text-left w-full block"
+            onClick={() => handleLinkClick(link.url)}
+          >
+            {link.label}
+          </button>
+        ))}
       </div>
     </div>
   );

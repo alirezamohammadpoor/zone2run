@@ -1,8 +1,9 @@
-import { getBlogPost } from "@/sanity/lib/getData";
+import { getBlogPost, getProductsByCollectionId } from "@/sanity/lib/getData";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { PortableText } from "@portabletext/react";
 import BlogProductGrid from "@/components/blog/BlogProductGrid";
+import BlogProductCarousel from "@/components/blog/BlogProductCarousel";
 import type { SanityProduct } from "@/types/sanityProduct";
 
 type BlogProductsDisplayType = "horizontal" | "grid";
@@ -21,7 +22,6 @@ interface BlogProductsModuleValue {
   productCount?: number;
   featuredProducts?: BlogProductsModuleItem[];
 }
-import MuxVideo from "@/components/MuxVideo";
 
 export default async function PostPage({
   params,
@@ -33,11 +33,22 @@ export default async function PostPage({
 
   if (!post) return notFound();
 
+  // Fetch products from featured collection if set
+  let collectionProducts: SanityProduct[] = [];
+  if (post.featuredCollection?._id) {
+    const allProducts = await getProductsByCollectionId(
+      post.featuredCollection._id
+    );
+    collectionProducts = post.featuredCollectionLimit
+      ? allProducts.slice(0, post.featuredCollectionLimit)
+      : allProducts;
+  }
+
   return (
     <div className="w-full">
       {/* HERO */}
       <div
-        className="relative w-full overflow-hidden mb-2"
+        className="relative w-full overflow-hidden mb-8 md:mb-12 xl:mb-16"
         style={{ height: post.heroHeight }}
       >
         {post.mediaType === "video" && post.featuredVideo?.asset?.url ? (
@@ -47,7 +58,7 @@ export default async function PostPage({
             muted
             loop
             playsInline
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain"
           />
         ) : post.featuredImage?.asset?.url ? (
           <Image
@@ -55,6 +66,13 @@ export default async function PostPage({
             alt={post.featuredImage.alt || ""}
             fill
             className="object-cover"
+            style={{
+              objectPosition: post.featuredImage.hotspot
+                ? `${post.featuredImage.hotspot.x * 100}% ${
+                    post.featuredImage.hotspot.y * 100
+                  }%`
+                : "center",
+            }}
           />
         ) : (
           <div className="w-full h-full bg-black flex items-center justify-center">
@@ -64,33 +82,33 @@ export default async function PostPage({
       </div>
 
       {/* TITLE & META */}
-      <div className="w-full px-2 py-2">
-        <h1 className="text-2xl mb-6">{post.title}</h1>
-        <div className="flex items-center gap-4 text-sm mb-6">
+      <div className="w-full px-2 py-2 xl:max-w-4xl xl:mx-auto xl:px-4 xl:py-4">
+        <h1 className="text-sm mb-6">{post.title}</h1>
+        <div className="flex items-center gap-4 text-xs mb-6">
           <span>By {post.author}</span>
           <span>{post.readingTime} min read</span>
           <span>{new Date(post.publishedAt).toLocaleDateString()}</span>
         </div>
-        {post.excerpt && <p className="text-sm">{post.excerpt}</p>}
+        {post.excerpt && <p className="text-xs">{post.excerpt}</p>}
       </div>
 
       {/* CONTENT */}
-      <div className="w-full px-2 py-2">
+      <div className="w-full px-2 py-2 xl:max-w-4xl xl:mx-auto xl:px-4">
         {post.content?.length ? (
           <PortableText
             value={post.content}
             components={{
               block: {
                 normal: ({ children }) => (
-                  <p className="mb-6 leading-relaxed">{children}</p>
+                  <p className="mb-6 leading-relaxed text-xs">{children}</p>
                 ),
                 h1: ({ children }) => (
-                  <h1 className="text-3xl mb-8 mt-4 first:mt-0 font-normal [&_strong]:font-normal [&_b]:font-normal">
+                  <h1 className="text-sm mb-8 mt-4 first:mt-0 font-normal [&_strong]:font-normal [&_b]:font-normal">
                     {children}
                   </h1>
                 ),
                 h2: ({ children }) => (
-                  <h2 className="text-2xl mb-6 mt-4 font-normal [&_strong]:font-normal [&_b]:font-normal">
+                  <h2 className="text-sm mb-6 mt-4 font-normal [&_strong]:font-normal [&_b]:font-normal">
                     {children}
                   </h2>
                 ),
@@ -120,16 +138,16 @@ export default async function PostPage({
                 image: ({ value }) =>
                   value?.asset?.url && (
                     <div className="mb-4">
-                      <div className="relative w-full h-[50vh] overflow-hidden">
+                      <div className="relative w-full h-[50vh] xl:h-[70vh] overflow-hidden">
                         <Image
                           src={value.asset.url}
                           alt={value.alt || ""}
                           fill
-                          className="object-cover"
+                          className="object-contain"
                         />
                       </div>
                       {value.caption && (
-                        <p className="text-md text-black mt-2 italic">
+                        <p className="text-xs text-black mt-2 italic text-center">
                           {value.caption}
                         </p>
                       )}
@@ -140,15 +158,15 @@ export default async function PostPage({
                 }: {
                   value: BlogProductsModuleValue;
                 }) => (
-                  <div className="ml-2 pr-4 w-full">
+                  <div className="ml-2 pr-4 w-full xl:ml-0 xl:pr-0">
                     <div className="py-4 flex justify-between items-center">
-                      <h2 className="text-black text-lg font-medium">
+                      <h2 className="text-black text-sm font-medium">
                         {value.featuredHeading}
                       </h2>
                       {value.featuredButtonText && value.featuredButtonLink && (
                         <a
                           href={value.featuredButtonLink}
-                          className="text-black text-sm hover:underline cursor-pointer"
+                          className="text-black text-xs hover:underline cursor-pointer"
                         >
                           {value.featuredButtonText}
                         </a>
@@ -181,89 +199,56 @@ export default async function PostPage({
                         count={value.productCount}
                       />
                     ) : (
-                      <div
-                        className="flex gap-2 overflow-x-auto overflow-y-visible scrollbar-hide -mx-2 px-2"
-                        style={{ WebkitOverflowScrolling: "touch" as any }}
-                      >
-                        {value.featuredProducts?.map(
-                          (item: BlogProductsModuleItem, idx: number) => {
-                            const p = item?.product;
-                            if (!p) return null;
-                            const selection = item?.imageSelection || "main";
-                            let selectedUrl = p.mainImage?.url || "";
-                            if (selection.startsWith("gallery_")) {
-                              const i = parseInt(selection.split("_")[1]);
-                              selectedUrl = p.gallery?.[i]?.url || selectedUrl;
-                            }
-
-                            return (
-                              <a
-                                key={p._id || idx}
-                                href={p.handle ? `/products/${p.handle}` : "#"}
-                                className="group flex-shrink-0 w-[70vw] aspect-[3/4] flex flex-col cursor-pointer"
-                              >
-                                <div className="w-full h-full relative bg-gray-100">
-                                  {selectedUrl && (
-                                    <Image
-                                      src={selectedUrl}
-                                      alt={p.title || "Product"}
-                                      fill
-                                      className="object-cover"
-                                      sizes="(max-width: 768px) 70vw, 33vw"
-                                      draggable={false}
-                                    />
-                                  )}
-                                </div>
-                                <div className="mt-2 mb-10">
-                                  {p.brand?.name && (
-                                    <a
-                                      className="text-base font-medium hover:underline cursor-pointer"
-                                      href={
-                                        p.brand?.slug
-                                          ? `/brands/${p.brand.slug}`
-                                          : "#"
-                                      }
-                                    >
-                                      {p.brand.name}
-                                    </a>
-                                  )}
-                                  <p className="text-base hover:underline cursor-pointer">
-                                    {p.title}
-                                  </p>
-                                  {p.priceRange?.minVariantPrice && (
-                                    <p className="text-base mt-2">
-                                      {p.priceRange.minVariantPrice} SEK
-                                    </p>
-                                  )}
-                                </div>
-                              </a>
-                            );
-                          }
-                        )}
-                      </div>
+                      <BlogProductCarousel
+                        products={value.featuredProducts || []}
+                      />
                     )}
                   </div>
                 ),
-                muxVideo: ({ value }) =>
-                  value?.playbackId ? (
-                    <div className="mb-6">
-                      <MuxVideo playbackId={value.playbackId} />
-                      {value.title && (
-                        <p className="text-sm text-black mt-2 italic">
-                          {value.title}
-                        </p>
-                      )}
-                    </div>
-                  ) : null,
+                // muxVideo custom element removed
               },
             }}
           />
         ) : (
-          <p className="text-black italic">
+          <p className="text-black italic text-xs">
             No content available for this blog post.
           </p>
         )}
       </div>
+
+      {/* Featured Collection Products */}
+      {collectionProducts.length > 0 && (
+        <div className="w-full px-2 my-8 md:my-12 xl:my-16 xl:max-w-4xl xl:mx-auto xl:px-4">
+          <div className="py-4 flex justify-between items-center">
+            <h2 className="text-black text-sm font-medium">
+              {post.featuredCollection?.title || "Featured Products"}
+            </h2>
+            {post.featuredCollection?.slug && (
+              <a
+                href={`/collections/${post.featuredCollection.slug}`}
+                className="text-black text-xs hover:underline cursor-pointer"
+              >
+                View All
+              </a>
+            )}
+          </div>
+          {post.featuredCollectionDisplayType === "horizontal" ? (
+            <BlogProductCarousel
+              products={collectionProducts.map((p) => ({
+                product: p,
+                imageSelection: "main",
+              }))}
+            />
+          ) : (
+            <BlogProductGrid
+              products={collectionProducts.map((p) => ({
+                ...p,
+                selectedImage: p.mainImage,
+              }))}
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 }

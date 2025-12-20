@@ -44,7 +44,6 @@ import { muxVideo } from "./objects/muxVideo";
 
 // Homepage module types
 import { heroModule } from "./homepage/heroModule";
-import { featuredProductsModule } from "./homepage/featuredProductsModule";
 import { editorialModule } from "./homepage/editorialModule";
 import { spotifyPlaylistsModule } from "./homepage/spotifyPlaylistsModule";
 import { imageModule } from "./homepage/imageModule";
@@ -105,7 +104,6 @@ const objects = [
   muxVideo,
   // Homepage modules
   heroModule,
-  featuredProductsModule,
   editorialModule,
   spotifyPlaylistsModule,
   imageModule,
@@ -126,6 +124,7 @@ import { colorThemeType } from "./documents/colorTheme";
 import { pageType } from "./documents/page";
 import { productType } from "./documents/product";
 import { productVariantType } from "./documents/productVariant";
+import { homepageVersionType } from "./documents/homepageVersion";
 
 const documents = [
   brandType,
@@ -135,15 +134,18 @@ const documents = [
   pageType,
   productType,
   productVariantType,
+  homepageVersionType,
   // Blog documents
   blogPost,
   blogCategory,
 ];
 
 import { homeType } from "./singletons/homeType";
+import { navigationMenuType } from "./singletons/menuType";
 import { settingsType } from "./singletons/settingsType";
+import { siteSettingsType } from "./singletons/siteSettings";
 
-const singletons = [homeType, settingsType];
+const singletons = [homeType, navigationMenuType, settingsType, siteSettingsType];
 
 export const schemaTypes = [
   ...annotations,

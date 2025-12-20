@@ -5,17 +5,21 @@ import PortableTextRenderer from "@/components/PortableTextRenderer";
 
 function ImageModuleComponent({ imageModule }: { imageModule: ImageModule }) {
   // Type assertion for resolved video asset from GROQ query
-  const video = imageModule.video as any;
+  const video = imageModule.video as {
+    asset?: { url?: string };
+  } | null;
+
+  const videoUrl = video?.asset?.url;
 
   return (
-    <div className="w-full mt-16">
+    <div className="w-full my-8 md:my-12 xl:my-16">
       <div
         className="relative w-full"
         style={{ height: imageModule.imageHeight }}
       >
-        {imageModule.mediaType === "video" && video?.asset?.url ? (
+        {imageModule.mediaType === "video" && videoUrl ? (
           <video
-            src={video.asset.url}
+            src={videoUrl}
             autoPlay
             muted
             loop
@@ -34,7 +38,7 @@ function ImageModuleComponent({ imageModule }: { imageModule: ImageModule }) {
       {imageModule.content && (
         <PortableTextRenderer
           value={imageModule.content}
-          className="mt-8 max-w-4xl ml-2"
+          className="mt-8 max-w-4xl px-2"
         />
       )}
     </div>

@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@sanity/client";
-import { getSanityCollectionsByShopifyIds } from "@/lib/shopify-webhook-utils";
+import {
+  getSanityCollectionsByShopifyIds,
+  getProductCollections,
+} from "@/lib/shopify-webhook-utils";
 
 // Sanity client
 const sanityClient = createClient({
@@ -96,7 +99,7 @@ export async function POST(request: NextRequest) {
       offset + limit
     }] {
         _id,
-        shopifyId,
+        "shopifyId": store.id,
         title,
         "vendor": store.vendor,
         "product_type": store.productType,
@@ -128,7 +131,96 @@ export async function POST(request: NextRequest) {
           continue;
         }
 
-        // Update product with gender and brand
+        // Sync collections from Shopify (manual collections)
+        let collectionUpdates: any = {};
+        if (product.shopifyId) {
+          try {
+            console.log(
+              `🔍 Fetching collections for product ${product.shopifyId}...`
+            );
+            const shopifyCollections = await getProductCollections(
+              product.shopifyId.toString()
+            );
+            console.log(
+              `📚 Found ${shopifyCollections.length} manual collections from Shopify`
+            );
+
+            const allCollectionIds: string[] = [];
+            const allShopifyIds: string[] = [];
+
+            // Add manual collections
+            if (shopifyCollections.length > 0) {
+              const sanityCollectionIds = await getSanityCollectionsByShopifyIds(
+                shopifyCollections.map((c) => c.id.toString())
+              );
+              console.log(
+                `🎯 Mapped to ${sanityCollectionIds.length} Sanity collections`
+              );
+              allCollectionIds.push(...sanityCollectionIds);
+              allShopifyIds.push(...shopifyCollections.map((c) => c.id.toString()));
+            }
+
+            // Also check smart collections by matching vendor
+            if (product.vendor) {
+              const smartCollections = await sanityClient.fetch(
+                `*[_type == "collection" && defined(store.rules) && count(store.rules) > 0] {
+                  _id,
+                  "shopifyId": store.id,
+                  "rules": store.rules
+                }`
+              );
+
+              for (const collection of smartCollections) {
+                const vendorRule = collection.rules?.find(
+                  (r: any) => r.column?.toLowerCase() === "vendor"
+                );
+
+                if (
+                  vendorRule?.condition &&
+                  (product.vendor === vendorRule.condition ||
+                    product.vendor.toLowerCase() === vendorRule.condition.toLowerCase())
+                ) {
+                  if (!allCollectionIds.includes(collection._id)) {
+                    allCollectionIds.push(collection._id);
+                  }
+                  if (
+                    collection.shopifyId &&
+                    !allShopifyIds.includes(collection.shopifyId.toString())
+                  ) {
+                    allShopifyIds.push(collection.shopifyId.toString());
+                  }
+                }
+              }
+
+              if (smartCollections.length > 0) {
+                console.log(
+                  `🔍 Checked ${smartCollections.length} smart collections, matched ${allCollectionIds.length - (shopifyCollections.length || 0)} additional`
+                );
+              }
+            }
+
+            if (allCollectionIds.length > 0) {
+              collectionUpdates.collections = allCollectionIds.map(
+                (id, index) => ({
+                  _ref: id,
+                  _key: `collection-${index}-${Date.now()}`,
+                })
+              );
+            }
+
+            // Store raw Shopify collection IDs
+            if (allShopifyIds.length > 0) {
+              collectionUpdates.shopifyCollectionIds = allShopifyIds;
+            }
+          } catch (error) {
+            console.error(
+              `⚠️  Error syncing collections for ${product.title}:`,
+              error
+            );
+          }
+        }
+
+        // Update product with gender, brand, and collections
         await sanityClient
           .patch(product._id)
           .set({
@@ -137,10 +229,17 @@ export async function POST(request: NextRequest) {
               _type: "reference",
               _ref: brandId,
             },
+            ...collectionUpdates,
           })
           .commit();
 
-        console.log(`✅ Updated: ${product.title} (gender: ${gender})`);
+        const collectionInfo =
+          collectionUpdates.collections?.length > 0
+            ? `, collections: ${collectionUpdates.collections.length}`
+            : "";
+        console.log(
+          `✅ Updated: ${product.title} (gender: ${gender}${collectionInfo})`
+        );
         updated++;
       } catch (error) {
         console.error(`❌ Error processing ${product.title}:`, error);

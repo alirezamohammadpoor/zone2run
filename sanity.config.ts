@@ -1,6 +1,7 @@
 import { defineConfig, isDev } from "sanity";
 import { visionTool } from "@sanity/vision";
 import { structureTool } from "sanity/structure";
+import { presentationTool } from "sanity/presentation";
 import { colorInput } from "@sanity/color-input";
 import { imageHotspotArrayPlugin } from "sanity-plugin-hotspot-array";
 import { media, mediaAssetSource } from "sanity-plugin-media";
@@ -8,6 +9,7 @@ import { schemaTypes } from "./src/sanity/schemaTypes";
 import { structure } from "./src/sanity/structure";
 // import { customDocumentActions } from "./src/sanity/customDocumentActions";
 import Navbar from "./src/sanity/studio/Navbar";
+import Footer from "./src/sanity/studio/Footer";
 
 const devOnlyPlugins = [visionTool()];
 
@@ -20,6 +22,14 @@ export default defineConfig({
 
   plugins: [
     structureTool({ structure }),
+    presentationTool({
+      previewUrl: {
+        origin: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
+        previewMode: {
+          enable: "/api/draft",
+        },
+      },
+    }),
     colorInput(),
     imageHotspotArrayPlugin(),
     // customDocumentActions(),
@@ -51,6 +61,7 @@ export default defineConfig({
   studio: {
     components: {
       navbar: Navbar,
+      footer: Footer,
     },
   },
 });

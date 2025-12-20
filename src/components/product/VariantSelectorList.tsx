@@ -58,16 +58,21 @@ function VariantSelectorList({
           {allSizes.map((size) => {
             const isAvailable = availableSizes.includes(size);
             const isSelected = selectedVariant?.size === size;
+            const isOneSize =
+              size?.toLowerCase() === "one size" ||
+              size?.toLowerCase() === "onesize";
 
             return (
               <button
                 key={size}
-                className={`py-1 px-4 border  text-center transition-colors ${
+                className={`py-1 px-4 border text-center transition-colors ${
+                  isOneSize ? "w-full text-lg" : ""
+                } ${
                   !isAvailable
                     ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
                     : isSelected
-                    ? "bg-black text-white border-black"
-                    : "border-gray-300 hover:bg-black hover:text-white hover:border-black"
+                      ? "bg-black text-white border-black"
+                      : "border-gray-300 hover:bg-black hover:text-white hover:border-black"
                 }`}
                 onClick={(e) => {
                   e.stopPropagation(); // Prevent event bubbling

@@ -30,15 +30,15 @@ export default function HomeProductCard({ product }: HomeProductCardProps) {
             src={imageToUse.url}
             alt={imageToUse.alt || "Product"}
             fill
-            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+            sizes="50vw"
             className="object-cover"
           />
         </div>
       )}
-      <div className="mt-2 mb-10">
-        <p className="text-base font-medium">{product.brand?.name}</p>
-        <p className="text-sm">{product.title}</p>
-        <p className="text-sm mt-2">
+      <div className="mt-2 mb-4">
+        <p className="text-xs font-medium">{product.brand?.name}</p>
+        <p className="text-xs">{product.title}</p>
+        <p className="text-xs mt-2">
           {product.priceRange.minVariantPrice} {"SEK"}
         </p>
       </div>

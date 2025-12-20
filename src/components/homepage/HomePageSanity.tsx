@@ -1,18 +1,20 @@
 import {
   type Home,
-  type FeaturedProductsModule,
   type EditorialModule,
   type SpotifyPlaylistsModule,
   type ImageModule,
   type PortableTextModule,
 } from "../../../sanity.types";
 import HeroModule from "./heroModule";
-import FeaturedProductsModuleComponent from "./featuredProductsModuleComponent";
 import EditorialModuleComponent from "./editorialModule";
 import SpotifyPlaylistsModuleComponent from "./spotifyPlaylistsModule";
 import ImageModuleComponent from "./imageModule";
-import PortableTextModuleComponent from "./portableTextModule";
-import { getProductsByIds } from "@/sanity/lib/getData";
+import ContentModuleComponent from "./contentModule";
+import {
+  getProductsByIds,
+  getProductsByCollectionId,
+} from "@/sanity/lib/getData";
+import { getBlogPosts } from "@/sanity/lib/getBlog";
 import type { SanityProduct } from "@/types/sanityProduct";
 
 async function HomePageSanity({ homepage }: { homepage: Home }) {
@@ -24,13 +26,32 @@ async function HomePageSanity({ homepage }: { homepage: Home }) {
     return <div>No homepage modules configured</div>;
   }
 
-  // Fetch products for featured products module
-  const featuredProductsModules = homepage.modules?.filter(
-    (module: any) => module._type === "featuredProductsModule"
-  ) as FeaturedProductsModule[];
+  // Fetch products for portable text modules that include products
+  const portableTextModulesWithProducts = homepage.modules?.filter(
+    (module: any) =>
+      module._type === "portableTextModule" &&
+      (module.contentType === "text-with-products" ||
+        module.contentType === "media-with-products" ||
+        module.contentType === "products-only")
+  ) as PortableTextModule[];
 
-  const modulesWithProducts = await Promise.all(
-    featuredProductsModules.map(async (module) => {
+  const portableTextModulesWithProductsData = await Promise.all(
+    portableTextModulesWithProducts.map(async (module) => {
+      const moduleAny = module as any;
+      const productSource = moduleAny.productSource || "manual";
+
+      // If using collection source, fetch products from the collection
+      if (productSource === "collection" && moduleAny.collection?._ref) {
+        const products = await getProductsByCollectionId(
+          moduleAny.collection._ref
+        );
+        return {
+          module: module as PortableTextModule,
+          products: products,
+        };
+      }
+
+      // Otherwise, use manual product selection
       const productRefs =
         (module.featuredProducts
           ?.map((item) => item.product?._ref)
@@ -51,33 +72,36 @@ async function HomePageSanity({ homepage }: { homepage: Home }) {
           .filter((product) => product !== null && product !== undefined) || [];
 
       return {
-        module: module as FeaturedProductsModule,
+        module: module as PortableTextModule,
         products: orderedProducts,
       };
     })
   );
 
-  // Fetch blog posts for editorial modules
+  // Fetch blog posts for editorial modules - always use latest posts
   const editorialModules = homepage.modules?.filter(
     (module: any) => module._type === "editorialModule"
   ) as EditorialModule[];
 
+  // Fetch latest blog posts once for all editorial modules
+  const latestBlogPosts = await getBlogPosts(10);
+
   const modulesWithPosts = await Promise.all(
     editorialModules.map(async (module) => {
-      // The posts are already resolved in the editorialModule, so we can use them directly
-      const orderedPosts =
-        module.featuredPosts?.map((item) => item.post).filter(Boolean) || [];
-
+      // Use the latest blog posts instead of curated list
       return {
         module: module as EditorialModule,
-        posts: orderedPosts,
+        posts: latestBlogPosts || [],
       };
     })
   );
 
   // Create maps for quick lookup
-  const featuredProductsMap = new Map(
-    modulesWithProducts.map((item) => [(item.module as any)._key, item])
+  const portableTextProductsMap = new Map(
+    portableTextModulesWithProductsData.map((item) => [
+      (item.module as any)._key,
+      item,
+    ])
   );
   const editorialModulesMap = new Map(
     modulesWithPosts.map((item) => [(item.module as any)._key, item])
@@ -88,18 +112,6 @@ async function HomePageSanity({ homepage }: { homepage: Home }) {
       {homepage.modules?.map((module: any) => {
         if (module._type === "heroModule") {
           return <HeroModule key={module._key} heroModule={module} />;
-        }
-
-        if (module._type === "featuredProductsModule") {
-          const moduleWithProducts = featuredProductsMap.get(module._key);
-          if (!moduleWithProducts) return null;
-          return (
-            <FeaturedProductsModuleComponent
-              key={module._key}
-              featuredProductsModule={moduleWithProducts.module}
-              products={moduleWithProducts.products}
-            />
-          );
         }
 
         if (module._type === "editorialModule") {
@@ -115,15 +127,15 @@ async function HomePageSanity({ homepage }: { homepage: Home }) {
           );
         }
 
-        if (module._type === "spotifyPlaylistsModule") {
-          return (
-            <div key={module._key}>
-              <SpotifyPlaylistsModuleComponent
-                spotifyPlaylistsModule={module}
-              />
-            </div>
-          );
-        }
+        // if (module._type === "spotifyPlaylistsModule") {
+        //   return (
+        //     <div key={module._key}>
+        //       <SpotifyPlaylistsModuleComponent
+        //         spotifyPlaylistsModule={module}
+        //       />
+        //     </div>
+        //   );
+        // }
 
         if (module._type === "imageModule") {
           return (
@@ -132,10 +144,12 @@ async function HomePageSanity({ homepage }: { homepage: Home }) {
         }
 
         if (module._type === "portableTextModule") {
+          const moduleWithProducts = portableTextProductsMap.get(module._key);
           return (
-            <PortableTextModuleComponent
+            <ContentModuleComponent
               key={module._key}
-              portableTextModule={module}
+              contentModule={module}
+              products={moduleWithProducts?.products}
             />
           );
         }

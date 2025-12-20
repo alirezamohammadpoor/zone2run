@@ -65,6 +65,7 @@ export interface SanityProduct {
   brand: {
     _id: string;
     name: string;
+    description?: string;
     slug?: string;
     logo?: {
       url: string;
@@ -72,4 +73,24 @@ export interface SanityProduct {
   };
   gender: string;
   featured: boolean;
+  colorVariants?: Array<{
+    _id: string;
+    title: string;
+    handle: string;
+    mainImage: {
+      url: string;
+      alt: string;
+    };
+  }>;
+  editorialImages?: Array<{
+    _key: string;
+    image: {
+      asset: {
+        _id: string;
+        url: string;
+      };
+      alt?: string;
+    };
+    caption?: string;
+  }>;
 }

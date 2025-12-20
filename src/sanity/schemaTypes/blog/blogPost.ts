@@ -249,6 +249,35 @@ export const blogPost = defineType({
       type: "number",
       validation: (Rule) => Rule.required().min(1),
     }),
+    // FEATURED COLLECTION
+    defineField({
+      name: "featuredCollection",
+      title: "Featured Collection",
+      type: "reference",
+      to: [{ type: "collection" }],
+      description: "Select a collection to display products from",
+    }),
+    defineField({
+      name: "featuredCollectionLimit",
+      title: "Product Limit",
+      type: "number",
+      description: "Maximum number of products to show (leave empty for all)",
+      validation: (Rule) => Rule.min(1).max(50),
+    }),
+    defineField({
+      name: "featuredCollectionDisplayType",
+      title: "Display Type",
+      type: "string",
+      options: {
+        list: [
+          { title: "Grid", value: "grid" },
+          { title: "Horizontal Scroll", value: "horizontal" },
+        ],
+        layout: "radio",
+      },
+      initialValue: "grid",
+      description: "How to display the featured collection products",
+    }),
     // SEO FIELDS
     defineField({
       name: "seo",

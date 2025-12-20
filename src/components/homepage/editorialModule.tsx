@@ -1,9 +1,10 @@
 "use client";
 
 import { type EditorialModule } from "../../../sanity.types";
-import React from "react";
+import React, { useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import useEmblaCarousel from "embla-carousel-react";
 
 // Helper function to format dates consistently for SSR
 function formatDate(dateString: string) {
@@ -65,27 +66,64 @@ function EditorialModuleComponent({
   posts: any[];
 }) {
   const router = useRouter();
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    align: "start",
+    containScroll: "trimSnaps",
+    dragFree: false,
+  });
+  const isDraggingRef = useRef(false);
 
   // Create a map of posts with their selected images
+  // Use editorial image by default for latest posts
   const postsWithImages = posts.map((post) => {
-    const postItem = editorialModule.featuredPosts?.find(
-      (item) => item.post?._ref === post._id
-    );
-
     return {
       post,
-      imageSelection: postItem?.imageSelection || "editorial",
+      imageSelection: "editorial",
     };
   });
 
+  // Track dragging state from Embla
+  React.useEffect(() => {
+    if (!emblaApi) return;
+
+    const onScroll = () => {
+      isDraggingRef.current = true;
+    };
+
+    const onSettle = () => {
+      setTimeout(() => {
+        isDraggingRef.current = false;
+      }, 100);
+    };
+
+    emblaApi.on("scroll", onScroll);
+    emblaApi.on("settle", onSettle);
+
+    return () => {
+      emblaApi.off("scroll", onScroll);
+      emblaApi.off("settle", onSettle);
+    };
+  }, [emblaApi]);
+
+  const handlePostClick = useCallback(
+    (post: any) => {
+      if (!isDraggingRef.current) {
+        router.push(
+          `/blog/${post.category?.slug?.current}/${post.slug?.current}`
+        );
+      }
+    },
+    [router]
+  );
+
   return (
-    <div className="ml-2 pr-4 mb-8 w-full">
-      <div className="py-4 flex justify-between items-center">
-        <h2 className="text-black text-lg font-medium">
+    <div className="px-2 my-8 md:my-12 xl:my-16 w-full">
+      <div className="flex justify-between items-center">
+        <h2 className="text-black text-sm">
           {editorialModule.title}
         </h2>
         <button
-          className="text-black text-sm hover:underline cursor-pointer"
+          className="text-black text-xs hover:underline cursor-pointer"
           onClick={() => {
             router.push(editorialModule.buttonLink || "/blog/editorials");
           }}
@@ -94,56 +132,45 @@ function EditorialModuleComponent({
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {postsWithImages.map(({ post, imageSelection }) => {
-          const selectedImage = getSelectedImage(post, imageSelection);
-          return (
-            <div
-              key={post._id}
-              className="group cursor-pointer"
-              onClick={() => {
-                router.push(
-                  `/blog/${post.category?.slug?.current}/${post.slug?.current}`
-                );
-              }}
-            >
-              <div className="relative w-full h-[300px] mb-4 overflow-hidden">
-                {selectedImage.url ? (
-                  <Image
-                    src={selectedImage.url}
-                    alt={selectedImage.alt}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <p className="text-black">No image</p>
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm">
-                  <span>{post.category?.title}</span>
-                  <span>•</span>
-                  <span>{post.readingTime} min read</span>
+      <div className="overflow-hidden" ref={emblaRef}>
+        <div className="flex gap-2">
+          {postsWithImages.map(({ post, imageSelection }) => {
+            const selectedImage = getSelectedImage(post, imageSelection);
+            return (
+              <div
+                key={post._id}
+                className="flex-shrink-0 w-[60vw] md:w-[40vw] lg:w-[30vw] xl:w-[25vw] min-w-0 cursor-pointer"
+                onClick={() => handlePostClick(post)}
+              >
+                <div className="relative h-[40vh] md:h-[45vh] xl:h-[50vh] overflow-hidden">
+                  {selectedImage.url && (
+                    <Image
+                      src={selectedImage.url}
+                      alt={selectedImage.alt}
+                      className="w-full h-full object-cover"
+                      fill
+                      draggable={false}
+                    />
+                  )}
                 </div>
 
-                <h3 className="text-xl text-black group-hover:underline">
-                  {post.title}
-                </h3>
+                <div className="pt-2 pb-4 space-y-1">
+                  <div className="flex items-center gap-2 text-xs"></div>
 
-                {post.excerpt && <p className="text-sm">{post.excerpt}</p>}
+                  <h3 className="text-sm text-black">
+                    {post.title}
+                  </h3>
 
-                <div className="flex items-center justify-between text-sm">
-                  <span>By {post.author}</span>
-                  <span>{formatDate(post.publishedAt)}</span>
+                  {post.excerpt && (
+                    <p className="text-xs line-clamp-2">
+                      {post.excerpt}
+                    </p>
+                  )}
                 </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );
