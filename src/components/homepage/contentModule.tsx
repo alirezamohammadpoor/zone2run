@@ -265,9 +265,9 @@ function ContentModuleComponent({
 
     const renderHeader = () =>
       (contentModule.featuredHeading || contentModule.featuredButtonText) && (
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center mb-4">
           {contentModule.featuredHeading && (
-            <h2 className="text-black text-base">
+            <h2 className="text-black text-sm">
               {contentModule.featuredHeading}
             </h2>
           )}
@@ -368,7 +368,7 @@ function ContentModuleComponent({
     return (
       <div className={textWidth}>
         {contentModule.title && (
-          <h2 className={`text-base ${isSplitLayout ? "" : "mt-6"}`}>
+          <h2 className={`text-sm mb-4 ${isSplitLayout ? "" : "mt-6"}`}>
             {contentModule.title}
           </h2>
         )}
