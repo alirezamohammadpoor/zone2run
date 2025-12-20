@@ -85,7 +85,7 @@ export default function ProductGallery({
 
   return (
     <div
-      className="relative w-full xl:w-[45vw]"
+      className="relative w-full xl:w-[45vw] overflow-hidden 2xl:w-[45vw]"
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
@@ -94,13 +94,13 @@ export default function ProductGallery({
           {images.map((image, index) => (
             <div
               key={`${image.url}-${index}`}
-              className="relative aspect-[4/5] flex-[0_0_100%] xl:flex-[0_0_36vw] xl:h-[92vh]"
+              className="relative aspect-[4/5] flex-[0_0_100%] xl:flex-[0_0_45vw] xl:h-[92vh]"
             >
               <Image
                 src={image.url}
                 alt={image.alt}
                 fill
-                className="object-contain"
+                className="object-cover"
                 priority={index === 0}
                 sizes="(min-width: 1280px) 50vw, 100vw"
                 draggable={false}

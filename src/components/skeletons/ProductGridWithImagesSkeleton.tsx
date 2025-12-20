@@ -48,7 +48,7 @@ export default function ProductGridWithImagesSkeleton({
   return (
     <>
       {/* Mobile grid */}
-      <div className="grid grid-cols-2 gap-2 mx-2 xl:hidden">
+      <div className="grid grid-cols-2 gap-2 px-2 xl:hidden">
         {mobileItems.map((item, idx) => {
           if (item.type === "product") {
             return <ProductCardSkeleton key={`mobile-product-${idx}`} />;
@@ -65,7 +65,7 @@ export default function ProductGridWithImagesSkeleton({
       </div>
 
       {/* XL grid */}
-      <div className={`hidden xl:grid ${xlGridCols} gap-2 mx-2`}>
+      <div className={`hidden xl:grid ${xlGridCols} gap-2 px-2`}>
         {xlItems.map((item, idx) => {
           if (item.type === "product") {
             return <ProductCardSkeleton key={`xl-product-${idx}`} />;

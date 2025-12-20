@@ -3,7 +3,7 @@ import { BaseSkeleton, SkeletonText } from "./index";
 
 export default function CartSkeleton() {
   return (
-    <div className="flex w-full overflow-hidden mt-8 px-4">
+    <div className="flex w-full overflow-hidden mt-8 px-2">
       <div className="w-full space-y-4">
         {Array.from({ length: 2 }).map((_, index) => (
           <div key={index} className="flex gap-4">

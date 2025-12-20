@@ -48,7 +48,7 @@ export default async function PostPage({
     <div className="w-full">
       {/* HERO */}
       <div
-        className="relative w-full overflow-hidden mb-2 xl:mb-4"
+        className="relative w-full overflow-hidden mb-8 md:mb-12 xl:mb-16"
         style={{ height: post.heroHeight }}
       >
         {post.mediaType === "video" && post.featuredVideo?.asset?.url ? (
@@ -83,7 +83,7 @@ export default async function PostPage({
 
       {/* TITLE & META */}
       <div className="w-full px-2 py-2 xl:max-w-4xl xl:mx-auto xl:px-4 xl:py-4">
-        <h1 className="text-base mb-6">{post.title}</h1>
+        <h1 className="text-sm mb-6">{post.title}</h1>
         <div className="flex items-center gap-4 text-xs mb-6">
           <span>By {post.author}</span>
           <span>{post.readingTime} min read</span>
@@ -103,12 +103,12 @@ export default async function PostPage({
                   <p className="mb-6 leading-relaxed text-xs">{children}</p>
                 ),
                 h1: ({ children }) => (
-                  <h1 className="text-base mb-8 mt-4 first:mt-0 font-normal [&_strong]:font-normal [&_b]:font-normal">
+                  <h1 className="text-sm mb-8 mt-4 first:mt-0 font-normal [&_strong]:font-normal [&_b]:font-normal">
                     {children}
                   </h1>
                 ),
                 h2: ({ children }) => (
-                  <h2 className="text-base mb-6 mt-4 font-normal [&_strong]:font-normal [&_b]:font-normal">
+                  <h2 className="text-sm mb-6 mt-4 font-normal [&_strong]:font-normal [&_b]:font-normal">
                     {children}
                   </h2>
                 ),
@@ -160,7 +160,7 @@ export default async function PostPage({
                 }) => (
                   <div className="ml-2 pr-4 w-full xl:ml-0 xl:pr-0">
                     <div className="py-4 flex justify-between items-center">
-                      <h2 className="text-black text-base font-medium">
+                      <h2 className="text-black text-sm font-medium">
                         {value.featuredHeading}
                       </h2>
                       {value.featuredButtonText && value.featuredButtonLink && (
@@ -218,9 +218,9 @@ export default async function PostPage({
 
       {/* Featured Collection Products */}
       {collectionProducts.length > 0 && (
-        <div className="w-full px-2 py-8 xl:max-w-4xl xl:mx-auto xl:px-4">
+        <div className="w-full px-2 my-8 md:my-12 xl:my-16 xl:max-w-4xl xl:mx-auto xl:px-4">
           <div className="py-4 flex justify-between items-center">
-            <h2 className="text-black text-base font-medium">
+            <h2 className="text-black text-sm font-medium">
               {post.featuredCollection?.title || "Featured Products"}
             </h2>
             {post.featuredCollection?.slug && (

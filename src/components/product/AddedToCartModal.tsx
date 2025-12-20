@@ -48,7 +48,7 @@ function AddedToCartModal({
 
   return (
     <div
-      className={`fixed top-16 right-0 h-[13vh] z-50 flex justify-center transform transition-transform duration-500 ease-in-out w-full xl:w-[27vw] overflow-hidden ${
+      className={`fixed top-12 xl:top-16 right-0 h-[13vh] z-50 flex justify-center transform transition-transform duration-500 ease-in-out w-full xl:w-[27vw] overflow-hidden ${
         isVisible ? " translate-x-0" : " translate-x-full"
       } `}
     >

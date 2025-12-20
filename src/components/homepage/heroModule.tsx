@@ -58,12 +58,12 @@ function HeroModule({ heroModule }: { heroModule: HeroModule }) {
         <div
           className={`${
             heroModule.textColor === "white" ? "text-white" : "text-black"
-          } mt-auto mb-8 relative z-20`}
+          } mt-auto mb-8 md:mb-12 xl:mb-16 relative z-20`}
         >
           <h1
             className={`${
               heroModule.textColor === "white" ? "text-white" : "text-black"
-            } text-base ml-2`}
+            } text-sm ml-2`}
           >
             {heroModule.heroHeading}
           </h1>

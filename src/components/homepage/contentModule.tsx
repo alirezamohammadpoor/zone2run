@@ -435,13 +435,12 @@ function ContentModuleComponent({
     }
 
     if (contentType === "text-with-products") {
-      // Mobile: text first, products second (stacked)
-      // Desktop: products on left, text on right (using flex-row-reverse)
+      // Products on left, text on right (center aligned)
       return (
         <div className={`w-full ${sectionSpacing}`}>
-          <div className="flex flex-col xl:flex-row-reverse xl:justify-between xl:items-center gap-8">
-            <div className="px-2 xl:px-0 xl:pr-2">{renderContent()}</div>
+          <div className="flex flex-col xl:flex-row xl:justify-between xl:items-center gap-8">
             <div className="px-2">{renderProducts()}</div>
+            <div className="px-2 xl:px-0 xl:pr-2">{renderContent()}</div>
           </div>
         </div>
       );
@@ -485,12 +484,12 @@ function ContentModuleComponent({
     );
   }
 
-  // Text with products - text on top, products below
+  // Text with products - products on top, text below
   if (contentType === "text-with-products") {
     return (
       <div className={`w-full ${sectionSpacing}`}>
-        <div className="px-2">{renderContent()}</div>
-        <div className="px-2 pt-8">{renderProducts()}</div>
+        <div className="px-2">{renderProducts()}</div>
+        <div className="px-2 pt-8">{renderContent()}</div>
       </div>
     );
   }

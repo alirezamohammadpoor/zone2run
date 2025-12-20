@@ -16,16 +16,16 @@ export default async function BlogPage() {
   const posts = await getBlogPosts();
 
   return (
-    <div className="w-full mt-4 mb-4 px-2 xl:px-2">
+    <div className="w-full my-8 md:my-12 xl:my-16 px-2">
       <div className="mb-8 mt-2 xl:w-1/3">
-        <h1 className="text-base">Our Space</h1>
+        <h1 className="text-sm">Our Space</h1>
         <p className="text-xs mt-2">
           This is where we share what inspires us — from creative editorials and
           curated playlists to glimpses behind the scenes. It's our way of
           staying connected and showing what drives the journey.
         </p>
       </div>
-      <div className="flex flex-col gap-6 xl:grid xl:grid-cols-3 xl:gap-2">
+      <div className="flex flex-col gap-4 xl:grid xl:grid-cols-3 xl:gap-2">
         {posts.map((post: any) => {
           const imageUrl =
             post.editorialImage?.asset?.url || post.featuredImage?.asset?.url;
@@ -53,7 +53,7 @@ export default async function BlogPage() {
                   )}
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-base text-black line-clamp-2">
+                  <h3 className="text-sm text-black line-clamp-2">
                     {post.title}
                   </h3>
 

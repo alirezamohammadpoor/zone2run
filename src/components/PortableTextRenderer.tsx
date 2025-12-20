@@ -19,24 +19,24 @@ export default function PortableTextRenderer({
         components={{
           block: {
             normal: ({ children }) => (
-              <p className="mb-4 leading-relaxed text-xs">{children}</p>
+              <p className="mb-4 md:mb-6 leading-relaxed text-xs">{children}</p>
             ),
             h1: ({ children }) => (
-              <h1 className="text-base mb-8 mt-4 first:mt-0">
+              <h1 className="text-sm mb-8 md:mb-10 mt-4 md:mt-6 first:mt-0">
                 {children}
               </h1>
             ),
             h2: ({ children }) => (
-              <h2 className="text-base mb-6 mt-4">{children}</h2>
+              <h2 className="text-sm mb-6 md:mb-8 mt-4 md:mt-6">{children}</h2>
             ),
             h3: ({ children }) => (
-              <h3 className="text-base mb-4 mt-4">{children}</h3>
+              <h3 className="text-sm mb-4 mt-4">{children}</h3>
             ),
             h4: ({ children }) => (
-              <h4 className="text-base mb-4 mt-4">{children}</h4>
+              <h4 className="text-sm mb-4 mt-4">{children}</h4>
             ),
             blockquote: ({ children }) => (
-              <blockquote className="border-l-4 border-gray-300 pl-4 italic my-6 text-xs">
+              <blockquote className="border-l-4 border-gray-300 pl-4 italic my-6 md:my-8 text-xs">
                 {children}
               </blockquote>
             ),

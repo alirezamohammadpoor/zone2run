@@ -36,7 +36,7 @@ export default async function NotFound() {
       {/* Content */}
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-2 w-full h-full">
         <h1 className="text-xl text-white mb-4">{title}</h1>
-        {body && <p className="text-base text-white mb-8">{body}</p>}
+        {body && <p className="text-sm text-white mb-8">{body}</p>}
 
         {/* Buttons */}
         <div className="flex gap-4">
