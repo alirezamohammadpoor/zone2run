@@ -17,23 +17,13 @@ export default async function MensCategoryPage({
     products = await getProductsByPath("men", "subcategory", mainCategory);
   }
 
-  const categoryTitle =
-    mainCategory.charAt(0).toUpperCase() + mainCategory.slice(1);
+  if (!products || products.length === 0) {
+    notFound();
+  }
 
   return (
     <div>
-      {!products || products.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-600 mb-4">
-            No products found in this category.
-          </p>
-          <p className="text-sm text-gray-500">
-            Products may be added to this category soon.
-          </p>
-        </div>
-      ) : (
-        <ProductGrid products={products} />
-      )}
+      <ProductGrid products={products} />
     </div>
   );
 }

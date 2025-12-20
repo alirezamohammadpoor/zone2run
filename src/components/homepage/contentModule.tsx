@@ -265,9 +265,9 @@ function ContentModuleComponent({
 
     const renderHeader = () =>
       (contentModule.featuredHeading || contentModule.featuredButtonText) && (
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center mb-4">
           {contentModule.featuredHeading && (
-            <h2 className="text-black text-base">
+            <h2 className="text-black text-sm">
               {contentModule.featuredHeading}
             </h2>
           )}
@@ -368,7 +368,7 @@ function ContentModuleComponent({
     return (
       <div className={textWidth}>
         {contentModule.title && (
-          <h2 className={`text-base ${isSplitLayout ? "" : "mt-6"}`}>
+          <h2 className={`text-sm mb-4 ${isSplitLayout ? "" : "mt-6"}`}>
             {contentModule.title}
           </h2>
         )}
@@ -435,12 +435,13 @@ function ContentModuleComponent({
     }
 
     if (contentType === "text-with-products") {
-      // Products on left, text on right (center aligned)
+      // Mobile: text first, products second (stacked)
+      // Desktop: products on left, text on right (using flex-row-reverse)
       return (
         <div className={`w-full ${sectionSpacing}`}>
-          <div className="flex flex-col xl:flex-row xl:justify-between xl:items-center gap-8">
-            <div className="px-2">{renderProducts()}</div>
+          <div className="flex flex-col xl:flex-row-reverse xl:justify-between xl:items-center gap-8">
             <div className="px-2 xl:px-0 xl:pr-2">{renderContent()}</div>
+            <div className="px-2">{renderProducts()}</div>
           </div>
         </div>
       );
@@ -484,12 +485,12 @@ function ContentModuleComponent({
     );
   }
 
-  // Text with products - products on top, text below
+  // Text with products - text on top, products below
   if (contentType === "text-with-products") {
     return (
       <div className={`w-full ${sectionSpacing}`}>
-        <div className="px-2">{renderProducts()}</div>
-        <div className="px-2 pt-8">{renderContent()}</div>
+        <div className="px-2">{renderContent()}</div>
+        <div className="px-2 pt-8">{renderProducts()}</div>
       </div>
     );
   }
