@@ -26,7 +26,6 @@
     "@vercel/speed-insights": "^1.2.0",
     "embla-carousel-react": "^8.6.0",
     "form-data": "^4.0.4",
-    "geist": "^1.4.2",
     "graphql": "^16.8.1",
     "graphql-request": "^6.1.0",
     "lucide-react": "^0.525.0",

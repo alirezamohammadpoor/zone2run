@@ -1,10 +1,12 @@
 import ProductDetails from "@/components/product/ProductDetails";
 import { getProductByHandle } from "@/lib/product/getProductByHandle";
-import React from "react";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import RelatedProductsServer from "@/components/product/RelatedProductsServer";
 import ColorVariants from "@/components/product/ColorVariants";
 import ProductEditorialImages from "@/components/product/ProductEditorialImages";
+import RelatedProductsSkeleton from "@/components/skeletons/RelatedProductsSkeleton";
+import EditorialImageSkeleton from "@/components/skeletons/EditorialImageSkeleton";
 
 export default async function ProductPage({
   params,
@@ -26,13 +28,17 @@ export default async function ProductPage({
           colorVariants={product.colorVariants}
           currentProductId={product._id}
         />
-        <ProductEditorialImages editorialImages={product.editorialImages} />
+        <Suspense fallback={<EditorialImageSkeleton />}>
+          <ProductEditorialImages editorialImages={product.editorialImages} />
+        </Suspense>
       </div>
       {product.brand?.slug && (
-        <RelatedProductsServer
-          brandSlug={product.brand.slug}
-          currentProductId={product._id}
-        />
+        <Suspense fallback={<RelatedProductsSkeleton />}>
+          <RelatedProductsServer
+            brandSlug={product.brand.slug}
+            currentProductId={product._id}
+          />
+        </Suspense>
       )}
     </>
   );

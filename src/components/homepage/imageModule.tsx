@@ -32,6 +32,7 @@ function ImageModuleComponent({ imageModule }: { imageModule: ImageModule }) {
             alt={imageModule.image.alt || ""}
             fill
             className="object-cover"
+            priority
           />
         ) : null}
       </div>

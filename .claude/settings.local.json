@@ -3,7 +3,12 @@
     "allow": [
       "Bash(pnpm typegen:*)",
       "Bash(pnpm tsc:*)",
-      "Bash(pnpm build:*)"
+      "Bash(pnpm build:*)",
+      "Bash(rm:*)",
+      "Bash(pnpm install)",
+      "Bash(wc:*)",
+      "Skill(pr-description-generator)",
+      "Skill(pr-description-generator:*)"
     ],
     "deny": [],
     "ask": []
