@@ -16,6 +16,16 @@ interface ProductCardProps {
   onClick?: () => void; // Custom click handler (for carousels with drag detection)
 }
 
+/**
+ * Render a product card showing image(s), brand, title, and price with optional hover image and click handlers.
+ *
+ * @param product - Product data; may include `selectedImage`, `mainImage`, `gallery`, `brand`, `title`, `handle`, and `priceRange`.
+ * @param sizes - Responsive image sizes attribute passed to Next.js Image (defaults to "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw").
+ * @param className - Additional CSS classes applied to the root container.
+ * @param onBrandClick - Optional handler invoked with a brand slug when the brand name is clicked.
+ * @param onClick - Optional custom click handler for the entire card; if omitted, the card navigates to `/products/{product.handle}`.
+ * @returns A JSX element representing the product card.
+ */
 export default function ProductCard({
   product,
   sizes = "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw",

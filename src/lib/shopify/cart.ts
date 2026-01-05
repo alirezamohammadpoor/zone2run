@@ -203,7 +203,11 @@ export const CART_LINES_REMOVE = `
   }
 `;
 
-// Main cart functions
+/**
+ * Create a new Shopify cart and return its identifier and checkout URL.
+ *
+ * @returns An object with `cartId` and `checkoutUrl` for the created cart, or `null` if creation failed (for example due to user errors returned by Shopify or an exception).
+ */
 export async function createCart(): Promise<{
   cartId: string;
   checkoutUrl: string;
@@ -228,6 +232,14 @@ export async function createCart(): Promise<{
   }
 }
 
+/**
+ * Adds a product variant to a cart by creating or updating a cart line with the given quantity.
+ *
+ * @param cartId - The ID of the cart to modify.
+ * @param variantId - The Shopify ProductVariant global ID (must start with "gid://shopify/ProductVariant/").
+ * @param quantity - Number of items to add (defaults to 1).
+ * @returns `true` if the line was added successfully, `false` otherwise.
+ */
 export async function addToCart(
   cartId: string,
   variantId: string,
@@ -261,6 +273,14 @@ export async function addToCart(
   }
 }
 
+/**
+ * Update the quantity of a specific line item in a cart.
+ *
+ * @param cartId - The ID of the cart to update
+ * @param lineId - The ID of the cart line to modify
+ * @param quantity - The new quantity for the line
+ * @returns `true` if the cart line was updated successfully, `false` if the API returned user errors or an error occurred
+ */
 export async function updateCartQuantity(
   cartId: string,
   lineId: string,
@@ -289,6 +309,13 @@ export async function updateCartQuantity(
   }
 }
 
+/**
+ * Removes a line from a Shopify cart.
+ *
+ * @param cartId - The ID of the cart to modify
+ * @param lineId - The ID of the cart line to remove
+ * @returns `true` if the line was removed successfully, `false` otherwise
+ */
 export async function removeFromCart(
   cartId: string,
   lineId: string

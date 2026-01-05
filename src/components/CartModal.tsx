@@ -8,6 +8,13 @@ import { formatPrice } from "@/lib/utils/formatPrice";
 import { createCart, addToCart } from "@/lib/shopify/cart";
 import CartSkeleton from "@/components/skeletons/CartSkeleton";
 
+/**
+ * Renders a slide-in cart modal that displays cart items, allows quantity and removal actions, and initiates a Shopify checkout flow by creating a fresh cart and redirecting to checkout.
+ *
+ * @param isCartOpen - Controls whether the modal is visible.
+ * @param setIsCartOpen - Callback to update the modal's open state.
+ * @returns The cart modal React element.
+ */
 function CartModal({
   isCartOpen,
   setIsCartOpen,

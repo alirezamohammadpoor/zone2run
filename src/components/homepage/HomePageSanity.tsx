@@ -11,6 +11,12 @@ import {
 import type { SanityProduct } from "@/types/sanityProduct";
 import BlogPostCardSkeleton from "@/components/skeletons/BlogPostCardSkeleton";
 
+/**
+ * Render the homepage from a Sanity `Home` document, resolving product data for portable text modules and rendering each configured module (hero, editorial, image, portable text).
+ *
+ * @param homepage - The Sanity `Home` document containing the ordered modules to render
+ * @returns A React element that renders the homepage modules, or a small message element when homepage data or modules are missing
+ */
 async function HomePageSanity({ homepage }: { homepage: Home }) {
   if (!homepage) {
     return <div>No homepage data available</div>;

@@ -14,6 +14,14 @@ interface ProductInfoProps {
   product: SanityProduct;
 }
 
+/**
+ * Render product details and purchase controls for a given product.
+ *
+ * Renders breadcrumbs, brand link or name, title, formatted price, a cleaned and optionally expandable description, the variant selector, add-to-cart controls, and product tabs.
+ *
+ * @param product - The product to display; expected to include brand, vendor, title, priceRange.minVariantPrice, description, and variants.
+ * @returns A React element containing the product information, variant selector, add-to-cart controls, and product tabs.
+ */
 function ProductInfo({ product }: ProductInfoProps) {
   const { selectedVariant } = useProductStore();
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);

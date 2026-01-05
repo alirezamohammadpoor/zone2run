@@ -9,6 +9,14 @@ interface HomeProductCardProps {
   product: SanityProduct & { selectedImage?: { url: string; alt: string } };
 }
 
+/**
+ * Render a clickable product card showing a primary image (or selectedImage), an optional hover image, and product details.
+ *
+ * Clicking the card navigates to the product detail page at `/products/{product.handle}`.
+ *
+ * @param product - The product to render; may include `selectedImage` to override the main image and an optional `gallery` for the hover image.
+ * @returns A React element representing the product card.
+ */
 export default function HomeProductCard({ product }: HomeProductCardProps) {
   const router = useRouter();
 

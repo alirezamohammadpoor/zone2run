@@ -3,6 +3,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { urlFor } from "@/sanity/lib/image";
 
+/**
+ * Render a hero section that displays either a hotspot-positioned background image or an autoplaying muted video, with a bottom-aligned heading, subparagraph, and call-to-action link.
+ *
+ * @param heroModule - Configuration and content for the hero, including `mediaType`, `heroImage` or `heroVideo`, `height`, `textColor`, `heroHeading`, `heroSubparagraph`, `buttonText`, and `buttonLink`.
+ * @returns A JSX element representing the rendered hero section.
+ */
 function HeroModule({ heroModule }: { heroModule: HeroModule }) {
   // Type assertion for resolved video asset from GROQ query
   const heroVideo = heroModule.heroVideo as {

@@ -9,6 +9,14 @@ interface BlogProductCardProps {
   product: SanityProduct & { selectedImage?: { url: string; alt: string } };
 }
 
+/**
+ * Render a clickable product card that displays a primary image, an optional hover image, and basic product details.
+ *
+ * The card navigates to /products/{product.handle} when clicked. It uses `product.selectedImage` if present, otherwise `product.mainImage`; the first `product.gallery` item is used as the hover image when available. Displays brand name, product title, and the minimum variant price.
+ *
+ * @param product - Product data used to render the card. If present, `selectedImage` overrides `mainImage`; `gallery[0]` is used for the hover effect. `product.handle` is used for navigation, `product.brand?.name`, `product.title`, and `product.priceRange.minVariantPrice` are displayed.
+ * @returns A JSX element representing the product card.
+ */
 export default function BlogProductCard({ product }: BlogProductCardProps) {
   const router = useRouter();
 
