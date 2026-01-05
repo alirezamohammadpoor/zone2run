@@ -59,19 +59,7 @@ export type PortableText = Array<{
   _key: string;
 } | {
   _key: string;
-} & Accordion | {
-  _key: string;
-} & Callout | {
-  _key: string;
-} & Grid | {
-  _key: string;
-} & Images | {
-  _key: string;
-} & ImageWithProductHotspots | {
-  _key: string;
-} & Instagram | {
-  _key: string;
-} & Products>;
+} & ImageWithProductHotspots>;
 
 export type SiteSettings = {
   _id: string;
@@ -624,14 +612,6 @@ export type ProductHotspots = Array<{
   _key: string;
 } & Spot>;
 
-export type Products = {
-  _type: "products";
-  products?: Array<{
-    _key: string;
-  } & ProductReference>;
-  layout?: "card" | "pill";
-};
-
 export type PriceRange = {
   _type: "priceRange";
   minVariantPrice?: number;
@@ -670,11 +650,6 @@ export type MenuLinks = Array<{
   _key: string;
 } & LinkExternal>;
 
-export type Instagram = {
-  _type: "instagram";
-  url?: string;
-};
-
 export type ImageWithProductHotspots = {
   _type: "imageWithProductHotspots";
   image?: {
@@ -693,48 +668,6 @@ export type ImageWithProductHotspots = {
   productHotspots?: ProductHotspots;
 };
 
-export type ImageFeature = {
-  _type: "imageFeature";
-  image?: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    _type: "image";
-  };
-  variant?: string | "caption" | "callToAction" | "productHotspots" | "productTags";
-  caption?: string;
-  callToAction?: ImageCallToAction;
-  productHotspots?: ProductHotspots;
-  productTags?: Array<{
-    _key: string;
-  } & ProductWithVariant>;
-};
-
-export type Images = {
-  _type: "images";
-  imageFeatures?: Array<{
-    _key: string;
-  } & ImageFeature>;
-  fullWidth?: boolean;
-  verticalAlign?: "top" | "center" | "bottom";
-};
-
-export type ImageCallToAction = {
-  _type: "imageCallToAction";
-  title?: string;
-  link?: Array<{
-    _key: string;
-  } & LinkInternal | {
-    _key: string;
-  } & LinkExternal>;
-};
-
 export type Hero = {
   _type: "hero";
   title?: string;
@@ -749,31 +682,6 @@ export type Hero = {
   } & ProductWithVariant | {
     _key: string;
   } & ImageWithProductHotspots>;
-};
-
-export type Grid = {
-  _type: "grid";
-  items?: Array<{
-    _key: string;
-  } & GridItem>;
-};
-
-export type GridItem = {
-  _type: "gridItem";
-  title?: string;
-  image?: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    _type: "image";
-  };
-  body?: PortableTextSimple;
 };
 
 export type CustomProductOptionSize = {
@@ -850,56 +758,6 @@ export type CollectionGroup = {
     _weak?: boolean;
     [internalGroqTypeReferenceTo]?: "collection";
   };
-};
-
-export type CallToAction = {
-  _type: "callToAction";
-  layout?: "left" | "right";
-  title?: string;
-  portableText?: string;
-  link?: Array<{
-    _key: string;
-  } & LinkInternal | {
-    _key: string;
-  } & LinkExternal>;
-  content?: Array<{
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    _type: "image";
-    _key: string;
-  } | {
-    _key: string;
-  } & ProductWithVariant>;
-};
-
-export type Callout = {
-  _type: "callout";
-  text?: string;
-  link?: Array<{
-    _key: string;
-  } & LinkInternal | {
-    _key: string;
-  } & LinkExternal>;
-};
-
-export type Accordion = {
-  _type: "accordion";
-  groups?: Array<{
-    _key: string;
-  } & AccordionGroup>;
-};
-
-export type AccordionGroup = {
-  _type: "accordionGroup";
-  title?: string;
-  body?: PortableTextSimple;
 };
 
 export type LinkProduct = {
@@ -1337,10 +1195,6 @@ export type Collection = {
   showHero?: boolean;
   hero?: Hero;
   modules?: Array<{
-    _key: string;
-  } & Callout | {
-    _key: string;
-  } & CallToAction | {
     asset?: {
       _ref: string;
       _type: "reference";
@@ -1352,9 +1206,7 @@ export type Collection = {
     crop?: SanityImageCrop;
     _type: "image";
     _key: string;
-  } | {
-    _key: string;
-  } & Instagram>;
+  }>;
   featured?: boolean;
   sortOrder?: number;
   isActive?: boolean;
@@ -1552,5 +1404,5 @@ export type Geopoint = {
   alt?: number;
 };
 
-export type AllSanitySchemaTypes = PortableTextSimple | PortableText | SiteSettings | HomepageVersion | Seo | Settings | NotFoundPage | FooterSettings | Menu | NavigationMenu | BlogProductsModule | PortableTextModule | ImageModule | SpotifyPlaylistsModule | EditorialModule | HeroModule | MuxVideo | Spot | ShopifyProductVariant | ShopifyProduct | ShopifyCollection | ProxyString | ProductWithVariant | ProductVariant | Inventory | ProductReference | ProductHotspots | Products | PriceRange | PlaceholderString | Option | SanityImageCrop | SanityImageHotspot | MenuLinks | Instagram | ImageWithProductHotspots | ImageFeature | Images | ImageCallToAction | Hero | Grid | GridItem | CustomProductOptionSize | CustomProductOptionSizeObject | CustomProductOptionColor | CustomProductOptionColorObject | Color | CollectionRule | CollectionReference | CollectionLinks | CollectionGroup | CallToAction | Callout | Accordion | AccordionGroup | LinkProduct | LinkInternal | Page | Slug | Home | BlogPost | BlogCategory | Product | Brand | Category | Collection | ColorTheme | LinkExternal | LinkEmail | MediaTag | RgbaColor | HsvaColor | HslaColor | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageMetadata | SanityFileAsset | SanityAssetSourceData | SanityImageAsset | Geopoint;
+export type AllSanitySchemaTypes = PortableTextSimple | PortableText | SiteSettings | HomepageVersion | Seo | Settings | NotFoundPage | FooterSettings | Menu | NavigationMenu | BlogProductsModule | PortableTextModule | ImageModule | SpotifyPlaylistsModule | EditorialModule | HeroModule | MuxVideo | Spot | ShopifyProductVariant | ShopifyProduct | ShopifyCollection | ProxyString | ProductWithVariant | ProductVariant | Inventory | ProductReference | ProductHotspots | PriceRange | PlaceholderString | Option | SanityImageCrop | SanityImageHotspot | MenuLinks | ImageWithProductHotspots | Hero | CustomProductOptionSize | CustomProductOptionSizeObject | CustomProductOptionColor | CustomProductOptionColorObject | Color | CollectionRule | CollectionReference | CollectionLinks | CollectionGroup | LinkProduct | LinkInternal | Page | Slug | Home | BlogPost | BlogCategory | Product | Brand | Category | Collection | ColorTheme | LinkExternal | LinkEmail | MediaTag | RgbaColor | HsvaColor | HslaColor | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageMetadata | SanityFileAsset | SanityAssetSourceData | SanityImageAsset | Geopoint;
 export declare const internalGroqTypeReferenceTo: unique symbol;

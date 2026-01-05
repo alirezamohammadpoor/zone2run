@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(pnpm typegen:*)",
-      "Bash(pnpm tsc:*)"
+      "Bash(pnpm tsc:*)",
+      "Bash(pnpm build:*)"
     ],
     "deny": [],
     "ask": []

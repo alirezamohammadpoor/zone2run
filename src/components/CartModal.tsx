@@ -173,7 +173,6 @@ function CartModal({
                   className="text-xs cursor-pointer hover:text-gray-600 w-full text-center mb-4"
                   onClick={() => {
                     removeAllItems();
-                    console.log("🛒 Cart cleared");
                   }}
                 >
                   Remove All Items
@@ -238,37 +237,22 @@ function CartModal({
               className="mt-10 bg-black text-white text-xs py-3 w-full cursor-pointer hover:bg-gray-800 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
               onClick={async () => {
                 if (items.length === 0) return;
-                console.log("🛒 Checkout button clicked");
-                console.log("🛒 Current cart items:", items);
                 setIsRedirecting(true);
 
                 // Create fresh cart with current items
                 const freshCartResult = await createCart();
-                console.log("🛒 Fresh cart created:", freshCartResult);
 
                 if (freshCartResult) {
                   // Add all current items to the fresh cart
                   for (const item of items) {
-                    const success = await addToCart(
+                    await addToCart(
                       freshCartResult.cartId,
                       item.variantId,
                       item.quantity
                     );
-                    if (!success) {
-                      console.error(
-                        "🛒 Failed to add item to fresh cart:",
-                        item
-                      );
-                    }
                   }
 
-                  console.log(
-                    "🛒 Redirecting to fresh checkout:",
-                    freshCartResult.checkoutUrl
-                  );
                   window.location.href = freshCartResult.checkoutUrl;
-                } else {
-                  console.error("🛒 Failed to create fresh cart");
                 }
               }}
               disabled={items.length === 0 || isRedirecting}
