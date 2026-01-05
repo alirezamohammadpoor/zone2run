@@ -18,10 +18,12 @@ export default function HomeProductCard({ product }: HomeProductCardProps) {
 
   // Use selectedImage if provided, otherwise fall back to mainImage
   const imageToUse = product.selectedImage || product.mainImage;
+  // Second image for hover effect (first gallery image, since mainImage is the primary)
+  const hoverImage = product.gallery?.[0];
 
   return (
     <div
-      className="w-full aspect-[3/4] flex flex-col hover:cursor-pointer"
+      className="w-full aspect-[3/4] flex flex-col hover:cursor-pointer group"
       onClick={handleClick}
     >
       {imageToUse?.url && (
@@ -31,13 +33,22 @@ export default function HomeProductCard({ product }: HomeProductCardProps) {
             alt={imageToUse.alt || "Product"}
             fill
             sizes="50vw"
-            className="object-cover"
+            className="object-cover transition-opacity duration-300 group-hover:opacity-0"
           />
+          {hoverImage?.url && (
+            <Image
+              src={hoverImage.url}
+              alt={hoverImage.alt || "Product"}
+              fill
+              sizes="50vw"
+              className="object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+            />
+          )}
         </div>
       )}
       <div className="mt-2 mb-4">
         <p className="text-xs font-medium">{product.brand?.name}</p>
-        <p className="text-xs">{product.title}</p>
+        <p className="text-xs line-clamp-1">{product.title}</p>
         <p className="text-xs mt-2">
           {product.priceRange.minVariantPrice} {"SEK"}
         </p>
