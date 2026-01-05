@@ -488,6 +488,23 @@ export const portableTextModule = defineType({
       type: "string",
       hidden: ({ parent }) => parent?.contentType === "products-only",
     }),
+    defineField({
+      name: "source",
+      title: "Source",
+      type: "string",
+    }),
+    defineField({
+      name: "linkText",
+      title: "Link Text",
+      type: "string",
+      description: "Text to display for the link",
+    }),
+    defineField({
+      name: "link",
+      title: "Link URL",
+      type: "string",
+      description: "Link URL to the source of the content",
+    }),
   ],
   preview: {
     select: {
