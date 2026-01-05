@@ -1,4 +1,5 @@
-import ProductDetails from "@/components/product/ProductDetails";
+import ProductGalleryServer from "@/components/product/ProductGalleryServer";
+import ProductInfo from "@/components/product/ProductInfo";
 import { getProductByHandle } from "@/lib/product/getProductByHandle";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
@@ -23,7 +24,14 @@ export default async function ProductPage({
   return (
     <>
       <div>
-        <ProductDetails product={product} />
+        <div className="xl:flex xl:flex-row">
+          <ProductGalleryServer
+            mainImage={product.mainImage}
+            galleryImages={product.gallery}
+            title={product.title}
+          />
+          <ProductInfo product={product} />
+        </div>
         <ColorVariants
           colorVariants={product.colorVariants}
           currentProductId={product._id}
