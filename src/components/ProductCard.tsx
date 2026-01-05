@@ -42,10 +42,12 @@ export default function ProductCard({
 
   // Use selectedImage if provided, otherwise fall back to mainImage
   const imageToUse = product.selectedImage || product.mainImage;
+  // Second image for hover effect (first gallery image, since mainImage is the primary)
+  const hoverImage = product.gallery?.[0];
 
   return (
     <div
-      className={`aspect-[4/5] flex flex-col hover:cursor-pointer ${className}`}
+      className={`aspect-[4/5] flex flex-col hover:cursor-pointer group ${className}`}
       onClick={handleClick}
     >
       {imageToUse?.url && (
@@ -55,9 +57,19 @@ export default function ProductCard({
             alt={imageToUse.alt || product.title || "Product"}
             fill
             sizes={sizes}
-            className="object-cover"
+            className="object-cover transition-opacity duration-300 group-hover:opacity-0"
             draggable={false}
           />
+          {hoverImage?.url && (
+            <Image
+              src={hoverImage.url}
+              alt={hoverImage.alt || product.title || "Product"}
+              fill
+              sizes={sizes}
+              className="object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+              draggable={false}
+            />
+          )}
         </div>
       )}
       <div className="pt-2 pb-4">
@@ -69,7 +81,7 @@ export default function ProductCard({
         >
           {product.brand?.name || product.vendor || ""}
         </p>
-        <p className={`text-xs ${onBrandClick ? "hover:underline" : ""}`}>
+        <p className={`text-xs line-clamp-1 ${onBrandClick ? "hover:underline" : ""}`}>
           {product.title}
         </p>
         <p className="text-xs pt-2">

@@ -1,21 +1,15 @@
-import {
-  type Home,
-  type EditorialModule,
-  type SpotifyPlaylistsModule,
-  type ImageModule,
-  type PortableTextModule,
-} from "../../../sanity.types";
+import { Suspense } from "react";
+import { type Home, type PortableTextModule } from "../../../sanity.types";
 import HeroModule from "./heroModule";
-import EditorialModuleComponent from "./editorialModule";
-import SpotifyPlaylistsModuleComponent from "./spotifyPlaylistsModule";
+import EditorialModuleServer from "./EditorialModuleServer";
 import ImageModuleComponent from "./imageModule";
 import ContentModuleComponent from "./contentModule";
 import {
   getProductsByIds,
   getProductsByCollectionId,
 } from "@/sanity/lib/getData";
-import { getBlogPosts } from "@/sanity/lib/getBlog";
 import type { SanityProduct } from "@/types/sanityProduct";
+import BlogPostCardSkeleton from "@/components/skeletons/BlogPostCardSkeleton";
 
 async function HomePageSanity({ homepage }: { homepage: Home }) {
   if (!homepage) {
@@ -78,33 +72,12 @@ async function HomePageSanity({ homepage }: { homepage: Home }) {
     })
   );
 
-  // Fetch blog posts for editorial modules - always use latest posts
-  const editorialModules = homepage.modules?.filter(
-    (module: any) => module._type === "editorialModule"
-  ) as EditorialModule[];
-
-  // Fetch latest blog posts once for all editorial modules
-  const latestBlogPosts = await getBlogPosts(10);
-
-  const modulesWithPosts = await Promise.all(
-    editorialModules.map(async (module) => {
-      // Use the latest blog posts instead of curated list
-      return {
-        module: module as EditorialModule,
-        posts: latestBlogPosts || [],
-      };
-    })
-  );
-
-  // Create maps for quick lookup
+  // Create map for quick lookup
   const portableTextProductsMap = new Map(
     portableTextModulesWithProductsData.map((item) => [
       (item.module as any)._key,
       item,
     ])
-  );
-  const editorialModulesMap = new Map(
-    modulesWithPosts.map((item) => [(item.module as any)._key, item])
   );
 
   return (
@@ -115,15 +88,21 @@ async function HomePageSanity({ homepage }: { homepage: Home }) {
         }
 
         if (module._type === "editorialModule") {
-          const moduleWithPosts = editorialModulesMap.get(module._key);
-          if (!moduleWithPosts) return null;
           return (
-            <div key={module._key}>
-              <EditorialModuleComponent
-                editorialModule={moduleWithPosts.module}
-                posts={moduleWithPosts.posts}
-              />
-            </div>
+            <Suspense
+              key={module._key}
+              fallback={
+                <div className="px-2 my-8 md:my-12 xl:my-16">
+                  <div className="flex gap-2 overflow-hidden">
+                    {[...Array(4)].map((_, i) => (
+                      <BlogPostCardSkeleton key={i} />
+                    ))}
+                  </div>
+                </div>
+              }
+            >
+              <EditorialModuleServer editorialModule={module} />
+            </Suspense>
           );
         }
 

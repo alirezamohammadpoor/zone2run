@@ -1,4 +1,3 @@
-import React from "react";
 import { type HeroModule } from "../../../sanity.types";
 import Image from "next/image";
 import Link from "next/link";
@@ -40,6 +39,7 @@ function HeroModule({ heroModule }: { heroModule: HeroModule }) {
             className="absolute inset-0 w-full h-full object-cover"
             style={{ objectPosition }}
             fill
+            priority
           />
         )}
 

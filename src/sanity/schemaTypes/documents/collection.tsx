@@ -90,10 +90,7 @@ export const collectionType = defineType({
       type: "array",
       description: "Editorial modules to associate with this collection",
       of: [
-        defineArrayMember({ type: "callout" }),
-        defineArrayMember({ type: "callToAction" }),
         defineArrayMember({ type: "image" }),
-        defineArrayMember({ type: "instagram" }),
       ],
       group: "editorial",
     }),

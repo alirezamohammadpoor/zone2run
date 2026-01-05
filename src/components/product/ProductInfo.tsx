@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import { useState } from "react";
 import Link from "next/link";
 import VariantSelector from "./VariantSelector";
 import AddToCart from "./AddToCart";
@@ -16,6 +16,7 @@ interface ProductInfoProps {
 
 function ProductInfo({ product }: ProductInfoProps) {
   const { selectedVariant } = useProductStore();
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
   const brandName = product.brand?.name || product.vendor;
   const displayTitle = product.title;
@@ -56,9 +57,23 @@ function ProductInfo({ product }: ProductInfoProps) {
         </div>
 
         {cleanDescription && (
-          <p className="mt-4 text-xs text-black whitespace-pre-line xl:w-[100%]">
-            {cleanDescription}
-          </p>
+          <div className="mt-4">
+            <p
+              className={`text-xs text-black whitespace-pre-line xl:w-[100%] ${
+                !isDescriptionExpanded ? "line-clamp-3" : ""
+              }`}
+            >
+              {cleanDescription}
+            </p>
+            {cleanDescription.length > 150 && (
+              <button
+                onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                className="text-xs text-gray-500 hover:text-black mt-1 underline"
+              >
+                {isDescriptionExpanded ? "Show less" : "Read more"}
+              </button>
+            )}
+          </div>
         )}
 
         <VariantSelector product={product} />
