@@ -7,7 +7,6 @@ import { imageHotspotArrayPlugin } from "sanity-plugin-hotspot-array";
 import { media, mediaAssetSource } from "sanity-plugin-media";
 import { schemaTypes } from "./src/sanity/schemaTypes";
 import { structure } from "./src/sanity/structure";
-// import { customDocumentActions } from "./src/sanity/customDocumentActions";
 import Navbar from "./src/sanity/studio/Navbar";
 import Footer from "./src/sanity/studio/Footer";
 
@@ -32,7 +31,6 @@ export default defineConfig({
     }),
     colorInput(),
     imageHotspotArrayPlugin(),
-    // customDocumentActions(),
     media(),
     ...(isDev ? devOnlyPlugins : []),
   ],

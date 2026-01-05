@@ -215,13 +215,7 @@ export async function createCart(): Promise<{
 
     const { cartCreate } = response as any;
 
-    console.log("🛒 Cart creation response:", cartCreate);
-    console.log("🛒 Cart object:", cartCreate.cart);
-    console.log("🛒 Cart ID:", cartCreate.cart.id);
-    console.log("🛒 Checkout URL:", cartCreate.cart.checkoutUrl);
-
     if (cartCreate.userErrors.length > 0) {
-      console.error("Cart creation errors:", cartCreate.userErrors);
       return null;
     }
 
@@ -230,7 +224,6 @@ export async function createCart(): Promise<{
       checkoutUrl: cartCreate.cart.checkoutUrl,
     };
   } catch (error) {
-    console.error("Error creating cart:", error);
     return null;
   }
 }
@@ -243,11 +236,8 @@ export async function addToCart(
   try {
     // Validate variant ID format
     if (!variantId || !variantId.startsWith("gid://shopify/ProductVariant/")) {
-      console.error("Invalid variant ID format:", variantId);
       return false;
     }
-
-    console.log("🛒 Adding to cart with:", { cartId, variantId, quantity });
 
     const response = await shopifyClient.request(CART_LINES_ADD, {
       cartId,
@@ -262,19 +252,11 @@ export async function addToCart(
     const { cartLinesAdd } = response as any;
 
     if (cartLinesAdd.userErrors.length > 0) {
-      console.error(
-        "Add to cart errors:",
-        JSON.stringify(cartLinesAdd.userErrors, null, 2)
-      );
-      console.error("Cart ID:", cartId);
-      console.error("Variant ID:", variantId);
-      console.error("Quantity:", quantity);
       return false;
     }
 
     return true;
   } catch (error) {
-    console.error("Error adding to cart:", error);
     return false;
   }
 }
@@ -298,13 +280,11 @@ export async function updateCartQuantity(
     const { cartLinesUpdate } = response as any;
 
     if (cartLinesUpdate.userErrors.length > 0) {
-      console.error("Update cart errors:", cartLinesUpdate.userErrors);
       return false;
     }
 
     return true;
   } catch (error) {
-    console.error("Error updating cart:", error);
     return false;
   }
 }
@@ -322,13 +302,11 @@ export async function removeFromCart(
     const { cartLinesRemove } = response as any;
 
     if (cartLinesRemove.userErrors.length > 0) {
-      console.error("Remove from cart errors:", cartLinesRemove.userErrors);
       return false;
     }
 
     return true;
   } catch (error) {
-    console.error("Error removing from cart:", error);
     return false;
   }
 }
