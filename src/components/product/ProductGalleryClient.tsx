@@ -1,51 +1,21 @@
 "use client";
 import useEmblaCarousel from "embla-carousel-react";
 import Image from "next/image";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-interface ProductGalleryProps {
-  mainImage: { url: string; alt: string } | null;
-  galleryImages?: Array<{ url: string; alt?: string }> | null;
-  title?: string;
+interface ProductGalleryClientProps {
+  images: Array<{ url: string; alt: string }>;
 }
 
-export default function ProductGallery({
-  mainImage,
-  galleryImages,
-  title,
-}: ProductGalleryProps) {
+export default function ProductGalleryClient({
+  images,
+}: ProductGalleryClientProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: true,
     align: "start",
   });
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isHovering, setIsHovering] = useState(false);
-
-  const images = useMemo(() => {
-    const normalizedImages: Array<{ url: string; alt: string }> = [];
-
-    // Add main image first
-    if (mainImage?.url) {
-      normalizedImages.push({
-        url: mainImage.url,
-        alt: mainImage.alt || title || "Product",
-      });
-    }
-
-    // Add gallery images
-    if (galleryImages) {
-      galleryImages.forEach((img) => {
-        if (img?.url) {
-          normalizedImages.push({
-            url: img.url,
-            alt: img.alt || title || "Product",
-          });
-        }
-      });
-    }
-
-    return normalizedImages;
-  }, [mainImage, galleryImages, title]);
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
@@ -70,11 +40,7 @@ export default function ProductGallery({
   }, [emblaApi, onSelect]);
 
   if (images.length === 0) {
-    return (
-      <div className="w-full relative aspect-[4/5] flex items-center justify-center bg-gray-100">
-        <p className="text-gray-400">No images available</p>
-      </div>
-    );
+    return null;
   }
 
   // Calculate progress percentage
@@ -85,16 +51,16 @@ export default function ProductGallery({
 
   return (
     <div
-      className="relative w-full xl:w-[45vw] overflow-hidden 2xl:w-[45vw]"
+      className="absolute inset-0"
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
-      <div className="overflow-hidden" ref={emblaRef}>
-        <div className="flex">
+      <div className="overflow-hidden h-full" ref={emblaRef}>
+        <div className="flex h-full">
           {images.map((image, index) => (
             <div
               key={`${image.url}-${index}`}
-              className="relative aspect-[4/5] flex-[0_0_100%] xl:flex-[0_0_45vw] xl:h-[92vh]"
+              className="relative aspect-[4/5] flex-[0_0_100%] xl:flex-[0_0_100%] h-full"
             >
               <Image
                 src={image.url}
@@ -102,6 +68,8 @@ export default function ProductGallery({
                 fill
                 className="object-cover"
                 priority={index === 0}
+                loading={index === 0 ? "eager" : "lazy"}
+                fetchPriority={index === 0 ? "high" : "auto"}
                 sizes="(min-width: 1280px) 50vw, 100vw"
                 draggable={false}
               />
@@ -169,7 +137,7 @@ export default function ProductGallery({
 
       {/* Progress bar - percentage based */}
       {images.length > 1 && (
-        <div className="flex w-full h-[2px] bg-gray-300">
+        <div className="absolute bottom-0 left-0 right-0 flex w-full h-[2px] bg-gray-300">
           <div
             className="h-full bg-black transition-all duration-300"
             style={{ width: `${progressPercentage}%` }}
