@@ -8,7 +8,8 @@
       "Bash(pnpm install)",
       "Bash(wc:*)",
       "Skill(pr-description-generator)",
-      "Skill(pr-description-generator:*)"
+      "Skill(pr-description-generator:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": []
