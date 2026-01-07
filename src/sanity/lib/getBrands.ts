@@ -1,4 +1,19 @@
-import { client } from "@/sanity/lib/client";
+import { sanityFetch } from "@/sanity/lib/client";
+
+interface Brand {
+  _id: string;
+  name: string;
+  slug: { current: string };
+  logo?: { asset: { url: string } };
+  productCount: number;
+  featured?: boolean;
+  description?: string;
+  editorialImages?: Array<{
+    _key: string;
+    image: { asset: { _id: string; url: string }; alt?: string };
+    caption?: string;
+  }>;
+}
 
 export async function getAllBrands() {
   const query = `*[_type == "brand"] {
@@ -17,7 +32,7 @@ export async function getAllBrands() {
   } | order(name asc)`;
 
   try {
-    return await client.fetch(query);
+    return await sanityFetch<Brand[]>(query);
   } catch (error) {
     console.error("Error fetching all brands:", error);
     return [];
@@ -43,7 +58,7 @@ export async function getBrandBySlug(slug: string) {
   }`;
 
   try {
-    return await client.fetch(query, { slug });
+    return await sanityFetch<Brand | null>(query, { slug });
   } catch (error) {
     console.error(`Error fetching brand ${slug}:`, error);
     return null;

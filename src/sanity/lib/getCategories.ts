@@ -1,5 +1,21 @@
-import { client } from "@/sanity/lib/client";
+import { sanityFetch } from "@/sanity/lib/client";
 import { mapGenderValue } from "./groqUtils";
+
+export interface Category {
+  _id: string;
+  title: string;
+  slug: { current: string };
+  description?: string;
+  productCount?: number;
+  featured?: boolean;
+  sortOrder?: number;
+  categoryType?: string;
+  parentCategory?: {
+    _id: string;
+    title: string;
+    slug: { current: string };
+  };
+}
 
 export async function getAllMainCategories() {
   const query = `*[_type == "category" && categoryType == "main"] {
@@ -18,7 +34,7 @@ export async function getAllMainCategories() {
   } | order(sortOrder asc, title asc)`;
 
   try {
-    return await client.fetch(query);
+    return await sanityFetch<Category[]>(query);
   } catch (error) {
     console.error("Error fetching all main categories:", error);
     return [];
@@ -53,7 +69,7 @@ export async function getSubSubcategoriesByParentAndGender(
   } | order(sortOrder asc, title asc)`;
 
   try {
-    return await client.fetch(query, { parentSlug, gender: dbGender });
+    return await sanityFetch<Category[]>(query, { parentSlug, gender: dbGender });
   } catch (error) {
     console.error(
       `Error fetching sub-subcategories for parent ${parentSlug} and gender ${gender}:`,
@@ -88,7 +104,7 @@ export async function getSubcategoriesByParentAndGender(
   } | order(title asc)`;
 
   try {
-    const result = await client.fetch(query, { parentSlug, gender: dbGender });
+    const result = await sanityFetch<Category[]>(query, { parentSlug, gender: dbGender });
     return result;
   } catch (error) {
     console.error(

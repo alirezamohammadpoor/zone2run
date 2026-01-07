@@ -1,4 +1,3 @@
-import { draftMode } from "next/headers";
 import { getHomepage } from "@/sanity/lib/getData";
 import HomePageSanity from "@/components/homepage/HomePageSanity";
 import { notFound } from "next/navigation";
@@ -7,10 +6,9 @@ import { notFound } from "next/navigation";
 export const revalidate = 300;
 
 export default async function Home() {
-  const { isEnabled: isPreview } = await draftMode();
-
   try {
-    const homepage = await getHomepage(isPreview);
+    // Preview mode is handled client-side by PreviewProvider
+    const homepage = await getHomepage();
 
     if (!homepage) {
       console.error("No homepage data found");

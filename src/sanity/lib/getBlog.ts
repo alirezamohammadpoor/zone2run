@@ -1,5 +1,23 @@
-import { client } from "@/sanity/lib/client";
+import { sanityFetch } from "@/sanity/lib/client";
 import { buildLimitClause } from "./groqUtils";
+
+// BlogPost type for listing queries (getBlogPosts)
+interface BlogPostListing {
+  _id: string;
+  title: string;
+  slug: { current: string };
+  excerpt?: string;
+  publishedAt?: string;
+  author?: string;
+  readingTime?: number;
+  category?: { title: string; slug: { current: string } };
+  featuredImage?: { asset: { url: string; metadata?: unknown }; alt?: string };
+  editorialImage?: { asset: { url: string; metadata?: unknown }; alt?: string };
+  productsModule?: unknown;
+  featuredProductsModule?: unknown;
+  productShowcaseModule?: unknown;
+}
+
 
 export async function getBlogPosts(limit?: number) {
   const query = `*[_type == "blogPost"] | order(publishedAt desc) {
@@ -86,7 +104,7 @@ export async function getBlogPosts(limit?: number) {
   }${buildLimitClause(limit)}`;
 
   try {
-    return await client.fetch(query);
+    return await sanityFetch<BlogPostListing[]>(query);
   } catch (error) {
     console.error("Error fetching blog posts:", error);
     return [];
@@ -174,7 +192,8 @@ export async function getBlogPost(slug: string) {
   }`;
 
   try {
-    const post = await client.fetch(query, { slug });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const post = await sanityFetch<any>(query, { slug });
     return post;
   } catch (error) {
     console.error(`Error fetching blog post ${slug}:`, error);
