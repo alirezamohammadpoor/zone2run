@@ -4,23 +4,10 @@ import { NextRequest, NextResponse } from "next/server";
 const REVALIDATE_SECRET = process.env.SANITY_REVALIDATE_SECRET;
 
 export async function POST(request: NextRequest) {
-  // Verify secret
   const secret = request.nextUrl.searchParams.get("secret");
 
-  // Debug: log what we're comparing (remove after testing)
-  console.log("Received secret:", secret);
-  console.log("Expected secret:", REVALIDATE_SECRET);
-  console.log("Env var exists:", !!REVALIDATE_SECRET);
-
   if (secret !== REVALIDATE_SECRET) {
-    return NextResponse.json({
-      message: "Invalid secret",
-      debug: {
-        receivedLength: secret?.length,
-        expectedLength: REVALIDATE_SECRET?.length,
-        envExists: !!REVALIDATE_SECRET
-      }
-    }, { status: 401 });
+    return NextResponse.json({ message: "Invalid secret" }, { status: 401 });
   }
 
   try {
@@ -39,9 +26,11 @@ export async function POST(request: NextRequest) {
         revalidatePath(`/${body.gender}`);
         revalidated.push(`/${body.gender}`);
       }
-      if (body.brand?.slug) {
-        revalidatePath(`/brands/${body.brand.slug}`);
-        revalidated.push(`/brands/${body.brand.slug}`);
+      // Handle both {slug: "value"} and {slug: {current: "value"}} formats
+      const brandSlug = body.brand?.slug?.current || body.brand?.slug;
+      if (brandSlug && typeof brandSlug === "string") {
+        revalidatePath(`/brands/${brandSlug}`);
+        revalidated.push(`/brands/${brandSlug}`);
       }
     }
 
