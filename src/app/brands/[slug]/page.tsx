@@ -5,6 +5,9 @@ import { decodeBrandSlug } from "@/lib/utils/brandUrls";
 import Image from "next/image";
 import { urlFor } from "@/sanity/lib/image";
 
+// ISR: Revalidate every 10 minutes, on-demand via Sanity webhook
+export const revalidate = 600;
+
 export default async function BrandPage({
   params,
   searchParams,

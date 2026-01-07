@@ -9,6 +9,9 @@ import ProductEditorialImages from "@/components/product/ProductEditorialImages"
 import RelatedProductsSkeleton from "@/components/skeletons/RelatedProductsSkeleton";
 import EditorialImageSkeleton from "@/components/skeletons/EditorialImageSkeleton";
 
+// ISR: Revalidate every 5 minutes, on-demand via Sanity webhook
+export const revalidate = 300;
+
 export default async function ProductPage({
   params,
 }: {

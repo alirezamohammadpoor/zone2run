@@ -2,6 +2,9 @@ import { getBlogPosts } from "@/sanity/lib/getData";
 import Image from "next/image";
 import Link from "next/link";
 
+// ISR: Revalidate every 10 minutes, on-demand via Sanity webhook
+export const revalidate = 600;
+
 // Helper function to format dates consistently for SSR
 function formatDate(dateString: string) {
   const date = new Date(dateString);

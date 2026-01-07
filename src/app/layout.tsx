@@ -23,6 +23,9 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://cdn.sanity.io" />
+      </head>
       <body>
         {isPreview && (
           <>
