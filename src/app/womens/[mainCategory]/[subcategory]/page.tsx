@@ -2,6 +2,9 @@ import { getProductsBySubcategoryIncludingSubSubcategories } from "@/sanity/lib/
 import { notFound } from "next/navigation";
 import ProductGrid from "@/components/ProductGrid";
 
+// ISR: Revalidate every 5 minutes, on-demand via Sanity webhook
+export const revalidate = 300;
+
 export default async function WomensSubcategoryPage({
   params,
 }: {
