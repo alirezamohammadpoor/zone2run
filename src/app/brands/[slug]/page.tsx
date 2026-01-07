@@ -54,6 +54,8 @@ export default async function BrandPage({
                   fill
                   className="object-cover"
                   sizes="100vw"
+                  priority
+                  fetchPriority="high"
                 />
               </div>
             </div>
@@ -69,6 +71,8 @@ export default async function BrandPage({
                 fill
                 className="object-cover"
                 sizes="25vw"
+                priority
+                fetchPriority="high"
               />
             </div>
           </div>

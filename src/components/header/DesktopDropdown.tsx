@@ -68,12 +68,23 @@ export default function DesktopDropdown({
       onClose();
     };
 
+    const handleViewAllEditorials = () => {
+      router.push("/blog");
+      onClose();
+    };
+
     return (
       <div className="flex justify-between py-4 px-4">
         {/* Left side - Editorial titles */}
         <div>
           <h3 className="text-xs mb-4">Editorials</h3>
           <div className="space-y-2">
+            <button
+              className="block text-xs hover:text-gray-500 py-1 text-left"
+              onClick={handleViewAllEditorials}
+            >
+              View All Editorials
+            </button>
             {blogPosts?.map((post) => {
               if (!post?.slug?.current) return null;
               return (

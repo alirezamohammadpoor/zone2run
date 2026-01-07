@@ -16,6 +16,8 @@ export {
   getAllMainCategories,
   getSubSubcategoriesByParentAndGender,
   getSubcategoriesByParentAndGender,
+  getFullMenuData,
+  getCategoryHierarchyForGender,
   type Category,
 } from "./getCategories";
 

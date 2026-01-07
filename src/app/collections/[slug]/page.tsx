@@ -40,6 +40,8 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
                   fill
                   className="object-cover"
                   sizes="100vw"
+                  priority
+                  fetchPriority="high"
                 />
               </div>
             </div>
@@ -55,6 +57,8 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
                 fill
                 className="object-cover"
                 sizes="25vw"
+                priority
+                fetchPriority="high"
               />
             </div>
           </div>

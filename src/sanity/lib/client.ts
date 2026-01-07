@@ -24,9 +24,19 @@ export const previewClient = createClient({
   },
 })
 
-// Helper to get the appropriate client based on preview mode
-export function getClient(preview = false) {
-  return preview ? previewClient : client
+/**
+ * Cached fetch for Sanity queries (Next.js 15 requires explicit cache)
+ * Next.js 15 changed default fetch behavior from 'force-cache' to 'no-store'
+ * This wrapper ensures all Sanity queries are cached for ISR
+ * Revalidation is controlled by page-level `export const revalidate = X`
+ */
+export async function sanityFetch<T>(
+  query: string,
+  params: QueryParams = {}
+): Promise<T> {
+  return client.fetch<T>(query, params, {
+    cache: 'force-cache',
+  })
 }
 
 /**
