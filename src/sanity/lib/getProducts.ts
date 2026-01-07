@@ -1,4 +1,4 @@
-import { client } from "@/sanity/lib/client";
+import { sanityFetch } from "@/sanity/lib/client";
 import type { SanityProduct } from "@/types/sanityProduct";
 import {
   BASE_PRODUCT_PROJECTION,
@@ -35,7 +35,7 @@ export async function getSanityProductByHandle(
   }`;
 
   try {
-    return await client.fetch(query, { handle });
+    return await sanityFetch<SanityProduct | null>(query, { handle });
   } catch (error) {
     console.error("Error fetching Sanity product by handle:", error);
     return null;
@@ -48,7 +48,7 @@ export async function getAllProducts(): Promise<SanityProduct[]> {
   }`;
 
   try {
-    return await client.fetch(query);
+    return await sanityFetch<SanityProduct[]>(query);
   } catch (error) {
     console.error("Error fetching all products:", error);
     return [];
@@ -88,7 +88,7 @@ export async function getProductsByBrand(
 
   try {
     const params = dbGender ? { brandSlug, dbGender } : { brandSlug };
-    return await client.fetch(query, params);
+    return await sanityFetch<SanityProduct[]>(query, params);
   } catch (error) {
     console.error(`Error fetching products for brand ${brandSlug}:`, error);
     return [];
@@ -106,7 +106,7 @@ export async function getProductsByGender(
   } | order(title asc)${buildLimitClause(limit)}`;
 
   try {
-    return await client.fetch(query, { gender: dbGender });
+    return await sanityFetch<SanityProduct[]>(query, { gender: dbGender });
   } catch (error) {
     console.error(`Error fetching products for gender ${gender}:`, error);
     return [];
@@ -147,7 +147,7 @@ export async function getProductsByPath(
   } | order(title asc)${buildLimitClause(limit)}`;
 
   try {
-    return await client.fetch(query, {
+    return await sanityFetch<SanityProduct[]>(query, {
       gender: dbGender,
       categoryType,
       categorySlug,
@@ -206,7 +206,7 @@ export async function getProductsBySubcategoryIncludingSubSubcategories(
   } | order(title asc)${buildLimitClause(limit)}`;
 
   try {
-    return await client.fetch(query, {
+    return await sanityFetch<SanityProduct[]>(query, {
       gender: dbGender,
       mainCategorySlug,
       subcategorySlug,
@@ -240,7 +240,7 @@ export async function getProductsByPath3Level(
   } | order(title asc)${buildLimitClause(limit)}`;
 
   try {
-    return await client.fetch(query, {
+    return await sanityFetch<SanityProduct[]>(query, {
       gender: dbGender,
       mainCategorySlug,
       subcategorySlug,
@@ -280,7 +280,7 @@ export async function getProductsByIds(
   }`;
 
   try {
-    const products = await client.fetch(query, { productIds });
+    const products = await sanityFetch<SanityProduct[]>(query, { productIds });
     return products;
   } catch (error) {
     console.error("Error fetching products by IDs:", error);

@@ -1,4 +1,4 @@
-import { getClient } from "./client";
+import { getClient, sanityFetch } from "./client";
 
 // Shared modules projection for both queries
 const modulesProjection = `modules[] {
@@ -125,8 +125,6 @@ const modulesProjection = `modules[] {
 }`;
 
 export async function getHomepage(preview = false) {
-  const client = getClient(preview);
-
   // First try to get homepage via siteSettings (new system)
   // Use _id == "siteSettings" to target the singleton specifically
   const siteSettingsQuery = `*[_id == "siteSettings"][0] {
@@ -151,15 +149,24 @@ export async function getHomepage(preview = false) {
   }`;
 
   try {
-    // Try new system first
-    const homepage = await client.fetch(siteSettingsQuery);
+    // Preview mode uses previewClient (uncached, drafts)
+    // Production uses sanityFetch (cached for ISR)
+    if (preview) {
+      const client = getClient(true);
+      const homepage = await client.fetch(siteSettingsQuery);
+      if (homepage) return homepage;
+      return await client.fetch(fallbackQuery);
+    }
+
+    // Try new system first (cached)
+    const homepage = await sanityFetch<unknown>(siteSettingsQuery);
 
     if (homepage) {
       return homepage;
     }
 
-    // Fallback to old system during migration
-    return await client.fetch(fallbackQuery);
+    // Fallback to old system during migration (cached)
+    return await sanityFetch<unknown>(fallbackQuery);
   } catch (error) {
     console.error("Error fetching homepage:", error);
     return null;

@@ -1,10 +1,10 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getAllMainCategories } from "@/sanity/lib/getData";
+import { getAllMainCategories, type Category } from "@/sanity/lib/getData";
 
 function CategoriesSection() {
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const router = useRouter();
   useEffect(() => {
     const fetchCategories = async () => {

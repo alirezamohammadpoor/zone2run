@@ -1,5 +1,24 @@
-import { client } from "@/sanity/lib/client";
+import { sanityFetch } from "@/sanity/lib/client";
 import type { SanityProduct } from "@/types/sanityProduct";
+
+interface Collection {
+  _id: string;
+  title: string;
+  slug: { current: string };
+  menuImage?: { asset: { _id: string; url: string }; alt?: string };
+  sortOrder?: number;
+  shopifyId?: number;
+  description?: string;
+  gridLayout?: "4col" | "3col";
+  productsPerImage?: number;
+  editorialImages?: Array<{
+    _key: string;
+    image: { asset: { _id: string; url: string }; alt?: string };
+    caption?: string;
+  }>;
+  curatedProducts?: Array<{ _id: string; handle?: string }>;
+  products?: SanityProduct[];
+}
 
 export async function getAllCollections() {
   const query = `*[_type == "collection"] | order(sortOrder asc, store.title asc) {
@@ -19,14 +38,14 @@ export async function getAllCollections() {
   }`;
 
   try {
-    return await client.fetch(query);
+    return await sanityFetch<Collection[]>(query);
   } catch (error) {
     console.error("Error fetching collections:", error);
     return [];
   }
 }
 
-export async function getCollectionBySlug(slug: string) {
+export async function getCollectionBySlug(slug: string): Promise<Collection | null> {
   const collectionQuery = `*[_type == "collection" && (store.slug.current == $slug || lower(store.slug.current) == lower($slug))][0]{
     _id,
     "title": store.title,
@@ -107,14 +126,14 @@ export async function getCollectionBySlug(slug: string) {
   }`;
 
   try {
-    const collection = await client.fetch(collectionQuery, { slug });
+    const collection = await sanityFetch<Collection | null>(collectionQuery, { slug });
     if (!collection) return null;
 
     const shopifyIdStr = collection.shopifyId
       ? collection.shopifyId.toString()
       : "";
 
-    let products = await client.fetch(productsQuery, {
+    let products = await sanityFetch<SanityProduct[]>(productsQuery, {
       collectionId: collection._id,
       shopifyIdStr: shopifyIdStr,
     });
@@ -238,14 +257,14 @@ export async function getProductsByCollectionId(
   }`;
 
   try {
-    const collection = await client.fetch(collectionQuery, { collectionId });
+    const collection = await sanityFetch<Collection | null>(collectionQuery, { collectionId });
     if (!collection) return [];
 
     const shopifyIdStr = collection.shopifyId
       ? collection.shopifyId.toString()
       : "";
 
-    let products = await client.fetch(productsQuery, {
+    let products = await sanityFetch<SanityProduct[]>(productsQuery, {
       collectionId: collection._id,
       shopifyIdStr: shopifyIdStr,
     });

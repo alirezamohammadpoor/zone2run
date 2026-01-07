@@ -16,6 +16,7 @@ export {
   getAllMainCategories,
   getSubSubcategoriesByParentAndGender,
   getSubcategoriesByParentAndGender,
+  type Category,
 } from "./getCategories";
 
 export { getAllBrands, getBrandBySlug } from "./getBrands";

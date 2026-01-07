@@ -1,6 +1,17 @@
-import { client } from "./client";
+import { sanityFetch } from "./client";
 
-export async function getNotFoundPage() {
+interface NotFoundPage {
+  title?: string;
+  body?: string;
+  image?: {
+    asset: { url: string };
+    alt?: string;
+    hotspot?: { x: number; y: number };
+  };
+  buttons?: Array<{ text: string; link: string }>;
+}
+
+export async function getNotFoundPage(): Promise<NotFoundPage | null> {
   const query = `*[_type == "settings"][0].notFoundPage {
     title,
     body,
@@ -16,7 +27,7 @@ export async function getNotFoundPage() {
   }`;
 
   try {
-    return await client.fetch(query);
+    return await sanityFetch<NotFoundPage | null>(query);
   } catch (error) {
     console.error("Error fetching 404 page settings:", error);
     return null;
@@ -85,7 +96,7 @@ export async function getFooterSettings(): Promise<FooterSettings | null> {
   }`;
 
   try {
-    return await client.fetch(query);
+    return await sanityFetch<FooterSettings | null>(query);
   } catch (error) {
     console.error("Error fetching footer settings:", error);
     return null;
