@@ -18,6 +18,22 @@ export interface Category {
   };
 }
 
+export interface Category {
+  _id: string;
+  title: string;
+  slug: { current: string };
+  description?: string;
+  productCount?: number;
+  featured?: boolean;
+  sortOrder?: number;
+  categoryType?: string;
+  parentCategory?: {
+    _id: string;
+    title: string;
+    slug: { current: string };
+  };
+}
+
 export async function getAllMainCategories() {
   const query = `*[_type == "category" && categoryType == "main"] {
     _id,
