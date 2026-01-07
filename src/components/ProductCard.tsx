@@ -14,6 +14,7 @@ interface ProductCardProps {
   className?: string;
   onBrandClick?: (slug: string) => void;
   onClick?: () => void; // Custom click handler (for carousels with drag detection)
+  priority?: boolean; // For LCP optimization on first row
 }
 
 export default function ProductCard({
@@ -22,6 +23,7 @@ export default function ProductCard({
   className = "",
   onBrandClick,
   onClick,
+  priority = false,
 }: ProductCardProps) {
   const router = useRouter();
 
@@ -59,6 +61,8 @@ export default function ProductCard({
             sizes={sizes}
             className="object-cover transition-opacity duration-300 group-hover:opacity-0"
             draggable={false}
+            priority={priority}
+            loading={priority ? "eager" : "lazy"}
           />
           {hoverImage?.url && (
             <Image

@@ -36,6 +36,7 @@ export default async function BrandPage({
   // Extract first editorial image for header, rest for grid
   const firstEditorialImage = brand?.editorialImages?.[0];
   const remainingEditorialImages = brand?.editorialImages?.slice(1);
+  const blurDataURL = firstEditorialImage?.image?.asset?.metadata?.lqip;
 
   return (
     <div>
@@ -56,6 +57,8 @@ export default async function BrandPage({
                   sizes="100vw"
                   priority
                   fetchPriority="high"
+                  placeholder={blurDataURL ? "blur" : "empty"}
+                  blurDataURL={blurDataURL}
                 />
               </div>
             </div>
@@ -73,6 +76,8 @@ export default async function BrandPage({
                 sizes="25vw"
                 priority
                 fetchPriority="high"
+                placeholder={blurDataURL ? "blur" : "empty"}
+                blurDataURL={blurDataURL}
               />
             </div>
           </div>

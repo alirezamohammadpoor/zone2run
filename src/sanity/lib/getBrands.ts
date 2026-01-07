@@ -10,7 +10,7 @@ interface Brand {
   description?: string;
   editorialImages?: Array<{
     _key: string;
-    image: { asset: { _id: string; url: string }; alt?: string };
+    image: { asset: { _id: string; url: string; metadata?: { lqip?: string } }; alt?: string };
     caption?: string;
   }>;
 }
@@ -49,7 +49,10 @@ export async function getBrandBySlug(slug: string) {
       image {
         asset-> {
           _id,
-          url
+          url,
+          metadata {
+            lqip
+          }
         },
         alt
       },
