@@ -6,6 +6,9 @@ import BlogProductGrid from "@/components/blog/BlogProductGrid";
 import BlogProductCarousel from "@/components/blog/BlogProductCarousel";
 import type { SanityProduct } from "@/types/sanityProduct";
 
+// ISR: Revalidate every hour, on-demand via Sanity webhook
+export const revalidate = 3600;
+
 type BlogProductsDisplayType = "horizontal" | "grid";
 
 interface BlogProductsModuleItem {

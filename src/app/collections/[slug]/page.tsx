@@ -4,6 +4,9 @@ import { getCollectionBySlug } from "@/sanity/lib/getData";
 import Image from "next/image";
 import { urlFor } from "@/sanity/lib/image";
 
+// ISR: Revalidate every 5 minutes, on-demand via Sanity webhook
+export const revalidate = 300;
+
 interface CollectionPageProps {
   params: Promise<{ slug: string }>;
 }
