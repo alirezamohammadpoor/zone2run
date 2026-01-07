@@ -63,6 +63,7 @@ export default function ProductCard({
             draggable={false}
             priority={priority}
             loading={priority ? "eager" : "lazy"}
+            fetchPriority={priority ? "high" : "auto"}
           />
           {hoverImage?.url && (
             <Image
