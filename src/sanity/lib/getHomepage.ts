@@ -1,4 +1,4 @@
-import { getClient, sanityFetch } from "./client";
+import { previewClient, sanityFetch } from "./client";
 
 // Shared modules projection for both queries
 const modulesProjection = `modules[] {
@@ -152,10 +152,9 @@ export async function getHomepage(preview = false) {
     // Preview mode uses previewClient (uncached, drafts)
     // Production uses sanityFetch (cached for ISR)
     if (preview) {
-      const client = getClient(true);
-      const homepage = await client.fetch(siteSettingsQuery);
+      const homepage = await previewClient.fetch(siteSettingsQuery);
       if (homepage) return homepage;
-      return await client.fetch(fallbackQuery);
+      return await previewClient.fetch(fallbackQuery);
     }
 
     // Try new system first (cached)

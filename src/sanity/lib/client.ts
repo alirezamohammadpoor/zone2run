@@ -24,11 +24,6 @@ export const previewClient = createClient({
   },
 })
 
-// Helper to get the appropriate client based on preview mode
-export function getClient(preview = false) {
-  return preview ? previewClient : client
-}
-
 /**
  * Cached fetch for Sanity queries (Next.js 15 requires explicit cache)
  * Next.js 15 changed default fetch behavior from 'force-cache' to 'no-store'

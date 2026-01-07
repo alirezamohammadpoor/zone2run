@@ -3,13 +3,10 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import MenuModal from "./menumodal/MenuModal";
-import SearchModal from "./SearchModal";
-// import { useSearchStore } from "@/store/searchStore";
 import CartModal from "./CartModal";
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
 import { useCartStore } from "@/lib/cart/store";
 import { useHasMounted } from "@/hooks/useHasMounted";
-import { Search } from "lucide-react";
 import AddedToCartModal from "./product/AddedToCartModal";
 import DesktopDropdown from "./header/DesktopDropdown";
 import type {
@@ -147,7 +144,6 @@ function Header({
         brands={brands}
         menuConfig={menuConfig}
       />
-      <SearchModal />
       <CartModal isCartOpen={isCartOpen} setIsCartOpen={setIsCartOpen} />
       <AddedToCartModal isCartOpen={isCartOpen} setIsCartOpen={setIsCartOpen} />
     </header>

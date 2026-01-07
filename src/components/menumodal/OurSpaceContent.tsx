@@ -20,20 +20,22 @@ function OurSpaceContent({
     }
   };
 
-  if (!links || links.length === 0) {
-    return (
-      <div className="p-6">
-        <h2 className="text-xl font-semibold mb-4">Our Space</h2>
-        <p className="text-gray-500">No links configured.</p>
-      </div>
-    );
-  }
+  const handleViewAllEditorials = () => {
+    router.push("/blog");
+    onClose();
+  };
 
   return (
     <div className="px-2 py-2">
       <h2 className="text-sm font-semibold mb-4">Our Space</h2>
       <div className="space-y-2">
-        {links.map((link, index) => (
+        <button
+          className="text-xs hover:text-gray-500 text-left w-full block"
+          onClick={handleViewAllEditorials}
+        >
+          View All Editorials
+        </button>
+        {links?.map((link, index) => (
           <button
             key={link._key || index}
             className="text-xs hover:text-gray-500 text-left w-full block"
