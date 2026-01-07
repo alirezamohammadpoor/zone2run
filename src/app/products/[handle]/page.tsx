@@ -12,6 +12,16 @@ import EditorialImageSkeleton from "@/components/skeletons/EditorialImageSkeleto
 // ISR: Revalidate every 5 minutes, on-demand via Sanity webhook
 export const revalidate = 300;
 
+// Allow dynamic params for product handles not generated at build time
+export const dynamicParams = true;
+
+// Generate static params for all products (enables ISR)
+export async function generateStaticParams() {
+  // Return empty array - pages will be generated on-demand and cached
+  // This enables ISR behavior: first request generates the page, subsequent requests are cached
+  return [];
+}
+
 export default async function ProductPage({
   params,
 }: {
