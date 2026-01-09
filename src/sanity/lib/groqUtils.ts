@@ -100,8 +100,14 @@ export const BASE_PRODUCT_PROJECTION =
 },
 "mainImage": {
   "url": coalesce(mainImage.asset->url, store.previewImageUrl),
-  "alt": coalesce(mainImage.alt, store.title)
+  "alt": coalesce(mainImage.alt, store.title),
+  "lqip": mainImage.asset->metadata.lqip
 },
+"gallery": gallery[] {
+  "url": asset->url,
+  alt,
+  "lqip": asset->metadata.lqip
+} | order(_key asc),
 "options": store.options,
 "variants": ` +
   PRODUCT_VARIANTS_PROJECTION +
@@ -116,12 +122,7 @@ gender,
 featured`;
 
 /**
- * Full product projection including gallery
+ * Full product projection (same as BASE now that gallery is included)
+ * @deprecated Use BASE_PRODUCT_PROJECTION instead - gallery is now included by default
  */
-export const FULL_PRODUCT_PROJECTION =
-  BASE_PRODUCT_PROJECTION +
-  `,
-"gallery": gallery[] {
-  "url": asset->url,
-  alt
-} | order(_key asc)`;
+export const FULL_PRODUCT_PROJECTION = BASE_PRODUCT_PROJECTION;
