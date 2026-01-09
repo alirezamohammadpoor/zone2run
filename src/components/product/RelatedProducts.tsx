@@ -89,6 +89,7 @@ function RelatedProducts({
                 sizes="(min-width: 1280px) 25vw, 70vw"
                 onClick={() => handleProductClick(product.handle)}
                 onBrandClick={handleBrandClick}
+                disableGallery
               />
             ))}
           </div>

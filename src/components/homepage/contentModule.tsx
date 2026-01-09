@@ -325,6 +325,7 @@ function ContentModuleComponent({
                 sizes="(max-width: 768px) 70vw, 33vw"
                 onClick={() => handleProductClick(product.handle)}
                 onBrandClick={handleBrandClick}
+                disableGallery
               />
             );
           })}
