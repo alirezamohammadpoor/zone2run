@@ -29,7 +29,7 @@ export default async function BlogPage() {
         </p>
       </div>
       <div className="flex flex-col gap-4 xl:grid xl:grid-cols-3 xl:gap-2">
-        {posts.map((post: any) => {
+        {posts.map((post) => {
           const imageUrl =
             post.editorialImage?.asset?.url || post.featuredImage?.asset?.url;
           const imageAlt =
@@ -64,7 +64,7 @@ export default async function BlogPage() {
 
                   <div className="flex items-center justify-between text-xs mt-2">
                     <span>By {post.author}</span>
-                    <span>{formatDate(post.publishedAt)}</span>
+                    {post.publishedAt && <span>{formatDate(post.publishedAt)}</span>}
                   </div>
                 </div>
               </Link>

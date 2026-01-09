@@ -6,7 +6,7 @@ import Image from "next/image";
 import useEmblaCarousel from "embla-carousel-react";
 import { getBrandUrl } from "@/lib/utils/brandUrls";
 import { urlFor } from "@/sanity/lib/image";
-import type { BrandMenuItem, CollectionMenuItem, MenuData } from "@/types/menu";
+import type { BrandMenuItem, CollectionMenuItem, MenuData, SubcategoryMenuItem, SubSubcategoryMenuItem } from "@/types/menu";
 
 function MenContent({
   onClose,
@@ -186,7 +186,7 @@ function MenContent({
                 </button>
 
                 {/* Subcategories */}
-                {(subcategories as any[]).map((subcategory: any) => {
+                {(subcategories as SubcategoryMenuItem[]).map((subcategory) => {
                   const isSubOpen = openSubcategories.has(
                     subcategory.slug.current
                   );
@@ -275,7 +275,7 @@ function MenContent({
                             View All {subcategory.title}
                           </button>
 
-                          {subSubcats.map((subSubcat: any) => (
+                          {subSubcats.map((subSubcat: SubSubcategoryMenuItem) => (
                             <button
                               key={subSubcat._id}
                               className="text-xs hover:text-gray-500 pl-2 text-left w-full"
@@ -340,7 +340,7 @@ function MenContent({
               }`}
             >
               {/* Brand list */}
-              {brands.map((brand: any) => {
+              {brands.map((brand) => {
                 if (!brand?.slug?.current) return null;
                 return (
                   <button
@@ -348,7 +348,7 @@ function MenContent({
                     className="text-xs hover:text-gray-500 pl-2 text-left w-full"
                     onClick={() => handleBrandClick(brand.slug.current)}
                   >
-                    {brand.name || brand.title}
+                    {brand.name}
                   </button>
                 );
               })}

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { urlFor } from "@/sanity/lib/image";
 import { getBrandUrl } from "@/lib/utils/brandUrls";
-import type { BrandMenuItem, CollectionMenuItem, MenuData } from "@/types/menu";
+import type { BrandMenuItem, CollectionMenuItem, MenuData, SubcategoryMenuItem, SubSubcategoryMenuItem } from "@/types/menu";
 
 interface DropdownContentProps {
   type: "men" | "women";
@@ -98,7 +98,7 @@ export default function DropdownContent({
               {category}
             </button>
             <div className="space-y-1">
-              {(subcategories as any[]).map((subcategory: any) => {
+              {(subcategories as SubcategoryMenuItem[]).map((subcategory) => {
                 const subSubcats = subcategory.subSubcategories || [];
                 const isSubOpen = openSubcategories.has(subcategory.slug.current);
 
@@ -143,7 +143,7 @@ export default function DropdownContent({
                               : "max-h-0 opacity-0"
                           }`}
                         >
-                          {subSubcats.map((subSubcat: any) => (
+                          {subSubcats.map((subSubcat: SubSubcategoryMenuItem) => (
                             <button
                               key={subSubcat._id}
                               className="block text-xs text-black hover:text-gray-500 py-0.5"

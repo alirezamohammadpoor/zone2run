@@ -2,8 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import type { CategoryHierarchy, SubcategoryMenuItem } from "@/types/menu";
 
-function BrandContent({ onClose, data }: { onClose: () => void; data: any }) {
+function BrandContent({ onClose, data }: { onClose: () => void; data: CategoryHierarchy }) {
   const router = useRouter();
   const [openCategories, setOpenCategories] = useState<Set<string>>(new Set());
   const [openSubcategories, setOpenSubcategories] = useState<Set<string>>(
@@ -115,7 +116,7 @@ function BrandContent({ onClose, data }: { onClose: () => void; data: any }) {
                 </button>
 
                 {/* Subcategories */}
-                {(subcategories as any[]).map((subcategory: any) => {
+                {(subcategories as SubcategoryMenuItem[]).map((subcategory) => {
                   const isSubOpen = openSubcategories.has(
                     subcategory.slug.current
                   );
@@ -204,7 +205,7 @@ function BrandContent({ onClose, data }: { onClose: () => void; data: any }) {
                             View All {subcategory.title}
                           </button>
 
-                          {subSubcats.map((subSubcat: any) => (
+                          {subSubcats.map((subSubcat) => (
                             <button
                               key={subSubcat._id}
                               className="text-xs hover:text-gray-500 pl-2 text-left w-full"

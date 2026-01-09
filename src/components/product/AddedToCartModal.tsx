@@ -16,7 +16,7 @@ function AddedToCartModal({
     lastAddedProduct,
     hideAddedToCart,
     setLastAddedProduct,
-  } = useUIStore((state: any) => state);
+  } = useUIStore((state) => state);
 
   const [isVisible, setIsVisible] = useState(false);
 

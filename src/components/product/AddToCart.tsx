@@ -14,7 +14,7 @@ interface AddToCartProps {
 function AddToCart({ product, selectedVariant }: AddToCartProps) {
   const [isAdded, setIsAdded] = useState(false);
   const addItem = useCartStore((state) => state.addItem);
-  const showAddedToCart = useUIStore((state: any) => state.showAddedToCart);
+  const showAddedToCart = useUIStore((state) => state.showAddedToCart);
   const [openVariantSelector, setOpenVariantSelector] = useState(false);
   const handleClick = async () => {
     if (!selectedVariant || isAdded) return;
