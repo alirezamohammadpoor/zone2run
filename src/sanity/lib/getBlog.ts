@@ -2,7 +2,7 @@ import { sanityFetch } from "@/sanity/lib/client";
 import { buildLimitClause } from "./groqUtils";
 
 // BlogPost type for listing queries (getBlogPosts)
-interface BlogPostListing {
+export interface BlogPostListing {
   _id: string;
   title: string;
   slug: { current: string };
@@ -37,9 +37,10 @@ export async function getBlogPosts(limit?: number) {
           brand-> { _id, name },
           "mainImage": {
             "url": coalesce(mainImage.asset->url, store.previewImageUrl),
-            "alt": coalesce(mainImage.alt, store.title)
+            "alt": coalesce(mainImage.alt, store.title),
+            "lqip": mainImage.asset->metadata.lqip
           },
-          "gallery": gallery[] { "url": asset->url, alt } | order(_key asc)
+          "gallery": gallery[] { "url": asset->url, alt, "lqip": asset->metadata.lqip } | order(_key asc)
         }
       }
     },
@@ -54,9 +55,10 @@ export async function getBlogPosts(limit?: number) {
           brand-> { _id, name },
           "mainImage": {
             "url": coalesce(mainImage.asset->url, store.previewImageUrl),
-            "alt": coalesce(mainImage.alt, store.title)
+            "alt": coalesce(mainImage.alt, store.title),
+            "lqip": mainImage.asset->metadata.lqip
           },
-          "gallery": gallery[] { "url": asset->url, alt } | order(_key asc)
+          "gallery": gallery[] { "url": asset->url, alt, "lqip": asset->metadata.lqip } | order(_key asc)
         }
       }
     },
@@ -71,9 +73,10 @@ export async function getBlogPosts(limit?: number) {
           brand-> { _id, name },
           "mainImage": {
             "url": coalesce(mainImage.asset->url, store.previewImageUrl),
-            "alt": coalesce(mainImage.alt, store.title)
+            "alt": coalesce(mainImage.alt, store.title),
+            "lqip": mainImage.asset->metadata.lqip
           },
-          "gallery": gallery[] { "url": asset->url, alt } | order(_key asc)
+          "gallery": gallery[] { "url": asset->url, alt, "lqip": asset->metadata.lqip } | order(_key asc)
         }
       }
     },
@@ -169,9 +172,10 @@ export async function getBlogPost(slug: string) {
           },
           "mainImage": {
             "url": coalesce(mainImage.asset->url, store.previewImageUrl),
-            "alt": coalesce(mainImage.alt, store.title)
+            "alt": coalesce(mainImage.alt, store.title),
+            "lqip": mainImage.asset->metadata.lqip
           },
-          "gallery": gallery[] { "url": asset->url, alt } | order(_key asc)
+          "gallery": gallery[] { "url": asset->url, alt, "lqip": asset->metadata.lqip } | order(_key asc)
         }
       }
     },
