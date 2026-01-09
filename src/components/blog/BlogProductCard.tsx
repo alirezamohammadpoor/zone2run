@@ -1,9 +1,8 @@
 "use client";
 
-import React from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import type { SanityProduct } from "@/types/sanityProduct";
+import ProductCardGallery from "@/components/ProductCardGallery";
 
 interface BlogProductCardProps {
   product: SanityProduct & { selectedImage?: { url: string; alt: string } };
@@ -16,35 +15,24 @@ export default function BlogProductCard({ product }: BlogProductCardProps) {
     router.push(`/products/${product.handle}`);
   };
 
-  const imageToUse = product.selectedImage || product.mainImage;
-  // Second image for hover effect (first gallery image, since mainImage is the primary)
-  const hoverImage = product.gallery?.[0];
+  // Build images array: selectedImage or mainImage first, then gallery
+  const primaryImage = product.selectedImage || product.mainImage;
+  const allImages = [
+    primaryImage,
+    ...(product.gallery || []),
+  ].filter(
+    (img): img is NonNullable<typeof img> => Boolean(img?.url)
+  );
 
   return (
-    <div
-      className="w-full aspect-[3/4] flex flex-col hover:cursor-pointer group"
-      onClick={handleClick}
-    >
-      {imageToUse?.url && (
-        <div className="w-full h-full relative bg-gray-100">
-          <Image
-            src={imageToUse.url}
-            alt={imageToUse.alt || "Product"}
-            fill
-            sizes="(max-width: 1280px) 50vw, 25vw"
-            className="object-cover transition-opacity duration-300 group-hover:opacity-0"
-          />
-          {hoverImage?.url && (
-            <Image
-              src={hoverImage.url}
-              alt={hoverImage.alt || "Product"}
-              fill
-              sizes="(max-width: 1280px) 50vw, 25vw"
-              className="object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-            />
-          )}
-        </div>
-      )}
+    <div className="w-full aspect-[3/4] flex flex-col hover:cursor-pointer">
+      <div className="w-full h-full relative bg-gray-100">
+        <ProductCardGallery
+          images={allImages}
+          sizes="(max-width: 1280px) 50vw, 25vw"
+          onNavigate={handleClick}
+        />
+      </div>
       <div className="mt-2 mb-10">
         <p className="text-xs cursor-pointer font-medium">
           {product.brand?.name}

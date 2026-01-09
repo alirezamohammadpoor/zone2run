@@ -86,6 +86,7 @@ export default function BlogProductCarousel({
               className="flex-shrink-0 w-[70vw] min-w-0 xl:w-[30vw]"
               sizes="(max-width: 768px) 70vw, 33vw"
               onBrandClick={handleBrandClick}
+              disableGallery
             />
           );
         })}
