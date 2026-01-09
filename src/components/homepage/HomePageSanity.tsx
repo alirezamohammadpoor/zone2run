@@ -1,5 +1,11 @@
 import { Suspense } from "react";
-import { type Home, type PortableTextModule } from "../../../sanity.types";
+import {
+  type Home,
+  type PortableTextModule,
+  type HeroModule as HeroModuleType,
+  type EditorialModule as EditorialModuleType,
+  type ImageModule as ImageModuleType,
+} from "../../../sanity.types";
 import HeroModule from "./heroModule";
 import EditorialModuleServer from "./EditorialModuleServer";
 import ImageModuleComponent from "./imageModule";
@@ -10,6 +16,13 @@ import {
 } from "@/sanity/lib/getData";
 import type { SanityProduct } from "@/types/sanityProduct";
 import BlogPostCardSkeleton from "@/components/skeletons/BlogPostCardSkeleton";
+
+// Union type for all homepage modules
+type HomepageModule =
+  | ({ _key: string } & HeroModuleType)
+  | ({ _key: string } & EditorialModuleType)
+  | ({ _key: string } & ImageModuleType)
+  | ({ _key: string } & PortableTextModule);
 
 async function HomePageSanity({ homepage }: { homepage: Home }) {
   if (!homepage) {
@@ -22,25 +35,24 @@ async function HomePageSanity({ homepage }: { homepage: Home }) {
 
   // Fetch products for portable text modules that include products
   const portableTextModulesWithProducts = homepage.modules?.filter(
-    (module: any) =>
+    (module): module is { _key: string } & PortableTextModule =>
       module._type === "portableTextModule" &&
       (module.contentType === "text-with-products" ||
         module.contentType === "media-with-products" ||
         module.contentType === "products-only")
-  ) as PortableTextModule[];
+  ) || [];
 
   const portableTextModulesWithProductsData = await Promise.all(
     portableTextModulesWithProducts.map(async (module) => {
-      const moduleAny = module as any;
-      const productSource = moduleAny.productSource || "manual";
+      const productSource = module.productSource || "manual";
 
       // If using collection source, fetch products from the collection
-      if (productSource === "collection" && moduleAny.collection?._ref) {
+      if (productSource === "collection" && module.collection?._ref) {
         const products = await getProductsByCollectionId(
-          moduleAny.collection._ref
+          module.collection._ref
         );
         return {
-          module: module as PortableTextModule,
+          module,
           products: products,
         };
       }
@@ -66,7 +78,7 @@ async function HomePageSanity({ homepage }: { homepage: Home }) {
           .filter((product) => product !== null && product !== undefined) || [];
 
       return {
-        module: module as PortableTextModule,
+        module,
         products: orderedProducts,
       };
     })
@@ -75,14 +87,14 @@ async function HomePageSanity({ homepage }: { homepage: Home }) {
   // Create map for quick lookup
   const portableTextProductsMap = new Map(
     portableTextModulesWithProductsData.map((item) => [
-      (item.module as any)._key,
+      item.module._key,
       item,
     ])
   );
 
   return (
     <div className="w-full">
-      {homepage.modules?.map((module: any) => {
+      {homepage.modules?.map((module) => {
         if (module._type === "heroModule") {
           return <HeroModule key={module._key} heroModule={module} />;
         }

@@ -6,6 +6,18 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import useEmblaCarousel from "embla-carousel-react";
 
+// Type for editorial blog posts (from getLatestBlogPosts query)
+interface EditorialBlogPost {
+  _id: string;
+  title: string;
+  slug: { current: string };
+  excerpt?: string;
+  category?: { slug: { current: string } };
+  editorialImage?: { asset?: { url: string }; alt?: string };
+  featuredImage?: { asset?: { url: string }; alt?: string };
+  gallery?: Array<{ asset?: { url: string }; alt?: string }>;
+}
+
 // Helper function to format dates consistently for SSR
 function formatDate(dateString: string) {
   const date = new Date(dateString);
@@ -17,7 +29,7 @@ function formatDate(dateString: string) {
 }
 
 // Helper function to get the selected image based on imageSelection
-function getSelectedImage(post: any, imageSelection: string) {
+function getSelectedImage(post: EditorialBlogPost, imageSelection: string) {
   if (imageSelection === "editorial") {
     // Use editorial image as primary choice
     return {
@@ -63,7 +75,7 @@ function EditorialModuleComponent({
   posts,
 }: {
   editorialModule: EditorialModule;
-  posts: any[];
+  posts: EditorialBlogPost[];
 }) {
   const router = useRouter();
   const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -106,7 +118,7 @@ function EditorialModuleComponent({
   }, [emblaApi]);
 
   const handlePostClick = useCallback(
-    (post: any) => {
+    (post: EditorialBlogPost) => {
       if (!isDraggingRef.current) {
         router.push(
           `/blog/${post.category?.slug?.current}/${post.slug?.current}`

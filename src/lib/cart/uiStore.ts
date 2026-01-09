@@ -28,7 +28,9 @@ interface UIActions {
   hideAddedToCart: () => void;
 }
 
-export const useUIStore = create<UIState & UIActions>((set) => ({
+export type UIStore = UIState & UIActions;
+
+export const useUIStore = create<UIStore>((set) => ({
   // State
   showAddedToCartModal: false,
   lastAddedProduct: null,

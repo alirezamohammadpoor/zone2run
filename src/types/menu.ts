@@ -92,6 +92,11 @@ export type BlogPostMenuItem = {
   };
 };
 
+// Category hierarchy for a single gender (used by menu components)
+export type CategoryHierarchy = {
+  [mainCategorySlug: string]: SubcategoryMenuItem[];
+};
+
 export type MenuConfig = {
   men?: {
     featuredCollections?: CollectionMenuItem[];
