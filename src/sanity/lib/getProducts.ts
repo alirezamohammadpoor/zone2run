@@ -18,7 +18,8 @@ export async function getSanityProductByHandle(
       "handle": coalesce(shopifyHandle, store.slug.current),
       "mainImage": {
         "url": coalesce(mainImage.asset->url, store.previewImageUrl),
-        "alt": coalesce(mainImage.alt, store.title)
+        "alt": coalesce(mainImage.alt, store.title),
+        "lqip": mainImage.asset->metadata.lqip
       }
     },
     editorialImages[] {
@@ -26,7 +27,8 @@ export async function getSanityProductByHandle(
       image {
         asset-> {
           _id,
-          url
+          url,
+          metadata { lqip }
         },
         alt
       },
@@ -262,21 +264,7 @@ export async function getProductsByIds(
 
   const query = `*[_id in $productIds] {
     ${BASE_PRODUCT_PROJECTION},
-    "gallery": gallery[] {
-      "url": asset->url,
-      alt
-    } | order(_key asc),
-    "brandRef": brand._ref,
-    brand-> {
-      _id,
-      name,
-      "slug": slug.current,
-      logo {
-        asset-> {
-          url
-        }
-      }
-    }
+    "brandRef": brand._ref
   }`;
 
   try {

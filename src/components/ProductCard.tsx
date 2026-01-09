@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import type { SanityProduct } from "@/types/sanityProduct";
 import { formatPrice } from "@/lib/utils/formatPrice";
+import { getBlurProps } from "@/lib/utils/imageProps";
 
 interface ProductCardProps {
   product: SanityProduct & {
@@ -64,6 +65,7 @@ export default function ProductCard({
             priority={priority}
             loading={priority ? "eager" : "lazy"}
             fetchPriority={priority ? "high" : "auto"}
+            {...getBlurProps(product.mainImage)}
           />
           {hoverImage?.url && (
             <Image

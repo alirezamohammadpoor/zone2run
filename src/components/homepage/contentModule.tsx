@@ -12,6 +12,7 @@ import ProductCard from "@/components/ProductCard";
 import { type SanityProduct } from "@/types/sanityProduct";
 import useEmblaCarousel from "embla-carousel-react";
 import { getBrandUrl } from "@/lib/utils/brandUrls";
+import { getBlurProps } from "@/lib/utils/imageProps";
 
 // Helper function to get the selected image based on imageSelection
 function getSelectedImage(product: SanityProduct, imageSelection: string) {
@@ -206,6 +207,12 @@ function ContentModuleComponent({
           ? `${hotspot.x * 100}% ${hotspot.y * 100}%`
           : "center center";
 
+      // Cast for LQIP access from GROQ resolved asset
+      const imageWithLqip = contentModule.image as {
+        asset?: { url?: string; metadata?: { lqip?: string } };
+        alt?: string;
+      };
+
       return (
         <div
           className={`relative overflow-hidden flex-shrink-0 ${
@@ -226,7 +233,8 @@ function ContentModuleComponent({
             fill
             className="object-cover"
             style={{ objectPosition }}
-            sizes={isFullWidth ? "100vw" : "(max-width: 768px) 100vw, 33vw"}
+            sizes={isFullWidth ? "100vw" : "(max-width: 768px) 100vw, 50vw"}
+            {...getBlurProps(imageWithLqip)}
           />
         </div>
       );

@@ -1,9 +1,9 @@
 "use client";
 
-import React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import type { SanityProduct } from "@/types/sanityProduct";
+import { getBlurProps } from "@/lib/utils/imageProps";
 
 interface HomeProductCardProps {
   product: SanityProduct & { selectedImage?: { url: string; alt: string } };
@@ -34,6 +34,8 @@ export default function HomeProductCard({ product }: HomeProductCardProps) {
             fill
             sizes="50vw"
             className="object-cover transition-opacity duration-300 group-hover:opacity-0"
+            draggable={false}
+            {...getBlurProps(product.mainImage)}
           />
           {hoverImage?.url && (
             <Image
@@ -42,6 +44,7 @@ export default function HomeProductCard({ product }: HomeProductCardProps) {
               fill
               sizes="50vw"
               className="object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+              draggable={false}
             />
           )}
         </div>
