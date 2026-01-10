@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getBlogPost, getProductsByCollectionId } from "@/sanity/lib/getData";
 import { notFound } from "next/navigation";
 import Image from "next/image";
@@ -8,6 +9,48 @@ import type { SanityProduct } from "@/types/sanityProduct";
 
 // ISR: Revalidate every hour, on-demand via Sanity webhook
 export const revalidate = 3600;
+
+// Generate dynamic metadata for SEO
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ category: string; postSlug: string }>;
+}): Promise<Metadata> {
+  const { category, postSlug } = await params;
+  const post = await getBlogPost(postSlug);
+
+  if (!post) {
+    return { title: "Post Not Found | Zone2Run" };
+  }
+
+  const baseUrl =
+    process.env.NEXT_PUBLIC_SITE_URL || "https://zone2run-build.vercel.app";
+
+  return {
+    title: `${post.title} | Zone2Run Blog`,
+    description: post.excerpt || `Read ${post.title} on Zone2Run`,
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      url: `${baseUrl}/blog/${category}/${postSlug}`,
+      siteName: "Zone2Run",
+      type: "article",
+      publishedTime: post.publishedAt,
+      authors: post.author ? [post.author] : undefined,
+      images: post.featuredImage?.asset?.url
+        ? [{ url: post.featuredImage.asset.url }]
+        : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.excerpt,
+      images: post.featuredImage?.asset?.url
+        ? [post.featuredImage.asset.url]
+        : [],
+    },
+  };
+}
 
 type BlogProductsDisplayType = "horizontal" | "grid";
 

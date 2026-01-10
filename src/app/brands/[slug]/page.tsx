@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getProductsByBrand, getBrandBySlug } from "@/sanity/lib/getData";
 import { notFound } from "next/navigation";
 import ProductGridWithImages from "@/components/ProductGridWithImages";
@@ -7,6 +8,38 @@ import { urlFor } from "@/sanity/lib/image";
 
 // ISR: Revalidate every 10 minutes, on-demand via Sanity webhook
 export const revalidate = 600;
+
+// Generate dynamic metadata for SEO
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const decodedSlug = decodeBrandSlug(slug);
+  const brand = await getBrandBySlug(decodedSlug);
+
+  if (!brand) {
+    return { title: "Brand Not Found | Zone2Run" };
+  }
+
+  const baseUrl =
+    process.env.NEXT_PUBLIC_SITE_URL || "https://zone2run-build.vercel.app";
+  const description =
+    brand.description || `Shop ${brand.name} running gear at Zone2Run`;
+
+  return {
+    title: `${brand.name} | Zone2Run`,
+    description,
+    openGraph: {
+      title: brand.name,
+      description,
+      url: `${baseUrl}/brands/${slug}`,
+      siteName: "Zone2Run",
+      type: "website",
+    },
+  };
+}
 
 export default async function BrandPage({
   params,

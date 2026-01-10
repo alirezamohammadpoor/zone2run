@@ -12,7 +12,8 @@
       "Bash(git checkout:*)",
       "Bash(find:*)",
       "Skill(git)",
-      "Bash(pnpm lint:*)"
+      "Bash(pnpm lint:*)",
+      "Bash(ls:*)"
     ],
     "deny": [],
     "ask": []

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ProductGridWithImages from "@/components/ProductGridWithImages";
 import { getCollectionBySlug } from "@/sanity/lib/getData";
@@ -9,6 +10,36 @@ export const revalidate = 300;
 
 interface CollectionPageProps {
   params: Promise<{ slug: string }>;
+}
+
+// Generate dynamic metadata for SEO
+export async function generateMetadata({
+  params,
+}: CollectionPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const collection = await getCollectionBySlug(slug);
+
+  if (!collection) {
+    return { title: "Collection Not Found | Zone2Run" };
+  }
+
+  const baseUrl =
+    process.env.NEXT_PUBLIC_SITE_URL || "https://zone2run-build.vercel.app";
+  const description =
+    collection.description ||
+    `Shop our ${collection.title} collection at Zone2Run`;
+
+  return {
+    title: `${collection.title} | Zone2Run`,
+    description,
+    openGraph: {
+      title: collection.title,
+      description,
+      url: `${baseUrl}/collections/${slug}`,
+      siteName: "Zone2Run",
+      type: "website",
+    },
+  };
 }
 
 export default async function CollectionPage({ params }: CollectionPageProps) {
