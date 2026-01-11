@@ -5,7 +5,13 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { urlFor } from "@/sanity/lib/image";
 import { getBrandUrl } from "@/lib/utils/brandUrls";
-import type { BrandMenuItem, CollectionMenuItem, MenuData, SubcategoryMenuItem, SubSubcategoryMenuItem } from "@/types/menu";
+import type {
+  BrandMenuItem,
+  CollectionMenuItem,
+  MenuData,
+  SubcategoryMenuItem,
+  SubSubcategoryMenuItem,
+} from "@/types/menu";
 
 interface DropdownContentProps {
   type: "men" | "women";
@@ -100,7 +106,9 @@ export default function DropdownContent({
             <div className="space-y-1">
               {(subcategories as SubcategoryMenuItem[]).map((subcategory) => {
                 const subSubcats = subcategory.subSubcategories || [];
-                const isSubOpen = openSubcategories.has(subcategory.slug.current);
+                const isSubOpen = openSubcategories.has(
+                  subcategory.slug.current
+                );
 
                 return (
                   <div key={subcategory._id}>
@@ -143,21 +151,23 @@ export default function DropdownContent({
                               : "max-h-0 opacity-0"
                           }`}
                         >
-                          {subSubcats.map((subSubcat: SubSubcategoryMenuItem) => (
-                            <button
-                              key={subSubcat._id}
-                              className="block text-xs text-black hover:text-gray-500 py-0.5"
-                              onClick={() =>
-                                handleSubSubcategoryClick(
-                                  category,
-                                  subcategory.slug.current,
-                                  subSubcat.slug.current
-                                )
-                              }
-                            >
-                              {subSubcat.title}
-                            </button>
-                          ))}
+                          {subSubcats.map(
+                            (subSubcat: SubSubcategoryMenuItem) => (
+                              <button
+                                key={subSubcat._id}
+                                className="block text-xs text-black hover:text-gray-500 py-0.5"
+                                onClick={() =>
+                                  handleSubSubcategoryClick(
+                                    category,
+                                    subcategory.slug.current,
+                                    subSubcat.slug.current
+                                  )
+                                }
+                              >
+                                {subSubcat.title}
+                              </button>
+                            )
+                          )}
                         </div>
                       </>
                     ) : (
@@ -182,7 +192,7 @@ export default function DropdownContent({
 
         {/* Brands Column */}
         <div>
-          <h3 className="text-xs mb-3">Brands</h3>
+          <h3 className="text-xs mb-3 mt-2">Brands</h3>
           <div className="space-y-1">
             {brands?.map((brand) => {
               if (!brand?.slug?.current) return null;
@@ -202,7 +212,7 @@ export default function DropdownContent({
 
       {/* Featured Collections Column - Right side */}
       <div className="w-[50vw]">
-        <h3 className="text-xs mb-2">Featured Collections</h3>
+        <h3 className="text-xs mb-3 mt-2">Featured Collections</h3>
         <div className="grid grid-cols-4 gap-1">
           {featuredCollections?.slice(0, 4).map((collection) => {
             if (!collection?.slug?.current) return null;
