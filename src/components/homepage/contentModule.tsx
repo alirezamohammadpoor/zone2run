@@ -4,14 +4,14 @@ import { type PortableTextModule } from "../../../sanity.types";
 import PortableTextRenderer from "@/components/PortableTextRenderer";
 import Link from "next/link";
 import Image from "next/image";
-import { urlFor } from "@/sanity/lib/image";
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useRef, memo } from "react";
 import { useRouter } from "next/navigation";
 import HomeProductGrid from "./HomeProductGrid";
 import ProductCard from "@/components/ProductCard";
 import { type SanityProduct } from "@/types/sanityProduct";
 import useEmblaCarousel from "embla-carousel-react";
 import { getBrandUrl } from "@/lib/utils/brandUrls";
+import { getBlurProps } from "@/lib/utils/imageProps";
 
 // Helper function to get the selected image based on imageSelection
 function getSelectedImage(product: SanityProduct, imageSelection: string) {
@@ -54,7 +54,7 @@ function getSelectedImage(product: SanityProduct, imageSelection: string) {
   };
 }
 
-function ContentModuleComponent({
+const ContentModuleComponent = memo(function ContentModuleComponent({
   contentModule,
   products,
 }: {
@@ -68,12 +68,15 @@ function ContentModuleComponent({
   const isFullWidth = layout === "full-width";
 
   // Products carousel setup
-  const [emblaRef, emblaApi] = useEmblaCarousel({
+  const [emblaRef] = useEmblaCarousel({
     align: "start",
     containScroll: "trimSnaps",
     dragFree: false,
   });
-  const isDraggingRef = useRef(false);
+
+  // Track pointer position to detect actual dragging vs. taps
+  const pointerStartRef = useRef<{ x: number; y: number } | null>(null);
+  const hasDraggedRef = useRef(false);
 
   // Create a map of products with their selected images
   const productsWithImages = React.useMemo(() => {
@@ -110,37 +113,25 @@ function ContentModuleComponent({
     (contentModule as any).productSource,
   ]);
 
-  // Track dragging state from Embla
-  React.useEffect(() => {
-    if (
-      !emblaApi ||
-      contentType === "text-only" ||
-      contentType === "text-with-media"
-    )
-      return;
+  // Track pointer movement to distinguish taps from drags
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
+    pointerStartRef.current = { x: e.clientX, y: e.clientY };
+    hasDraggedRef.current = false;
+  }, []);
 
-    const onScroll = () => {
-      isDraggingRef.current = true;
-    };
-
-    const onSettle = () => {
-      setTimeout(() => {
-        isDraggingRef.current = false;
-      }, 100);
-    };
-
-    emblaApi.on("scroll", onScroll);
-    emblaApi.on("settle", onSettle);
-
-    return () => {
-      emblaApi.off("scroll", onScroll);
-      emblaApi.off("settle", onSettle);
-    };
-  }, [emblaApi, contentType]);
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+    if (!pointerStartRef.current) return;
+    const dx = Math.abs(e.clientX - pointerStartRef.current.x);
+    const dy = Math.abs(e.clientY - pointerStartRef.current.y);
+    // 10px threshold - anything more is a drag, not a tap
+    if (dx > 10 || dy > 10) {
+      hasDraggedRef.current = true;
+    }
+  }, []);
 
   const handleProductClick = useCallback(
     (handle: string) => {
-      if (!isDraggingRef.current) {
+      if (!hasDraggedRef.current) {
         router.push(`/products/${handle}`);
       }
     },
@@ -149,7 +140,7 @@ function ContentModuleComponent({
 
   const handleBrandClick = useCallback(
     (slug: string) => {
-      if (!isDraggingRef.current) {
+      if (!hasDraggedRef.current) {
         router.push(getBrandUrl(slug));
       }
     },
@@ -206,6 +197,12 @@ function ContentModuleComponent({
           ? `${hotspot.x * 100}% ${hotspot.y * 100}%`
           : "center center";
 
+      // Cast for LQIP access from GROQ resolved asset
+      const imageWithLqip = contentModule.image as {
+        asset?: { url?: string; metadata?: { lqip?: string } };
+        alt?: string;
+      };
+
       return (
         <div
           className={`relative overflow-hidden flex-shrink-0 ${
@@ -221,12 +218,13 @@ function ContentModuleComponent({
           }}
         >
           <Image
-            src={urlFor(contentModule.image).url()}
+            src={imageWithLqip.asset?.url || ""}
             alt={contentModule.image.alt || ""}
             fill
             className="object-cover"
             style={{ objectPosition }}
-            sizes={isFullWidth ? "100vw" : "(max-width: 768px) 100vw, 33vw"}
+            sizes={isFullWidth ? "100vw" : "(max-width: 768px) 100vw, 50vw"}
+            {...getBlurProps(imageWithLqip)}
           />
         </div>
       );
@@ -307,17 +305,23 @@ function ContentModuleComponent({
           {productsWithImages.map(({ product, imageSelection }) => {
             const selectedImage = getSelectedImage(product, imageSelection);
             return (
-              <ProductCard
+              <div
                 key={product._id}
-                product={{
-                  ...product,
-                  selectedImage,
-                }}
-                className="flex-shrink-0 w-[70vw] min-w-0 xl:w-[30vw]"
-                sizes="(max-width: 768px) 70vw, 33vw"
-                onClick={() => handleProductClick(product.handle)}
-                onBrandClick={handleBrandClick}
-              />
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
+              >
+                <ProductCard
+                  product={{
+                    ...product,
+                    selectedImage,
+                  }}
+                  className="flex-shrink-0 w-[70vw] min-w-0 xl:w-[30vw]"
+                  sizes="(max-width: 768px) 70vw, 33vw"
+                  onClick={() => handleProductClick(product.handle)}
+                  onBrandClick={handleBrandClick}
+                  disableGallery
+                />
+              </div>
             );
           })}
         </div>
@@ -500,6 +504,6 @@ function ContentModuleComponent({
       {renderContent()}
     </div>
   );
-}
+});
 
 export default ContentModuleComponent;

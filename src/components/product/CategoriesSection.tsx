@@ -16,7 +16,7 @@ function CategoriesSection() {
 
   return (
     <div className="flex gap-4 ml-2 mb-4">
-      {categories.map((category: any) => (
+      {categories.map((category) => (
         <button
           key={category._id}
           className="text-sm cursor-pointer hover:text-gray-500"

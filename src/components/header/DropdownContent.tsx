@@ -1,11 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, memo } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { urlFor } from "@/sanity/lib/image";
 import { getBrandUrl } from "@/lib/utils/brandUrls";
-import type { BrandMenuItem, CollectionMenuItem, MenuData } from "@/types/menu";
+import type {
+  BrandMenuItem,
+  CollectionMenuItem,
+  MenuData,
+  SubcategoryMenuItem,
+  SubSubcategoryMenuItem,
+} from "@/types/menu";
 
 interface DropdownContentProps {
   type: "men" | "women";
@@ -18,7 +23,7 @@ interface DropdownContentProps {
 // Define the order of main categories
 const CATEGORY_ORDER = ["clothing", "footwear", "accessories"];
 
-export default function DropdownContent({
+const DropdownContent = memo(function DropdownContent({
   type,
   onClose,
   data,
@@ -33,7 +38,8 @@ export default function DropdownContent({
     new Set()
   );
 
-  const toggleSubcategory = (subcategorySlug: string) => {
+  // Memoized toggle to prevent re-renders
+  const toggleSubcategory = useCallback((subcategorySlug: string) => {
     setOpenSubcategories((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(subcategorySlug)) {
@@ -43,7 +49,7 @@ export default function DropdownContent({
       }
       return newSet;
     });
-  };
+  }, []);
 
   const handleViewAllClick = (categorySlug: string) => {
     router.push(`/${genderPath}/${categorySlug}`);
@@ -98,9 +104,11 @@ export default function DropdownContent({
               {category}
             </button>
             <div className="space-y-1">
-              {(subcategories as any[]).map((subcategory: any) => {
+              {(subcategories as SubcategoryMenuItem[]).map((subcategory) => {
                 const subSubcats = subcategory.subSubcategories || [];
-                const isSubOpen = openSubcategories.has(subcategory.slug.current);
+                const isSubOpen = openSubcategories.has(
+                  subcategory.slug.current
+                );
 
                 return (
                   <div key={subcategory._id}>
@@ -118,13 +126,9 @@ export default function DropdownContent({
                           <svg
                             aria-hidden="true"
                             viewBox="0 0 5 8"
-                            style={{
-                              transform: isSubOpen
-                                ? "rotate(90deg)"
-                                : "rotate(0deg)",
-                              transition: "transform 0.2s ease-in-out",
-                            }}
-                            className="w-2 h-2 text-black ml-2"
+                            className={`w-2 h-2 text-black ml-2 transition-transform duration-200 ${
+                              isSubOpen ? "rotate-90" : "rotate-0"
+                            }`}
                             xmlns="http://www.w3.org/2000/svg"
                           >
                             <path
@@ -143,21 +147,23 @@ export default function DropdownContent({
                               : "max-h-0 opacity-0"
                           }`}
                         >
-                          {subSubcats.map((subSubcat: any) => (
-                            <button
-                              key={subSubcat._id}
-                              className="block text-xs text-black hover:text-gray-500 py-0.5"
-                              onClick={() =>
-                                handleSubSubcategoryClick(
-                                  category,
-                                  subcategory.slug.current,
-                                  subSubcat.slug.current
-                                )
-                              }
-                            >
-                              {subSubcat.title}
-                            </button>
-                          ))}
+                          {subSubcats.map(
+                            (subSubcat: SubSubcategoryMenuItem) => (
+                              <button
+                                key={subSubcat._id}
+                                className="block text-xs text-black hover:text-gray-500 py-0.5"
+                                onClick={() =>
+                                  handleSubSubcategoryClick(
+                                    category,
+                                    subcategory.slug.current,
+                                    subSubcat.slug.current
+                                  )
+                                }
+                              >
+                                {subSubcat.title}
+                              </button>
+                            )
+                          )}
                         </div>
                       </>
                     ) : (
@@ -182,7 +188,7 @@ export default function DropdownContent({
 
         {/* Brands Column */}
         <div>
-          <h3 className="text-xs mb-3">Brands</h3>
+          <h3 className="text-xs mb-3 mt-2">Brands</h3>
           <div className="space-y-1">
             {brands?.map((brand) => {
               if (!brand?.slug?.current) return null;
@@ -202,7 +208,7 @@ export default function DropdownContent({
 
       {/* Featured Collections Column - Right side */}
       <div className="w-[50vw]">
-        <h3 className="text-xs mb-2">Featured Collections</h3>
+        <h3 className="text-xs mb-3 mt-2">Featured Collections</h3>
         <div className="grid grid-cols-4 gap-1">
           {featuredCollections?.slice(0, 4).map((collection) => {
             if (!collection?.slug?.current) return null;
@@ -215,7 +221,7 @@ export default function DropdownContent({
                 <div className="aspect-[3/4] relative overflow-hidden">
                   {collection.menuImage?.asset?.url ? (
                     <Image
-                      src={urlFor(collection.menuImage).url()}
+                      src={collection.menuImage.asset.url}
                       alt={
                         collection.menuImage.alt ||
                         collection.title ||
@@ -243,4 +249,6 @@ export default function DropdownContent({
       </div>
     </div>
   );
-}
+});
+
+export default DropdownContent;

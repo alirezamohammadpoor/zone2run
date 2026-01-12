@@ -1,6 +1,12 @@
 import { sanityFetch } from "@/sanity/lib/client";
 import type { SanityProduct } from "@/types/sanityProduct";
 
+// Extended product type for collection queries that include createdAt
+type CollectionProduct = SanityProduct & { createdAt?: string };
+
+// Type for curated product references
+type CuratedProductRef = { _id: string; handle?: string };
+
 interface Collection {
   _id: string;
   title: string;
@@ -30,7 +36,8 @@ export async function getAllCollections() {
     menuImage {
       asset-> {
         _id,
-        url
+        url,
+        metadata { lqip }
       },
       alt
     },
@@ -58,7 +65,8 @@ export async function getCollectionBySlug(slug: string): Promise<Collection | nu
       image {
         asset-> {
           _id,
-          url
+          url,
+          metadata { lqip }
         },
         alt
       },
@@ -84,8 +92,14 @@ export async function getCollectionBySlug(slug: string): Promise<Collection | nu
     },
     "mainImage": {
       "url": store.previewImageUrl,
-      "alt": store.title
+      "alt": store.title,
+      "lqip": mainImage.asset->metadata.lqip
     },
+    "gallery": gallery[] {
+      "url": asset->url,
+      alt,
+      "lqip": asset->metadata.lqip
+    } | order(_key asc),
     "options": store.options,
     "variants": store.variants[]-> {
       "id": store.gid,
@@ -133,7 +147,7 @@ export async function getCollectionBySlug(slug: string): Promise<Collection | nu
       ? collection.shopifyId.toString()
       : "";
 
-    let products = await sanityFetch<SanityProduct[]>(productsQuery, {
+    let products = await sanityFetch<CollectionProduct[]>(productsQuery, {
       collectionId: collection._id,
       shopifyIdStr: shopifyIdStr,
     });
@@ -146,10 +160,10 @@ export async function getCollectionBySlug(slug: string): Promise<Collection | nu
 
     if (collection.curatedProducts && collection.curatedProducts.length > 0) {
       const curatedIds = new Map(
-        collection.curatedProducts.map((p: any, idx: number) => [p._id, idx])
+        collection.curatedProducts.map((p: CuratedProductRef, idx: number) => [p._id, idx])
       );
 
-      products.sort((a: any, b: any) => {
+      products.sort((a: CollectionProduct, b: CollectionProduct) => {
         const aInCurated = curatedIds.has(a._id);
         const bInCurated = curatedIds.has(b._id);
 
@@ -166,7 +180,7 @@ export async function getCollectionBySlug(slug: string): Promise<Collection | nu
         return Number(bDate) - Number(aDate);
       });
     } else {
-      products.sort((a: any, b: any) => {
+      products.sort((a: CollectionProduct, b: CollectionProduct) => {
         const aDate = a.createdAt ? new Date(a.createdAt).getTime() : 0;
         const bDate = b.createdAt ? new Date(b.createdAt).getTime() : 0;
         return Number(bDate) - Number(aDate);
@@ -210,11 +224,13 @@ export async function getProductsByCollectionId(
     },
     "mainImage": {
       "url": store.previewImageUrl,
-      "alt": store.title
+      "alt": store.title,
+      "lqip": mainImage.asset->metadata.lqip
     },
     "gallery": gallery[] {
       "url": asset->url,
-      "alt": alt
+      "alt": alt,
+      "lqip": asset->metadata.lqip
     },
     "options": store.options,
     "variants": store.variants[]-> {
@@ -264,7 +280,7 @@ export async function getProductsByCollectionId(
       ? collection.shopifyId.toString()
       : "";
 
-    let products = await sanityFetch<SanityProduct[]>(productsQuery, {
+    let products = await sanityFetch<CollectionProduct[]>(productsQuery, {
       collectionId: collection._id,
       shopifyIdStr: shopifyIdStr,
     });
@@ -272,10 +288,10 @@ export async function getProductsByCollectionId(
     // Sort by curated order if available, otherwise by createdAt
     if (collection.curatedProducts && collection.curatedProducts.length > 0) {
       const curatedIds = new Map(
-        collection.curatedProducts.map((p: any, idx: number) => [p._id, idx])
+        collection.curatedProducts.map((p: CuratedProductRef, idx: number) => [p._id, idx])
       );
 
-      products.sort((a: any, b: any) => {
+      products.sort((a: CollectionProduct, b: CollectionProduct) => {
         const aInCurated = curatedIds.has(a._id);
         const bInCurated = curatedIds.has(b._id);
 
@@ -292,7 +308,7 @@ export async function getProductsByCollectionId(
         return Number(bDate) - Number(aDate);
       });
     } else {
-      products.sort((a: any, b: any) => {
+      products.sort((a: CollectionProduct, b: CollectionProduct) => {
         const aDate = a.createdAt ? new Date(a.createdAt).getTime() : 0;
         const bDate = b.createdAt ? new Date(b.createdAt).getTime() : 0;
         return Number(bDate) - Number(aDate);

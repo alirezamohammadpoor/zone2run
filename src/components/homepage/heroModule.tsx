@@ -2,6 +2,7 @@ import { type HeroModule } from "../../../sanity.types";
 import Image from "next/image";
 import Link from "next/link";
 import { urlFor } from "@/sanity/lib/image";
+import { getBlurProps } from "@/lib/utils/imageProps";
 
 function HeroModule({ heroModule }: { heroModule: HeroModule }) {
   // Type assertion for resolved video asset from GROQ query
@@ -25,6 +26,12 @@ function HeroModule({ heroModule }: { heroModule: HeroModule }) {
       ? `${hotspot.x * 100}% ${hotspot.y * 100}%`
       : "center center";
 
+  // Get LQIP from resolved asset (from GROQ query)
+  const heroImage = heroModule.heroImage as {
+    asset?: { url?: string; metadata?: { lqip?: string } };
+    alt?: string;
+  } | null;
+
   return (
     <div className="w-full">
       <div
@@ -40,6 +47,9 @@ function HeroModule({ heroModule }: { heroModule: HeroModule }) {
             style={{ objectPosition }}
             fill
             priority
+            fetchPriority="high"
+            sizes="100vw"
+            {...getBlurProps(heroImage)}
           />
         )}
 

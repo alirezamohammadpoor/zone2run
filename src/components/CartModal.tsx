@@ -44,19 +44,14 @@ function CartModal({
     handleClose();
   };
 
-  const handleIncreaseQuantity = async (
-    itemId: string,
-    currentQuantity: number
-  ) => {
-    await updateQuantity(itemId, currentQuantity + 1);
+  // Non-blocking quantity updates - UI updates immediately, API syncs in background
+  const handleIncreaseQuantity = (itemId: string, currentQuantity: number) => {
+    updateQuantity(itemId, currentQuantity + 1);
   };
 
-  const handleDecreaseQuantity = async (
-    itemId: string,
-    currentQuantity: number
-  ) => {
+  const handleDecreaseQuantity = (itemId: string, currentQuantity: number) => {
     if (currentQuantity > 1) {
-      await updateQuantity(itemId, currentQuantity - 1);
+      updateQuantity(itemId, currentQuantity - 1);
     }
   };
 
@@ -239,20 +234,28 @@ function CartModal({
                 if (items.length === 0) return;
                 setIsRedirecting(true);
 
-                // Create fresh cart with current items
-                const freshCartResult = await createCart();
+                try {
+                  // Create fresh cart with current items
+                  const freshCartResult = await createCart();
 
-                if (freshCartResult) {
-                  // Add all current items to the fresh cart
-                  for (const item of items) {
-                    await addToCart(
-                      freshCartResult.cartId,
-                      item.variantId,
-                      item.quantity
+                  if (freshCartResult) {
+                    // Add all items in PARALLEL instead of sequential loop
+                    // This reduces checkout time from N*latency to just 1*latency
+                    await Promise.all(
+                      items.map((item) =>
+                        addToCart(
+                          freshCartResult.cartId,
+                          item.variantId,
+                          item.quantity
+                        )
+                      )
                     );
-                  }
 
-                  window.location.href = freshCartResult.checkoutUrl;
+                    window.location.href = freshCartResult.checkoutUrl;
+                  }
+                } catch (error) {
+                  console.error("Checkout failed:", error);
+                  setIsRedirecting(false);
                 }
               }}
               disabled={items.length === 0 || isRedirecting}

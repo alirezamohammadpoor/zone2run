@@ -1,8 +1,8 @@
-import { PortableText } from "@portabletext/react";
+import { PortableText, type PortableTextProps } from "@portabletext/react";
 import Image from "next/image";
 
 interface PortableTextRendererProps {
-  value: any;
+  value: PortableTextProps["value"];
   className?: string;
 }
 

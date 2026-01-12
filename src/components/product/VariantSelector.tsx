@@ -1,6 +1,5 @@
 "use client";
-import React, { useState } from "react";
-import { useCartStore } from "@/lib/cart/store";
+import React, { memo, useMemo, useCallback } from "react";
 import { useProductStore } from "@/store/variantStore";
 import type { SanityProduct } from "@/types/sanityProduct";
 
@@ -8,35 +7,40 @@ interface VariantSelectorProps {
   product: SanityProduct;
 }
 
-function VariantSelector({ product }: VariantSelectorProps) {
+const VariantSelector = memo(function VariantSelector({ product }: VariantSelectorProps) {
   const { selectedVariant, setSelectedVariant } = useProductStore();
-  const addItem = useCartStore((state) => state.addItem);
 
-  // Get all unique sizes (both available and unavailable)
-  const allSizes =
-    product.variants
-      ?.filter((variant) =>
-        variant.selectedOptions.some((opt) => opt.name === "Size")
-      )
-      .map(
-        (variant) =>
-          variant.selectedOptions.find((opt) => opt.name === "Size")?.value
-      )
-      .filter((size, index, arr) => size && arr.indexOf(size) === index) || [];
-
-  // Get available sizes for comparison
-  const availableSizes =
-    product.variants
-      ?.filter(
-        (variant) =>
-          variant.available &&
+  // Memoize size calculations to prevent recalculation on every render
+  const allSizes = useMemo(
+    () =>
+      product.variants
+        ?.filter((variant) =>
           variant.selectedOptions.some((opt) => opt.name === "Size")
-      )
-      .map(
-        (variant) =>
-          variant.selectedOptions.find((opt) => opt.name === "Size")?.value
-      )
-      .filter((size, index, arr) => size && arr.indexOf(size) === index) || [];
+        )
+        .map(
+          (variant) =>
+            variant.selectedOptions.find((opt) => opt.name === "Size")?.value
+        )
+        .filter((size, index, arr) => size && arr.indexOf(size) === index) || [],
+    [product.variants]
+  );
+
+  // Memoize available sizes calculation
+  const availableSizes = useMemo(
+    () =>
+      product.variants
+        ?.filter(
+          (variant) =>
+            variant.available &&
+            variant.selectedOptions.some((opt) => opt.name === "Size")
+        )
+        .map(
+          (variant) =>
+            variant.selectedOptions.find((opt) => opt.name === "Size")?.value
+        )
+        .filter((size, index, arr) => size && arr.indexOf(size) === index) || [],
+    [product.variants]
+  );
 
   return (
     <div className="mt-6">
@@ -99,6 +103,6 @@ function VariantSelector({ product }: VariantSelectorProps) {
       </div>
     </div>
   );
-}
+});
 
 export default VariantSelector;

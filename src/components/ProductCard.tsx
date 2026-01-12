@@ -1,10 +1,10 @@
 "use client";
 
-import React from "react";
-import Image from "next/image";
+import React, { memo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import type { SanityProduct } from "@/types/sanityProduct";
 import { formatPrice } from "@/lib/utils/formatPrice";
+import ProductCardGallery from "./ProductCardGallery";
 
 interface ProductCardProps {
   product: SanityProduct & {
@@ -13,70 +13,57 @@ interface ProductCardProps {
   sizes?: string;
   className?: string;
   onBrandClick?: (slug: string) => void;
-  onClick?: () => void; // Custom click handler (for carousels with drag detection)
-  priority?: boolean; // For LCP optimization on first row
+  onClick?: () => void;
+  priority?: boolean;
+  disableGallery?: boolean;
 }
 
-export default function ProductCard({
+const ProductCard = memo(function ProductCard({
   product,
   sizes = "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw",
   className = "",
   onBrandClick,
   onClick,
   priority = false,
+  disableGallery = false,
 }: ProductCardProps) {
   const router = useRouter();
 
-  const handleClick = () => {
+  const handleClick = useCallback(() => {
     if (onClick) {
       onClick();
     } else {
       router.push(`/products/${product.handle}`);
     }
-  };
+  }, [onClick, router, product.handle]);
 
-  const handleBrandClick = (e: React.MouseEvent, slug?: string) => {
+  const handleBrandClick = useCallback((e: React.MouseEvent, slug?: string) => {
     if (onBrandClick && slug) {
       e.stopPropagation();
       onBrandClick(slug);
     }
-  };
+  }, [onBrandClick]);
 
-  // Use selectedImage if provided, otherwise fall back to mainImage
-  const imageToUse = product.selectedImage || product.mainImage;
-  // Second image for hover effect (first gallery image, since mainImage is the primary)
-  const hoverImage = product.gallery?.[0];
+  // Build images array: selectedImage or mainImage first, then gallery
+  const primaryImage = product.selectedImage || product.mainImage;
+  const allImages = [
+    primaryImage,
+    ...(product.gallery || []),
+  ].filter(
+    (img): img is NonNullable<typeof img> => Boolean(img?.url)
+  );
 
   return (
-    <div
-      className={`aspect-[4/5] flex flex-col hover:cursor-pointer group ${className}`}
-      onClick={handleClick}
-    >
-      {imageToUse?.url && (
-        <div className="w-full h-full relative bg-gray-100">
-          <Image
-            src={imageToUse.url}
-            alt={imageToUse.alt || product.title || "Product"}
-            fill
-            sizes={sizes}
-            className="object-cover transition-opacity duration-300 group-hover:opacity-0"
-            draggable={false}
-            priority={priority}
-            loading={priority ? "eager" : "lazy"}
-            fetchPriority={priority ? "high" : "auto"}
-          />
-          {hoverImage?.url && (
-            <Image
-              src={hoverImage.url}
-              alt={hoverImage.alt || product.title || "Product"}
-              fill
-              sizes={sizes}
-              className="object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-              draggable={false}
-            />
-          )}
-        </div>
-      )}
+    <div className={`aspect-[4/5] flex flex-col hover:cursor-pointer ${className}`}>
+      <div className="w-full h-full relative bg-gray-100">
+        <ProductCardGallery
+          images={allImages}
+          sizes={sizes}
+          priority={priority}
+          onNavigate={handleClick}
+          disableGallery={disableGallery}
+        />
+      </div>
       <div className="pt-2 pb-4">
         <p
           className={`text-xs font-medium ${
@@ -95,4 +82,6 @@ export default function ProductCard({
       </div>
     </div>
   );
-}
+});
+
+export default ProductCard;

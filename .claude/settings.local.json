@@ -9,9 +9,18 @@
       "Bash(wc:*)",
       "Skill(pr-description-generator)",
       "Skill(pr-description-generator:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(find:*)",
+      "Skill(git)",
+      "Bash(pnpm lint:*)",
+      "Bash(ls:*)"
     ],
     "deny": [],
     "ask": []
-  }
+  },
+  "enabledPlugins": {
+    "code-simplifier@claude-plugins-official": true,
+    "Notion@claude-plugins-official": true
+  },
+  "outputStyle": "Explanatory"
 }
