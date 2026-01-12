@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, memo, useMemo } from "react";
 import Link from "next/link";
 import VariantSelector from "./VariantSelector";
 import AddToCart from "./AddToCart";
@@ -14,8 +14,9 @@ interface ProductInfoProps {
   product: SanityProduct;
 }
 
-function ProductInfo({ product }: ProductInfoProps) {
-  const { selectedVariant } = useProductStore();
+const ProductInfo = memo(function ProductInfo({ product }: ProductInfoProps) {
+  // Use selector for granular subscription - only re-renders when selectedVariant changes
+  const selectedVariant = useProductStore((state) => state.selectedVariant);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
   const brandName = product.brand?.name || product.vendor;
@@ -25,13 +26,17 @@ function ProductInfo({ product }: ProductInfoProps) {
     currencyCode: "SEK",
   };
 
-  // Strip HTML tags from description
-  const cleanDescription = product.description
-    ?.replace(/<p>/g, "")
-    .replace(/<\/p>/g, "\n")
-    .replace(/<br\s*\/?>/g, "\n")
-    .replace(/<[^>]*>/g, "")
-    .trim();
+  // Memoize HTML parsing to avoid recalculation on every render
+  const cleanDescription = useMemo(
+    () =>
+      product.description
+        ?.replace(/<p>/g, "")
+        .replace(/<\/p>/g, "\n")
+        .replace(/<br\s*\/?>/g, "\n")
+        .replace(/<[^>]*>/g, "")
+        .trim(),
+    [product.description]
+  );
 
   return (
     <div className="w-full px-2 xl:w-1/2 xl:flex xl:flex-col xl:justify-center xl:items-center">
@@ -82,6 +87,6 @@ function ProductInfo({ product }: ProductInfoProps) {
       </div>
     </div>
   );
-}
+});
 
 export default ProductInfo;
