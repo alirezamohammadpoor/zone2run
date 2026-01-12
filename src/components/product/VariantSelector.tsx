@@ -8,38 +8,65 @@ interface VariantSelectorProps {
 }
 
 const VariantSelector = memo(function VariantSelector({ product }: VariantSelectorProps) {
-  const { selectedVariant, setSelectedVariant } = useProductStore();
+  const selectedVariant = useProductStore((state) => state.selectedVariant);
+  const setSelectedVariant = useProductStore((state) => state.setSelectedVariant);
 
-  // Memoize size calculations to prevent recalculation on every render
-  const allSizes = useMemo(
-    () =>
+  // O(n) deduplication using Set instead of O(n²) indexOf
+  const allSizes = useMemo(() => {
+    const seen = new Set<string>();
+    return (
       product.variants
-        ?.filter((variant) =>
-          variant.selectedOptions.some((opt) => opt.name === "Size")
-        )
-        .map(
-          (variant) =>
-            variant.selectedOptions.find((opt) => opt.name === "Size")?.value
-        )
-        .filter((size, index, arr) => size && arr.indexOf(size) === index) || [],
-    [product.variants]
-  );
+        ?.filter((v) => v.selectedOptions.some((opt) => opt.name === "Size"))
+        .map((v) => v.selectedOptions.find((opt) => opt.name === "Size")?.value)
+        .filter((size): size is string => {
+          if (!size || seen.has(size)) return false;
+          seen.add(size);
+          return true;
+        }) || []
+    );
+  }, [product.variants]);
 
-  // Memoize available sizes calculation
-  const availableSizes = useMemo(
-    () =>
+  // O(n) deduplication for available sizes
+  const availableSizes = useMemo(() => {
+    const seen = new Set<string>();
+    return (
       product.variants
         ?.filter(
-          (variant) =>
-            variant.available &&
-            variant.selectedOptions.some((opt) => opt.name === "Size")
+          (v) =>
+            v.available && v.selectedOptions.some((opt) => opt.name === "Size")
         )
-        .map(
-          (variant) =>
-            variant.selectedOptions.find((opt) => opt.name === "Size")?.value
-        )
-        .filter((size, index, arr) => size && arr.indexOf(size) === index) || [],
-    [product.variants]
+        .map((v) => v.selectedOptions.find((opt) => opt.name === "Size")?.value)
+        .filter((size): size is string => {
+          if (!size || seen.has(size)) return false;
+          seen.add(size);
+          return true;
+        }) || []
+    );
+  }, [product.variants]);
+
+  // Memoized click handler to avoid recreating function on every render
+  const handleSizeSelect = useCallback(
+    (size: string | undefined) => {
+      if (!size) return;
+      const variant = product.variants?.find(
+        (v) =>
+          v.selectedOptions.find((opt) => opt.name === "Size")?.value ===
+            size && v.available
+      );
+      if (variant) {
+        setSelectedVariant({
+          size,
+          id: variant.id,
+          available: variant.available,
+          title: variant.title,
+          price: variant.price,
+          color:
+            variant.selectedOptions.find((opt) => opt.name === "Color")
+              ?.value || "",
+        });
+      }
+    },
+    [product.variants, setSelectedVariant]
   );
 
   return (
@@ -70,30 +97,7 @@ const VariantSelector = memo(function VariantSelector({ product }: VariantSelect
                   ? "bg-black text-white border-black"
                   : "border-gray-300 hover:bg-black hover:text-white hover:border-black"
               }`}
-              onClick={() => {
-                if (!isAvailable) return; // Prevent selection of unavailable variants
-
-                // Find the correct variant for this size
-                const variant = product.variants?.find(
-                  (variant) =>
-                    variant.selectedOptions.find((opt) => opt.name === "Size")
-                      ?.value === size && variant.available
-                );
-
-                if (variant && size) {
-                  setSelectedVariant({
-                    size,
-                    id: variant.id,
-                    available: variant.available,
-                    title: variant.title,
-                    price: variant.price,
-                    color:
-                      variant.selectedOptions.find(
-                        (opt) => opt.name === "Color"
-                      )?.value || "",
-                  });
-                }
-              }}
+              onClick={() => handleSizeSelect(size)}
               disabled={!isAvailable}
             >
               {size}
