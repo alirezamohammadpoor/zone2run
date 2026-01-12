@@ -11,6 +11,8 @@ export {
   getProductsByPath3Level,
   getProductsByIds,
   getRelatedProducts,
+  getProductMetadata,
+  type ProductMetadata,
 } from "./getProducts";
 
 export {

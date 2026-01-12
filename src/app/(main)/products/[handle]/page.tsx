@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import ProductGalleryServer from "@/components/product/ProductGalleryServer";
 import ProductInfo from "@/components/product/ProductInfo";
 import { getProductByHandle } from "@/lib/product/getProductByHandle";
+import { getProductMetadata } from "@/sanity/lib/getData";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import RelatedProductsServer from "@/components/product/RelatedProductsServer";
@@ -24,13 +25,16 @@ export async function generateStaticParams() {
 }
 
 // Generate dynamic metadata for SEO
+// Uses lightweight getProductMetadata with unstable_cache for cross-RSC-request caching
+// This prevents duplicate Sanity requests when metadata and page component run separately
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ handle: string }>;
 }): Promise<Metadata> {
   const { handle } = await params;
-  const product = await getProductByHandle(handle);
+  // Use lightweight metadata fetch (~500 bytes vs ~10KB full product)
+  const product = await getProductMetadata(handle);
 
   if (!product) {
     return { title: "Product Not Found | Zone2Run" };

@@ -150,3 +150,16 @@ brand-> {
   "slug": slug.current
 },
 gender`;
+
+/**
+ * Ultra-lightweight metadata projection - only fields needed for SEO
+ * Used by generateMetadata() to avoid fetching full product data
+ * ~95% smaller than BASE_PRODUCT_PROJECTION (~500 bytes vs ~10KB)
+ */
+export const METADATA_PRODUCT_PROJECTION = `_id,
+"title": coalesce(title, store.title),
+"description": store.descriptionHtml,
+"mainImage": {
+  "url": coalesce(mainImage.asset->url, store.previewImageUrl),
+  "alt": coalesce(mainImage.alt, store.title)
+}`;

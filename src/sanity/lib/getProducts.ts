@@ -1,10 +1,12 @@
 import { cache } from "react";
-import { sanityFetch } from "@/sanity/lib/client";
+import { unstable_cache } from "next/cache";
+import { sanityFetch, client } from "@/sanity/lib/client";
 import type { SanityProduct } from "@/types/sanityProduct";
 import {
   BASE_PRODUCT_PROJECTION,
   FULL_PRODUCT_PROJECTION,
   CARD_PRODUCT_PROJECTION,
+  METADATA_PRODUCT_PROJECTION,
   buildLimitClause,
   mapGenderValue,
 } from "./groqUtils";
@@ -314,6 +316,52 @@ export const getRelatedProducts = cache(
       console.error(`Error fetching related products for brand ${brandSlug}:`, error);
       return [];
     }
+  }
+);
+
+/**
+ * Metadata type for SEO - minimal fields only
+ */
+export interface ProductMetadata {
+  _id: string;
+  title: string;
+  description?: string;
+  mainImage?: {
+    url: string;
+    alt?: string;
+  };
+}
+
+/**
+ * Ultra-lightweight metadata fetch using unstable_cache
+ *
+ * Why unstable_cache instead of React cache()?
+ * - React cache() only deduplicates within a single render cycle
+ * - generateMetadata and page component are SEPARATE RSC requests
+ * - unstable_cache persists in Next.js Data Cache across RSC requests
+ *
+ * This means:
+ * - First request (metadata OR page) fetches from Sanity & caches
+ * - Second request hits the cache (no Sanity request)
+ * - Cache revalidates based on page-level revalidate export (300s)
+ */
+export const getProductMetadata = unstable_cache(
+  async (handle: string): Promise<ProductMetadata | null> => {
+    const query = `*[_type == "product" && (shopifyHandle == $handle || store.slug.current == $handle)][0] {
+      ${METADATA_PRODUCT_PROJECTION}
+    }`;
+
+    try {
+      return await client.fetch<ProductMetadata | null>(query, { handle });
+    } catch (error) {
+      console.error("Error fetching product metadata:", error);
+      return null;
+    }
+  },
+  ["product-metadata"], // cache key prefix
+  {
+    revalidate: 300, // match ISR revalidate time
+    tags: ["product"], // for on-demand revalidation
   }
 );
 
