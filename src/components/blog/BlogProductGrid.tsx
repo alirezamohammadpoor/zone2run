@@ -1,3 +1,4 @@
+import { memo } from "react";
 import ProductCard from "@/components/ProductCard";
 import type { SanityProduct } from "@/types/sanityProduct";
 
@@ -8,7 +9,7 @@ interface BlogProductGridProps {
   count?: number;
 }
 
-export default function BlogProductGrid({
+const BlogProductGrid = memo(function BlogProductGrid({
   products,
   count,
 }: BlogProductGridProps) {
@@ -26,4 +27,6 @@ export default function BlogProductGrid({
       ))}
     </div>
   );
-}
+});
+
+export default BlogProductGrid;

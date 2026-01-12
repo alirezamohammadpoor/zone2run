@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { memo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import type { SanityProduct } from "@/types/sanityProduct";
 import { formatPrice } from "@/lib/utils/formatPrice";
@@ -18,7 +18,7 @@ interface ProductCardProps {
   disableGallery?: boolean;
 }
 
-export default function ProductCard({
+const ProductCard = memo(function ProductCard({
   product,
   sizes = "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw",
   className = "",
@@ -29,20 +29,20 @@ export default function ProductCard({
 }: ProductCardProps) {
   const router = useRouter();
 
-  const handleClick = () => {
+  const handleClick = useCallback(() => {
     if (onClick) {
       onClick();
     } else {
       router.push(`/products/${product.handle}`);
     }
-  };
+  }, [onClick, router, product.handle]);
 
-  const handleBrandClick = (e: React.MouseEvent, slug?: string) => {
+  const handleBrandClick = useCallback((e: React.MouseEvent, slug?: string) => {
     if (onBrandClick && slug) {
       e.stopPropagation();
       onBrandClick(slug);
     }
-  };
+  }, [onBrandClick]);
 
   // Build images array: selectedImage or mainImage first, then gallery
   const primaryImage = product.selectedImage || product.mainImage;
@@ -82,4 +82,6 @@ export default function ProductCard({
       </div>
     </div>
   );
-}
+});
+
+export default ProductCard;

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useRef, memo } from "react";
 import { useRouter } from "next/navigation";
 import ProductCard from "@/components/ProductCard";
 import HomeProductGrid from "@/components/homepage/HomeProductGrid";
@@ -15,51 +15,55 @@ interface RelatedProductsProps {
   displayType?: "grid" | "carousel";
 }
 
-function RelatedProducts({
+const RelatedProducts = memo(function RelatedProducts({
   products,
   brandName,
   brandSlug,
   displayType = "carousel",
 }: RelatedProductsProps) {
   const router = useRouter();
-  const [isDragging, setIsDragging] = useState(false);
-  const [emblaRef, emblaApi] = useEmblaCarousel({
+  const [emblaRef] = useEmblaCarousel({
     align: "start",
     containScroll: "trimSnaps",
     dragFree: false,
   });
 
-  useEffect(() => {
-    if (!emblaApi) return;
+  // Track pointer position to detect actual dragging vs. taps
+  const pointerStartRef = useRef<{ x: number; y: number } | null>(null);
+  const hasDraggedRef = useRef(false);
 
-    const onSettle = () => setIsDragging(false);
-    const onScroll = () => setIsDragging(true);
+  // Track pointer movement to distinguish taps from drags
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
+    pointerStartRef.current = { x: e.clientX, y: e.clientY };
+    hasDraggedRef.current = false;
+  }, []);
 
-    emblaApi.on("settle", onSettle);
-    emblaApi.on("scroll", onScroll);
-
-    return () => {
-      emblaApi.off("settle", onSettle);
-      emblaApi.off("scroll", onScroll);
-    };
-  }, [emblaApi]);
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+    if (!pointerStartRef.current) return;
+    const dx = Math.abs(e.clientX - pointerStartRef.current.x);
+    const dy = Math.abs(e.clientY - pointerStartRef.current.y);
+    // 10px threshold - anything more is a drag, not a tap
+    if (dx > 10 || dy > 10) {
+      hasDraggedRef.current = true;
+    }
+  }, []);
 
   const handleProductClick = useCallback(
     (handle: string) => {
-      if (!isDragging) {
+      if (!hasDraggedRef.current) {
         router.push(`/products/${handle}`);
       }
     },
-    [router, isDragging]
+    [router]
   );
 
   const handleBrandClick = useCallback(
     (slug: string) => {
-      if (!isDragging) {
+      if (!hasDraggedRef.current) {
         router.push(getBrandUrl(slug));
       }
     },
-    [router, isDragging]
+    [router]
   );
 
   if (!products?.length) return null;
@@ -82,21 +86,26 @@ function RelatedProducts({
         <div className="overflow-hidden -mx-2 px-2" ref={emblaRef}>
           <div className="flex gap-2">
             {products.map((product) => (
-              <ProductCard
+              <div
                 key={product._id}
-                product={product}
-                className="flex-shrink-0 w-[70vw] xl:w-[30vw] aspect-[4/5]"
-                sizes="(min-width: 1280px) 25vw, 70vw"
-                onClick={() => handleProductClick(product.handle)}
-                onBrandClick={handleBrandClick}
-                disableGallery
-              />
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
+              >
+                <ProductCard
+                  product={product}
+                  className="flex-shrink-0 w-[70vw] xl:w-[30vw] aspect-[4/5]"
+                  sizes="(min-width: 1280px) 25vw, 70vw"
+                  onClick={() => handleProductClick(product.handle)}
+                  onBrandClick={handleBrandClick}
+                  disableGallery
+                />
+              </div>
             ))}
           </div>
         </div>
       )}
     </div>
   );
-}
+});
 
 export default RelatedProducts;
