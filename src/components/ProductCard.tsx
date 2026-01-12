@@ -44,6 +44,11 @@ const ProductCard = memo(function ProductCard({
     }
   }, [onBrandClick]);
 
+  // Prefetch product page on hover for faster navigation
+  const handleMouseEnter = useCallback(() => {
+    router.prefetch(`/products/${product.handle}`);
+  }, [router, product.handle]);
+
   // Build images array: selectedImage or mainImage first, then gallery
   const primaryImage = product.selectedImage || product.mainImage;
   const allImages = [
@@ -54,7 +59,10 @@ const ProductCard = memo(function ProductCard({
   );
 
   return (
-    <div className={`aspect-[4/5] flex flex-col hover:cursor-pointer ${className}`}>
+    <div
+      className={`aspect-[4/5] flex flex-col hover:cursor-pointer ${className}`}
+      onMouseEnter={handleMouseEnter}
+    >
       <div className="w-full h-full relative bg-gray-100">
         <ProductCardGallery
           images={allImages}

@@ -16,6 +16,11 @@ const BlogProductCard = memo(function BlogProductCard({ product }: BlogProductCa
     router.push(`/products/${product.handle}`);
   }, [router, product.handle]);
 
+  // Prefetch product page on hover for faster navigation
+  const handleMouseEnter = useCallback(() => {
+    router.prefetch(`/products/${product.handle}`);
+  }, [router, product.handle]);
+
   // Build images array: selectedImage or mainImage first, then gallery
   const primaryImage = product.selectedImage || product.mainImage;
   const allImages = [
@@ -26,7 +31,10 @@ const BlogProductCard = memo(function BlogProductCard({ product }: BlogProductCa
   );
 
   return (
-    <div className="w-full aspect-[3/4] flex flex-col hover:cursor-pointer">
+    <div
+      className="w-full aspect-[3/4] flex flex-col hover:cursor-pointer"
+      onMouseEnter={handleMouseEnter}
+    >
       <div className="w-full h-full relative bg-gray-100">
         <ProductCardGallery
           images={allImages}
