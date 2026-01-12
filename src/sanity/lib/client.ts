@@ -29,12 +29,16 @@ export const previewClient = createClient({
  * Next.js 15 changed default fetch behavior from 'force-cache' to 'no-store'
  * This wrapper ensures all Sanity queries are cached for ISR
  * Revalidation is controlled by page-level `export const revalidate = X`
+ *
+ * Set SANITY_NO_CACHE=true to disable caching for troubleshooting
  */
 export async function sanityFetch<T>(
   query: string,
   params: QueryParams = {}
 ): Promise<T> {
+  const noCache = process.env.SANITY_NO_CACHE === 'true';
+
   return client.fetch<T>(query, params, {
-    cache: 'force-cache',
+    cache: noCache ? 'no-store' : 'force-cache',
   })
 }

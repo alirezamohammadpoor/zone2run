@@ -1,16 +1,23 @@
+import { cache } from "react";
 import { sanityFetch } from "@/sanity/lib/client";
 import type { SanityProduct } from "@/types/sanityProduct";
 import {
   BASE_PRODUCT_PROJECTION,
   FULL_PRODUCT_PROJECTION,
+  CARD_PRODUCT_PROJECTION,
   buildLimitClause,
   mapGenderValue,
 } from "./groqUtils";
 
-export async function getSanityProductByHandle(
-  handle: string
-): Promise<SanityProduct | null> {
-  const query = `*[_type == "product" && (shopifyHandle == $handle || store.slug.current == $handle)][0] {
+/**
+ * Fetch functions wrapped with React's cache() for request deduplication.
+ * This prevents duplicate Sanity API calls within the same render cycle
+ * (e.g., generateMetadata + page component calling the same function).
+ */
+
+export const getSanityProductByHandle = cache(
+  async (handle: string): Promise<SanityProduct | null> => {
+    const query = `*[_type == "product" && (shopifyHandle == $handle || store.slug.current == $handle)][0] {
     ${FULL_PRODUCT_PROJECTION},
     "colorVariants": colorVariants[]-> {
       _id,
@@ -36,13 +43,14 @@ export async function getSanityProductByHandle(
     }
   }`;
 
-  try {
-    return await sanityFetch<SanityProduct | null>(query, { handle });
-  } catch (error) {
-    console.error("Error fetching Sanity product by handle:", error);
-    return null;
+    try {
+      return await sanityFetch<SanityProduct | null>(query, { handle });
+    } catch (error) {
+      console.error("Error fetching Sanity product by handle:", error);
+      return null;
+    }
   }
-}
+);
 
 export async function getAllProducts(): Promise<SanityProduct[]> {
   const query = `*[_type == "product"] {
@@ -57,26 +65,27 @@ export async function getAllProducts(): Promise<SanityProduct[]> {
   }
 }
 
-export async function getProductsByBrand(
-  brandSlug: string,
-  limit?: number,
-  gender?: string
-): Promise<SanityProduct[]> {
-  const genderMap: { [key: string]: string } = {
-    men: "mens",
-    women: "womens",
-    mens: "mens",
-    womens: "womens",
-    unisex: "unisex",
-  };
+export const getProductsByBrand = cache(
+  async (
+    brandSlug: string,
+    limit?: number,
+    gender?: string
+  ): Promise<SanityProduct[]> => {
+    const genderMap: { [key: string]: string } = {
+      men: "mens",
+      women: "womens",
+      mens: "mens",
+      womens: "womens",
+      unisex: "unisex",
+    };
 
-  const dbGender = gender ? genderMap[gender] || gender : null;
+    const dbGender = gender ? genderMap[gender] || gender : null;
 
-  const genderFilter = dbGender
-    ? `&& (gender == $dbGender || gender == "unisex")`
-    : "";
+    const genderFilter = dbGender
+      ? `&& (gender == $dbGender || gender == "unisex")`
+      : "";
 
-  const query = `*[_type == "product" && (brand->slug.current == $brandSlug || lower(brand->slug.current) == lower($brandSlug))${genderFilter}] {
+    const query = `*[_type == "product" && (brand->slug.current == $brandSlug || lower(brand->slug.current) == lower($brandSlug))${genderFilter}] {
     ${BASE_PRODUCT_PROJECTION},
     brand-> {
       _id,
@@ -88,14 +97,15 @@ export async function getProductsByBrand(
     }
   } | order(title asc)${buildLimitClause(limit)}`;
 
-  try {
-    const params = dbGender ? { brandSlug, dbGender } : { brandSlug };
-    return await sanityFetch<SanityProduct[]>(query, params);
-  } catch (error) {
-    console.error(`Error fetching products for brand ${brandSlug}:`, error);
-    return [];
+    try {
+      const params = dbGender ? { brandSlug, dbGender } : { brandSlug };
+      return await sanityFetch<SanityProduct[]>(query, params);
+    } catch (error) {
+      console.error(`Error fetching products for brand ${brandSlug}:`, error);
+      return [];
+    }
   }
-}
+);
 
 export async function getProductsByGender(
   gender: string,
@@ -275,4 +285,35 @@ export async function getProductsByIds(
     return [];
   }
 }
+
+/**
+ * Fetch related products by brand with lightweight projection
+ * Optimized for carousel/grid display - excludes variants, gallery, categories
+ * Default limit of 12 products to keep payload small (~5KB vs ~60KB)
+ */
+export const getRelatedProducts = cache(
+  async (
+    brandSlug: string,
+    excludeProductId?: string,
+    limit: number = 12
+  ): Promise<SanityProduct[]> => {
+    const excludeFilter = excludeProductId
+      ? `&& _id != $excludeProductId`
+      : "";
+
+    const query = `*[_type == "product" && brand->slug.current == $brandSlug ${excludeFilter}] {
+    ${CARD_PRODUCT_PROJECTION}
+  } | order(title asc)[0...${limit}]`;
+
+    try {
+      const params = excludeProductId
+        ? { brandSlug, excludeProductId }
+        : { brandSlug };
+      return await sanityFetch<SanityProduct[]>(query, params);
+    } catch (error) {
+      console.error(`Error fetching related products for brand ${brandSlug}:`, error);
+      return [];
+    }
+  }
+);
 

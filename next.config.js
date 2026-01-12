@@ -3,8 +3,16 @@ const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true",
 });
 
+// Set FORCE_DYNAMIC=true in Vercel env vars to disable ISR for troubleshooting
+const forceDynamic = process.env.FORCE_DYNAMIC === "true";
+
 const nextConfig = {
   turbopack: {},
+
+  // Disable static generation entirely when FORCE_DYNAMIC=true
+  ...(forceDynamic && {
+    staticPageGenerationTimeout: 0,
+  }),
   images: {
     remotePatterns: [
       {

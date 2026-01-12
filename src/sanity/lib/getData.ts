@@ -10,6 +10,7 @@ export {
   getProductsBySubcategoryIncludingSubSubcategories,
   getProductsByPath3Level,
   getProductsByIds,
+  getRelatedProducts,
 } from "./getProducts";
 
 export {
