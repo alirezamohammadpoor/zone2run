@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import "./globals.css";
+import "../globals.css";
 import HeaderServer from "@/components/HeaderServer";
 import { ScrollRestoration } from "@/components/ScrollRestoration";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { FooterContent, StickyFooter } from "@/components/Footer";
+import { FooterContent } from "@/components/Footer";
 import PreviewProvider from "@/components/PreviewProvider";
 
 export const metadata: Metadata = {
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   description: "Purposefully Curated. Built to Perform.",
 };
 
-export default function RootLayout({
+export default function MainLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -20,7 +20,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="preconnect" href="https://cdn.sanity.io" />
+        {/* DNS Prefetch - resolve domain names early */}
+        <link rel="dns-prefetch" href="//cdn.sanity.io" />
+        <link rel="dns-prefetch" href="//cdn.shopify.com" />
+
+        {/* Preconnect - establish early connections to critical origins */}
+        <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://cdn.shopify.com" crossOrigin="anonymous" />
       </head>
       <body>
         <PreviewProvider />
@@ -31,7 +37,6 @@ export default function RootLayout({
             {children}
             <FooterContent />
           </div>
-          {/* <StickyFooter /> */}
         </main>
         <Analytics />
         <SpeedInsights />
