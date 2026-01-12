@@ -22,8 +22,10 @@ export const useCartStore = create<CartStore>()(
     (set, get) => ({
       ...initialState,
 
-      addItem: async (item) => {
+      addItem: (item) => {
         const existing = get().items.find((i) => i.id === item.id);
+
+        // Optimistic update - immediate UI feedback
         if (existing) {
           set({
             items: get().items.map((i) =>
@@ -34,23 +36,29 @@ export const useCartStore = create<CartStore>()(
           set({ items: [...get().items, { ...item, quantity: 1 }] });
         }
 
-        // Sync with Shopify
-        const state = get();
-        if (!state.shopifyCartId) {
-          const cartResult = await createCart();
-          if (cartResult) {
-            set({
-              shopifyCartId: cartResult.cartId,
-              shopifyCheckoutUrl: cartResult.checkoutUrl,
-            });
-          }
-        }
+        // Sync with Shopify in background (non-blocking for INP)
+        queueMicrotask(async () => {
+          try {
+            const state = get();
+            if (!state.shopifyCartId) {
+              const cartResult = await createCart();
+              if (cartResult) {
+                set({
+                  shopifyCartId: cartResult.cartId,
+                  shopifyCheckoutUrl: cartResult.checkoutUrl,
+                });
+              }
+            }
 
-        // Add item to Shopify cart
-        const updatedState = get();
-        if (updatedState.shopifyCartId && !existing) {
-          await addToCart(updatedState.shopifyCartId, item.variantId, 1);
-        }
+            // Add item to Shopify cart
+            const updatedState = get();
+            if (updatedState.shopifyCartId && !existing) {
+              await addToCart(updatedState.shopifyCartId, item.variantId, 1);
+            }
+          } catch (error) {
+            console.error("Failed to sync with Shopify:", error);
+          }
+        });
       },
 
       removeItem: (id) =>
@@ -67,7 +75,8 @@ export const useCartStore = create<CartStore>()(
           shopifyCheckoutUrl: null,
         }),
 
-      updateQuantity: async (id, quantity) => {
+      // Optimistic update - immediate UI feedback, no blocking
+      updateQuantity: (id, quantity) => {
         set({
           items: get().items.map((i) =>
             i.id === id ? { ...i, quantity: Math.max(0, quantity) } : i

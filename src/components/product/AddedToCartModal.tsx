@@ -1,22 +1,21 @@
 "use client";
 import { useUIStore } from "@/lib/cart/uiStore";
-import React, { useEffect, useState } from "react";
+import React, { memo, useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import { formatPrice } from "@/lib/utils/formatPrice";
 
-function AddedToCartModal({
+const AddedToCartModal = memo(function AddedToCartModal({
   isCartOpen,
   setIsCartOpen,
 }: {
   isCartOpen: boolean;
   setIsCartOpen: (isOpen: boolean) => void;
 }) {
-  const {
-    showAddedToCartModal,
-    lastAddedProduct,
-    hideAddedToCart,
-    setLastAddedProduct,
-  } = useUIStore((state) => state);
+  // Use individual selectors to prevent re-renders from unrelated state changes
+  const showAddedToCartModal = useUIStore((state) => state.showAddedToCartModal);
+  const lastAddedProduct = useUIStore((state) => state.lastAddedProduct);
+  const hideAddedToCart = useUIStore((state) => state.hideAddedToCart);
+  const setLastAddedProduct = useUIStore((state) => state.setLastAddedProduct);
 
   const [isVisible, setIsVisible] = useState(false);
 
@@ -90,6 +89,6 @@ function AddedToCartModal({
       </div>
     </div>
   );
-}
+});
 
 export default AddedToCartModal;

@@ -25,7 +25,13 @@ const nextConfig = {
   },
 
   experimental: {
-    optimizePackageImports: ["@sanity/client", "lucide-react"],
+    optimizePackageImports: [
+      "@sanity/client",
+      "@sanity/visual-editing",
+      "next-sanity",
+      "lucide-react",
+      "framer-motion",
+    ],
   },
 
   webpack: (config, { dev, isServer }) => {
@@ -56,12 +62,15 @@ const nextConfig = {
         splitChunks: {
           chunks: "all",
           cacheGroups: {
-            // Separate Sanity Studio into its own chunk
+            // Sanity Studio heavy dependencies (Mux, CodeMirror, etc.)
+            // Exclude @sanity/client and @sanity/visual-editing (light, used in main app)
             sanityStudio: {
-              test: /[\\/]node_modules[\\/](next-sanity|sanity|@sanity)[\\/]/,
+              test: /[\\/]node_modules[\\/](@mux|sanity(?![\\/]node_modules[\\/]@sanity[\\/]client)|@sanity[\\/](?!client|visual-editing)|@codemirror|@uiw|slate|sanity-plugin-)[\\/]/,
               name: "sanity-studio",
-              priority: 30,
-              chunks: "async",
+              priority: 40,
+              chunks: "all",
+              enforce: true,
+              reuseExistingChunk: false,
             },
             // Vendor chunk for other node_modules
             vendor: {
