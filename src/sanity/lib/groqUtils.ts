@@ -126,3 +126,27 @@ featured`;
  * @deprecated Use BASE_PRODUCT_PROJECTION instead - gallery is now included by default
  */
 export const FULL_PRODUCT_PROJECTION = BASE_PRODUCT_PROJECTION;
+
+/**
+ * Lightweight product card projection - minimal data for grid/carousel display
+ * Excludes: variants, gallery, category hierarchy, description, tags
+ * ~90% smaller than BASE_PRODUCT_PROJECTION
+ */
+export const CARD_PRODUCT_PROJECTION = `_id,
+"title": coalesce(title, store.title),
+"handle": coalesce(shopifyHandle, store.slug.current),
+"priceRange": {
+  "minVariantPrice": store.priceRange.minVariantPrice,
+  "maxVariantPrice": store.priceRange.maxVariantPrice
+},
+"mainImage": {
+  "url": coalesce(mainImage.asset->url, store.previewImageUrl),
+  "alt": coalesce(mainImage.alt, store.title),
+  "lqip": mainImage.asset->metadata.lqip
+},
+brand-> {
+  _id,
+  name,
+  "slug": slug.current
+},
+gender`;
