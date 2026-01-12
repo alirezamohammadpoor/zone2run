@@ -29,7 +29,6 @@ import { shopifyCollectionType } from "./objects/shopify/shopifyCollectionType";
 import { shopifyProductType } from "./objects/shopify/shopifyProductType";
 import { shopifyProductVariantType } from "./objects/shopify/shopifyProductVariantType";
 import { spotType } from "./objects/hotspot/spotType";
-import { muxVideo } from "./objects/muxVideo";
 
 // Homepage module types
 import { heroModule } from "./homepage/heroModule";
@@ -79,7 +78,6 @@ const objects = [
   shopifyProductType,
   shopifyProductVariantType,
   spotType,
-  muxVideo,
   // Homepage modules
   heroModule,
   editorialModule,
