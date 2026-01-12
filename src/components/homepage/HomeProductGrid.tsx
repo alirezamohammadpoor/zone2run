@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import ProductCard from "@/components/ProductCard";
 import type { SanityProduct } from "@/types/sanityProduct";
 
@@ -8,7 +8,7 @@ interface HomeProductGridProps {
   columns?: "2" | "2-lg" | "3-lg" | "4" | "4-lg" | "auto"; // "auto" = 2 on mobile, 4 on xl; "3-lg" = 3 on lg+; "4-lg" = 4 on lg+
 }
 
-export default function HomeProductGrid({
+const HomeProductGrid = memo(function HomeProductGrid({
   products,
   count,
   columns = "auto",
@@ -39,4 +39,6 @@ export default function HomeProductGrid({
       ))}
     </div>
   );
-}
+});
+
+export default HomeProductGrid;

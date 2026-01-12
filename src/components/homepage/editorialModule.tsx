@@ -1,7 +1,7 @@
 "use client";
 
 import { type EditorialModule } from "../../../sanity.types";
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useRef, useMemo, memo } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import useEmblaCarousel from "embla-carousel-react";
@@ -70,7 +70,7 @@ function getSelectedImage(post: EditorialBlogPost, imageSelection: string) {
   };
 }
 
-function EditorialModuleComponent({
+const EditorialModuleComponent = memo(function EditorialModuleComponent({
   editorialModule,
   posts,
 }: {
@@ -78,48 +78,46 @@ function EditorialModuleComponent({
   posts: EditorialBlogPost[];
 }) {
   const router = useRouter();
-  const [emblaRef, emblaApi] = useEmblaCarousel({
+  const [emblaRef] = useEmblaCarousel({
     align: "start",
     containScroll: "trimSnaps",
     dragFree: false,
   });
-  const isDraggingRef = useRef(false);
+
+  // Track pointer position to detect actual dragging vs. taps
+  const pointerStartRef = useRef<{ x: number; y: number } | null>(null);
+  const hasDraggedRef = useRef(false);
 
   // Create a map of posts with their selected images
   // Use editorial image by default for latest posts
-  const postsWithImages = posts.map((post) => {
-    return {
-      post,
-      imageSelection: "editorial",
-    };
-  });
+  const postsWithImages = useMemo(
+    () =>
+      posts.map((post) => ({
+        post,
+        imageSelection: "editorial",
+      })),
+    [posts]
+  );
 
-  // Track dragging state from Embla
-  React.useEffect(() => {
-    if (!emblaApi) return;
+  // Track pointer movement to distinguish taps from drags
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
+    pointerStartRef.current = { x: e.clientX, y: e.clientY };
+    hasDraggedRef.current = false;
+  }, []);
 
-    const onScroll = () => {
-      isDraggingRef.current = true;
-    };
-
-    const onSettle = () => {
-      setTimeout(() => {
-        isDraggingRef.current = false;
-      }, 100);
-    };
-
-    emblaApi.on("scroll", onScroll);
-    emblaApi.on("settle", onSettle);
-
-    return () => {
-      emblaApi.off("scroll", onScroll);
-      emblaApi.off("settle", onSettle);
-    };
-  }, [emblaApi]);
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+    if (!pointerStartRef.current) return;
+    const dx = Math.abs(e.clientX - pointerStartRef.current.x);
+    const dy = Math.abs(e.clientY - pointerStartRef.current.y);
+    // 10px threshold - anything more is a drag, not a tap
+    if (dx > 10 || dy > 10) {
+      hasDraggedRef.current = true;
+    }
+  }, []);
 
   const handlePostClick = useCallback(
     (post: EditorialBlogPost) => {
-      if (!isDraggingRef.current) {
+      if (!hasDraggedRef.current) {
         router.push(
           `/blog/${post.category?.slug?.current}/${post.slug?.current}`
         );
@@ -153,6 +151,8 @@ function EditorialModuleComponent({
                 key={post._id}
                 className="flex-shrink-0 w-[60vw] md:w-[40vw] lg:w-[30vw] xl:w-[25vw] min-w-0 cursor-pointer"
                 onClick={() => handlePostClick(post)}
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
               >
                 <div className="relative h-[40vh] md:h-[45vh] xl:h-[50vh] overflow-hidden">
                   {selectedImage.url && (
@@ -186,6 +186,6 @@ function EditorialModuleComponent({
       </div>
     </div>
   );
-}
+});
 
 export default EditorialModuleComponent;

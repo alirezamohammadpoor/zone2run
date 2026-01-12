@@ -2,7 +2,7 @@
 
 import useEmblaCarousel from "embla-carousel-react";
 import Image from "next/image";
-import { useCallback, useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState, useRef, memo } from "react";
 import { getBlurProps } from "@/lib/utils/imageProps";
 
 interface ProductCardGalleryProps {
@@ -13,7 +13,7 @@ interface ProductCardGalleryProps {
   disableGallery?: boolean;
 }
 
-export default function ProductCardGallery({
+const ProductCardGallery = memo(function ProductCardGallery({
   images,
   sizes,
   priority = false,
@@ -22,7 +22,9 @@ export default function ProductCardGallery({
 }: ProductCardGalleryProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start" });
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const isDraggingRef = useRef(false);
+  // Track pointer position to detect actual dragging vs. taps
+  const pointerStartRef = useRef<{ x: number; y: number } | null>(null);
+  const hasDraggedRef = useRef(false);
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
@@ -33,29 +35,36 @@ export default function ProductCardGallery({
     if (!emblaApi || disableGallery) return;
     onSelect();
     emblaApi.on("select", onSelect);
-    emblaApi.on("pointerDown", () => {
-      isDraggingRef.current = false;
-    });
-    emblaApi.on("pointerUp", () => {
-      setTimeout(() => {
-        isDraggingRef.current = false;
-      }, 100);
-    });
-    emblaApi.on("scroll", () => {
-      isDraggingRef.current = true;
-    });
     return () => {
       emblaApi.off("select", onSelect);
     };
   }, [emblaApi, onSelect, disableGallery]);
 
-  const handleClick = (e: React.MouseEvent) => {
-    if (isDraggingRef.current) {
+  // Track pointer movement to distinguish taps from drags
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
+    pointerStartRef.current = { x: e.clientX, y: e.clientY };
+    hasDraggedRef.current = false;
+  }, []);
+
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+    if (!pointerStartRef.current) return;
+    const dx = Math.abs(e.clientX - pointerStartRef.current.x);
+    const dy = Math.abs(e.clientY - pointerStartRef.current.y);
+    // 10px threshold - anything more is a drag, not a tap
+    if (dx > 10 || dy > 10) {
+      hasDraggedRef.current = true;
+    }
+  }, []);
+
+  const handleClick = useCallback((e: React.MouseEvent) => {
+    // If user dragged more than threshold, don't navigate
+    if (hasDraggedRef.current) {
+      e.preventDefault();
       e.stopPropagation();
       return;
     }
     onNavigate?.();
-  };
+  }, [onNavigate]);
 
   // Static image when gallery is disabled or single image
   if (disableGallery || images.length <= 1) {
@@ -63,7 +72,12 @@ export default function ProductCardGallery({
     const hoverImage = images[1];
 
     return (
-      <div className="w-full h-full relative group" onClick={handleClick}>
+      <div
+        className="w-full h-full relative group"
+        onClick={handleClick}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+      >
         {mainImage?.url && (
           <Image
             src={mainImage.url}
@@ -95,7 +109,12 @@ export default function ProductCardGallery({
   const progressPercentage = ((selectedIndex + 1) / images.length) * 100;
 
   return (
-    <div className="w-full h-full relative" onClick={handleClick}>
+    <div
+      className="w-full h-full relative"
+      onClick={handleClick}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+    >
       <div className="overflow-hidden h-full" ref={emblaRef}>
         <div className="flex h-full">
           {images.map((image, index) => (
@@ -129,4 +148,6 @@ export default function ProductCardGallery({
       </div>
     </div>
   );
-}
+});
+
+export default ProductCardGallery;
