@@ -26,8 +26,7 @@ export const getSanityProductByHandle = cache(
       "handle": coalesce(shopifyHandle, store.slug.current),
       "mainImage": {
         "url": coalesce(mainImage.asset->url, store.previewImageUrl),
-        "alt": coalesce(mainImage.alt, store.title),
-        "lqip": mainImage.asset->metadata.lqip
+        "alt": coalesce(mainImage.alt, store.title)
       }
     },
     editorialImages[] {
@@ -35,8 +34,7 @@ export const getSanityProductByHandle = cache(
       image {
         asset-> {
           _id,
-          url,
-          metadata { lqip }
+          url
         },
         alt
       },
