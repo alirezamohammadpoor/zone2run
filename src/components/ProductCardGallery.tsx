@@ -57,6 +57,13 @@ const ProductCardGallery = memo(function ProductCardGallery({
   }, []);
 
   const handleClick = useCallback((e: React.MouseEvent) => {
+    // DEBUG: Track click count
+    console.log('[ProductCardGallery] handleClick fired', {
+      target: (e.target as HTMLElement).tagName,
+      currentTarget: (e.currentTarget as HTMLElement).tagName,
+      hasDragged: hasDraggedRef.current
+    });
+
     // If user dragged more than threshold, don't navigate
     if (hasDraggedRef.current) {
       e.preventDefault();

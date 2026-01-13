@@ -1,15 +1,15 @@
-// DEBUG TEST: generateMetadata commented out to isolate RSC triple request issue
+// DEBUG TEST: generateMetadata commented out + Suspense removed to test RSC request count
 // import type { Metadata } from "next";
 import ProductGalleryServer from "@/components/product/ProductGalleryServer";
 import ProductInfo from "@/components/product/ProductInfo";
 import { getSanityProductByHandle } from "@/sanity/lib/getData";
-import { Suspense } from "react";
+// import { Suspense } from "react"; // DEBUG: Removed to test if Suspense causes multiple RSC requests
 import { notFound } from "next/navigation";
 import RelatedProductsServer from "@/components/product/RelatedProductsServer";
 import ColorVariants from "@/components/product/ColorVariants";
 import ProductEditorialImages from "@/components/product/ProductEditorialImages";
-import RelatedProductsSkeleton from "@/components/skeletons/RelatedProductsSkeleton";
-import EditorialImageSkeleton from "@/components/skeletons/EditorialImageSkeleton";
+// import RelatedProductsSkeleton from "@/components/skeletons/RelatedProductsSkeleton"; // DEBUG: Removed
+// import EditorialImageSkeleton from "@/components/skeletons/EditorialImageSkeleton"; // DEBUG: Removed
 
 // ISR: Revalidate every 5 minutes, on-demand via Sanity webhook
 export const revalidate = 300;
@@ -99,17 +99,15 @@ export default async function ProductPage({
           colorVariants={product.colorVariants}
           currentProductId={product._id}
         />
-        <Suspense fallback={<EditorialImageSkeleton />}>
-          <ProductEditorialImages editorialImages={product.editorialImages} />
-        </Suspense>
+        {/* DEBUG: Removed Suspense to test if it causes multiple RSC requests */}
+        <ProductEditorialImages editorialImages={product.editorialImages} />
       </div>
       {product.brand?.slug && (
-        <Suspense fallback={<RelatedProductsSkeleton />}>
-          <RelatedProductsServer
-            brandSlug={product.brand.slug}
-            currentProductId={product._id}
-          />
-        </Suspense>
+        /* DEBUG: Removed Suspense to test if it causes multiple RSC requests */
+        <RelatedProductsServer
+          brandSlug={product.brand.slug}
+          currentProductId={product._id}
+        />
       )}
     </>
   );

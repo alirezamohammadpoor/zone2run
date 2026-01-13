@@ -30,6 +30,12 @@ export default function ProductCard({
   const router = useRouter();
 
   const handleClick = () => {
+    // DEBUG: Track navigation calls
+    console.log('[ProductCard] handleClick fired', {
+      handle: product.handle,
+      hasOnClick: !!onClick
+    });
+
     if (onClick) {
       onClick();
     } else {
