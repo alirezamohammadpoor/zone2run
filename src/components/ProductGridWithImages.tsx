@@ -1,4 +1,3 @@
-import Link from "next/link";
 import Image from "next/image";
 import ProductCard from "./ProductCard";
 import { urlFor } from "@/sanity/lib/image";
@@ -63,8 +62,8 @@ function createGridItems(
   return gridItems;
 }
 
-// Render a product link
-function ProductLink({
+// Render a product item
+function ProductItem({
   product,
   idx,
   priority = false,
@@ -74,13 +73,9 @@ function ProductLink({
   priority?: boolean;
 }) {
   return (
-    <Link
-      key={`${product._id}-${product.handle}-${idx}`}
-      href={`/products/${product.handle}`}
-      className="hover:cursor-pointer"
-    >
+    <article key={`${product._id}-${product.handle}-${idx}`}>
       <ProductCard product={product} priority={priority} />
-    </Link>
+    </article>
   );
 }
 
@@ -155,7 +150,7 @@ function GridContent({
           const isPriority = productIndex < priorityCount;
           productIndex++;
           return (
-            <ProductLink
+            <ProductItem
               key={`${item.product._id}-${idx}`}
               product={item.product}
               idx={idx}
@@ -201,13 +196,9 @@ export default function ProductGridWithImages({
         className={`grid grid-cols-2 ${xlGridCols} gap-2 px-2 my-8 md:my-12 xl:my-16`}
       >
         {products?.map((product, idx) => (
-          <Link
-            key={`${product._id}-${product.handle}`}
-            href={`/products/${product.handle}`}
-            className="hover:cursor-pointer"
-          >
+          <article key={`${product._id}-${product.handle}`}>
             <ProductCard product={product} priority={idx < priorityCount} />
-          </Link>
+          </article>
         ))}
       </div>
     );
