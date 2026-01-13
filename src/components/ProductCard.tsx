@@ -1,6 +1,6 @@
 "use client";
 
-import React, { memo, useCallback } from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
 import type { SanityProduct } from "@/types/sanityProduct";
 import { formatPrice } from "@/lib/utils/formatPrice";
@@ -16,9 +16,10 @@ interface ProductCardProps {
   onClick?: () => void;
   priority?: boolean;
   disableGallery?: boolean;
+  disableNavigation?: boolean; // When wrapped in Link, disable internal router.push
 }
 
-const ProductCard = memo(function ProductCard({
+export default function ProductCard({
   product,
   sizes = "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw",
   className = "",
@@ -26,28 +27,26 @@ const ProductCard = memo(function ProductCard({
   onClick,
   priority = false,
   disableGallery = false,
+  disableNavigation = false,
 }: ProductCardProps) {
   const router = useRouter();
 
-  const handleClick = useCallback(() => {
+  const handleClick = () => {
+    // When wrapped in Link, don't trigger internal navigation (prevents double request)
+    if (disableNavigation) return;
     if (onClick) {
       onClick();
     } else {
       router.push(`/products/${product.handle}`);
     }
-  }, [onClick, router, product.handle]);
+  };
 
-  const handleBrandClick = useCallback((e: React.MouseEvent, slug?: string) => {
+  const handleBrandClick = (e: React.MouseEvent, slug?: string) => {
     if (onBrandClick && slug) {
       e.stopPropagation();
       onBrandClick(slug);
     }
-  }, [onBrandClick]);
-
-  // Prefetch product page on hover for faster navigation
-  const handleMouseEnter = useCallback(() => {
-    router.prefetch(`/products/${product.handle}`);
-  }, [router, product.handle]);
+  };
 
   // Build images array: selectedImage or mainImage first, then gallery
   const primaryImage = product.selectedImage || product.mainImage;
@@ -61,7 +60,6 @@ const ProductCard = memo(function ProductCard({
   return (
     <div
       className={`aspect-[4/5] flex flex-col hover:cursor-pointer ${className}`}
-      onMouseEnter={handleMouseEnter}
     >
       <div className="w-full h-full relative bg-gray-100">
         <ProductCardGallery
@@ -90,6 +88,4 @@ const ProductCard = memo(function ProductCard({
       </div>
     </div>
   );
-});
-
-export default ProductCard;
+}

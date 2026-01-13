@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import ProductGalleryServer from "@/components/product/ProductGalleryServer";
 import ProductInfo from "@/components/product/ProductInfo";
-import { getProductByHandle } from "@/lib/product/getProductByHandle";
+import { getSanityProductByHandle } from "@/sanity/lib/getData";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import RelatedProductsServer from "@/components/product/RelatedProductsServer";
@@ -30,7 +30,7 @@ export async function generateMetadata({
   params: Promise<{ handle: string }>;
 }): Promise<Metadata> {
   const { handle } = await params;
-  const product = await getProductByHandle(handle);
+  const product = await getSanityProductByHandle(handle);
 
   if (!product) {
     return { title: "Product Not Found | Zone2Run" };
@@ -75,7 +75,7 @@ export default async function ProductPage({
   params: Promise<{ handle: string }>;
 }) {
   const handle = (await params).handle;
-  const product = await getProductByHandle(handle);
+  const product = await getSanityProductByHandle(handle);
 
   if (!product) {
     notFound();

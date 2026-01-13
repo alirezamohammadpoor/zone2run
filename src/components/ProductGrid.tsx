@@ -15,8 +15,9 @@ export default function ProductGrid({ products }: ProductGridProps) {
             key={`${product._id}-${product.handle}`}
             href={`/products/${product.handle}`}
             className="hover:cursor-pointer"
+            prefetch={false}
           >
-            <ProductCard product={product} />
+            <ProductCard product={product} disableNavigation />
           </Link>
         );
       })}

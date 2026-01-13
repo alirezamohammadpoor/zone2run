@@ -78,8 +78,9 @@ function ProductLink({
       key={`${product._id}-${product.handle}-${idx}`}
       href={`/products/${product.handle}`}
       className="hover:cursor-pointer"
+      prefetch={false}
     >
-      <ProductCard product={product} priority={priority} />
+      <ProductCard product={product} priority={priority} disableNavigation />
     </Link>
   );
 }
@@ -205,8 +206,9 @@ export default function ProductGridWithImages({
             key={`${product._id}-${product.handle}`}
             href={`/products/${product.handle}`}
             className="hover:cursor-pointer"
+            prefetch={false}
           >
-            <ProductCard product={product} priority={idx < priorityCount} />
+            <ProductCard product={product} priority={idx < priorityCount} disableNavigation />
           </Link>
         ))}
       </div>
