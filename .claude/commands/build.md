@@ -3,10 +3,10 @@
 Build the application for production deployment.
 
 ```bash
-pnpm build
+bun build
 ```
 
 For bundle analysis:
 ```bash
-pnpm build:analyze
+bun build:analyze
 ```

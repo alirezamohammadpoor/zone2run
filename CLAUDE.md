@@ -1,394 +1,151 @@
-# Zone2Run - Comprehensive Project Guide
+# Zone2Run
 
-## Project Overview
+Premium headless e-commerce for running apparel. Sanity CMS + Shopify + Next.js.
 
-**Zone2Run** is a premium headless e-commerce platform specializing in running and athletic apparel. The site combines the content flexibility of Sanity CMS with the robust e-commerce infrastructure of Shopify, delivered through a performant Next.js frontend.
-
-### Business Context
-- **Market**: Premium running/athletic apparel
-- **Currency**: SEK (Swedish Krona)
-- **VAT**: 25% included in prices
-- **Target**: Scandinavian market with international reach
+**Market**: Scandinavian | **Currency**: SEK | **VAT**: 25% included
 
 ---
 
-## Technology Stack
+## Tech Stack
 
-### Core Technologies
-
-| Technology | Version | Role |
-|------------|---------|------|
-| **Next.js** | 16.0.1 | App Router, React 19.2.0, Server Components |
-| **Sanity CMS** | 4.10.1 | Content management, Visual editing |
-| **Shopify** | Storefront API 2024-01 | Headless commerce backend |
-| **Tailwind CSS** | 3.4.17 | Utility-first styling |
-| **Zustand** | 5.0.6 | Client-side state management |
-| **TypeScript** | 5.x | Type safety throughout |
-| **Vercel** | - | Hosting, Analytics, Edge functions |
-
-### Key Dependencies
-- `next-sanity` (11.4.2) - Sanity/Next.js integration
-- `@sanity/visual-editing` (4.0.2) - Live preview/editing
-- `@portabletext/react` (4.0.3) - Rich text rendering
-- `graphql-request` (6.1.0) - Shopify API client
-- `embla-carousel-react` (8.6.0) - Carousels
-- `lucide-react` (0.525.0) - Icons
+| Tech     | Version                | Role                          |
+| -------- | ---------------------- | ----------------------------- |
+| Next.js  | 16.0.7                 | App Router, Server Components |
+| React    | 19.2.1                 | UI                            |
+| Sanity   | 4.10.1                 | CMS, Visual editing           |
+| Shopify  | Storefront API 2024-01 | Commerce backend              |
+| Zustand  | 5.0.6                  | Client state (cart)           |
+| Tailwind | 3.4.17                 | Styling                       |
+| Bun      | -                      | Package manager               |
 
 ---
 
-## Architecture Deep Dive
-
-### Data Flow Architecture
+## Architecture
 
 ```
-┌─────────────┐     Webhooks      ┌─────────────┐
-│   SHOPIFY   │ ─────────────────▶│   SANITY    │
-│  (Products, │                   │  (Enriched  │
-│   Variants, │                   │   Content,  │
-│   Pricing)  │                   │   Editorial)│
-└─────────────┘                   └──────┬──────┘
-                                         │
-                                    GROQ Queries
-                                         │
-                                         ▼
-                                  ┌─────────────┐
-                                  │   NEXT.JS   │
-                                  │   (SSR/SSG) │
-                                  └──────┬──────┘
-                                         │
-                              ┌──────────┴──────────┐
-                              │                     │
-                              ▼                     ▼
-                       ┌───────────┐         ┌───────────┐
-                       │  Browser  │         │  Shopify  │
-                       │   (Cart,  │────────▶│  Checkout │
-                       │   Zustand)│         │           │
-                       └───────────┘         └───────────┘
+Shopify → Webhooks → Sanity → GROQ → Next.js → Browser
+                                           ↓
+                                    Shopify Checkout
 ```
 
-### Why This Architecture?
-1. **Shopify** handles what it does best: inventory, payments, checkout
-2. **Sanity** provides editorial flexibility: custom fields, images, rich content
-3. **Next.js** delivers performance: SSR, image optimization, edge caching
-4. **Webhooks** keep everything in sync automatically
+- **Shopify**: inventory, pricing, checkout
+- **Sanity**: enriched content, editorial, images
+- **Next.js**: SSR/ISR, image optimization
+- **Webhooks**: auto-sync products/collections
+
+---
+
+## Commands
+
+```bash
+bun dev              # Dev server (localhost:3000)
+bun build            # Production build
+bun build:analyze    # Bundle analysis
+bun lint             # ESLint
+bun typegen          # Regenerate Sanity types (REQUIRED after schema changes)
+```
 
 ---
 
 ## Directory Structure
 
 ```
-zone2run/
-├── src/
-│   ├── app/                          # Next.js App Router
-│   │   ├── page.tsx                  # Homepage
-│   │   ├── layout.tsx                # Root layout (Header, Footer)
-│   │   ├── globals.css               # Global styles
-│   │   │
-│   │   ├── api/                      # API Routes
-│   │   │   ├── shopify-product-webhook/  # Main webhook handler (1400+ lines)
-│   │   │   ├── sync-existing-products/   # Bulk sync utility
-│   │   │   ├── draft/                    # Enable preview mode
-│   │   │   └── disable-draft/            # Disable preview mode
-│   │   │
-│   │   ├── products/[handle]/        # Product detail pages
-│   │   │   ├── page.tsx
-│   │   │   └── loading.tsx
-│   │   │
-│   │   ├── collections/              # Collection pages
-│   │   │   ├── page.tsx              # All collections
-│   │   │   └── [slug]/               # Single collection
-│   │   │
-│   │   ├── mens/                     # Gender categories (3-level nesting)
-│   │   │   ├── page.tsx              # All men's products
-│   │   │   ├── [mainCategory]/
-│   │   │   │   ├── page.tsx
-│   │   │   │   └── [subcategory]/
-│   │   │   │       ├── page.tsx
-│   │   │   │       └── [specificCategory]/
-│   │   │   │           └── page.tsx
-│   │   │   └── loading.tsx (at each level)
-│   │   │
-│   │   ├── womens/                   # Same structure as mens/
-│   │   ├── unisex/                   # Same structure as mens/
-│   │   │
-│   │   ├── brands/                   # Brand pages
-│   │   │   ├── page.tsx              # All brands
-│   │   │   └── [slug]/               # Single brand
-│   │   │
-│   │   ├── blog/                     # Blog section
-│   │   │   ├── page.tsx
-│   │   │   └── [category]/[postSlug]/
-│   │   │
-│   │   ├── studio/[[...tool]]/       # Embedded Sanity Studio
-│   │   └── order-confirmation/       # Post-checkout page
-│   │
-│   ├── components/
-│   │   ├── Header.tsx                # Client: nav, cart icon, search
-│   │   ├── HeaderServer.tsx          # Server wrapper for Header
-│   │   ├── Footer.tsx                # Site footer
-│   │   ├── ProductCard.tsx           # Reusable product card
-│   │   ├── ProductGrid.tsx           # Product grid layout
-│   │   ├── ProductGridWithImages.tsx # Grid with editorial images
-│   │   ├── CartModal.tsx             # Slide-out cart
-│   │   ├── SearchModal.tsx           # Search overlay
-│   │   ├── PreviewBanner.tsx         # Draft mode indicator
-│   │   ├── VisualEditing.tsx         # Sanity visual editing overlay
-│   │   │
-│   │   ├── homepage/                 # Homepage modules
-│   │   │   ├── HomePageSanity.tsx    # Main orchestrator
-│   │   │   ├── heroModule.tsx        # Hero section
-│   │   │   ├── featuredProductsModuleComponent.tsx
-│   │   │   ├── editorialModule.tsx   # Blog carousel
-│   │   │   ├── imageModule.tsx       # Full-width media
-│   │   │   ├── contentModule.tsx     # Flexible content
-│   │   │   ├── spotifyPlaylistsModule.tsx
-│   │   │   ├── HomeProductCard.tsx
-│   │   │   └── HomeProductGrid.tsx
-│   │   │
-│   │   ├── product/                  # Product page components
-│   │   │   ├── ProductDetails.tsx    # Main product info
-│   │   │   ├── ProductGallery.tsx    # Image gallery
-│   │   │   ├── VariantSelector.tsx   # Size/color dropdowns
-│   │   │   ├── VariantSelectorList.tsx
-│   │   │   ├── AddToCart.tsx         # Add to cart button
-│   │   │   ├── ColorVariants.tsx     # Color swatches
-│   │   │   ├── ProductTabs.tsx       # Description/details tabs
-│   │   │   ├── ProductEditorialImages.tsx
-│   │   │   ├── RelatedProducts.tsx
-│   │   │   ├── RelatedProductsServer.tsx
-│   │   │   ├── AddedToCartModal.tsx
-│   │   │   ├── FilterBar.tsx
-│   │   │   └── SortModal.tsx
-│   │   │
-│   │   ├── menumodal/                # Navigation drawer
-│   │   │   ├── MenuModal.tsx         # Main modal
-│   │   │   ├── MenContent.tsx
-│   │   │   ├── WomenContent.tsx
-│   │   │   ├── BrandContent.tsx
-│   │   │   ├── HelpContent.tsx
-│   │   │   ├── OurSpaceContent.tsx
-│   │   │   └── menuConfig.ts         # Menu structure config
-│   │   │
-│   │   ├── blog/                     # Blog components
-│   │   │   ├── BlogProductCard.tsx
-│   │   │   ├── BlogProductGrid.tsx
-│   │   │   └── BlogProductCarousel.tsx
-│   │   │
-│   │   └── skeletons/                # Loading states
-│   │       ├── BaseSkeleton.tsx
-│   │       ├── ProductCardSkeleton.tsx
-│   │       ├── ProductGridSkeleton.tsx
-│   │       ├── ProductDetailsSkeleton.tsx
-│   │       ├── ProductGallerySkeleton.tsx
-│   │       └── ... (many more)
-│   │
-│   ├── sanity/
-│   │   ├── lib/                      # Data fetching layer
-│   │   │   ├── client.ts             # Sanity client setup
-│   │   │   ├── getData.ts            # Barrel file (re-exports)
-│   │   │   ├── getHomepage.ts        # Homepage queries
-│   │   │   ├── getProducts.ts        # Product queries
-│   │   │   ├── getCollections.ts     # Collection queries
-│   │   │   ├── getCategories.ts      # Category queries
-│   │   │   ├── getBrands.ts          # Brand queries
-│   │   │   ├── getBlog.ts            # Blog queries
-│   │   │   ├── getMenu.ts            # Navigation queries
-│   │   │   ├── groqUtils.ts          # Shared GROQ projections
-│   │   │   ├── image.ts              # Image URL builder
-│   │   │   └── live.ts               # Live preview setup
-│   │   │
-│   │   ├── schemaTypes/
-│   │   │   ├── index.ts              # Schema registry
-│   │   │   ├── product.ts            # Product schema
-│   │   │   ├── brand.ts              # Brand schema
-│   │   │   ├── category.ts           # Category schema (3-level)
-│   │   │   ├── siteSettings.ts
-│   │   │   │
-│   │   │   ├── documents/
-│   │   │   │   ├── homepageVersion.ts  # Swappable homepages
-│   │   │   │   └── page.ts             # Custom pages
-│   │   │   │
-│   │   │   ├── singletons/
-│   │   │   │   ├── homeType.ts
-│   │   │   │   ├── menuType.ts
-│   │   │   │   ├── settingsType.ts
-│   │   │   │   └── siteSettings.ts
-│   │   │   │
-│   │   │   ├── homepage/             # Homepage module schemas
-│   │   │   │   ├── heroModule.ts
-│   │   │   │   ├── featuredProductsModule.ts
-│   │   │   │   ├── editorialModule.ts
-│   │   │   │   ├── imageModule.ts
-│   │   │   │   ├── portableTextModule.ts  # Content module
-│   │   │   │   └── spotifyPlaylistsModule.ts
-│   │   │   │
-│   │   │   ├── objects/              # Reusable schema objects
-│   │   │   │   ├── shopify/          # Shopify-related types
-│   │   │   │   ├── module/           # Module building blocks
-│   │   │   │   ├── global/           # Global objects
-│   │   │   │   ├── hotspot/          # Image hotspots
-│   │   │   │   └── seoType.ts
-│   │   │   │
-│   │   │   └── blog/
-│   │   │       ├── blogPost.ts
-│   │   │       ├── blogCategory.ts
-│   │   │       └── blogProductsModule.ts
-│   │   │
-│   │   ├── structure.ts              # Studio sidebar structure
-│   │   └── studio/                   # Studio customizations
-│   │       ├── Navbar.tsx
-│   │       └── Footer.tsx
-│   │
-│   ├── lib/
-│   │   ├── client.ts                 # GraphQL client setup
-│   │   ├── shopify/
-│   │   │   ├── queries.ts            # Shopify GraphQL queries
-│   │   │   ├── cart.ts               # Cart API functions
-│   │   │   └── products.ts           # Product fetching
-│   │   │
-│   │   ├── cart/
-│   │   │   ├── store.ts              # Zustand cart store
-│   │   │   ├── types.ts              # Cart types
-│   │   │   └── uiStore.ts            # Cart UI state
-│   │   │
-│   │   ├── product/
-│   │   │   ├── getAllProducts.ts
-│   │   │   └── getProductByHandle.ts
-│   │   │
-│   │   └── utils/
-│   │       ├── formatPrice.ts        # Price formatting (SEK)
-│   │       └── brandUrls.ts          # Brand URL helpers
-│   │
-│   ├── types/
-│   │   ├── sanityProduct.ts          # Product types
-│   │   ├── shopify.ts                # Shopify response types
-│   │   ├── product.ts                # Combined product types
-│   │   ├── menu.ts                   # Navigation types
-│   │   └── sanity.ts                 # Sanity utilities
-│   │
-│   ├── hooks/                        # Custom React hooks
-│   └── store/
-│       ├── searchStore.tsx           # Search state
-│       ├── variantStore.ts           # Variant selection
-│       └── scroll.ts                 # Scroll position
+src/
+├── app/                      # Next.js App Router
+│   ├── (main)/               # Main layout group
+│   │   ├── page.tsx          # Homepage
+│   │   ├── products/[handle] # Product pages
+│   │   ├── mens/[...path]    # 3-level category routes
+│   │   ├── womens/[...path]
+│   │   ├── brands/[slug]
+│   │   └── blog/
+│   ├── (studio)/studio/      # Sanity Studio
+│   └── api/
+│       ├── shopify-product-webhook/  # Main sync webhook
+│       ├── draft/            # Enable preview
+│       └── revalidate/       # ISR trigger
 │
-├── sanity.config.ts                  # Sanity configuration
-├── sanity.types.ts                   # Auto-generated types (35KB)
-├── schema.json                       # JSON schema export (267KB)
-├── next.config.js                    # Next.js configuration
-├── tailwind.config.js                # Tailwind configuration
-├── package.json
-└── tsconfig.json
+├── components/
+│   ├── Header.tsx            # Client nav (uses HeaderServer.tsx wrapper)
+│   ├── ProductCard.tsx       # Memoized product card
+│   ├── CartModal.tsx         # Slide-out cart
+│   ├── homepage/             # Modular homepage components
+│   ├── product/              # PDP components
+│   ├── menumodal/            # Mobile nav
+│   └── skeletons/            # Loading states
+│
+├── sanity/
+│   ├── lib/                  # Data fetching
+│   │   ├── client.ts         # Sanity clients (published + preview)
+│   │   ├── getData.ts        # Barrel exports
+│   │   ├── getProducts.ts    # Product queries
+│   │   ├── groqUtils.ts      # Shared GROQ projections
+│   │   └── get*.ts           # Domain-specific queries
+│   └── schemaTypes/          # Sanity schemas
+│       ├── product.ts
+│       ├── brand.ts
+│       ├── category.ts       # 3-level hierarchy
+│       ├── homepage/         # Module schemas
+│       └── documents/        # Document types
+│
+├── lib/
+│   ├── cart/store.ts         # Zustand cart (localStorage persist)
+│   ├── shopify/              # Shopify GraphQL
+│   ├── webhook/              # Webhook processors (modularized)
+│   │   ├── productProcessor.ts
+│   │   ├── brandMatcher.ts
+│   │   └── deduplication.ts
+│   └── utils/
+│
+├── types/                    # TypeScript definitions
+└── hooks/                    # Custom hooks
 ```
 
 ---
 
-## Development Commands
-
-```bash
-# Development
-pnpm dev              # Start dev server (localhost:3000)
-pnpm lint             # Run ESLint
-
-# Build
-pnpm build            # Production build
-pnpm build:analyze    # Build with bundle analyzer
-pnpm start            # Start production server
-
-# Types
-pnpm typegen          # Regenerate Sanity types (run after schema changes!)
-```
-
----
-
-## Key Patterns & Conventions
+## Key Patterns
 
 ### Server vs Client Components
 
 ```typescript
-// DEFAULT: Server Component (no directive needed)
-// - Use for: data fetching, static content, SEO
+// DEFAULT: Server Component
 async function ProductPage({ params }) {
   const product = await getProductByHandle(params.handle);
-  return <ProductDetails product={product} />;
+  return <ProductInfo product={product} />;
 }
 
-// CLIENT: Add "use client" directive
-// - Use for: interactivity, hooks, browser APIs
+// CLIENT: Add directive when needed
 "use client";
-function AddToCartButton({ productId }) {
+function AddToCart() {
   const { addItem } = useCartStore();
-  return <button onClick={() => addItem(productId)}>Add</button>;
+  return <button onClick={() => addItem(...)}>Add</button>;
 }
 ```
 
-### Data Fetching Pattern
+### Data Fetching
 
-All data fetching is modular and server-side:
+All in `src/sanity/lib/`. Use barrel export:
 
 ```typescript
-// src/sanity/lib/getProducts.ts
-import { client } from './client';
-
-export async function getProductByHandle(handle: string) {
-  return client.fetch(
-    `*[_type == "product" && store.slug.current == $handle][0]{
-      ${productProjection}
-    }`,
-    { handle }
-  );
-}
-
-// Usage in page.tsx
-import { getProductByHandle } from '@/sanity/lib/getProducts';
-
-export default async function ProductPage({ params }) {
-  const product = await getProductByHandle(params.handle);
-  // ...
-}
+import { getSanityProductByHandle } from "@/sanity/lib/getData";
 ```
 
-### Cart State Management
+GROQ projections shared via `groqUtils.ts`.
+
+### Cart (Zustand)
 
 ```typescript
-// Zustand store with localStorage persistence
-import { useCartStore } from '@/lib/cart/store';
-
-function CartButton() {
-  const { items, addItem, removeItem, getTotalItems, checkout } = useCartStore();
-
-  // Add item
-  addItem({ variantId, title, price, quantity: 1 });
-
-  // Checkout redirects to Shopify
-  await checkout();
-}
-```
-
-### Styling Conventions
-
-```typescript
-// Tailwind utility classes only
-<div className="flex flex-col gap-4 p-6 md:flex-row md:gap-8">
-  <h1 className="text-2xl font-medium tracking-wide">Title</h1>
-  <p className="text-sm leading-relaxed text-gray-600">Description</p>
-</div>
-
-// Common patterns:
-// - Font: Helvetica Neue (sans-serif)
-// - Letter-spacing: tracking-wide (0.03rem)
-// - Line-height: leading-relaxed (1.8)
-// - Mobile-first: base → md: → lg:
+const { items, addItem, checkout } = useCartStore();
+// Optimistic updates → background Shopify sync
+// Persists to localStorage ("cart-storage")
 ```
 
 ### Loading States
 
-Every route has a `loading.tsx` with skeleton components:
+Every route has `loading.tsx` with skeleton:
 
 ```typescript
 // src/app/products/[handle]/loading.tsx
-import { ProductDetailsSkeleton } from '@/components/skeletons/ProductDetailsSkeleton';
-
 export default function Loading() {
   return <ProductDetailsSkeleton />;
 }
@@ -396,228 +153,120 @@ export default function Loading() {
 
 ---
 
-## Homepage System
-
-### Modular Architecture
-
-The homepage uses swappable versions with modular content blocks:
-
-```typescript
-// Site Settings → Active Homepage Version → Modules[]
-
-// Module Types:
-type HomepageModule =
-  | { _type: 'heroModule'; ... }           // Hero with video/image + CTA
-  | { _type: 'featuredProductsModule'; ... } // Curated product grid
-  | { _type: 'editorialModule'; ... }      // Blog carousel
-  | { _type: 'imageModule'; ... }          // Full-width media
-  | { _type: 'portableTextModule'; ... }   // Flexible content (4 layouts)
-  | { _type: 'spotifyPlaylistsModule'; ... } // Playlist embeds
-```
-
-### Content Module Layouts
-
-The `portableTextModule` (content module) supports 4 layout variations:
-1. **Left image + Right products** - Editorial image with product grid
-2. **Top image + Bottom products** - Stacked layout
-3. **Products only** - Full-width product grid
-4. **Image only** - Full-width editorial image
-
----
-
 ## Category System
 
-### 3-Level Hierarchy
+3-level hierarchy:
 
 ```
-Gender (mens/womens/unisex)
-└── Main Category (clothing, footwear, accessories)
-    └── Subcategory (tops, bottoms, shorts)
-        └── Specific Category (running-shorts, compression-shorts)
+Gender → Main → Sub → Specific
+/mens/clothing/tops/t-shirts
 ```
 
-### URL Structure
-
-```
-/mens                                    # All men's products
-/mens/clothing                           # Main category
-/mens/clothing/tops                      # Subcategory
-/mens/clothing/tops/t-shirts             # Specific category
-```
-
-### Category Detection
-
-Categories are auto-assigned via webhook based on Shopify product type:
-
-```typescript
-// Webhook extracts from product.productType
-"Running Shorts" → { main: "clothing", sub: "bottoms", specific: "running-shorts" }
-```
+Auto-assigned via webhook from Shopify `productType`.
 
 ---
 
-## Shopify Webhook Integration
+## Homepage Modules
 
-### Webhook Handler (`/api/shopify-product-webhook`)
+Swappable versions with modular blocks:
 
-The webhook handler (1400+ lines) processes:
-
-1. **Product Events**: CREATE, UPDATE, DELETE
-2. **Collection Events**: Sync products to collections
-
-### Processing Steps
-
-```
-1. Validate webhook signature
-2. Check for duplicate (5-min cache)
-3. Extract metadata:
-   - Gender from title/tags ("Men's", "Women's", "M's", "W's")
-   - Category from productType
-   - Brand from vendor
-4. Process images:
-   - Download from Shopify CDN
-   - Optimize (WebP, 1200px max, 85% quality)
-   - Upload to Sanity
-5. Create/update documents:
-   - Product document
-   - Brand (auto-create if needed)
-   - Category references
-   - Collection memberships
-```
-
-### Triggering Sync
-
-```bash
-# Manual bulk sync (all products)
-curl -X POST https://yoursite.com/api/sync-existing-products
-
-# Single product (via Shopify Admin → Products → Edit → Save)
-# Webhook triggers automatically
-```
+- `heroModule` - Video/image + CTA
+- `featuredProductsModule` - Product grid
+- `editorialModule` - Blog carousel
+- `imageModule` - Full-width media
+- `portableTextModule` - Flexible content (4 layouts)
+- `spotifyPlaylistsModule` - Playlist embeds
 
 ---
 
-## Visual Editing & Preview
+## Webhook System
 
-### Draft Mode
+`/api/shopify-product-webhook` → modularized in `src/lib/webhook/`
 
-Content editors can preview unpublished changes:
+Processing:
 
-```typescript
-// Enable: /api/draft?secret=xxx&slug=/products/some-product
-// Disable: /api/disable-draft
-
-// Check in component:
-import { draftMode } from 'next/headers';
-const { isEnabled } = draftMode();
-```
-
-### Sanity Presentation Tool
-
-- Live preview in Sanity Studio
-- Click-to-edit overlays on frontend
-- Real-time content updates
+1. Validate signature
+2. Deduplicate (5-min in-memory cache)
+3. Extract: gender, category, brand
+4. Process images → upload to Sanity
+5. Create/update documents
+6. Trigger ISR revalidation
 
 ---
 
 ## Environment Variables
 
 ```bash
-# Sanity CMS
-NEXT_PUBLIC_SANITY_PROJECT_ID=your-project-id
-NEXT_PUBLIC_SANITY_DATASET=production
-SANITY_API_READ_TOKEN=sk...              # For server-side queries
+# Sanity
+NEXT_PUBLIC_SANITY_PROJECT_ID
+NEXT_PUBLIC_SANITY_DATASET
+SANITY_API_READ_TOKEN          # Server only
 
-# Shopify Storefront API
-NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN=your-store.myshopify.com
-NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN=xxx  # Public token
-
-# Shopify Admin API (webhooks only)
-SHOPIFY_ADMIN_API_TOKEN=shpat_xxx         # Private, server-only
+# Shopify
+NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN
+NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN
+SHOPIFY_ADMIN_API_TOKEN        # Server only
 
 # Site
-NEXT_PUBLIC_SITE_URL=https://zone2run.com  # For preview mode callbacks
+NEXT_PUBLIC_SITE_URL
+SANITY_PREVIEW_SECRET
+SANITY_REVALIDATE_SECRET
 ```
 
 ---
 
-## Common Development Tasks
+## Naming Conventions
 
-### Adding a New Homepage Module
-
-1. **Create schema** in `src/sanity/schemaTypes/homepage/newModule.ts`
-2. **Register schema** in `src/sanity/schemaTypes/index.ts`
-3. **Add to homepage array** in `src/sanity/schemaTypes/documents/homepageVersion.ts`
-4. **Create component** in `src/components/homepage/newModule.tsx`
-5. **Add to switch** in `src/components/homepage/HomePageSanity.tsx`
-6. **Regenerate types**: `pnpm typegen`
-
-### Adding a Product Field
-
-1. **Update schema** in `src/sanity/schemaTypes/product.ts`
-2. **Update webhook** if synced from Shopify (`/api/shopify-product-webhook`)
-3. **Update GROQ projection** in `src/sanity/lib/groqUtils.ts`
-4. **Update types**: `pnpm typegen`
-
-### Debugging Data Issues
-
-```bash
-# Check Sanity data
-# Visit /studio → Vision tool → Run GROQ queries
-
-# Check webhook logs
-# Vercel Dashboard → Functions → shopify-product-webhook
-
-# Re-sync all products
-curl -X POST https://yoursite.com/api/sync-existing-products
-```
-
-### Performance Optimization
-
-```bash
-# Analyze bundle
-pnpm build:analyze
-
-# Key optimizations already in place:
-# - Server Components (default)
-# - Code splitting (Sanity Studio separate chunk)
-# - Image optimization (AVIF/WebP)
-# - CDN caching (Sanity, Shopify)
-```
+| Type           | Convention | Example           |
+| -------------- | ---------- | ----------------- |
+| Components     | PascalCase | `ProductCard.tsx` |
+| Utilities      | camelCase  | `formatPrice.ts`  |
+| Directories    | kebab-case | `menu-modal/`     |
+| Sanity schemas | camelCase  | `heroModule.ts`   |
 
 ---
 
-## File Naming Conventions
+## Gotchas
 
-| Type | Convention | Example |
-|------|------------|---------|
-| Components | PascalCase | `ProductCard.tsx` |
-| Utilities | camelCase | `formatPrice.ts` |
-| Directories | kebab-case | `menu-modal/` |
-| Sanity schemas | camelCase | `heroModule.ts` |
-| Types | PascalCase | `SanityProduct.ts` |
-
----
-
-## Important Reminders
-
-1. **Always Server Components** unless you need interactivity
-2. **Run `pnpm typegen`** after ANY Sanity schema change
-3. **Cart persists to localStorage** - survives page refreshes
-4. **Images use CDNs** - Sanity (`cdn.sanity.io`) and Shopify (`cdn.shopify.com`)
-5. **Prices in SEK** with 25% VAT included
-6. **Check webhook logs** first when debugging sync issues
-7. **Use loading.tsx** for loading states, not spinners in components
+1. **`bun typegen`** - Run after ANY Sanity schema change
+2. **Webhook dedup is in-memory** - Doesn't survive deploys. Consider Redis for scale.
+3. **Cart optimistic updates** - UI updates instantly, Shopify sync is background. Silent failures possible.
+4. **Gender mapping** - URL `/mens/` maps to DB value `"mens"` (note the 's')
+5. **Image optimization disabled in dev** - `unoptimized: true` in dev mode
+6. **31-day image cache** - New images show immediately (new URLs). Replaced images cached for 31 days.
+7. **Server Components by default** - Only add `"use client"` when needed
+8. **loading.tsx for loading states** - Not spinners in components
+9. **Don't add "Claude Code" in commits or PRs**
 
 ---
 
-## Recent Development
+## Common Tasks
 
-Current branch: `feature/homepage-responsive`
+### Add Homepage Module
 
-Recent features added:
-- Preview mode & visual editing (#31)
-- Swappable homepage system (#30)
-- Loading states with skeletons (#29)
-- Modularized data fetching (#28)
-- Enhanced product page UX (#27)
+1. Schema in `src/sanity/schemaTypes/homepage/`
+2. Register in `schemaTypes/index.ts`
+3. Add to `homepageVersion.ts` modules array
+4. Component in `src/components/homepage/`
+5. Add to switch in `HomePageSanity.tsx`
+6. Run `bun typegen`
+
+### Add Product Field
+
+1. Update `src/sanity/schemaTypes/product.ts`
+2. Update webhook if Shopify-synced
+3. Update projection in `groqUtils.ts`
+4. Run `bun typegen`
+
+### Debug Sync Issues
+
+1. Check Vercel logs → Functions → shopify-product-webhook
+2. Check Sanity Studio → Vision tool
+3. Manual re-sync: `curl -X POST yoursite.com/api/sync-existing-products`
+
+---
+
+## Plan Mode
+
+- Make the plan extremely concise. Sacrifice grammar for the sake of concision.
+- At the end of each plan, give me a list of unresolved questions to answer, if any.

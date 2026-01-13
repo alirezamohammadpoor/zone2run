@@ -28,7 +28,7 @@ git sync  # daily - rebases on staging
 
 ```bash
 git rebase -i origin/staging     # clean WIP commits
-pnpm build && pnpm lint          # verify
+bun build && bun lint          # verify
 git push origin feature/xxx --force-with-lease
 gh pr create --base staging --title "feat: description"
 ```
