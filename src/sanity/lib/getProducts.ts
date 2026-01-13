@@ -5,6 +5,7 @@ import {
   BASE_PRODUCT_PROJECTION,
   FULL_PRODUCT_PROJECTION,
   CARD_PRODUCT_PROJECTION,
+  METADATA_PRODUCT_PROJECTION,
   buildLimitClause,
   mapGenderValue,
 } from "./groqUtils";
@@ -51,6 +52,32 @@ export const getSanityProductByHandle = cache(
     }
   }
 );
+
+/**
+ * Lightweight product metadata fetch for generateMetadata
+ * Only fetches title, description, and mainImage - ~95% smaller than full product
+ */
+export type ProductMetadata = {
+  _id: string;
+  title: string;
+  description?: string;
+  mainImage?: { url: string; alt?: string };
+};
+
+export async function getProductMetadata(
+  handle: string
+): Promise<ProductMetadata | null> {
+  const query = `*[_type == "product" && (shopifyHandle == $handle || store.slug.current == $handle)][0] {
+    ${METADATA_PRODUCT_PROJECTION}
+  }`;
+
+  try {
+    return await sanityFetch<ProductMetadata | null>(query, { handle });
+  } catch (error) {
+    console.error("Error fetching product metadata:", error);
+    return null;
+  }
+}
 
 export async function getAllProducts(): Promise<SanityProduct[]> {
   const query = `*[_type == "product"] {

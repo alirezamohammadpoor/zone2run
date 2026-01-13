@@ -128,6 +128,18 @@ featured`;
 export const FULL_PRODUCT_PROJECTION = BASE_PRODUCT_PROJECTION;
 
 /**
+ * Ultra-lightweight projection for SEO metadata only
+ * Used by generateMetadata - ~95% smaller than full projection
+ */
+export const METADATA_PRODUCT_PROJECTION = `_id,
+"title": coalesce(title, store.title),
+"description": store.descriptionHtml,
+"mainImage": {
+  "url": coalesce(mainImage.asset->url, store.previewImageUrl),
+  "alt": coalesce(mainImage.alt, store.title)
+}`;
+
+/**
  * Lightweight product card projection - minimal data for grid/carousel display
  * Excludes: variants, gallery, category hierarchy, description, tags
  * ~90% smaller than BASE_PRODUCT_PROJECTION
