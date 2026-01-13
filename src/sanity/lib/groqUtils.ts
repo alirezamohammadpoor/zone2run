@@ -100,13 +100,11 @@ export const BASE_PRODUCT_PROJECTION =
 },
 "mainImage": {
   "url": coalesce(mainImage.asset->url, store.previewImageUrl),
-  "alt": coalesce(mainImage.alt, store.title),
-  "lqip": mainImage.asset->metadata.lqip
+  "alt": coalesce(mainImage.alt, store.title)
 },
 "gallery": gallery[] {
   "url": asset->url,
-  alt,
-  "lqip": asset->metadata.lqip
+  alt
 } | order(_key asc),
 "options": store.options,
 "variants": ` +
