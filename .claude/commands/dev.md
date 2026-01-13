@@ -3,7 +3,7 @@
 Start the Next.js development server with hot reload.
 
 ```bash
-pnpm dev
+bun dev
 ```
 
 Server runs at http://localhost:3000

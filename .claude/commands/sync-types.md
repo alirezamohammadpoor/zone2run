@@ -3,7 +3,7 @@
 Regenerate TypeScript types from Sanity schemas. Run this after any schema changes.
 
 ```bash
-pnpm typegen
+bun typegen
 ```
 
 This extracts the schema and generates types in `sanity.types.ts`.

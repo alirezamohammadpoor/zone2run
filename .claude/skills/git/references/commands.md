@@ -20,7 +20,7 @@ git push origin staging
 # when rebase pauses on conflict:
 # 1. edit conflicted files
 git add .
-pnpm build && pnpm lint   # verify before continue
+bun build && bun lint   # verify before continue
 git rebase --continue
 
 # if >5 files or too complex:
@@ -83,7 +83,7 @@ CI runs before merge. Audit trail. Individual commits visible in main.
 | Command                                            | What it does                     |
 | -------------------------------------------------- | -------------------------------- |
 | `git rebase -i origin/staging`                     | Squash/clean WIP commits         |
-| `pnpm build && pnpm lint`                          | Verify after rebase              |
+| `bun build && bun lint`                          | Verify after rebase              |
 | `git push origin feature/xxx --force-with-lease`   | Push (force needed after rebase) |
 | `gh pr create --base staging --title "feat: desc"` | Create PR                        |
 
