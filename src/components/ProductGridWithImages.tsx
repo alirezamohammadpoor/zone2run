@@ -1,4 +1,3 @@
-import Link from "next/link";
 import Image from "next/image";
 import ProductCard from "./ProductCard";
 import { urlFor } from "@/sanity/lib/image";
@@ -22,7 +21,7 @@ interface ProductGridWithImagesProps {
   productsPerImage?: number;
   productsPerImageXL?: number;
   gridLayout?: "4col" | "3col";
-  priorityCount?: number; // Number of first-row products to load with priority (LCP optimization)
+  priorityCount?: number;
 }
 
 type GridItem = {
@@ -63,28 +62,6 @@ function createGridItems(
   return gridItems;
 }
 
-// Render a product link
-function ProductLink({
-  product,
-  idx,
-  priority = false,
-}: {
-  product: SanityProduct;
-  idx: number;
-  priority?: boolean;
-}) {
-  return (
-    <Link
-      key={`${product._id}-${product.handle}-${idx}`}
-      href={`/products/${product.handle}`}
-      className="hover:cursor-pointer"
-      prefetch={false}
-    >
-      <ProductCard product={product} priority={priority} disableNavigation />
-    </Link>
-  );
-}
-
 // Render an editorial image
 function EditorialImageBlock({
   image,
@@ -100,8 +77,6 @@ function EditorialImageBlock({
   const imageUrl = image.image?.asset?.url;
   if (!imageUrl) return null;
 
-  // 3col layout: image same size as product card
-  // 4col layout: image spans 2x2
   const getClassName = () => {
     if (isMobile) {
       return "col-span-2 w-full aspect-[4/5] relative";
@@ -109,9 +84,6 @@ function EditorialImageBlock({
     if (gridLayout === "3col") {
       return "w-full aspect-[4/5] relative";
     }
-    // 4col layout: spans 2x2 grid cells
-    // h-[93.15%] aligns with 2 stacked ProductCards (each aspect-[4/5] + text area below)
-    // This value accounts for the text area height (~6.85% of card) so image aligns with card images
     return "col-span-2 row-span-2 w-full h-[94.1%] relative";
   };
 
@@ -146,7 +118,7 @@ function GridContent({
   gridItems: GridItem[];
   isMobile: boolean;
   gridLayout?: "4col" | "3col";
-  priorityCount?: number; // Number of products to prioritize for LCP
+  priorityCount?: number;
 }) {
   let productIndex = 0;
   return (
@@ -156,12 +128,9 @@ function GridContent({
           const isPriority = productIndex < priorityCount;
           productIndex++;
           return (
-            <ProductLink
-              key={`${item.product._id}-${idx}`}
-              product={item.product}
-              idx={idx}
-              priority={isPriority}
-            />
+            <article key={`${item.product._id}-${idx}`}>
+              <ProductCard product={item.product} priority={isPriority} />
+            </article>
           );
         }
 
@@ -189,9 +158,8 @@ export default function ProductGridWithImages({
   productsPerImage = 4,
   productsPerImageXL = 8,
   gridLayout = "4col",
-  priorityCount = 4, // Default: first row on desktop (4 products)
+  priorityCount = 4,
 }: ProductGridWithImagesProps) {
-  // Determine XL grid columns based on layout
   const xlGridCols =
     gridLayout === "3col" ? "xl:grid-cols-3" : "xl:grid-cols-4";
 
@@ -202,20 +170,14 @@ export default function ProductGridWithImages({
         className={`grid grid-cols-2 ${xlGridCols} gap-2 px-2 my-8 md:my-12 xl:my-16`}
       >
         {products?.map((product, idx) => (
-          <Link
-            key={`${product._id}-${product.handle}`}
-            href={`/products/${product.handle}`}
-            className="hover:cursor-pointer"
-            prefetch={false}
-          >
-            <ProductCard product={product} priority={idx < priorityCount} disableNavigation />
-          </Link>
+          <article key={`${product._id}-${product.handle}`}>
+            <ProductCard product={product} priority={idx < priorityCount} />
+          </article>
         ))}
       </div>
     );
   }
 
-  // Create separate grid items for mobile and XL
   const mobileGridItems = createGridItems(
     products,
     editorialImages,
@@ -235,7 +197,7 @@ export default function ProductGridWithImages({
           gridItems={mobileGridItems}
           isMobile={true}
           gridLayout={gridLayout}
-          priorityCount={Math.min(priorityCount, 2)} // First row on mobile (2 products)
+          priorityCount={Math.min(priorityCount, 2)}
         />
       </div>
 

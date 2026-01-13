@@ -16,7 +16,6 @@ interface ProductCardProps {
   onClick?: () => void;
   priority?: boolean;
   disableGallery?: boolean;
-  disableNavigation?: boolean; // When wrapped in Link, disable internal router.push
 }
 
 export default function ProductCard({
@@ -27,13 +26,10 @@ export default function ProductCard({
   onClick,
   priority = false,
   disableGallery = false,
-  disableNavigation = false,
 }: ProductCardProps) {
   const router = useRouter();
 
   const handleClick = () => {
-    // When wrapped in Link, don't trigger internal navigation (prevents double request)
-    if (disableNavigation) return;
     if (onClick) {
       onClick();
     } else {
