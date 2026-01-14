@@ -27,8 +27,11 @@ export async function generateMetadata({
 }: {
   params: Promise<{ handle: string }>;
 }): Promise<Metadata> {
+  const start = Date.now();
   const { handle } = await params;
+  console.log(`[META] Starting generateMetadata for: ${handle}`);
   const product = await getProductByHandle(handle);
+  console.log(`[META] generateMetadata completed in ${Date.now() - start}ms`);
 
   if (!product) {
     return { title: "Product Not Found | Zone2Run" };
@@ -72,12 +75,19 @@ export default async function ProductPage({
 }: {
   params: Promise<{ handle: string }>;
 }) {
+  const pageStart = Date.now();
   const handle = (await params).handle;
+  console.log(`[PDP] Starting render for: ${handle}`);
+
+  const fetchStart = Date.now();
   const product = await getProductByHandle(handle);
+  console.log(`[PDP] getProductByHandle took ${Date.now() - fetchStart}ms`);
 
   if (!product) {
     notFound();
   }
+
+  console.log(`[PDP] Total page render: ${Date.now() - pageStart}ms`);
 
   return (
     <>

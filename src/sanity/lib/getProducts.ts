@@ -36,7 +36,7 @@ export async function getSanityProductByHandle(
   }`;
 
   try {
-    return await sanityFetch<SanityProduct | null>(query, { handle });
+    return await sanityFetch<SanityProduct | null>(query, { handle }, 'getProductByHandle');
   } catch (error) {
     console.error("Error fetching Sanity product by handle:", error);
     return null;
@@ -89,7 +89,7 @@ export async function getProductsByBrand(
 
   try {
     const params = dbGender ? { brandSlug, dbGender } : { brandSlug };
-    return await sanityFetch<SanityProduct[]>(query, params);
+    return await sanityFetch<SanityProduct[]>(query, params, `getProductsByBrand(${brandSlug}, limit=${limit})`);
   } catch (error) {
     console.error(`Error fetching products for brand ${brandSlug}:`, error);
     return [];
