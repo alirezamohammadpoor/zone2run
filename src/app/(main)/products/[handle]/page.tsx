@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import ProductGalleryServer from "@/components/product/ProductGalleryServer";
 import ProductInfo from "@/components/product/ProductInfo";
 import { getProductByHandle } from "@/lib/product/getProductByHandle";
+import { getProductsByBrand } from "@/sanity/lib/getData";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import RelatedProductsServer from "@/components/product/RelatedProductsServer";
+import RelatedProducts from "@/components/product/RelatedProducts";
 import ColorVariants from "@/components/product/ColorVariants";
 import ProductEditorialImages from "@/components/product/ProductEditorialImages";
 import RelatedProductsSkeleton from "@/components/skeletons/RelatedProductsSkeleton";
@@ -22,6 +23,7 @@ export async function generateStaticParams() {
 }
 
 // Generate dynamic metadata for SEO
+// Also preloads related products to warm the cache
 export async function generateMetadata({
   params,
 }: {
@@ -30,7 +32,16 @@ export async function generateMetadata({
   const start = Date.now();
   const { handle } = await params;
   console.log(`[META] Starting generateMetadata for: ${handle}`);
+
   const product = await getProductByHandle(handle);
+
+  // Preload related products in parallel (fire and forget - warms cache)
+  if (product?.brand?.slug) {
+    getProductsByBrand(product.brand.slug, 12).then(() => {
+      console.log(`[META] Related products preloaded`);
+    });
+  }
+
   console.log(`[META] generateMetadata completed in ${Date.now() - start}ms`);
 
   if (!product) {
@@ -77,17 +88,15 @@ export default async function ProductPage({
 }) {
   const pageStart = Date.now();
   const handle = (await params).handle;
-  console.log(`[PDP] Starting render for: ${handle}`);
+  console.log(`[PDP] Starting for: ${handle}`);
 
-  const fetchStart = Date.now();
+  // Product should be cached from generateMetadata - this should be instant
   const product = await getProductByHandle(handle);
-  console.log(`[PDP] getProductByHandle took ${Date.now() - fetchStart}ms`);
+  console.log(`[PDP] getProductByHandle took ${Date.now() - pageStart}ms (should be ~0 if cached)`);
 
   if (!product) {
     notFound();
   }
-
-  console.log(`[PDP] Total page render: ${Date.now() - pageStart}ms`);
 
   return (
     <>
@@ -110,12 +119,40 @@ export default async function ProductPage({
       </div>
       {product.brand?.slug && (
         <Suspense fallback={<RelatedProductsSkeleton />}>
-          <RelatedProductsServer
+          <RelatedProductsSection
             brandSlug={product.brand.slug}
+            brandName={product.brand.name || "This Brand"}
             currentProductId={product._id}
           />
         </Suspense>
       )}
     </>
+  );
+}
+
+// Async component that fetches inside Suspense boundary
+async function RelatedProductsSection({
+  brandSlug,
+  brandName,
+  currentProductId,
+}: {
+  brandSlug: string;
+  brandName: string;
+  currentProductId: string;
+}) {
+  const start = Date.now();
+  const products = await getProductsByBrand(brandSlug, 12);
+  console.log(`[RELATED] Fetched ${products.length} products in ${Date.now() - start}ms`);
+
+  const filtered = products.filter((p) => p._id !== currentProductId);
+  if (filtered.length === 0) return null;
+
+  return (
+    <RelatedProducts
+      products={filtered}
+      brandName={brandName}
+      brandSlug={brandSlug}
+      displayType="carousel"
+    />
   );
 }
