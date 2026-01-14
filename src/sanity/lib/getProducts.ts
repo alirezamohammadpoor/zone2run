@@ -75,9 +75,16 @@ export async function getProductsByBrand(
     ? `&& (gender == $dbGender || gender == "unisex")`
     : "";
 
-  // Use lightweight CARD projection for related products (no variants, no gallery)
   const query = `*[_type == "product" && (brand->slug.current == $brandSlug || lower(brand->slug.current) == lower($brandSlug))${genderFilter}] {
-    ${CARD_PRODUCT_PROJECTION}
+    ${BASE_PRODUCT_PROJECTION},
+    brand-> {
+      _id,
+      name,
+      description,
+      slug {
+        current
+      }
+    }
   } | order(title asc)${buildLimitClause(limit)}`;
 
   try {
@@ -256,7 +263,21 @@ export async function getProductsByIds(
 
   const query = `*[_id in $productIds] {
     ${BASE_PRODUCT_PROJECTION},
-    "brandRef": brand._ref
+    "gallery": gallery[] {
+      "url": asset->url,
+      alt
+    } | order(_key asc),
+    "brandRef": brand._ref,
+    brand-> {
+      _id,
+      name,
+      "slug": slug.current,
+      logo {
+        asset-> {
+          url
+        }
+      }
+    }
   }`;
 
   try {

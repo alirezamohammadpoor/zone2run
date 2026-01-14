@@ -102,10 +102,6 @@ export const BASE_PRODUCT_PROJECTION =
   "url": coalesce(mainImage.asset->url, store.previewImageUrl),
   "alt": coalesce(mainImage.alt, store.title)
 },
-"gallery": gallery[] {
-  "url": asset->url,
-  alt
-} | order(_key asc),
 "options": store.options,
 "variants": ` +
   PRODUCT_VARIANTS_PROJECTION +
@@ -120,10 +116,15 @@ gender,
 featured`;
 
 /**
- * Full product projection (same as BASE now that gallery is included)
- * @deprecated Use BASE_PRODUCT_PROJECTION instead - gallery is now included by default
+ * Full product projection including gallery (for PDP)
  */
-export const FULL_PRODUCT_PROJECTION = BASE_PRODUCT_PROJECTION;
+export const FULL_PRODUCT_PROJECTION =
+  BASE_PRODUCT_PROJECTION +
+  `,
+"gallery": gallery[] {
+  "url": asset->url,
+  alt
+} | order(_key asc)`;
 
 /**
  * Lightweight product projection for cards/grids (NO variants, NO gallery)
