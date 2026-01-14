@@ -32,13 +32,9 @@ export const previewClient = createClient({
  */
 export async function sanityFetch<T>(
   query: string,
-  params: QueryParams = {},
-  label?: string
+  params: QueryParams = {}
 ): Promise<T> {
-  const start = Date.now();
-  const result = await client.fetch<T>(query, params, {
+  return client.fetch<T>(query, params, {
     cache: 'force-cache',
   })
-  console.log(`[SANITY ${label || 'query'}] ${Date.now() - start}ms`);
-  return result;
 }
