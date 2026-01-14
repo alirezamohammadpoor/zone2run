@@ -3,6 +3,7 @@ import type { SanityProduct } from "@/types/sanityProduct";
 import {
   BASE_PRODUCT_PROJECTION,
   FULL_PRODUCT_PROJECTION,
+  CARD_PRODUCT_PROJECTION,
   buildLimitClause,
   mapGenderValue,
 } from "./groqUtils";

@@ -15,7 +15,8 @@ export default async function RelatedProductsServer({
   displayType = "carousel",
   limit,
 }: RelatedProductsServerProps) {
-  const products = await getProductsByBrand(brandSlug);
+  // Limit to 12 products in query (not post-filter) to avoid fetching all 50+ products
+  const products = await getProductsByBrand(brandSlug, limit || 12);
 
   if (!products || products.length === 0) {
     return null;

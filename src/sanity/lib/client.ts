@@ -34,16 +34,7 @@ export async function sanityFetch<T>(
   query: string,
   params: QueryParams = {}
 ): Promise<T> {
-  const start = performance.now()
-  const result = await client.fetch<T>(query, params, {
+  return client.fetch<T>(query, params, {
     cache: 'force-cache',
   })
-  const duration = performance.now() - start
-
-  // Log slow queries (>500ms) in development
-  if (process.env.NODE_ENV === 'development' && duration > 500) {
-    console.log(`[SLOW QUERY] ${duration.toFixed(0)}ms - ${query.slice(0, 100)}...`)
-  }
-
-  return result
 }
