@@ -1,6 +1,5 @@
 import { getProductsByBrand } from "@/sanity/lib/getData";
 import RelatedProducts from "./RelatedProducts";
-import type { SanityProduct } from "@/types/sanityProduct";
 
 interface RelatedProductsServerProps {
   brandSlug: string;
@@ -15,8 +14,7 @@ export default async function RelatedProductsServer({
   displayType = "carousel",
   limit,
 }: RelatedProductsServerProps) {
-  // Limit to 12 products in query (not post-filter) to avoid fetching all 50+ products
-  const products = await getProductsByBrand(brandSlug, limit || 12);
+  const products = await getProductsByBrand(brandSlug);
 
   if (!products || products.length === 0) {
     return null;
