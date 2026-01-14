@@ -68,9 +68,8 @@ export default function ProductGalleryClient({
                 alt={image.alt}
                 fill
                 className="object-cover"
-                priority={index === 0}
-                loading={index === 0 ? "eager" : "lazy"}
-                fetchPriority={index === 0 ? "high" : "auto"}
+                priority={false}
+                loading="lazy"
                 sizes="(min-width: 1280px) 50vw, 100vw"
                 draggable={false}
                 {...getBlurProps(image)}

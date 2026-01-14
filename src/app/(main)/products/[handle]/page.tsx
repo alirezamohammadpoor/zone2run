@@ -75,7 +75,15 @@ export default async function ProductPage({
   params: Promise<{ handle: string }>;
 }) {
   const handle = (await params).handle;
+
+  // Debug timing
+  const start = performance.now();
   const product = await getProductByHandle(handle);
+  const fetchTime = performance.now() - start;
+
+  if (process.env.NODE_ENV === "development") {
+    console.log(`[PDP] getProductByHandle took ${fetchTime.toFixed(0)}ms for ${handle}`);
+  }
 
   if (!product) {
     notFound();

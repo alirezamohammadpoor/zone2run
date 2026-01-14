@@ -69,11 +69,10 @@ const ProductCardGallery = memo(function ProductCardGallery({
   // Static image when gallery is disabled or single image
   if (disableGallery || images.length <= 1) {
     const mainImage = images[0];
-    const hoverImage = images[1];
 
     return (
       <div
-        className="w-full h-full relative group"
+        className="w-full h-full relative"
         onClick={handleClick}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
@@ -84,22 +83,12 @@ const ProductCardGallery = memo(function ProductCardGallery({
             alt={mainImage.alt || "Product"}
             fill
             sizes={sizes}
-            className={`object-cover ${hoverImage?.url ? "transition-opacity duration-300 group-hover:opacity-0" : ""}`}
+            className="object-cover"
             priority={priority}
             loading={priority ? "eager" : "lazy"}
             fetchPriority={priority ? "high" : "auto"}
             draggable={false}
             {...getBlurProps(mainImage)}
-          />
-        )}
-        {hoverImage?.url && (
-          <Image
-            src={hoverImage.url}
-            alt={hoverImage.alt || "Product"}
-            fill
-            sizes={sizes}
-            className="object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-            draggable={false}
           />
         )}
       </div>
