@@ -16,19 +16,22 @@ interface CollapsibleProps {
 
 function Collapsible({ title, children, defaultOpen = false }: CollapsibleProps) {
   const [open, setOpen] = useState(defaultOpen);
+  const contentId = `collapsible-${title.toLowerCase().replace(/\s+/g, "-")}`;
 
   return (
     <div className="border-b py-3">
       <button
         onClick={() => setOpen(!open)}
+        aria-expanded={open}
+        aria-controls={contentId}
         className="w-full text-left flex justify-between items-center"
       >
         <span className="font-medium text-xs">{title}</span>
-        <span className="text-xl">{open ? "−" : "+"}</span>
+        <span className="text-xl" aria-hidden="true">{open ? "−" : "+"}</span>
       </button>
 
       {open && (
-        <div className="mt-2 text-xs text-gray-700 whitespace-pre-line">
+        <div id={contentId} className="mt-2 text-xs text-gray-700 whitespace-pre-line">
           {children}
         </div>
       )}

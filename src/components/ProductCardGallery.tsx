@@ -74,7 +74,15 @@ const ProductCardGallery = memo(function ProductCardGallery({
     return (
       <div
         className="w-full h-full relative group"
+        role="button"
+        tabIndex={0}
         onClick={handleClick}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onNavigate?.();
+          }
+        }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
       >
@@ -111,7 +119,15 @@ const ProductCardGallery = memo(function ProductCardGallery({
   return (
     <div
       className="w-full h-full relative"
+      role="button"
+      tabIndex={0}
       onClick={handleClick}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onNavigate?.();
+        }
+      }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
     >

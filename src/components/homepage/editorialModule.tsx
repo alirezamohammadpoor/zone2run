@@ -1,9 +1,9 @@
 "use client";
 
 import { type EditorialModule } from "../../../sanity.types";
-import React, { useCallback, useRef, useMemo, memo } from "react";
-import { useRouter } from "next/navigation";
+import React, { useRef, useMemo, memo } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import useEmblaCarousel from "embla-carousel-react";
 
 // Type for editorial blog posts (from getLatestBlogPosts query)
@@ -16,16 +16,6 @@ interface EditorialBlogPost {
   editorialImage?: { asset?: { url: string }; alt?: string };
   featuredImage?: { asset?: { url: string }; alt?: string };
   gallery?: Array<{ asset?: { url: string }; alt?: string }>;
-}
-
-// Helper function to format dates consistently for SSR
-function formatDate(dateString: string) {
-  const date = new Date(dateString);
-  return date.toLocaleDateString("en-GB", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
 }
 
 // Helper function to get the selected image based on imageSelection
@@ -77,7 +67,6 @@ const EditorialModuleComponent = memo(function EditorialModuleComponent({
   editorialModule: EditorialModule;
   posts: EditorialBlogPost[];
 }) {
-  const router = useRouter();
   const [emblaRef] = useEmblaCarousel({
     align: "start",
     containScroll: "trimSnaps",
@@ -100,12 +89,12 @@ const EditorialModuleComponent = memo(function EditorialModuleComponent({
   );
 
   // Track pointer movement to distinguish taps from drags
-  const handlePointerDown = useCallback((e: React.PointerEvent) => {
+  const handlePointerDown = (e: React.PointerEvent) => {
     pointerStartRef.current = { x: e.clientX, y: e.clientY };
     hasDraggedRef.current = false;
-  }, []);
+  };
 
-  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+  const handlePointerMove = (e: React.PointerEvent) => {
     if (!pointerStartRef.current) return;
     const dx = Math.abs(e.clientX - pointerStartRef.current.x);
     const dy = Math.abs(e.clientY - pointerStartRef.current.y);
@@ -113,18 +102,14 @@ const EditorialModuleComponent = memo(function EditorialModuleComponent({
     if (dx > 10 || dy > 10) {
       hasDraggedRef.current = true;
     }
-  }, []);
+  };
 
-  const handlePostClick = useCallback(
-    (post: EditorialBlogPost) => {
-      if (!hasDraggedRef.current) {
-        router.push(
-          `/blog/${post.category?.slug?.current}/${post.slug?.current}`
-        );
-      }
-    },
-    [router]
-  );
+  // Prevent navigation when dragging the carousel
+  const handleLinkClick = (e: React.MouseEvent) => {
+    if (hasDraggedRef.current) {
+      e.preventDefault();
+    }
+  };
 
   return (
     <div className="px-2 my-8 md:my-12 xl:my-16 w-full">
@@ -132,54 +117,55 @@ const EditorialModuleComponent = memo(function EditorialModuleComponent({
         <h2 className="text-black text-sm">
           {editorialModule.title}
         </h2>
-        <button
-          className="text-black text-xs hover:underline cursor-pointer"
-          onClick={() => {
-            router.push(editorialModule.buttonLink || "/blog/editorials");
-          }}
+        <Link
+          href={editorialModule.buttonLink || "/blog/editorials"}
+          className="text-black text-xs hover:underline"
         >
           {editorialModule.buttonText || "View All Editorials"}
-        </button>
+        </Link>
       </div>
 
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex gap-2">
           {postsWithImages.map(({ post, imageSelection }) => {
             const selectedImage = getSelectedImage(post, imageSelection);
+            const postUrl = `/blog/${post.category?.slug?.current}/${post.slug?.current}`;
             return (
-              <div
+              <Link
                 key={post._id}
-                className="flex-shrink-0 w-[60vw] md:w-[40vw] lg:w-[30vw] xl:w-[25vw] min-w-0 cursor-pointer"
-                onClick={() => handlePostClick(post)}
+                href={postUrl}
+                className="flex-shrink-0 w-[60vw] md:w-[40vw] lg:w-[30vw] xl:w-[25vw] min-w-0"
+                onClick={handleLinkClick}
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
+                draggable={false}
               >
-                <div className="relative h-[40vh] md:h-[45vh] xl:h-[50vh] overflow-hidden">
-                  {selectedImage.url && (
-                    <Image
-                      src={selectedImage.url}
-                      alt={selectedImage.alt}
-                      className="w-full h-full object-cover"
-                      fill
-                      draggable={false}
-                    />
-                  )}
-                </div>
+                <article>
+                  <div className="relative h-[40vh] md:h-[45vh] xl:h-[50vh] overflow-hidden">
+                    {selectedImage.url && (
+                      <Image
+                        src={selectedImage.url}
+                        alt={selectedImage.alt}
+                        className="w-full h-full object-cover"
+                        fill
+                        draggable={false}
+                      />
+                    )}
+                  </div>
 
-                <div className="pt-2 pb-4 space-y-1">
-                  <div className="flex items-center gap-2 text-xs"></div>
+                  <div className="pt-2 pb-4 space-y-1">
+                    <h3 className="text-sm text-black">
+                      {post.title}
+                    </h3>
 
-                  <h3 className="text-sm text-black">
-                    {post.title}
-                  </h3>
-
-                  {post.excerpt && (
-                    <p className="text-xs line-clamp-2">
-                      {post.excerpt}
-                    </p>
-                  )}
-                </div>
-              </div>
+                    {post.excerpt && (
+                      <p className="text-xs line-clamp-2">
+                        {post.excerpt}
+                      </p>
+                    )}
+                  </div>
+                </article>
+              </Link>
             );
           })}
         </div>

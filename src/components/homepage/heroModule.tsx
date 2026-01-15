@@ -62,6 +62,7 @@ function HeroModule({ heroModule }: { heroModule: HeroModule }) {
             muted
             loop
             playsInline
+            aria-label="Decorative background video"
           />
         )}
 

@@ -29,10 +29,16 @@ export default function MainLayout({
         <link rel="preconnect" href="https://cdn.shopify.com" crossOrigin="anonymous" />
       </head>
       <body>
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:bg-white focus:px-4 focus:py-2 focus:text-black focus:outline focus:outline-2 focus:outline-black"
+        >
+          Skip to main content
+        </a>
         <PreviewProvider />
         <ScrollRestoration />
         <HeaderServer />
-        <main className="relative">
+        <main id="main-content" className="relative">
           <div className="relative z-20 bg-white">
             {children}
             <FooterContent />

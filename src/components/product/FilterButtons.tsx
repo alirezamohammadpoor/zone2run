@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef } from "react";
 import { useUrlFilters } from "@/hooks/useUrlFilters";
 import type { SanityProduct } from "@/types/sanityProduct";
 
@@ -71,14 +71,16 @@ export function FilterButtons({ products }: FilterButtonsProps) {
     <div className="border-b py-3">
       <button
         onClick={() => setOpen(!open)}
+        aria-expanded={open}
+        aria-controls="filter-category-content"
         className="w-[95%] text-left flex justify-between items-center ml-2"
       >
         <span className="font-medium text-sm uppercase">Category</span>
-        <span className="text-xl">{open ? "−" : "+"}</span>
+        <span className="text-xl" aria-hidden="true">{open ? "−" : "+"}</span>
       </button>
 
       {open && (
-        <div className="mt-2 ml-2">
+        <div id="filter-category-content" className="mt-2 ml-2">
           <div className="flex justify-end mb-2">
             <button
               onClick={handleClearAll}

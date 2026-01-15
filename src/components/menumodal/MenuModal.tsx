@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import FocusLock from "react-focus-lock";
 import { useModalScroll } from "@/hooks/useModalScroll";
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
 import MenContent from "./MenContent";
@@ -25,7 +25,6 @@ function MenuModal({
   brands?: BrandMenuItem[];
   menuConfig?: MenuConfig;
 }) {
-  const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabType | null>(null);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -37,11 +36,6 @@ function MenuModal({
     setTimeout(() => {
       unlockScroll();
     }, 300);
-  };
-
-  const handleNavigate = (path: string) => {
-    router.push(path);
-    handleClose();
   };
 
   // Prevent body scroll when modal is open
@@ -60,9 +54,12 @@ function MenuModal({
   }, [menuData, activeTab]);
 
   return (
-    <>
+    <FocusLock disabled={!isMenuOpen}>
       {/* Modal */}
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Navigation menu"
         className={
           "fixed top-0 left-0 h-screen w-full bg-white z-50 transform transition-transform duration-300 overflow-hidden flex flex-col" +
           (isMenuOpen ? " translate-x-0" : " -translate-x-full")
@@ -76,6 +73,7 @@ function MenuModal({
             <button
               className="mr-2 text-xs hover:text-gray-500"
               onClick={handleClose}
+              aria-label="Close navigation menu"
             >
               Close
             </button>
@@ -137,7 +135,7 @@ function MenuModal({
           )}
         </div>
       </div>
-    </>
+    </FocusLock>
   );
 }
 

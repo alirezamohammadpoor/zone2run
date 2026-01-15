@@ -1,7 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import DropdownContent from "./DropdownContent";
 import type {
   BrandMenuItem,
@@ -31,16 +33,20 @@ export default function DesktopDropdown({
 }: DesktopDropdownProps) {
   const router = useRouter();
 
-  if (!activeDropdown) return null;
-
-  const handleLinkClick = (url: string) => {
-    if (url.startsWith("http")) {
-      window.open(url, "_blank");
-    } else {
-      router.push(url);
-      onClose();
+  // Close dropdown on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    if (activeDropdown) {
+      window.addEventListener("keydown", handleKeyDown);
+      return () => window.removeEventListener("keydown", handleKeyDown);
     }
-  };
+  }, [activeDropdown, onClose]);
+
+  if (!activeDropdown) return null;
 
   const renderHelpContent = () => {
     const links = menuConfig?.help?.links || [];
@@ -48,15 +54,28 @@ export default function DesktopDropdown({
       <div className="py-4 px-4">
         <h3 className="text-sm mb-4">Help & Support</h3>
         <div className="space-y-3">
-          {links.map((link, index) => (
-            <button
-              key={link._key || index}
-              onClick={() => handleLinkClick(link.url)}
-              className="block text-xs hover:text-gray-500"
-            >
-              {link.label}
-            </button>
-          ))}
+          {links.map((link, index) =>
+            link.url.startsWith("http") ? (
+              <a
+                key={link._key || index}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-xs hover:text-gray-500"
+              >
+                {link.label}
+              </a>
+            ) : (
+              <Link
+                key={link._key || index}
+                href={link.url}
+                onClick={onClose}
+                className="block text-xs hover:text-gray-500"
+              >
+                {link.label}
+              </Link>
+            )
+          )}
         </div>
       </div>
     );
@@ -111,16 +130,13 @@ export default function DesktopDropdown({
           <div className="grid grid-cols-4 gap-1">
             {blogPosts?.slice(0, 4).map((post) => {
               if (!post?.slug?.current) return null;
+              const postUrl = `/blog/${post.category?.slug?.current || "editorial"}/${post.slug.current}`;
               return (
-                <div
+                <Link
                   key={post._id}
-                  className="cursor-pointer group"
-                  onClick={() =>
-                    handleEditorialClick(
-                      post.category?.slug?.current || "editorial",
-                      post.slug.current
-                    )
-                  }
+                  href={postUrl}
+                  className="group"
+                  onClick={onClose}
                 >
                   <div className="aspect-[2/3] relative overflow-hidden">
                     {post.featuredImage?.asset?.url ? (
@@ -144,7 +160,7 @@ export default function DesktopDropdown({
                   <p className="text-xs mt-2 group-hover:underline">
                     {post.title}
                   </p>
-                </div>
+                </Link>
               );
             })}
           </div>
@@ -159,6 +175,8 @@ export default function DesktopDropdown({
       <div
         className="fixed inset-0 bg-black/30 backdrop-blur-sm z-30 top-16"
         onClick={onClose}
+        role="presentation"
+        aria-hidden="true"
       />
 
       {/* Dropdown Panel */}

@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import FocusLock from "react-focus-lock";
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
 import { useHasMounted } from "@/hooks/useHasMounted";
 import Image from "next/image";
@@ -21,8 +23,6 @@ function CartModal({
     removeItem,
     getTotalPrice,
     updateQuantity,
-    shopifyCheckoutUrl,
-    syncWithShopify,
     removeAllItems,
   } = useCartStore();
   const { unlockScroll } = useModalScrollRestoration();
@@ -38,11 +38,6 @@ function CartModal({
   };
 
   const [isRedirecting, setIsRedirecting] = useState(false);
-
-  const handleNavigate = (path: string) => {
-    router.push(path);
-    handleClose();
-  };
 
   // Non-blocking quantity updates - UI updates immediately, API syncs in background
   const handleIncreaseQuantity = (itemId: string, currentQuantity: number) => {
@@ -63,26 +58,33 @@ function CartModal({
           isCartOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         onClick={handleClose}
+        role="presentation"
+        aria-hidden="true"
       />
       {/* Modal */}
-      <div
-        className={
-          "fixed top-0 right-0 h-screen w-full bg-white z-50 transform transition-transform duration-300 flex flex-col xl:w-[25vw]" +
-          (isCartOpen ? " translate-x-0" : " translate-x-full")
-        }
-      >
-        {/* Fixed Header */}
-        <div className="flex-shrink-0 bg-white z-10 h-12 xl:h-16 border-b border-gray-300">
-          <div className="text-xs flex justify-between items-center h-full px-2">
-            <span>Cart</span>
-            <button
-              className="text-xs hover:text-gray-500"
-              onClick={handleClose}
-            >
-              Close
-            </button>
+      <FocusLock disabled={!isCartOpen}>
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="cart-title"
+          className={
+            "fixed top-0 right-0 h-screen w-full bg-white z-50 transform transition-transform duration-300 flex flex-col xl:w-[25vw]" +
+            (isCartOpen ? " translate-x-0" : " translate-x-full")
+          }
+        >
+          {/* Fixed Header */}
+          <div className="flex-shrink-0 bg-white z-10 h-12 xl:h-16 border-b border-gray-300">
+            <div className="text-xs flex justify-between items-center h-full px-2">
+              <span id="cart-title">Cart</span>
+              <button
+                className="text-xs hover:text-gray-500"
+                onClick={handleClose}
+                aria-label="Close cart"
+              >
+                Close
+              </button>
+            </div>
           </div>
-        </div>
 
         {/* Scrollable Content Area */}
         <div className="flex-1 min-h-0 overflow-y-auto px-2">
@@ -94,38 +96,34 @@ function CartModal({
                     key={item.id}
                     className="flex w-full overflow-hidden mb-8"
                   >
-                    <Image
-                      src={item.image || ""}
-                      alt={item.title}
-                      width={80}
-                      height={120}
-                      className="h-[120px] w-[80px] flex-shrink-0 object-cover cursor-pointer"
-                      onClick={() => {
-                        router.push(`/products/${item.productHandle}`);
-                        handleClose();
-                      }}
-                    />
+                    <Link
+                      href={`/products/${item.productHandle}`}
+                      onClick={handleClose}
+                      className="flex-shrink-0"
+                    >
+                      <Image
+                        src={item.image || ""}
+                        alt={item.title}
+                        width={80}
+                        height={120}
+                        className="h-[120px] w-[80px] object-cover"
+                      />
+                    </Link>
                     <div className="ml-4 flex flex-1 flex-col overflow-hidden">
-                      {item.brand && (
-                        <span
-                          className="text-xs font-medium w-full block cursor-pointer"
-                          onClick={() => {
-                            router.push(`/products/${item.productHandle}`);
-                            handleClose();
-                          }}
-                        >
-                          {item.brand}
-                        </span>
-                      )}
-                      <span
-                        className="text-xs w-full block cursor-pointer"
-                        onClick={() => {
-                          router.push(`/products/${item.productHandle}`);
-                          handleClose();
-                        }}
+                      <Link
+                        href={`/products/${item.productHandle}`}
+                        onClick={handleClose}
+                        className="hover:underline"
                       >
-                        {item.title}
-                      </span>
+                        {item.brand && (
+                          <span className="text-xs font-medium w-full block">
+                            {item.brand}
+                          </span>
+                        )}
+                        <span className="text-xs w-full block">
+                          {item.title}
+                        </span>
+                      </Link>
                       <span className="text-xs block mt-1">
                         Size: {item.size}
                       </span>
@@ -138,25 +136,28 @@ function CartModal({
                       </span>
                       <div className="mt-4 w-full flex items-center">
                         <button
-                          className="text-xs mr-4 cursor-pointer hover:text-gray-600"
+                          className="text-xs mr-4 cursor-pointer hover:text-gray-600 min-h-[44px] min-w-[44px]"
                           onClick={() =>
                             handleDecreaseQuantity(item.id, item.quantity)
                           }
+                          aria-label={`Decrease quantity for ${item.title}`}
                         >
-                          -
+                          −
                         </button>
                         <span className="text-xs">{item.quantity}</span>
                         <button
-                          className="text-xs ml-4 cursor-pointer hover:text-gray-600"
+                          className="text-xs ml-4 cursor-pointer hover:text-gray-600 min-h-[44px] min-w-[44px]"
                           onClick={() =>
                             handleIncreaseQuantity(item.id, item.quantity)
                           }
+                          aria-label={`Increase quantity for ${item.title}`}
                         >
                           +
                         </button>
                         <button
                           className="text-xs ml-auto mr-4 cursor-pointer hover:text-gray-600"
                           onClick={() => removeItem(item.id)}
+                          aria-label={`Remove ${item.title} from cart`}
                         >
                           Remove
                         </button>
@@ -264,7 +265,8 @@ function CartModal({
             </button>
           </div>
         </div>
-      </div>
+        </div>
+      </FocusLock>
     </>
   );
 }

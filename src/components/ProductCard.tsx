@@ -65,14 +65,19 @@ const ProductCard = memo(function ProductCard({
         />
       </div>
       <div className="pt-2 pb-4">
-        <p
-          className={`text-xs font-medium ${
-            onBrandClick ? "hover:underline cursor-pointer" : ""
-          }`}
-          onClick={(e) => handleBrandClick(e, product.brand?.slug)}
-        >
-          {product.brand?.name || product.vendor || ""}
-        </p>
+        {onBrandClick ? (
+          <button
+            type="button"
+            className="text-xs font-medium hover:underline text-left"
+            onClick={(e) => handleBrandClick(e, product.brand?.slug)}
+          >
+            {product.brand?.name || product.vendor || ""}
+          </button>
+        ) : (
+          <p className="text-xs font-medium">
+            {product.brand?.name || product.vendor || ""}
+          </p>
+        )}
         <p className={`text-xs line-clamp-1 ${onBrandClick ? "hover:underline" : ""}`}>
           {product.title}
         </p>
