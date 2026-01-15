@@ -68,8 +68,8 @@ export default function ProductGalleryClient({
                 alt={image.alt}
                 fill
                 className="object-cover"
-                priority={index === 0}
-                loading={index === 0 ? "eager" : "lazy"}
+                priority={index < 3}
+                loading={index < 3 ? "eager" : "lazy"}
                 fetchPriority={index === 0 ? "high" : "auto"}
                 sizes="(min-width: 1280px) 50vw, 100vw"
                 draggable={false}
