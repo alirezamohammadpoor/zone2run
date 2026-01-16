@@ -60,7 +60,10 @@ export default function NewsletterSignup({
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder={newsletter.placeholder}
-          className="flex-1 px-2 py-2 border-b border-gray-300 text-sm focus:outline-none focus:border-black"
+          aria-label="Email address for newsletter"
+          aria-describedby={error ? "newsletter-error" : undefined}
+          aria-invalid={!!error}
+          className="flex-1 px-2 py-2 border-b border-gray-300 text-sm focus:outline-none focus:border-black focus:ring-2 focus:ring-black focus:ring-offset-1"
         />
         <button
           type="submit"
@@ -69,7 +72,11 @@ export default function NewsletterSignup({
           SUBSCRIBE
         </button>
       </form>
-      {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+      {error && (
+        <p id="newsletter-error" role="alert" className="text-red-500 text-xs mt-1">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

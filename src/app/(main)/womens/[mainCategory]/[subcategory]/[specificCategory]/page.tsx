@@ -2,8 +2,8 @@ import { getProductsByPath3Level } from "@/sanity/lib/getData";
 import { notFound } from "next/navigation";
 import ProductGrid from "@/components/ProductGrid";
 
-// ISR: Revalidate every 5 minutes, on-demand via Sanity webhook
-export const revalidate = 300;
+// ISR: Revalidate every hour, on-demand via Sanity webhook
+export const revalidate = 3600;
 
 export default async function WomensSpecificCategoryPage({
   params,

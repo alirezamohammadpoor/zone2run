@@ -1,8 +1,5 @@
 "use client";
-import React from "react";
-import { useUrlSort } from "@/hooks/useUrlSort";
-import { useUrlFilters } from "@/hooks/useUrlFilters";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import FocusLock from "react-focus-lock";
 import SortButtons from "./SortButtons";
 import { FilterButtons } from "./FilterButtons";
 import type { SanityProduct } from "@/types/sanityProduct";
@@ -21,8 +18,11 @@ export function SortModal({
   };
 
   return (
-    <div>
+    <FocusLock disabled={!isSortOpen}>
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Filter and sort products"
         className={
           "fixed top-0 right-0 h-screen w-full bg-white z-50 transform transition-transform duration-300 flex flex-col" +
           (isSortOpen ? " translate-x-0" : " translate-x-full")
@@ -35,6 +35,7 @@ export function SortModal({
             <button
               className="mr-2 text-xs hover:text-gray-500"
               onClick={handleClose}
+              aria-label="Close filter and sort"
             >
               Close
             </button>
@@ -42,11 +43,11 @@ export function SortModal({
           <div className="border-b border-gray-300 w-full mt-2 "></div>
           <p className="text-xs ml-4 mt-2">Sort</p>
 
-          <SortButtons products={products} />
+          <SortButtons />
           <FilterButtons products={products} />
         </div>
       </div>
-    </div>
+    </FocusLock>
   );
 }
 

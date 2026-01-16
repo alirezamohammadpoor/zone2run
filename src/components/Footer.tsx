@@ -11,7 +11,7 @@ export function StickyFooter() {
   return (
     <footer className="sticky bottom-0 z-[-1] w-full bg-black">
       <div className="py-24 flex items-center justify-center">
-        <h1 className="text-8xl text-white">ZONE 2</h1>
+        <p className="text-8xl text-white" aria-hidden="true">ZONE 2</p>
       </div>
     </footer>
   );
