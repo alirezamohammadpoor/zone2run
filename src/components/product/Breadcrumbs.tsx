@@ -90,7 +90,7 @@ export default function Breadcrumbs({ product }: BreadcrumbsProps) {
     <nav aria-label="Breadcrumb" className="py-2">
       <ol className="text-xs text-gray-500 flex flex-wrap">
         {breadcrumbs.map((crumb, index) => (
-          <li key={index} className="flex items-center">
+          <li key={crumb.href} className="flex items-center">
             {index > 0 && <span aria-hidden="true" className="mx-1">&gt;</span>}
             <Link
               href={crumb.href}

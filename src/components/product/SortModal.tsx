@@ -43,7 +43,7 @@ export function SortModal({
           <div className="border-b border-gray-300 w-full mt-2 "></div>
           <p className="text-xs ml-4 mt-2">Sort</p>
 
-          <SortButtons products={products} />
+          <SortButtons />
           <FilterButtons products={products} />
         </div>
       </div>

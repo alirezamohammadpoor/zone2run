@@ -29,7 +29,7 @@ const ProductCard = memo(function ProductCard({
 }: ProductCardProps) {
   const router = useRouter();
 
-  const handleClick = useCallback(() => {
+  const handleNavigate = useCallback(() => {
     if (onClick) {
       onClick();
     } else {
@@ -53,17 +53,28 @@ const ProductCard = memo(function ProductCard({
     (img): img is NonNullable<typeof img> => Boolean(img?.url)
   );
 
+  const brandName = product.brand?.name || product.vendor || "";
+  const price = formatPrice(product.priceRange.minVariantPrice);
+
   return (
-    <div className={`aspect-[4/5] flex flex-col hover:cursor-pointer ${className}`}>
-      <div className="w-full h-full relative bg-gray-100">
+    <article className={`aspect-[4/5] flex flex-col ${className}`}>
+      <a
+        href={`/products/${product.handle}`}
+        className="w-full h-full relative bg-gray-100 cursor-pointer block"
+        aria-label={`${brandName ? `${brandName}: ` : ""}${product.title}, ${price} SEK. View product details`}
+        onClick={(e) => {
+          e.preventDefault();
+          handleNavigate();
+        }}
+      >
         <ProductCardGallery
           images={allImages}
           sizes={sizes}
           priority={priority}
-          onNavigate={handleClick}
+          onNavigate={handleNavigate}
           disableGallery={disableGallery}
         />
-      </div>
+      </a>
       <div className="pt-2 pb-4">
         {onBrandClick ? (
           <button
@@ -71,21 +82,32 @@ const ProductCard = memo(function ProductCard({
             className="text-xs font-medium hover:underline text-left"
             onClick={(e) => handleBrandClick(e, product.brand?.slug)}
           >
-            {product.brand?.name || product.vendor || ""}
+            {brandName}
           </button>
         ) : (
           <p className="text-xs font-medium">
-            {product.brand?.name || product.vendor || ""}
+            {brandName}
           </p>
         )}
-        <p className={`text-xs line-clamp-1 ${onBrandClick ? "hover:underline" : ""}`}>
+        <p
+          className="text-xs line-clamp-1 hover:underline cursor-pointer"
+          onClick={handleNavigate}
+          tabIndex={0}
+          role="link"
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              handleNavigate();
+            }
+          }}
+        >
           {product.title}
         </p>
         <p className="text-xs pt-2">
-          {formatPrice(product.priceRange.minVariantPrice)} SEK
+          {price} SEK
         </p>
       </div>
-    </div>
+    </article>
   );
 });
 

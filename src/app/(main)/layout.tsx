@@ -38,7 +38,7 @@ export default function MainLayout({
         <PreviewProvider />
         <ScrollRestoration />
         <HeaderServer />
-        <main id="main-content" className="relative">
+        <main id="main-content" className="relative" tabIndex={-1}>
           <div className="relative z-20 bg-white">
             {children}
             <FooterContent />

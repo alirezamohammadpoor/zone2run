@@ -1,4 +1,3 @@
-import Link from "next/link";
 import Image from "next/image";
 import ProductCard from "./ProductCard";
 import { urlFor } from "@/sanity/lib/image";
@@ -63,7 +62,7 @@ function createGridItems(
   return gridItems;
 }
 
-// Render a product item with Link for prefetching
+// Render a product item - ProductCard handles its own navigation
 function ProductItem({
   product,
   idx,
@@ -74,15 +73,11 @@ function ProductItem({
   priority?: boolean;
 }) {
   return (
-    <Link
+    <ProductCard
       key={`${product._id}-${product.handle}-${idx}`}
-      href={`/products/${product.handle}`}
-      prefetch={true}
-    >
-      <article>
-        <ProductCard product={product} priority={priority} />
-      </article>
-    </Link>
+      product={product}
+      priority={priority}
+    />
   );
 }
 
@@ -203,15 +198,11 @@ export default function ProductGridWithImages({
         className={`grid grid-cols-2 ${xlGridCols} gap-2 px-2 my-8 md:my-12 xl:my-16`}
       >
         {products?.map((product, idx) => (
-          <Link
+          <ProductCard
             key={`${product._id}-${product.handle}`}
-            href={`/products/${product.handle}`}
-            prefetch={true}
-          >
-            <article>
-              <ProductCard product={product} priority={idx < priorityCount} />
-            </article>
-          </Link>
+            product={product}
+            priority={idx < priorityCount}
+          />
         ))}
       </div>
     );

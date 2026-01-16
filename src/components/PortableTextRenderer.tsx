@@ -70,7 +70,7 @@ export default function PortableTextRenderer({
                   <div className="relative w-full h-[50vh] overflow-hidden">
                     <Image
                       src={value.asset.url}
-                      alt={value.alt || "Content image"}
+                      alt={value.alt || ""}
                       fill
                       className="object-cover"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"

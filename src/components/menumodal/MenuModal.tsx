@@ -60,6 +60,7 @@ function MenuModal({
         role="dialog"
         aria-modal="true"
         aria-label="Navigation menu"
+        inert={!isMenuOpen ? true : undefined}
         className={
           "fixed top-0 left-0 h-screen w-full bg-white z-50 transform transition-transform duration-300 overflow-hidden flex flex-col" +
           (isMenuOpen ? " translate-x-0" : " -translate-x-full")

@@ -67,6 +67,7 @@ function CartModal({
           role="dialog"
           aria-modal="true"
           aria-labelledby="cart-title"
+          inert={!isCartOpen ? true : undefined}
           className={
             "fixed top-0 right-0 h-screen w-full bg-white z-50 transform transition-transform duration-300 flex flex-col xl:w-[25vw]" +
             (isCartOpen ? " translate-x-0" : " translate-x-full")
@@ -101,13 +102,15 @@ function CartModal({
                       onClick={handleClose}
                       className="flex-shrink-0"
                     >
-                      <Image
-                        src={item.image || ""}
-                        alt={item.title}
-                        width={80}
-                        height={120}
-                        className="h-[120px] w-[80px] object-cover"
-                      />
+                      {item.image && (
+                        <Image
+                          src={item.image}
+                          alt={item.title}
+                          width={80}
+                          height={120}
+                          className="h-[120px] w-[80px] object-cover"
+                        />
+                      )}
                     </Link>
                     <div className="ml-4 flex flex-1 flex-col overflow-hidden">
                       <Link
@@ -155,7 +158,7 @@ function CartModal({
                           +
                         </button>
                         <button
-                          className="text-xs ml-auto mr-4 cursor-pointer hover:text-gray-600"
+                          className="text-xs ml-auto mr-4 cursor-pointer hover:text-gray-600 min-h-[44px] min-w-[44px]"
                           onClick={() => removeItem(item.id)}
                           aria-label={`Remove ${item.title} from cart`}
                         >

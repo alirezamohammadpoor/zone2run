@@ -146,6 +146,7 @@ const DropdownContent = memo(function DropdownContent({
                               ? "max-h-[300px] opacity-100"
                               : "max-h-0 opacity-0"
                           }`}
+                          inert={!isSubOpen ? true : undefined}
                         >
                           {subSubcats.map(
                             (subSubcat: SubSubcategoryMenuItem) => (

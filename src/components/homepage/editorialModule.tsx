@@ -79,12 +79,15 @@ const EditorialModuleComponent = memo(function EditorialModuleComponent({
 
   // Create a map of posts with their selected images
   // Use editorial image by default for latest posts
+  // Filter out posts with missing slugs to prevent "/blog/undefined/..." URLs
   const postsWithImages = useMemo(
     () =>
-      posts.map((post) => ({
-        post,
-        imageSelection: "editorial",
-      })),
+      posts
+        .filter((post) => post.slug?.current && post.category?.slug?.current)
+        .map((post) => ({
+          post,
+          imageSelection: "editorial",
+        })),
     [posts]
   );
 

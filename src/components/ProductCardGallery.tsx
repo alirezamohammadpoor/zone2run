@@ -5,6 +5,22 @@ import Image from "next/image";
 import { useCallback, useEffect, useState, useRef, memo } from "react";
 import { getBlurProps } from "@/lib/utils/imageProps";
 
+const ArrowIcon = ({ className = "" }: { className?: string }) => (
+  <svg
+    aria-hidden="true"
+    viewBox="0 0 5 8"
+    className={`w-3 h-3 text-black ${className}`}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M0.707107 7.70711L0 7L3.14645 3.85355L0 0.707107L0.707107 0L4.56066 3.85355L0.707107 7.70711Z"
+      fill="currentColor"
+    />
+  </svg>
+);
+
 interface ProductCardGalleryProps {
   images: Array<{ url: string; alt?: string; lqip?: string }>;
   sizes?: string;
@@ -66,6 +82,16 @@ const ProductCardGallery = memo(function ProductCardGallery({
     onNavigate?.();
   }, [onNavigate]);
 
+  const scrollPrev = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (emblaApi) emblaApi.scrollPrev();
+  }, [emblaApi]);
+
+  const scrollNext = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (emblaApi) emblaApi.scrollNext();
+  }, [emblaApi]);
+
   // Static image when gallery is disabled or single image
   if (disableGallery || images.length <= 1) {
     const mainImage = images[0];
@@ -74,22 +100,15 @@ const ProductCardGallery = memo(function ProductCardGallery({
     return (
       <div
         className="w-full h-full relative group"
-        role="button"
-        tabIndex={0}
+        aria-hidden="true"
         onClick={handleClick}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            onNavigate?.();
-          }
-        }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
       >
         {mainImage?.url && (
           <Image
             src={mainImage.url}
-            alt={mainImage.alt || "Product"}
+            alt=""
             fill
             sizes={sizes}
             className={`object-cover ${hoverImage?.url ? "transition-opacity duration-300 group-hover:opacity-0" : ""}`}
@@ -103,7 +122,7 @@ const ProductCardGallery = memo(function ProductCardGallery({
         {hoverImage?.url && (
           <Image
             src={hoverImage.url}
-            alt={hoverImage.alt || "Product"}
+            alt=""
             fill
             sizes={sizes}
             className="object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
@@ -119,15 +138,8 @@ const ProductCardGallery = memo(function ProductCardGallery({
   return (
     <div
       className="w-full h-full relative"
-      role="button"
-      tabIndex={0}
+      aria-hidden="true"
       onClick={handleClick}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          onNavigate?.();
-        }
-      }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
     >
@@ -140,7 +152,7 @@ const ProductCardGallery = memo(function ProductCardGallery({
             >
               <Image
                 src={image.url}
-                alt={image.alt || "Product"}
+                alt=""
                 fill
                 sizes={sizes}
                 className="object-cover"
@@ -154,6 +166,26 @@ const ProductCardGallery = memo(function ProductCardGallery({
           ))}
         </div>
       </div>
+
+      {/* Navigation Arrows */}
+      {images.length > 1 && (
+        <>
+          <button
+            onClick={scrollPrev}
+            className="absolute left-0 top-1/2 -translate-y-1/2 p-1 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+            aria-label="Previous image"
+          >
+            <ArrowIcon className="rotate-180" />
+          </button>
+          <button
+            onClick={scrollNext}
+            className="absolute right-0 top-1/2 -translate-y-1/2 p-1 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+            aria-label="Next image"
+          >
+            <ArrowIcon />
+          </button>
+        </>
+      )}
 
       {/* Progress bar */}
       <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gray-300">
