@@ -67,7 +67,7 @@ export default function ProductGalleryClient({
                 priority={index < 3}
                 loading={index < 3 ? "eager" : "lazy"}
                 fetchPriority={index === 0 ? "high" : "auto"}
-                sizes="(min-width: 1280px) 50vw, 100vw"
+                sizes="(min-width: 1280px) 50vw, (min-width: 768px) 60vw, 100vw"
                 draggable={false}
                 {...getBlurProps(image)}
               />
@@ -82,7 +82,7 @@ export default function ProductGalleryClient({
           {/* Previous Arrow */}
           <button
             onClick={scrollPrev}
-            className="absolute left-2 top-1/2 -translate-y-1/2 p-2 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+            className="absolute left-2 top-1/2 -translate-y-1/2 p-3 min-w-[44px] min-h-[44px] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
             aria-label="Previous image"
           >
             <svg
@@ -103,7 +103,7 @@ export default function ProductGalleryClient({
           {/* Next Arrow */}
           <button
             onClick={scrollNext}
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-3 min-w-[44px] min-h-[44px] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
             aria-label="Next image"
           >
             <svg
