@@ -61,6 +61,7 @@ const VariantSelector = memo(function VariantSelector({ product }: VariantSelect
           return (
             <button
               key={size}
+              aria-label={`Select size ${size}${!isAvailable ? ", unavailable" : ""}${isSelected ? ", selected" : ""}`}
               className={`py-1 px-4 border text-center text-xs transition-colors ${
                 isOneSize ? "w-full" : ""
               } ${

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import FocusLock from "react-focus-lock";
 import { useModalScroll } from "@/hooks/useModalScroll";
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
 import MenContent from "./MenContent";
@@ -25,7 +25,6 @@ function MenuModal({
   brands?: BrandMenuItem[];
   menuConfig?: MenuConfig;
 }) {
-  const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabType | null>(null);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -37,11 +36,6 @@ function MenuModal({
     setTimeout(() => {
       unlockScroll();
     }, 300);
-  };
-
-  const handleNavigate = (path: string) => {
-    router.push(path);
-    handleClose();
   };
 
   // Prevent body scroll when modal is open
@@ -60,9 +54,13 @@ function MenuModal({
   }, [menuData, activeTab]);
 
   return (
-    <>
+    <FocusLock disabled={!isMenuOpen}>
       {/* Modal */}
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Navigation menu"
+        inert={!isMenuOpen ? true : undefined}
         className={
           "fixed top-0 left-0 h-screen w-full bg-white z-50 transform transition-transform duration-300 overflow-hidden flex flex-col" +
           (isMenuOpen ? " translate-x-0" : " -translate-x-full")
@@ -76,6 +74,7 @@ function MenuModal({
             <button
               className="mr-2 text-xs hover:text-gray-500"
               onClick={handleClose}
+              aria-label="Close navigation menu"
             >
               Close
             </button>
@@ -83,24 +82,36 @@ function MenuModal({
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex flex-shrink-0">
-          {TABS.map((tab) => (
-            <button
-              key={tab}
-              className={`flex-1 text-xs py-2 ${
-                activeTab === tab ? "border-b-[1.5px] border-black" : ""
-              }`}
-              onClick={() =>
-                setActiveTab(activeTab === tab ? null : (tab as TabType))
-              }
-            >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
-            </button>
-          ))}
+        <div role="tablist" className="flex flex-shrink-0">
+          {TABS.map((tab) => {
+            const tabId = tab.toLowerCase().replace(/\s+/g, '-');
+            return (
+              <button
+                key={tab}
+                role="tab"
+                aria-selected={activeTab === tab}
+                aria-controls={`tabpanel-${tabId}`}
+                id={`tab-${tabId}`}
+                className={`flex-1 text-xs py-2 ${
+                  activeTab === tab ? "border-b-[1.5px] border-black" : ""
+                }`}
+                onClick={() =>
+                  setActiveTab(activeTab === tab ? null : (tab as TabType))
+                }
+              >
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              </button>
+            );
+          })}
         </div>
 
         {/* Scrollable Content Area */}
-        <div className="flex-1 overflow-y-auto">
+        <div
+          role="tabpanel"
+          id={activeTab ? `tabpanel-${activeTab.toLowerCase().replace(/\s+/g, '-')}` : undefined}
+          aria-labelledby={activeTab ? `tab-${activeTab.toLowerCase().replace(/\s+/g, '-')}` : undefined}
+          className="flex-1 overflow-y-auto"
+        >
           {!isMounted || !menuData || Object.keys(menuData).length === 0 ? (
             <MenuContentSkeleton />
           ) : (
@@ -137,7 +148,7 @@ function MenuModal({
           )}
         </div>
       </div>
-    </>
+    </FocusLock>
   );
 }
 

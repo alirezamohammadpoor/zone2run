@@ -62,7 +62,7 @@ function createGridItems(
   return gridItems;
 }
 
-// Render a product item
+// Render a product item - ProductCard handles its own navigation
 function ProductItem({
   product,
   idx,
@@ -73,9 +73,11 @@ function ProductItem({
   priority?: boolean;
 }) {
   return (
-    <article key={`${product._id}-${product.handle}-${idx}`}>
-      <ProductCard product={product} priority={priority} />
-    </article>
+    <ProductCard
+      key={`${product._id}-${product.handle}-${idx}`}
+      product={product}
+      priority={priority}
+    />
   );
 }
 
@@ -196,9 +198,11 @@ export default function ProductGridWithImages({
         className={`grid grid-cols-2 ${xlGridCols} gap-2 px-2 my-8 md:my-12 xl:my-16`}
       >
         {products?.map((product, idx) => (
-          <article key={`${product._id}-${product.handle}`}>
-            <ProductCard product={product} priority={idx < priorityCount} />
-          </article>
+          <ProductCard
+            key={`${product._id}-${product.handle}`}
+            product={product}
+            priority={idx < priorityCount}
+          />
         ))}
       </div>
     );

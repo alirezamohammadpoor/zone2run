@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef } from "react";
 import { useUrlFilters } from "@/hooks/useUrlFilters";
 import type { SanityProduct } from "@/types/sanityProduct";
 
@@ -71,46 +71,50 @@ export function FilterButtons({ products }: FilterButtonsProps) {
     <div className="border-b py-3">
       <button
         onClick={() => setOpen(!open)}
+        aria-expanded={open}
+        aria-controls="filter-category-content"
         className="w-[95%] text-left flex justify-between items-center ml-2"
       >
         <span className="font-medium text-sm uppercase">Category</span>
-        <span className="text-xl">{open ? "−" : "+"}</span>
+        <span className="text-xl" aria-hidden="true">{open ? "−" : "+"}</span>
       </button>
 
-      {open && (
-        <div className="mt-2 ml-2">
-          <div className="flex justify-end mb-2">
-            <button
-              onClick={handleClearAll}
-              className="text-xs text-gray-500 hover:text-black transition-colors"
-            >
-              Clear All
-            </button>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            {categories.map((category) => {
-              const isSelected = localFiltersRef.current.category.includes(
-                category.slug.current
-              );
-
-              return (
-                <button
-                  key={category._id}
-                  aria-pressed={isSelected}
-                  className={`py-1 px-4 border text-center text-sm transition-colors ${
-                    isSelected
-                      ? "bg-black text-white border-black"
-                      : "border-gray-300 hover:bg-black hover:text-white hover:border-black"
-                  }`}
-                  onClick={() => handleCategoryToggle(category.slug.current)}
-                >
-                  {category.title} ({category.count})
-                </button>
-              );
-            })}
-          </div>
+      <div
+        id="filter-category-content"
+        className={`mt-2 ml-2 ${open ? "" : "hidden"}`}
+        aria-hidden={!open}
+      >
+        <div className="flex justify-end mb-2">
+          <button
+            onClick={handleClearAll}
+            className="text-xs text-gray-500 hover:text-black transition-colors"
+          >
+            Clear All
+          </button>
         </div>
-      )}
+        <div className="grid grid-cols-2 gap-2">
+          {categories.map((category) => {
+            const isSelected = localFiltersRef.current.category.includes(
+              category.slug.current
+            );
+
+            return (
+              <button
+                key={category._id}
+                aria-pressed={isSelected}
+                className={`py-1 px-4 border text-center text-sm transition-colors ${
+                  isSelected
+                    ? "bg-black text-white border-black"
+                    : "border-gray-300 hover:bg-black hover:text-white hover:border-black"
+                }`}
+                onClick={() => handleCategoryToggle(category.slug.current)}
+              >
+                {category.title} ({category.count})
+              </button>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }
