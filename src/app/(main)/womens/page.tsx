@@ -2,8 +2,8 @@ import { getProductsByGender } from "@/sanity/lib/getData";
 import { notFound } from "next/navigation";
 import ProductGrid from "@/components/ProductGrid";
 
-// ISR: Revalidate every hour, on-demand via Sanity webhook
-export const revalidate = 3600;
+// ISR: Revalidate every 5 minutes, on-demand via Sanity webhook
+export const revalidate = 300;
 
 export default async function WomensPage() {
   const products = await getProductsByGender("women");

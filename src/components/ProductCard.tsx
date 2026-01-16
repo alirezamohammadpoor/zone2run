@@ -29,7 +29,7 @@ const ProductCard = memo(function ProductCard({
 }: ProductCardProps) {
   const router = useRouter();
 
-  const handleNavigate = useCallback(() => {
+  const handleClick = useCallback(() => {
     if (onClick) {
       onClick();
     } else {
@@ -53,61 +53,34 @@ const ProductCard = memo(function ProductCard({
     (img): img is NonNullable<typeof img> => Boolean(img?.url)
   );
 
-  const brandName = product.brand?.name || product.vendor || "";
-  const price = formatPrice(product.priceRange.minVariantPrice);
-
   return (
-    <article className={`aspect-[4/5] flex flex-col ${className}`}>
-      <a
-        href={`/products/${product.handle}`}
-        className="w-full h-full relative bg-gray-100 cursor-pointer block"
-        aria-label={`${brandName ? `${brandName}: ` : ""}${product.title}, ${price} SEK. View product details`}
-        onClick={(e) => {
-          e.preventDefault();
-          handleNavigate();
-        }}
-      >
+    <div className={`aspect-[4/5] flex flex-col hover:cursor-pointer ${className}`}>
+      <div className="w-full h-full relative bg-gray-100">
         <ProductCardGallery
           images={allImages}
           sizes={sizes}
           priority={priority}
-          onNavigate={handleNavigate}
+          onNavigate={handleClick}
           disableGallery={disableGallery}
         />
-      </a>
+      </div>
       <div className="pt-2 pb-4">
-        {onBrandClick ? (
-          <button
-            type="button"
-            className="text-xs font-medium hover:underline text-left"
-            onClick={(e) => handleBrandClick(e, product.brand?.slug)}
-          >
-            {brandName}
-          </button>
-        ) : (
-          <p className="text-xs font-medium">
-            {brandName}
-          </p>
-        )}
         <p
-          className="text-xs line-clamp-1 hover:underline cursor-pointer"
-          onClick={handleNavigate}
-          tabIndex={0}
-          role="link"
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              handleNavigate();
-            }
-          }}
+          className={`text-xs font-medium ${
+            onBrandClick ? "hover:underline cursor-pointer" : ""
+          }`}
+          onClick={(e) => handleBrandClick(e, product.brand?.slug)}
         >
+          {product.brand?.name || product.vendor || ""}
+        </p>
+        <p className={`text-xs line-clamp-1 ${onBrandClick ? "hover:underline" : ""}`}>
           {product.title}
         </p>
         <p className="text-xs pt-2">
-          {price} SEK
+          {formatPrice(product.priceRange.minVariantPrice)} SEK
         </p>
       </div>
-    </article>
+    </div>
   );
 });
 

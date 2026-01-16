@@ -104,8 +104,7 @@ export const BASE_PRODUCT_PROJECTION =
 },
 "gallery": gallery[] {
   "url": asset->url,
-  alt,
-  "lqip": asset->metadata.lqip
+  alt
 } | order(_key asc),
 "options": store.options,
 "variants": ` +

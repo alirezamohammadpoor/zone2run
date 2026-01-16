@@ -87,21 +87,20 @@ export default function Breadcrumbs({ product }: BreadcrumbsProps) {
   if (breadcrumbs.length === 0) return null;
 
   return (
-    <nav aria-label="Breadcrumb" className="py-2">
-      <ol className="text-xs text-gray-500 flex flex-wrap">
+    <div className="py-2">
+      <span className="text-xs text-gray-500">
         {breadcrumbs.map((crumb, index) => (
-          <li key={crumb.href} className="flex items-center">
-            {index > 0 && <span aria-hidden="true" className="mx-1">&gt;</span>}
+          <span key={index}>
+            {index > 0 && " > "}
             <Link
               href={crumb.href}
-              className="hover:text-gray-700 hover:underline"
-              aria-current={index === breadcrumbs.length - 1 ? "page" : undefined}
+              className="hover:text-gray-700 hover:underline cursor-pointer"
             >
               {crumb.label}
             </Link>
-          </li>
+          </span>
         ))}
-      </ol>
-    </nav>
+      </span>
+    </div>
   );
 }

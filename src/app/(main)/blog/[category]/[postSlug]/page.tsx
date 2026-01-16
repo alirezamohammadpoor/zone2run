@@ -7,8 +7,8 @@ import BlogProductGrid from "@/components/blog/BlogProductGrid";
 import BlogProductCarousel from "@/components/blog/BlogProductCarousel";
 import type { SanityProduct } from "@/types/sanityProduct";
 
-// ISR: Revalidate every 24 hours, on-demand via Sanity webhook
-export const revalidate = 86400;
+// ISR: Revalidate every hour, on-demand via Sanity webhook
+export const revalidate = 3600;
 
 // Generate dynamic metadata for SEO
 export async function generateMetadata({

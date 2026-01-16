@@ -21,20 +21,19 @@ export default function PortableTextRenderer({
             normal: ({ children }) => (
               <p className="mb-4 md:mb-6 leading-relaxed text-xs">{children}</p>
             ),
-            // CMS h1 renders as h2 to preserve page heading hierarchy (h1 is in hero)
             h1: ({ children }) => (
-              <h2 className="text-sm mb-8 md:mb-10 mt-4 md:mt-6 first:mt-0">
+              <h1 className="text-sm mb-8 md:mb-10 mt-4 md:mt-6 first:mt-0">
                 {children}
-              </h2>
+              </h1>
             ),
             h2: ({ children }) => (
-              <h3 className="text-sm mb-6 md:mb-8 mt-4 md:mt-6">{children}</h3>
+              <h2 className="text-sm mb-6 md:mb-8 mt-4 md:mt-6">{children}</h2>
             ),
             h3: ({ children }) => (
-              <h4 className="text-sm mb-4 mt-4">{children}</h4>
+              <h3 className="text-sm mb-4 mt-4">{children}</h3>
             ),
             h4: ({ children }) => (
-              <h5 className="text-sm mb-4 mt-4">{children}</h5>
+              <h4 className="text-sm mb-4 mt-4">{children}</h4>
             ),
             blockquote: ({ children }) => (
               <blockquote className="border-l-4 border-gray-300 pl-4 italic my-6 md:my-8 text-xs">

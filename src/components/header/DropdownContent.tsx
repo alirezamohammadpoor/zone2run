@@ -3,7 +3,6 @@
 import { useState, useCallback, memo } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import Link from "next/link";
 import { getBrandUrl } from "@/lib/utils/brandUrls";
 import type {
   BrandMenuItem,
@@ -81,6 +80,11 @@ const DropdownContent = memo(function DropdownContent({
     onClose();
   };
 
+  const handleCollectionClick = (collectionSlug: string) => {
+    router.push(`/collections/${collectionSlug}`);
+    onClose();
+  };
+
   // Sort categories by defined order
   const sortedCategories = CATEGORY_ORDER.filter(
     (cat) => data && cat in data
@@ -96,7 +100,6 @@ const DropdownContent = memo(function DropdownContent({
             <button
               className="text-xs mb-3 capitalize hover:text-gray-500"
               onClick={() => handleViewAllClick(category)}
-              aria-label={`View all ${category}`}
             >
               {category}
             </button>
@@ -116,8 +119,6 @@ const DropdownContent = memo(function DropdownContent({
                             toggleSubcategory(subcategory.slug.current)
                           }
                           className="w-full text-left flex justify-between items-center py-0.5"
-                          aria-expanded={isSubOpen}
-                          aria-controls={`subcategory-${subcategory.slug.current}`}
                         >
                           <span className="text-xs text-black hover:text-gray-500">
                             {subcategory.title}
@@ -140,13 +141,11 @@ const DropdownContent = memo(function DropdownContent({
                         </button>
 
                         <div
-                          id={`subcategory-${subcategory.slug.current}`}
                           className={`ml-3 space-y-1 overflow-hidden transition-all duration-300 ${
                             isSubOpen
                               ? "max-h-[300px] opacity-100"
                               : "max-h-0 opacity-0"
                           }`}
-                          inert={!isSubOpen ? true : undefined}
                         >
                           {subSubcats.map(
                             (subSubcat: SubSubcategoryMenuItem) => (
@@ -214,11 +213,10 @@ const DropdownContent = memo(function DropdownContent({
           {featuredCollections?.slice(0, 4).map((collection) => {
             if (!collection?.slug?.current) return null;
             return (
-              <Link
+              <div
                 key={collection._id || collection.slug.current}
-                href={`/collections/${collection.slug.current}`}
-                className="group"
-                onClick={onClose}
+                className="cursor-pointer group"
+                onClick={() => handleCollectionClick(collection.slug.current)}
               >
                 <div className="aspect-[3/4] relative overflow-hidden">
                   {collection.menuImage?.asset?.url ? (
@@ -244,7 +242,7 @@ const DropdownContent = memo(function DropdownContent({
                 <p className="text-xs mt-2 group-hover:underline">
                   {collection.title}
                 </p>
-              </Link>
+              </div>
             );
           })}
         </div>

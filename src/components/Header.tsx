@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import MenuModal from "./menumodal/MenuModal";
 import CartModal from "./CartModal";
@@ -66,8 +66,6 @@ function Header({
           <div className="hidden xl:flex items-center gap-2">
             <button
               onClick={() => handleNavClick("men")}
-              aria-expanded={activeDropdown === "men"}
-              aria-haspopup="true"
               className={`hover:text-gray-500 cursor-pointer ${
                 activeDropdown === "men" ? "underline" : ""
               }`}
@@ -76,8 +74,6 @@ function Header({
             </button>
             <button
               onClick={() => handleNavClick("women")}
-              aria-expanded={activeDropdown === "women"}
-              aria-haspopup="true"
               className={`hover:text-gray-500 cursor-pointer ${
                 activeDropdown === "women" ? "underline" : ""
               }`}
@@ -86,8 +82,6 @@ function Header({
             </button>
             <button
               onClick={() => handleNavClick("help")}
-              aria-expanded={activeDropdown === "help"}
-              aria-haspopup="true"
               className={`hover:text-gray-500 cursor-pointer ${
                 activeDropdown === "help" ? "underline" : ""
               }`}
@@ -96,8 +90,6 @@ function Header({
             </button>
             <button
               onClick={() => handleNavClick("ourSpace")}
-              aria-expanded={activeDropdown === "ourSpace"}
-              aria-haspopup="true"
               className={`hover:text-gray-500 cursor-pointer ${
                 activeDropdown === "ourSpace" ? "underline" : ""
               }`}
@@ -123,15 +115,15 @@ function Header({
           >
             Search
           </button> */}
-          <button
-            className="text-xs"
+          <span
+            className="cursor-pointer"
             onClick={() => {
               lockScroll();
               setIsCartOpen(true);
             }}
           >
             {hasMounted ? `Cart (${totalItems})` : "Cart (0)"}
-          </button>
+          </span>
         </div>
       </nav>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useId } from "react";
+import { useState } from "react";
 
 interface ProductTabsProps {
   productDetails?: string;
@@ -15,24 +15,20 @@ interface CollapsibleProps {
 }
 
 function Collapsible({ title, children, defaultOpen = false }: CollapsibleProps) {
-  const id = useId();
   const [open, setOpen] = useState(defaultOpen);
-  const contentId = `collapsible-${id}`;
 
   return (
     <div className="border-b py-3">
       <button
         onClick={() => setOpen(!open)}
-        aria-expanded={open}
-        aria-controls={contentId}
         className="w-full text-left flex justify-between items-center"
       >
         <span className="font-medium text-xs">{title}</span>
-        <span className="text-xl" aria-hidden="true">{open ? "−" : "+"}</span>
+        <span className="text-xl">{open ? "−" : "+"}</span>
       </button>
 
       {open && (
-        <div id={contentId} className="mt-2 text-xs text-gray-700 whitespace-pre-line">
+        <div className="mt-2 text-xs text-gray-700 whitespace-pre-line">
           {children}
         </div>
       )}

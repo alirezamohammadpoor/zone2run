@@ -13,8 +13,7 @@
       "Bash(find:*)",
       "Skill(git)",
       "Bash(pnpm lint:*)",
-      "Bash(ls:*)",
-      "Bash(bun run build)"
+      "Bash(ls:*)"
     ],
     "deny": [],
     "ask": []
