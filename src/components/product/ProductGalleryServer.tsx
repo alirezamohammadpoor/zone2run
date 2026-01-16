@@ -49,7 +49,7 @@ export default function ProductGalleryServer({
           className="object-cover"
           priority
           fetchPriority="high"
-          sizes="(min-width: 1280px) 50vw, 100vw"
+          sizes="(min-width: 1280px) 50vw, (min-width: 768px) 60vw, 100vw"
         />
       </div>
 
