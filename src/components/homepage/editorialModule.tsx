@@ -122,7 +122,7 @@ const EditorialModuleComponent = memo(function EditorialModuleComponent({
         </h2>
         <Link
           href={editorialModule.buttonLink || "/blog/editorials"}
-          className="text-black text-xs hover:underline"
+          className="text-black text-xs hover:underline py-3 -my-3 md:py-1 md:-my-1"
         >
           {editorialModule.buttonText || "View All Editorials"}
         </Link>
