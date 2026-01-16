@@ -16,7 +16,6 @@ export default function ProductGalleryClient({
     align: "start",
   });
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [isHovering, setIsHovering] = useState(false);
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
@@ -51,12 +50,9 @@ export default function ProductGalleryClient({
     totalImages > 0 ? (currentImageNumber / totalImages) * 100 : 0;
 
   return (
-    <div
-      className="absolute inset-0"
-      onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={() => setIsHovering(false)}
-    >
-      <div className="overflow-hidden h-full" ref={emblaRef}>
+    <div className="absolute inset-0" role="group" aria-label="Product image gallery">
+      {/* Hide entire carousel from screen readers - they get info from live region */}
+      <div className="overflow-hidden h-full" ref={emblaRef} aria-hidden="true">
         <div className="flex h-full">
           {images.map((image, index) => (
             <div
@@ -65,11 +61,11 @@ export default function ProductGalleryClient({
             >
               <Image
                 src={image.url}
-                alt={image.alt}
+                alt=""
                 fill
                 className="object-cover"
-                priority={index === 0}
-                loading={index === 0 ? "eager" : "lazy"}
+                priority={index < 3}
+                loading={index < 3 ? "eager" : "lazy"}
                 fetchPriority={index === 0 ? "high" : "auto"}
                 sizes="(min-width: 1280px) 50vw, 100vw"
                 draggable={false}
@@ -86,9 +82,7 @@ export default function ProductGalleryClient({
           {/* Previous Arrow */}
           <button
             onClick={scrollPrev}
-            className={`absolute left-4 top-1/2 -translate-y-1/2 p-2 transition-opacity duration-300 ${
-              isHovering ? "opacity-100" : "opacity-0"
-            }`}
+            className="absolute left-2 top-1/2 -translate-y-1/2 p-2 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
             aria-label="Previous image"
           >
             <svg
@@ -109,9 +103,7 @@ export default function ProductGalleryClient({
           {/* Next Arrow */}
           <button
             onClick={scrollNext}
-            className={`absolute right-4 top-1/2 -translate-y-1/2 p-2 transition-opacity duration-300 ${
-              isHovering ? "opacity-100" : "opacity-0"
-            }`}
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
             aria-label="Next image"
           >
             <svg
@@ -131,9 +123,19 @@ export default function ProductGalleryClient({
         </>
       )}
 
+      {/* Live region for screen reader announcements */}
       {images.length > 1 && (
-        <div className="absolute bottom-4 right-0 px-3 py-1 text-xs text-black">
-          {selectedIndex + 1} / {images.length}
+        <div
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+          className="absolute bottom-4 right-0 px-3 py-1 text-xs text-black"
+        >
+          <span aria-hidden="true">{selectedIndex + 1} / {images.length}</span>
+          <span className="sr-only">
+            Image {selectedIndex + 1} of {images.length}
+            {images[selectedIndex]?.alt ? `: ${images[selectedIndex].alt}` : ""}
+          </span>
         </div>
       )}
 

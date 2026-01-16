@@ -2,8 +2,8 @@ import { getHomepage } from "@/sanity/lib/getData";
 import HomePageSanity from "@/components/homepage/HomePageSanity";
 import { notFound } from "next/navigation";
 
-// ISR: Revalidate every 5 minutes, on-demand via Sanity webhook
-export const revalidate = 300;
+// ISR: Revalidate every hour, on-demand via Sanity webhook
+export const revalidate = 3600;
 
 export default async function Home() {
   try {

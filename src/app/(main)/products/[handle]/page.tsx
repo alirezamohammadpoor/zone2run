@@ -10,8 +10,8 @@ import ProductEditorialImages from "@/components/product/ProductEditorialImages"
 import RelatedProductsSkeleton from "@/components/skeletons/RelatedProductsSkeleton";
 import EditorialImageSkeleton from "@/components/skeletons/EditorialImageSkeleton";
 
-// ISR: Revalidate every 5 minutes, on-demand via Sanity webhook
-export const revalidate = 300;
+// ISR: Revalidate every 30 minutes, on-demand via Sanity webhook
+export const revalidate = 1800;
 
 // Allow dynamic params for product handles not generated at build time
 export const dynamicParams = true;

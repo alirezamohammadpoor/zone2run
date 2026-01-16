@@ -1,18 +1,14 @@
 "use client";
 
 import { SortOption, useUrlSort } from "@/hooks/useUrlSort";
-import type { SanityProduct } from "@/types/sanityProduct";
 
-export default function SortButtons({
-  products,
-}: {
-  products: SanityProduct[];
-}) {
+export default function SortButtons() {
   const { sort, updateSort } = useUrlSort();
 
   return (
-    <form className="space-y-2">
-      <label className="flex items-center gap-2">
+    <fieldset className="space-y-2 ml-4 mt-2">
+      <legend className="sr-only">Sort products by</legend>
+      <label className="flex items-center gap-2 text-xs">
         <input
           type="radio"
           name="sort"
@@ -23,7 +19,7 @@ export default function SortButtons({
         Newest
       </label>
 
-      <label className="flex items-center gap-2">
+      <label className="flex items-center gap-2 text-xs">
         <input
           type="radio"
           name="sort"
@@ -34,7 +30,7 @@ export default function SortButtons({
         Price: Low to High
       </label>
 
-      <label className="flex items-center gap-2">
+      <label className="flex items-center gap-2 text-xs">
         <input
           type="radio"
           name="sort"
@@ -45,7 +41,7 @@ export default function SortButtons({
         Price: High to Low
       </label>
 
-      <label className="flex items-center gap-2">
+      <label className="flex items-center gap-2 text-xs">
         <input
           type="radio"
           name="sort"
@@ -56,7 +52,7 @@ export default function SortButtons({
         Name: A to Z
       </label>
 
-      <label className="flex items-center gap-2">
+      <label className="flex items-center gap-2 text-xs">
         <input
           type="radio"
           name="sort"
@@ -66,6 +62,6 @@ export default function SortButtons({
         />
         Name: Z to A
       </label>
-    </form>
+    </fieldset>
   );
 }
