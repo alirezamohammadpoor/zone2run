@@ -23,6 +23,7 @@ export function SortModal({
         role="dialog"
         aria-modal="true"
         aria-label="Filter and sort products"
+        inert={!isSortOpen ? true : undefined}
         className={
           "fixed top-0 right-0 h-screen w-full bg-white z-50 transform transition-transform duration-300 flex flex-col" +
           (isSortOpen ? " translate-x-0" : " translate-x-full")
