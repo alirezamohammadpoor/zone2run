@@ -125,6 +125,7 @@ function Header({
           </button> */}
           <button
             className="text-xs"
+            aria-label={`Open cart, ${totalItems} items`}
             onClick={() => {
               lockScroll();
               setIsCartOpen(true);

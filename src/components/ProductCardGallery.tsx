@@ -172,14 +172,14 @@ const ProductCardGallery = memo(function ProductCardGallery({
         <>
           <button
             onClick={scrollPrev}
-            className="absolute left-0 top-1/2 -translate-y-1/2 p-1 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+            className="absolute left-0 top-1/2 -translate-y-1/2 p-3 min-w-[44px] min-h-[44px] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
             aria-label="Previous image"
           >
             <ArrowIcon className="rotate-180" />
           </button>
           <button
             onClick={scrollNext}
-            className="absolute right-0 top-1/2 -translate-y-1/2 p-1 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+            className="absolute right-0 top-1/2 -translate-y-1/2 p-3 min-w-[44px] min-h-[44px] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
             aria-label="Next image"
           >
             <ArrowIcon />

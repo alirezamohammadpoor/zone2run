@@ -42,7 +42,7 @@ function HeroModule({ heroModule }: { heroModule: HeroModule }) {
         {heroModule.mediaType === "image" && heroModule.heroImage?.asset && (
           <Image
             src={urlFor(heroModule.heroImage).url()}
-            alt={heroModule.heroImage.alt || ""}
+            alt={heroModule.heroImage.alt || heroModule.heroHeading || "Hero image"}
             className="absolute inset-0 w-full h-full object-cover"
             style={{ objectPosition }}
             fill
