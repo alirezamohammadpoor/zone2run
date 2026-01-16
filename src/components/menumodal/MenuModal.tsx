@@ -82,24 +82,36 @@ function MenuModal({
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex flex-shrink-0">
-          {TABS.map((tab) => (
-            <button
-              key={tab}
-              className={`flex-1 text-xs py-2 ${
-                activeTab === tab ? "border-b-[1.5px] border-black" : ""
-              }`}
-              onClick={() =>
-                setActiveTab(activeTab === tab ? null : (tab as TabType))
-              }
-            >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
-            </button>
-          ))}
+        <div role="tablist" className="flex flex-shrink-0">
+          {TABS.map((tab) => {
+            const tabId = tab.toLowerCase().replace(/\s+/g, '-');
+            return (
+              <button
+                key={tab}
+                role="tab"
+                aria-selected={activeTab === tab}
+                aria-controls={`tabpanel-${tabId}`}
+                id={`tab-${tabId}`}
+                className={`flex-1 text-xs py-2 ${
+                  activeTab === tab ? "border-b-[1.5px] border-black" : ""
+                }`}
+                onClick={() =>
+                  setActiveTab(activeTab === tab ? null : (tab as TabType))
+                }
+              >
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              </button>
+            );
+          })}
         </div>
 
         {/* Scrollable Content Area */}
-        <div className="flex-1 overflow-y-auto">
+        <div
+          role="tabpanel"
+          id={activeTab ? `tabpanel-${activeTab.toLowerCase().replace(/\s+/g, '-')}` : undefined}
+          aria-labelledby={activeTab ? `tab-${activeTab.toLowerCase().replace(/\s+/g, '-')}` : undefined}
+          className="flex-1 overflow-y-auto"
+        >
           {!isMounted || !menuData || Object.keys(menuData).length === 0 ? (
             <MenuContentSkeleton />
           ) : (
