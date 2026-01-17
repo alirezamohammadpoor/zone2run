@@ -2,7 +2,7 @@
 
 import useEmblaCarousel from "embla-carousel-react";
 import Image from "next/image";
-import { useCallback, useEffect, useState, useRef, memo } from "react";
+import { useCallback, useEffect, useState, memo } from "react";
 import { getBlurProps } from "@/lib/utils/imageProps";
 
 const ArrowIcon = ({ className = "" }: { className?: string }) => (
@@ -25,7 +25,6 @@ interface ProductCardGalleryProps {
   images: Array<{ url: string; alt?: string; lqip?: string }>;
   sizes?: string;
   priority?: boolean;
-  onNavigate?: () => void;
   disableGallery?: boolean;
 }
 
@@ -33,14 +32,10 @@ const ProductCardGallery = memo(function ProductCardGallery({
   images,
   sizes,
   priority = false,
-  onNavigate,
   disableGallery = false,
 }: ProductCardGalleryProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start" });
   const [selectedIndex, setSelectedIndex] = useState(0);
-  // Track pointer position to detect actual dragging vs. taps
-  const pointerStartRef = useRef<{ x: number; y: number } | null>(null);
-  const hasDraggedRef = useRef(false);
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
@@ -55,32 +50,6 @@ const ProductCardGallery = memo(function ProductCardGallery({
       emblaApi.off("select", onSelect);
     };
   }, [emblaApi, onSelect, disableGallery]);
-
-  // Track pointer movement to distinguish taps from drags
-  const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    pointerStartRef.current = { x: e.clientX, y: e.clientY };
-    hasDraggedRef.current = false;
-  }, []);
-
-  const handlePointerMove = useCallback((e: React.PointerEvent) => {
-    if (!pointerStartRef.current) return;
-    const dx = Math.abs(e.clientX - pointerStartRef.current.x);
-    const dy = Math.abs(e.clientY - pointerStartRef.current.y);
-    // 10px threshold - anything more is a drag, not a tap
-    if (dx > 10 || dy > 10) {
-      hasDraggedRef.current = true;
-    }
-  }, []);
-
-  const handleClick = useCallback((e: React.MouseEvent) => {
-    // If user dragged more than threshold, don't navigate
-    if (hasDraggedRef.current) {
-      e.preventDefault();
-      e.stopPropagation();
-      return;
-    }
-    onNavigate?.();
-  }, [onNavigate]);
 
   const scrollPrev = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
@@ -101,9 +70,6 @@ const ProductCardGallery = memo(function ProductCardGallery({
       <div
         className="w-full h-full relative group"
         aria-hidden="true"
-        onClick={handleClick}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
       >
         {mainImage?.url && (
           <Image
@@ -139,9 +105,6 @@ const ProductCardGallery = memo(function ProductCardGallery({
     <div
       className="w-full h-full relative"
       aria-hidden="true"
-      onClick={handleClick}
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
     >
       <div className="overflow-hidden h-full" ref={emblaRef}>
         <div className="flex h-full">

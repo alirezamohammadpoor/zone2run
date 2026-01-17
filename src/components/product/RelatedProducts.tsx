@@ -88,14 +88,23 @@ const RelatedProducts = memo(function RelatedProducts({
             {products.map((product) => (
               <div
                 key={product._id}
+                onClick={() => handleProductClick(product.handle)}
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleProductClick(product.handle);
+                  }
+                }}
+                role="link"
+                tabIndex={0}
+                className="cursor-pointer"
               >
                 <ProductCard
                   product={product}
                   className="flex-shrink-0 w-[70vw] xl:w-[30vw] aspect-[4/5]"
                   sizes="(min-width: 1280px) 25vw, 70vw"
-                  onClick={() => handleProductClick(product.handle)}
                   onBrandClick={handleBrandClick}
                   disableGallery
                 />
