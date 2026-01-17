@@ -1,8 +1,8 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState, useCallback, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import useEmblaCarousel from "embla-carousel-react";
 import { getBrandUrl } from "@/lib/utils/brandUrls";
 import { urlFor } from "@/sanity/lib/image";
@@ -19,7 +19,6 @@ function MenContent({
   brands?: BrandMenuItem[];
   featuredCollections?: CollectionMenuItem[];
 }) {
-  const router = useRouter();
   const [openCategories, setOpenCategories] = useState<Set<string>>(new Set());
   const [openSubcategories, setOpenSubcategories] = useState<Set<string>>(
     new Set()
@@ -72,10 +71,7 @@ function MenContent({
     });
   };
 
-  const toggleSubcategory = (
-    subcategorySlug: string,
-    mainCategorySlug: string
-  ) => {
+  const toggleSubcategory = (subcategorySlug: string) => {
     setOpenSubcategories((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(subcategorySlug)) {
@@ -87,57 +83,16 @@ function MenContent({
     });
   };
 
-  const handleSubcategoryClick = (
-    subcategorySlug: string,
-    mainCategorySlug: string
-  ) => {
-    router.push(`/mens/${mainCategorySlug}/${subcategorySlug}`);
-    onClose();
-  };
-
-  const handleSubSubcategoryClick = (
-    mainCategorySlug: string,
-    subcategorySlug: string,
-    subSubcategorySlug: string
-  ) => {
-    router.push(
-      `/mens/${mainCategorySlug}/${subcategorySlug}/${subSubcategorySlug}`
-    );
-    onClose();
-  };
-
-  const handleViewAllClick = (categorySlug: string) => {
-    router.push(`/mens/${categorySlug}`);
-    onClose();
-  };
-
-  const handleViewAllSubcategoryClick = (
-    mainCategorySlug: string,
-    subcategorySlug: string
-  ) => {
-    router.push(`/mens/${mainCategorySlug}/${subcategorySlug}`);
-    onClose();
-  };
-
-  const handleBrandClick = (brandSlug: string) => {
-    router.push(`${getBrandUrl(brandSlug)}?gender=mens`);
-    onClose();
-  };
-
   const handleCollectionClick = useCallback(
-    (e: React.MouseEvent, collectionSlug: string) => {
-      if (!isDragging) {
-        router.push(`/collections/${collectionSlug}`);
+    (e: React.MouseEvent) => {
+      if (isDragging) {
+        e.preventDefault();
+      } else {
         onClose();
       }
     },
-    [router, onClose, isDragging]
+    [onClose, isDragging]
   );
-
-  const handleViewAllBrandsClick = () => {
-    router.push("/brands");
-    onClose();
-  };
 
   return (
     <div className="mt-2">
@@ -177,13 +132,14 @@ function MenContent({
                 }`}
               >
                 {/* View All button */}
-                <button
-                  className="text-xs hover:text-gray-500 pl-2 text-left w-full"
-                  onClick={() => handleViewAllClick(category)}
+                <Link
+                  href={`/mens/${category}`}
+                  onClick={onClose}
+                  className="text-xs hover:text-gray-500 pl-2 text-left w-full block"
                 >
                   View All{" "}
                   {category.charAt(0).toUpperCase() + category.slice(1)}
-                </button>
+                </Link>
 
                 {/* Subcategories */}
                 {(subcategories as SubcategoryMenuItem[]).map((subcategory) => {
@@ -200,20 +156,14 @@ function MenContent({
                             <button
                               className="text-xs hover:text-gray-500 text-left flex-1"
                               onClick={() =>
-                                toggleSubcategory(
-                                  subcategory.slug.current,
-                                  category
-                                )
+                                toggleSubcategory(subcategory.slug.current)
                               }
                             >
                               {subcategory.title}
                             </button>
                             <button
                               onClick={() =>
-                                toggleSubcategory(
-                                  subcategory.slug.current,
-                                  category
-                                )
+                                toggleSubcategory(subcategory.slug.current)
                               }
                               className="ml-2 p-1"
                             >
@@ -239,17 +189,13 @@ function MenContent({
                             </button>
                           </>
                         ) : (
-                          <button
+                          <Link
+                            href={`/mens/${category}/${subcategory.slug.current}`}
+                            onClick={onClose}
                             className="text-xs hover:text-gray-500 text-left flex-1"
-                            onClick={() =>
-                              handleSubcategoryClick(
-                                subcategory.slug.current,
-                                category
-                              )
-                            }
                           >
                             {subcategory.title}
-                          </button>
+                          </Link>
                         )}
                       </div>
 
@@ -263,32 +209,23 @@ function MenContent({
                           }`}
                         >
                           {/* View All button for subcategory */}
-                          <button
-                            className="text-xs hover:text-gray-500 pl-2 text-left w-full"
-                            onClick={() =>
-                              handleViewAllSubcategoryClick(
-                                category,
-                                subcategory.slug.current
-                              )
-                            }
+                          <Link
+                            href={`/mens/${category}/${subcategory.slug.current}`}
+                            onClick={onClose}
+                            className="text-xs hover:text-gray-500 pl-2 text-left w-full block"
                           >
                             View All {subcategory.title}
-                          </button>
+                          </Link>
 
                           {subSubcats.map((subSubcat: SubSubcategoryMenuItem) => (
-                            <button
+                            <Link
                               key={subSubcat._id}
-                              className="text-xs hover:text-gray-500 pl-2 text-left w-full"
-                              onClick={() =>
-                                handleSubSubcategoryClick(
-                                  category,
-                                  subcategory.slug.current,
-                                  subSubcat.slug.current
-                                )
-                              }
+                              href={`/mens/${category}/${subcategory.slug.current}/${subSubcat.slug.current}`}
+                              onClick={onClose}
+                              className="text-xs hover:text-gray-500 pl-2 text-left w-full block"
                             >
                               {subSubcat.title}
-                            </button>
+                            </Link>
                           ))}
                         </div>
                       )}
@@ -343,13 +280,14 @@ function MenContent({
               {brands.map((brand) => {
                 if (!brand?.slug?.current) return null;
                 return (
-                  <button
+                  <Link
                     key={brand._id || brand.slug.current}
-                    className="text-xs hover:text-gray-500 pl-2 text-left w-full"
-                    onClick={() => handleBrandClick(brand.slug.current)}
+                    href={`${getBrandUrl(brand.slug.current)}?gender=mens`}
+                    onClick={onClose}
+                    className="text-xs hover:text-gray-500 pl-2 text-left w-full block"
                   >
                     {brand.name}
-                  </button>
+                  </Link>
                 );
               })}
             </div>
@@ -368,14 +306,13 @@ function MenContent({
                 {featuredCollections.map((collection: CollectionMenuItem) => {
                   if (!collection?.slug?.current) return null;
                   return (
-                    <div
+                    <Link
                       key={collection._id || collection.slug.current}
+                      href={`/collections/${collection.slug.current}`}
+                      onClick={handleCollectionClick}
                       className={`flex-shrink-0 w-[70vw] min-w-0 aspect-[3/4] flex flex-col cursor-pointer ${
                         isDragging ? "pointer-events-none" : ""
                       }`}
-                      onClick={(e) =>
-                        handleCollectionClick(e, collection.slug.current)
-                      }
                     >
                       <div className="w-full h-full relative bg-gray-100">
                         {collection.menuImage?.asset?.url ? (
@@ -404,7 +341,7 @@ function MenContent({
                           {collection.title}
                         </p>
                       </div>
-                    </div>
+                    </Link>
                   );
                 })}
               </div>

@@ -307,8 +307,18 @@ const ContentModuleComponent = memo(function ContentModuleComponent({
             return (
               <div
                 key={product._id}
+                onClick={() => handleProductClick(product.handle)}
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleProductClick(product.handle);
+                  }
+                }}
+                role="link"
+                tabIndex={0}
+                className="cursor-pointer"
               >
                 <ProductCard
                   product={{
@@ -317,7 +327,6 @@ const ContentModuleComponent = memo(function ContentModuleComponent({
                   }}
                   className="flex-shrink-0 w-[70vw] min-w-0 xl:w-[30vw]"
                   sizes="(max-width: 768px) 70vw, 33vw"
-                  onClick={() => handleProductClick(product.handle)}
                   onBrandClick={handleBrandClick}
                   disableGallery
                 />

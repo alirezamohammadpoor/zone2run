@@ -1,6 +1,6 @@
 "use client";
 
-import React, { memo, useCallback, useMemo } from "react";
+import React, { memo, useCallback, useMemo, useRef } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { useRouter } from "next/navigation";
 import ProductCard from "@/components/ProductCard";
@@ -54,13 +54,39 @@ const BlogProductCarousel = memo(function BlogProductCarousel({
     dragFree: false,
   });
 
+  // Track pointer position to detect actual dragging vs. taps
+  const pointerStartRef = useRef<{ x: number; y: number } | null>(null);
+  const hasDraggedRef = useRef(false);
+
   const validProducts = useMemo(
     () => products.filter((item) => item?.product),
     [products]
   );
 
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
+    pointerStartRef.current = { x: e.clientX, y: e.clientY };
+    hasDraggedRef.current = false;
+  }, []);
+
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+    if (!pointerStartRef.current) return;
+    const dx = Math.abs(e.clientX - pointerStartRef.current.x);
+    const dy = Math.abs(e.clientY - pointerStartRef.current.y);
+    if (dx > 10 || dy > 10) {
+      hasDraggedRef.current = true;
+    }
+  }, []);
+
+  const handleProductClick = useCallback((handle: string) => {
+    if (!hasDraggedRef.current) {
+      router.push(`/products/${handle}`);
+    }
+  }, [router]);
+
   const handleBrandClick = useCallback((slug: string) => {
-    router.push(getBrandUrl(slug));
+    if (!hasDraggedRef.current) {
+      router.push(getBrandUrl(slug));
+    }
   }, [router]);
 
   if (validProducts.length === 0) {
@@ -80,17 +106,32 @@ const BlogProductCarousel = memo(function BlogProductCarousel({
           if (!selectedImage?.url) return null;
 
           return (
-            <ProductCard
+            <div
               key={p._id || idx}
-              product={{
-                ...p,
-                selectedImage,
+              onClick={() => handleProductClick(p.handle)}
+              onPointerDown={handlePointerDown}
+              onPointerMove={handlePointerMove}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  handleProductClick(p.handle);
+                }
               }}
-              className="flex-shrink-0 w-[70vw] min-w-0 xl:w-[30vw]"
-              sizes="(max-width: 768px) 70vw, 33vw"
-              onBrandClick={handleBrandClick}
-              disableGallery
-            />
+              role="link"
+              tabIndex={0}
+              className="cursor-pointer"
+            >
+              <ProductCard
+                product={{
+                  ...p,
+                  selectedImage,
+                }}
+                className="flex-shrink-0 w-[70vw] min-w-0 xl:w-[30vw]"
+                sizes="(max-width: 768px) 70vw, 33vw"
+                onBrandClick={handleBrandClick}
+                disableGallery
+              />
+            </div>
           );
         })}
       </div>

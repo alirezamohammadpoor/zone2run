@@ -1,4 +1,5 @@
 import { memo } from "react";
+import Link from "next/link";
 import ProductCard from "@/components/ProductCard";
 import type { SanityProduct } from "@/types/sanityProduct";
 
@@ -18,12 +19,16 @@ const BlogProductGrid = memo(function BlogProductGrid({
   return (
     <div className="grid grid-cols-2 xl:grid-cols-4 gap-2">
       {displayProducts?.map((product) => (
-        <ProductCard
+        <Link
           key={product._id}
-          product={product}
-          className="w-full"
-          sizes="(max-width: 1280px) 50vw, 25vw"
-        />
+          href={`/products/${product.handle}`}
+        >
+          <ProductCard
+            product={product}
+            className="w-full"
+            sizes="(max-width: 1280px) 50vw, 25vw"
+          />
+        </Link>
       ))}
     </div>
   );
