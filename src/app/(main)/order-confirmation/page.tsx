@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useHasMounted } from "@/hooks/useHasMounted";
 import Image from "next/image";
 import { useCartStore } from "@/lib/cart/store";
@@ -10,15 +10,10 @@ import { formatPrice } from "@/lib/utils/formatPrice";
 import Header from "@/components/Header";
 
 export default function OrderConfirmation() {
-  const router = useRouter();
   const { items, getTotalPrice } = useCartStore();
   const hasMounted = useHasMounted();
 
   const totalPrice = getTotalPrice();
-
-  const handleNavigate = (path: string) => {
-    router.push(path);
-  };
 
   return (
     <div className="h-[90vh]">
@@ -40,25 +35,22 @@ export default function OrderConfirmation() {
           <div className="py-4">
             {items.map((item) => (
               <div key={item.id} className="flex w-full overflow-hidden mb-8">
-                <Image
-                  src={item.image || ""}
-                  alt={item.title}
-                  width={80}
-                  height={120}
-                  className="h-[120px] w-[80px] flex-shrink-0 object-cover cursor-pointer"
-                  onClick={() =>
-                    handleNavigate(`/products/${item.productHandle}`)
-                  }
-                />
+                <Link href={`/products/${item.productHandle}`}>
+                  <Image
+                    src={item.image || ""}
+                    alt={item.title}
+                    width={80}
+                    height={120}
+                    className="h-[120px] w-[80px] flex-shrink-0 object-cover cursor-pointer"
+                  />
+                </Link>
                 <div className="ml-4 flex flex-1 flex-col overflow-hidden">
-                  <span
+                  <Link
+                    href={`/products/${item.productHandle}`}
                     className="text-sm font-bold w-full block cursor-pointer"
-                    onClick={() =>
-                      handleNavigate(`/products/${item.productHandle}`)
-                    }
                   >
                     {item.title}
-                  </span>
+                  </Link>
                   <span className="text-sm block mt-1">Size: {item.size}</span>
                   <span className="text-sm block mt-1">
                     Color: {item.color}
