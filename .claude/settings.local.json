@@ -14,7 +14,8 @@
       "Skill(git)",
       "Bash(pnpm lint:*)",
       "Bash(ls:*)",
-      "Bash(bun run build)"
+      "Bash(bun run build)",
+      "Bash(bun build)"
     ],
     "deny": [],
     "ask": []

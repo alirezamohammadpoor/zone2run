@@ -7,8 +7,6 @@ import { notFound } from "next/navigation";
 import RelatedProductsServer from "@/components/product/RelatedProductsServer";
 import ColorVariants from "@/components/product/ColorVariants";
 import ProductEditorialImages from "@/components/product/ProductEditorialImages";
-import RelatedProductsSkeleton from "@/components/skeletons/RelatedProductsSkeleton";
-import EditorialImageSkeleton from "@/components/skeletons/EditorialImageSkeleton";
 
 // ISR: Revalidate every 30 minutes, on-demand via Sanity webhook
 export const revalidate = 1800;
@@ -96,12 +94,12 @@ export default async function ProductPage({
           colorVariants={product.colorVariants}
           currentProductId={product._id}
         />
-        <Suspense fallback={<EditorialImageSkeleton />}>
+        <Suspense fallback={null}>
           <ProductEditorialImages editorialImages={product.editorialImages} />
         </Suspense>
       </div>
       {product.brand?.slug && (
-        <Suspense fallback={<RelatedProductsSkeleton />}>
+        <Suspense fallback={null}>
           <RelatedProductsServer
             brandSlug={product.brand.slug}
             currentProductId={product._id}

@@ -8,7 +8,6 @@ import Image from "next/image";
 import { useCartStore } from "@/lib/cart/store";
 import { formatPrice } from "@/lib/utils/formatPrice";
 import { createCart, addToCart } from "@/lib/shopify/cart";
-import CartSkeleton from "@/components/skeletons/CartSkeleton";
 
 function CartModal({
   isCartOpen,
@@ -191,9 +190,7 @@ function CartModal({
                 </button>
               </div>
             )
-          ) : (
-            <CartSkeleton />
-          )}
+          ) : null}
         </div>
 
         {/* Fixed Bottom Section */}
