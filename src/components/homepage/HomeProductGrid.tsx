@@ -1,4 +1,5 @@
 import React, { memo } from "react";
+import Link from "next/link";
 import ProductCard from "@/components/ProductCard";
 import type { SanityProduct } from "@/types/sanityProduct";
 
@@ -30,12 +31,16 @@ const HomeProductGrid = memo(function HomeProductGrid({
   return (
     <div className={gridClass}>
       {displayProducts?.map((product) => (
-        <ProductCard
+        <Link
           key={product._id}
-          product={product}
-          className="w-full"
-          sizes="(max-width: 1280px) 50vw, 25vw"
-        />
+          href={`/products/${product.handle}`}
+        >
+          <ProductCard
+            product={product}
+            className="w-full"
+            sizes="(max-width: 1280px) 50vw, 25vw"
+          />
+        </Link>
       ))}
     </div>
   );

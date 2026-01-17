@@ -1,10 +1,9 @@
 "use client";
 
-import React, { memo, useCallback, useMemo } from "react";
+import React, { memo, useCallback, useMemo, useState, useEffect } from "react";
 import useEmblaCarousel from "embla-carousel-react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import ProductCard from "@/components/ProductCard";
-import { getBrandUrl } from "@/lib/utils/brandUrls";
 import type { SanityProduct } from "@/types/sanityProduct";
 
 interface BlogProductCarouselProps {
@@ -47,21 +46,36 @@ function getSelectedImage(
 const BlogProductCarousel = memo(function BlogProductCarousel({
   products,
 }: BlogProductCarouselProps) {
-  const router = useRouter();
-  const [emblaRef] = useEmblaCarousel({
+  const [emblaRef, emblaApi] = useEmblaCarousel({
     align: "start",
     containScroll: "trimSnaps",
     dragFree: false,
   });
+  const [isDragging, setIsDragging] = useState(false);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    const onSettle = () => setIsDragging(false);
+    const onScroll = () => setIsDragging(true);
+    emblaApi.on("settle", onSettle).on("scroll", onScroll);
+    return () => {
+      emblaApi.off("settle", onSettle).off("scroll", onScroll);
+    };
+  }, [emblaApi]);
 
   const validProducts = useMemo(
     () => products.filter((item) => item?.product),
     [products]
   );
 
-  const handleBrandClick = useCallback((slug: string) => {
-    router.push(getBrandUrl(slug));
-  }, [router]);
+  const handleProductClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (isDragging) {
+        e.preventDefault();
+      }
+    },
+    [isDragging]
+  );
 
   if (validProducts.length === 0) {
     return null;
@@ -80,17 +94,22 @@ const BlogProductCarousel = memo(function BlogProductCarousel({
           if (!selectedImage?.url) return null;
 
           return (
-            <ProductCard
+            <Link
               key={p._id || idx}
-              product={{
-                ...p,
-                selectedImage,
-              }}
-              className="flex-shrink-0 w-[70vw] min-w-0 xl:w-[30vw]"
-              sizes="(max-width: 768px) 70vw, 33vw"
-              onBrandClick={handleBrandClick}
-              disableGallery
-            />
+              href={`/products/${p.handle}`}
+              onClick={handleProductClick}
+              className={`cursor-pointer ${isDragging ? "pointer-events-none" : ""}`}
+            >
+              <ProductCard
+                product={{
+                  ...p,
+                  selectedImage,
+                }}
+                className="flex-shrink-0 w-[70vw] min-w-0 xl:w-[30vw]"
+                sizes="(max-width: 768px) 70vw, 33vw"
+                disableGallery
+              />
+            </Link>
           );
         })}
       </div>

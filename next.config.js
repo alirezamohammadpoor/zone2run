@@ -29,7 +29,6 @@ const nextConfig = {
       "@sanity/client",
       "@sanity/visual-editing",
       "next-sanity",
-      "lucide-react",
       "framer-motion",
     ],
   },

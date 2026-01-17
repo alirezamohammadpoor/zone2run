@@ -14,7 +14,6 @@ export default function ProductGrid({ products }: ProductGridProps) {
           <Link
             key={`${product._id}-${product.handle}`}
             href={`/products/${product.handle}`}
-            prefetch={true}
           >
             <article>
               <ProductCard product={product} />

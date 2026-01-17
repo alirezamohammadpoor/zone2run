@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import FocusLock from "react-focus-lock";
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
@@ -8,7 +7,6 @@ import Image from "next/image";
 import { useCartStore } from "@/lib/cart/store";
 import { formatPrice } from "@/lib/utils/formatPrice";
 import { createCart, addToCart } from "@/lib/shopify/cart";
-import CartSkeleton from "@/components/skeletons/CartSkeleton";
 
 function CartModal({
   isCartOpen,
@@ -17,7 +15,6 @@ function CartModal({
   isCartOpen: boolean;
   setIsCartOpen: (isOpen: boolean) => void;
 }) {
-  const router = useRouter();
   const {
     items,
     removeItem,
@@ -180,20 +177,16 @@ function CartModal({
             ) : (
               <div className="flex w-full overflow-hidden justify-center items-center h-full flex-col">
                 <p className="text-xs">Your cart is currently empty</p>
-                <button
+                <Link
+                  href="/"
                   className="text-xs font-bold mt-4"
-                  onClick={() => {
-                    router.push("/");
-                    handleClose();
-                  }}
+                  onClick={handleClose}
                 >
                   Explore our products
-                </button>
+                </Link>
               </div>
             )
-          ) : (
-            <CartSkeleton />
-          )}
+          ) : null}
         </div>
 
         {/* Fixed Bottom Section */}

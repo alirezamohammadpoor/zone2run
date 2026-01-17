@@ -4,13 +4,11 @@ import { type PortableTextModule } from "../../../sanity.types";
 import PortableTextRenderer from "@/components/PortableTextRenderer";
 import Link from "next/link";
 import Image from "next/image";
-import React, { useCallback, useRef, memo } from "react";
-import { useRouter } from "next/navigation";
+import React, { useCallback, memo, useState, useEffect } from "react";
 import HomeProductGrid from "./HomeProductGrid";
 import ProductCard from "@/components/ProductCard";
 import { type SanityProduct } from "@/types/sanityProduct";
 import useEmblaCarousel from "embla-carousel-react";
-import { getBrandUrl } from "@/lib/utils/brandUrls";
 import { getBlurProps } from "@/lib/utils/imageProps";
 
 // Helper function to get the selected image based on imageSelection
@@ -61,22 +59,28 @@ const ContentModuleComponent = memo(function ContentModuleComponent({
   contentModule: PortableTextModule;
   products?: SanityProduct[];
 }) {
-  const router = useRouter();
   const contentType = contentModule.contentType || "text-only";
   const layout = contentModule.layout || "single";
   const isSplitLayout = layout === "split";
   const isFullWidth = layout === "full-width";
 
-  // Products carousel setup
-  const [emblaRef] = useEmblaCarousel({
+  // Products carousel setup with drag detection
+  const [emblaRef, emblaApi] = useEmblaCarousel({
     align: "start",
     containScroll: "trimSnaps",
     dragFree: false,
   });
+  const [isDragging, setIsDragging] = useState(false);
 
-  // Track pointer position to detect actual dragging vs. taps
-  const pointerStartRef = useRef<{ x: number; y: number } | null>(null);
-  const hasDraggedRef = useRef(false);
+  useEffect(() => {
+    if (!emblaApi) return;
+    const onSettle = () => setIsDragging(false);
+    const onScroll = () => setIsDragging(true);
+    emblaApi.on("settle", onSettle).on("scroll", onScroll);
+    return () => {
+      emblaApi.off("settle", onSettle).off("scroll", onScroll);
+    };
+  }, [emblaApi]);
 
   // Create a map of products with their selected images
   const productsWithImages = React.useMemo(() => {
@@ -113,38 +117,14 @@ const ContentModuleComponent = memo(function ContentModuleComponent({
     (contentModule as any).productSource,
   ]);
 
-  // Track pointer movement to distinguish taps from drags
-  const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    pointerStartRef.current = { x: e.clientX, y: e.clientY };
-    hasDraggedRef.current = false;
-  }, []);
-
-  const handlePointerMove = useCallback((e: React.PointerEvent) => {
-    if (!pointerStartRef.current) return;
-    const dx = Math.abs(e.clientX - pointerStartRef.current.x);
-    const dy = Math.abs(e.clientY - pointerStartRef.current.y);
-    // 10px threshold - anything more is a drag, not a tap
-    if (dx > 10 || dy > 10) {
-      hasDraggedRef.current = true;
-    }
-  }, []);
-
+  // Handle click prevention during drag
   const handleProductClick = useCallback(
-    (handle: string) => {
-      if (!hasDraggedRef.current) {
-        router.push(`/products/${handle}`);
+    (e: React.MouseEvent) => {
+      if (isDragging) {
+        e.preventDefault();
       }
     },
-    [router]
-  );
-
-  const handleBrandClick = useCallback(
-    (slug: string) => {
-      if (!hasDraggedRef.current) {
-        router.push(getBrandUrl(slug));
-      }
-    },
-    [router]
+    [isDragging]
   );
 
   // Render media (image or video)
@@ -270,14 +250,12 @@ const ContentModuleComponent = memo(function ContentModuleComponent({
             </h2>
           )}
           {contentModule.featuredButtonText && (
-            <button
+            <Link
+              href={contentModule.featuredButtonLink || "/products"}
               className="text-black text-xs hover:underline cursor-pointer"
-              onClick={() => {
-                router.push(contentModule.featuredButtonLink || "/products");
-              }}
             >
               {contentModule.featuredButtonText}
-            </button>
+            </Link>
           )}
         </div>
       );
@@ -305,10 +283,11 @@ const ContentModuleComponent = memo(function ContentModuleComponent({
           {productsWithImages.map(({ product, imageSelection }) => {
             const selectedImage = getSelectedImage(product, imageSelection);
             return (
-              <div
+              <Link
                 key={product._id}
-                onPointerDown={handlePointerDown}
-                onPointerMove={handlePointerMove}
+                href={`/products/${product.handle}`}
+                onClick={handleProductClick}
+                className={`cursor-pointer ${isDragging ? "pointer-events-none" : ""}`}
               >
                 <ProductCard
                   product={{
@@ -317,11 +296,9 @@ const ContentModuleComponent = memo(function ContentModuleComponent({
                   }}
                   className="flex-shrink-0 w-[70vw] min-w-0 xl:w-[30vw]"
                   sizes="(max-width: 768px) 70vw, 33vw"
-                  onClick={() => handleProductClick(product.handle)}
-                  onBrandClick={handleBrandClick}
                   disableGallery
                 />
-              </div>
+              </Link>
             );
           })}
         </div>

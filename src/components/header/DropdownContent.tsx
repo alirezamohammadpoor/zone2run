@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useCallback, memo } from "react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { getBrandUrl } from "@/lib/utils/brandUrls";
@@ -31,7 +30,6 @@ const DropdownContent = memo(function DropdownContent({
   brands,
   featuredCollections,
 }: DropdownContentProps) {
-  const router = useRouter();
   const genderPath = type === "men" ? "mens" : "womens";
 
   // Track expanded subcategories (for those with sub-subcategories)
@@ -52,35 +50,6 @@ const DropdownContent = memo(function DropdownContent({
     });
   }, []);
 
-  const handleViewAllClick = (categorySlug: string) => {
-    router.push(`/${genderPath}/${categorySlug}`);
-    onClose();
-  };
-
-  const handleSubcategoryClick = (
-    subcategorySlug: string,
-    mainCategorySlug: string
-  ) => {
-    router.push(`/${genderPath}/${mainCategorySlug}/${subcategorySlug}`);
-    onClose();
-  };
-
-  const handleSubSubcategoryClick = (
-    mainCategorySlug: string,
-    subcategorySlug: string,
-    subSubcategorySlug: string
-  ) => {
-    router.push(
-      `/${genderPath}/${mainCategorySlug}/${subcategorySlug}/${subSubcategorySlug}`
-    );
-    onClose();
-  };
-
-  const handleBrandClick = (brandSlug: string) => {
-    router.push(`${getBrandUrl(brandSlug)}?gender=${genderPath}`);
-    onClose();
-  };
-
   // Sort categories by defined order
   const sortedCategories = CATEGORY_ORDER.filter(
     (cat) => data && cat in data
@@ -93,13 +62,14 @@ const DropdownContent = memo(function DropdownContent({
         {/* Main Categories as separate columns */}
         {sortedCategories.map(([category, subcategories]) => (
           <div key={category}>
-            <button
-              className="text-xs mb-3 capitalize hover:text-gray-500"
-              onClick={() => handleViewAllClick(category)}
+            <Link
+              href={`/${genderPath}/${category}`}
+              onClick={onClose}
+              className="text-xs mb-3 capitalize hover:text-gray-500 block"
               aria-label={`View all ${category}`}
             >
               {category}
-            </button>
+            </Link>
             <div className="space-y-1">
               {(subcategories as SubcategoryMenuItem[]).map((subcategory) => {
                 const subSubcats = subcategory.subSubcategories || [];
@@ -150,35 +120,26 @@ const DropdownContent = memo(function DropdownContent({
                         >
                           {subSubcats.map(
                             (subSubcat: SubSubcategoryMenuItem) => (
-                              <button
+                              <Link
                                 key={subSubcat._id}
+                                href={`/${genderPath}/${category}/${subcategory.slug.current}/${subSubcat.slug.current}`}
+                                onClick={onClose}
                                 className="block text-xs text-black hover:text-gray-500 py-0.5"
-                                onClick={() =>
-                                  handleSubSubcategoryClick(
-                                    category,
-                                    subcategory.slug.current,
-                                    subSubcat.slug.current
-                                  )
-                                }
                               >
                                 {subSubcat.title}
-                              </button>
+                              </Link>
                             )
                           )}
                         </div>
                       </>
                     ) : (
-                      <button
+                      <Link
+                        href={`/${genderPath}/${category}/${subcategory.slug.current}`}
+                        onClick={onClose}
                         className="block text-xs text-black hover:text-gray-500 py-0.5"
-                        onClick={() =>
-                          handleSubcategoryClick(
-                            subcategory.slug.current,
-                            category
-                          )
-                        }
                       >
                         {subcategory.title}
-                      </button>
+                      </Link>
                     )}
                   </div>
                 );
@@ -194,13 +155,14 @@ const DropdownContent = memo(function DropdownContent({
             {brands?.map((brand) => {
               if (!brand?.slug?.current) return null;
               return (
-                <button
+                <Link
                   key={brand._id || brand.slug.current}
+                  href={`${getBrandUrl(brand.slug.current)}?gender=${genderPath}`}
+                  onClick={onClose}
                   className="block text-xs text-black hover:text-gray-500 py-0.5"
-                  onClick={() => handleBrandClick(brand.slug.current)}
                 >
                   {brand.name}
-                </button>
+                </Link>
               );
             })}
           </div>

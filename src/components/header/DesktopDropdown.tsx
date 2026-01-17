@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -31,8 +30,6 @@ export default function DesktopDropdown({
   menuConfig,
   blogPosts,
 }: DesktopDropdownProps) {
-  const router = useRouter();
-
   // Close dropdown on Escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -82,43 +79,31 @@ export default function DesktopDropdown({
   };
 
   const renderOurSpaceContent = () => {
-    const handleEditorialClick = (categorySlug: string, postSlug: string) => {
-      router.push(`/blog/${categorySlug}/${postSlug}`);
-      onClose();
-    };
-
-    const handleViewAllEditorials = () => {
-      router.push("/blog");
-      onClose();
-    };
-
     return (
       <div className="flex justify-between py-4 px-4">
         {/* Left side - Editorial titles */}
         <div>
           <h3 className="text-xs mb-4">Editorials</h3>
           <div className="space-y-2">
-            <button
+            <Link
+              href="/blog"
+              onClick={onClose}
               className="block text-xs hover:text-gray-500 py-1 text-left"
-              onClick={handleViewAllEditorials}
             >
               View All Editorials
-            </button>
+            </Link>
             {blogPosts?.map((post) => {
               if (!post?.slug?.current) return null;
+              const postUrl = `/blog/${post.category?.slug?.current || "editorial"}/${post.slug.current}`;
               return (
-                <button
+                <Link
                   key={post._id}
+                  href={postUrl}
+                  onClick={onClose}
                   className="block text-xs hover:text-gray-500 py-1 text-left"
-                  onClick={() =>
-                    handleEditorialClick(
-                      post.category?.slug?.current || "editorial",
-                      post.slug.current
-                    )
-                  }
                 >
                   {post.title}
-                </button>
+                </Link>
               );
             })}
           </div>
