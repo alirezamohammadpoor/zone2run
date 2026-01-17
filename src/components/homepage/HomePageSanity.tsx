@@ -15,7 +15,6 @@ import {
   getProductsByCollectionId,
 } from "@/sanity/lib/getData";
 import type { SanityProduct } from "@/types/sanityProduct";
-import BlogPostCardSkeleton from "@/components/skeletons/BlogPostCardSkeleton";
 
 // Union type for all homepage modules
 type HomepageModule =
@@ -101,18 +100,7 @@ async function HomePageSanity({ homepage }: { homepage: Home }) {
 
         if (module._type === "editorialModule") {
           return (
-            <Suspense
-              key={module._key}
-              fallback={
-                <div className="px-2 my-8 md:my-12 xl:my-16">
-                  <div className="flex gap-2 overflow-hidden">
-                    {[...Array(4)].map((_, i) => (
-                      <BlogPostCardSkeleton key={i} />
-                    ))}
-                  </div>
-                </div>
-              }
-            >
+            <Suspense key={module._key} fallback={null}>
               <EditorialModuleServer editorialModule={module} />
             </Suspense>
           );
