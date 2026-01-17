@@ -1,10 +1,9 @@
 "use client";
 
-import React, { memo, useCallback, useMemo, useRef } from "react";
+import React, { memo, useCallback, useMemo, useState, useEffect } from "react";
 import useEmblaCarousel from "embla-carousel-react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import ProductCard from "@/components/ProductCard";
-import { getBrandUrl } from "@/lib/utils/brandUrls";
 import type { SanityProduct } from "@/types/sanityProduct";
 
 interface BlogProductCarouselProps {
@@ -47,47 +46,36 @@ function getSelectedImage(
 const BlogProductCarousel = memo(function BlogProductCarousel({
   products,
 }: BlogProductCarouselProps) {
-  const router = useRouter();
-  const [emblaRef] = useEmblaCarousel({
+  const [emblaRef, emblaApi] = useEmblaCarousel({
     align: "start",
     containScroll: "trimSnaps",
     dragFree: false,
   });
+  const [isDragging, setIsDragging] = useState(false);
 
-  // Track pointer position to detect actual dragging vs. taps
-  const pointerStartRef = useRef<{ x: number; y: number } | null>(null);
-  const hasDraggedRef = useRef(false);
+  useEffect(() => {
+    if (!emblaApi) return;
+    const onSettle = () => setIsDragging(false);
+    const onScroll = () => setIsDragging(true);
+    emblaApi.on("settle", onSettle).on("scroll", onScroll);
+    return () => {
+      emblaApi.off("settle", onSettle).off("scroll", onScroll);
+    };
+  }, [emblaApi]);
 
   const validProducts = useMemo(
     () => products.filter((item) => item?.product),
     [products]
   );
 
-  const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    pointerStartRef.current = { x: e.clientX, y: e.clientY };
-    hasDraggedRef.current = false;
-  }, []);
-
-  const handlePointerMove = useCallback((e: React.PointerEvent) => {
-    if (!pointerStartRef.current) return;
-    const dx = Math.abs(e.clientX - pointerStartRef.current.x);
-    const dy = Math.abs(e.clientY - pointerStartRef.current.y);
-    if (dx > 10 || dy > 10) {
-      hasDraggedRef.current = true;
-    }
-  }, []);
-
-  const handleProductClick = useCallback((handle: string) => {
-    if (!hasDraggedRef.current) {
-      router.push(`/products/${handle}`);
-    }
-  }, [router]);
-
-  const handleBrandClick = useCallback((slug: string) => {
-    if (!hasDraggedRef.current) {
-      router.push(getBrandUrl(slug));
-    }
-  }, [router]);
+  const handleProductClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (isDragging) {
+        e.preventDefault();
+      }
+    },
+    [isDragging]
+  );
 
   if (validProducts.length === 0) {
     return null;
@@ -106,20 +94,11 @@ const BlogProductCarousel = memo(function BlogProductCarousel({
           if (!selectedImage?.url) return null;
 
           return (
-            <div
+            <Link
               key={p._id || idx}
-              onClick={() => handleProductClick(p.handle)}
-              onPointerDown={handlePointerDown}
-              onPointerMove={handlePointerMove}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  handleProductClick(p.handle);
-                }
-              }}
-              role="link"
-              tabIndex={0}
-              className="cursor-pointer"
+              href={`/products/${p.handle}`}
+              onClick={handleProductClick}
+              className={`cursor-pointer ${isDragging ? "pointer-events-none" : ""}`}
             >
               <ProductCard
                 product={{
@@ -128,10 +107,9 @@ const BlogProductCarousel = memo(function BlogProductCarousel({
                 }}
                 className="flex-shrink-0 w-[70vw] min-w-0 xl:w-[30vw]"
                 sizes="(max-width: 768px) 70vw, 33vw"
-                onBrandClick={handleBrandClick}
                 disableGallery
               />
-            </div>
+            </Link>
           );
         })}
       </div>
