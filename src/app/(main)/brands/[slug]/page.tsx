@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import ProductGridWithImages from "@/components/ProductGridWithImages";
 import { decodeBrandSlug } from "@/lib/utils/brandUrls";
 import Image from "next/image";
-import { urlFor } from "@/sanity/lib/image";
 
 // ISR: Revalidate every 10 minutes, on-demand via Sanity webhook
 export const revalidate = 600;
@@ -71,6 +70,8 @@ export default async function BrandPage({
   const remainingEditorialImages = brand?.editorialImages?.slice(1);
   const blurDataURL = firstEditorialImage?.image?.asset?.metadata?.lqip;
 
+  const imageUrl = firstEditorialImage?.image?.asset?.url;
+
   return (
     <div>
       {/* Header: Description + First editorial image */}
@@ -78,35 +79,18 @@ export default async function BrandPage({
         <div className="xl:w-1/3">
           <h1 className="text-sm">{brandName}</h1>
           <p className="text-xs mt-2">{brandDescription}</p>
-          {/* Mobile: First editorial image below description */}
-          {firstEditorialImage?.image?.asset?.url && (
-            <div className="block xl:hidden mt-4">
-              <div className="relative aspect-[4/5]">
-                <Image
-                  src={urlFor(firstEditorialImage.image).url()}
-                  alt={firstEditorialImage.image.alt || brandName}
-                  fill
-                  className="object-cover"
-                  sizes="100vw"
-                  priority
-                  fetchPriority="high"
-                  placeholder={blurDataURL ? "blur" : "empty"}
-                  blurDataURL={blurDataURL}
-                />
-              </div>
-            </div>
-          )}
         </div>
-        {/* XL: First editorial image on right */}
-        {firstEditorialImage?.image?.asset?.url && (
-          <div className="hidden xl:block xl:w-1/2 pl-2">
+
+        {/* Single image - CSS handles mobile/desktop layout */}
+        {imageUrl && (
+          <div className="mt-4 xl:mt-0 xl:w-1/2 xl:pl-2">
             <div className="relative aspect-[4/5]">
               <Image
-                src={urlFor(firstEditorialImage.image).url()}
+                src={imageUrl}
                 alt={firstEditorialImage.image.alt || brandName}
                 fill
                 className="object-cover"
-                sizes="25vw"
+                sizes="(min-width: 1280px) 50vw, 100vw"
                 priority
                 fetchPriority="high"
                 placeholder={blurDataURL ? "blur" : "empty"}

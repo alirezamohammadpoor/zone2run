@@ -417,11 +417,13 @@ const ContentModuleComponent = memo(function ContentModuleComponent({
 
     if (contentType === "text-with-products") {
       // Products on left, text on right (center aligned)
+      // Mobile: text first (order-1), products second (order-2)
+      // Desktop: products left (order-1), text right (order-2)
       return (
         <div className={`w-full ${sectionSpacing}`}>
           <div className="flex flex-col xl:flex-row xl:justify-between xl:items-center gap-8">
-            <div className="px-2">{renderProducts()}</div>
-            <div className="px-2 xl:px-0 xl:pr-2">{renderContent()}</div>
+            <div className="px-2 order-2 xl:order-1">{renderProducts()}</div>
+            <div className="px-2 xl:px-0 xl:pr-2 order-1 xl:order-2">{renderContent()}</div>
           </div>
         </div>
       );
