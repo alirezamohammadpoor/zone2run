@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import ProductGridWithImages from "@/components/ProductGridWithImages";
 import { getCollectionBySlug } from "@/sanity/lib/getData";
 import Image from "next/image";
-import { urlFor } from "@/sanity/lib/image";
 
 // ISR: Revalidate every hour, on-demand via Sanity webhook
 export const revalidate = 3600;
@@ -53,6 +52,7 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
   // Extract first editorial image for header, rest for grid
   const firstEditorialImage = collection.editorialImages?.[0];
   const remainingEditorialImages = collection.editorialImages?.slice(1);
+  const imageUrl = firstEditorialImage?.image?.asset?.url;
 
   return (
     <div>
@@ -61,33 +61,18 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
         <div className="xl:w-1/3">
           <h1 className="text-sm">{collection.title}</h1>
           <p className="text-xs mt-2">{collection.description || ""}</p>
-          {/* Mobile: First editorial image below description */}
-          {firstEditorialImage?.image?.asset?.url && (
-            <div className="block xl:hidden mt-4">
-              <div className="relative aspect-[4/5]">
-                <Image
-                  src={urlFor(firstEditorialImage.image).url()}
-                  alt={firstEditorialImage.image.alt || collection.title}
-                  fill
-                  className="object-cover"
-                  sizes="100vw"
-                  priority
-                  fetchPriority="high"
-                />
-              </div>
-            </div>
-          )}
         </div>
-        {/* XL: First editorial image on right */}
-        {firstEditorialImage?.image?.asset?.url && (
-          <div className="hidden xl:block xl:w-1/2 pl-2">
+
+        {/* Single image - CSS handles mobile/desktop layout */}
+        {imageUrl && (
+          <div className="mt-4 xl:mt-0 xl:w-1/2 xl:pl-2">
             <div className="relative aspect-[4/5]">
               <Image
-                src={urlFor(firstEditorialImage.image).url()}
+                src={imageUrl}
                 alt={firstEditorialImage.image.alt || collection.title}
                 fill
                 className="object-cover"
-                sizes="25vw"
+                sizes="(min-width: 1280px) 50vw, 100vw"
                 priority
                 fetchPriority="high"
               />
