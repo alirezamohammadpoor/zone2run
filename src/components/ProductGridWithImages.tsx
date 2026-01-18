@@ -22,7 +22,6 @@ interface ProductGridWithImagesProps {
   productsPerImage?: number;
   productsPerImageXL?: number;
   gridLayout?: "4col" | "3col";
-  priorityCount?: number; // Number of first-row products to load with priority (LCP optimization)
 }
 
 type GridItem = {
@@ -67,21 +66,16 @@ function createGridItems(
 function ProductItem({
   product,
   idx,
-  priority = false,
 }: {
   product: SanityProduct;
   idx: number;
-  priority?: boolean;
 }) {
   return (
     <Link
       key={`${product._id}-${product.handle}-${idx}`}
       href={`/products/${product.handle}`}
     >
-      <ProductCard
-        product={product}
-        priority={priority}
-      />
+      <ProductCard product={product} />
     </Link>
   );
 }
@@ -142,26 +136,20 @@ function GridContent({
   gridItems,
   isMobile,
   gridLayout = "4col",
-  priorityCount = 0,
 }: {
   gridItems: GridItem[];
   isMobile: boolean;
   gridLayout?: "4col" | "3col";
-  priorityCount?: number; // Number of products to prioritize for LCP
 }) {
-  let productIndex = 0;
   return (
     <>
       {gridItems.map((item, idx) => {
         if (item.type === "product" && item.product) {
-          const isPriority = productIndex < priorityCount;
-          productIndex++;
           return (
             <ProductItem
               key={`${item.product._id}-${idx}`}
               product={item.product}
               idx={idx}
-              priority={isPriority}
             />
           );
         }
@@ -190,7 +178,6 @@ export default function ProductGridWithImages({
   productsPerImage = 4,
   productsPerImageXL = 8,
   gridLayout = "4col",
-  priorityCount = 4, // Default: first row on desktop (4 products)
 }: ProductGridWithImagesProps) {
   // Determine XL grid columns based on layout
   const xlGridCols =
@@ -202,15 +189,12 @@ export default function ProductGridWithImages({
       <div
         className={`grid grid-cols-2 ${xlGridCols} gap-2 px-2 my-8 md:my-12 xl:my-16`}
       >
-        {products?.map((product, idx) => (
+        {products?.map((product) => (
           <Link
             key={`${product._id}-${product.handle}`}
             href={`/products/${product.handle}`}
           >
-            <ProductCard
-              product={product}
-              priority={idx < priorityCount}
-            />
+            <ProductCard product={product} />
           </Link>
         ))}
       </div>
@@ -237,7 +221,6 @@ export default function ProductGridWithImages({
           gridItems={mobileGridItems}
           isMobile={true}
           gridLayout={gridLayout}
-          priorityCount={Math.min(priorityCount, 2)} // First row on mobile (2 products)
         />
       </div>
 
@@ -247,7 +230,6 @@ export default function ProductGridWithImages({
           gridItems={xlGridItems}
           isMobile={false}
           gridLayout={gridLayout}
-          priorityCount={priorityCount}
         />
       </div>
     </div>
