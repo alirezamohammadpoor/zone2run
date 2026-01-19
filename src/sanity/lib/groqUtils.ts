@@ -1,5 +1,22 @@
 // Shared GROQ utilities and common query patterns
 
+// Pagination constants
+export const PRODUCTS_PER_PAGE = 16;
+
+/**
+ * Builds a pagination slice for GROQ queries
+ * @param page - 1-indexed page number
+ * @param perPage - Number of items per page (default: PRODUCTS_PER_PAGE)
+ * @returns GROQ slice string like "[0...12]" or "[12...24]"
+ */
+export function buildPaginationSlice(
+  page: number,
+  perPage: number = PRODUCTS_PER_PAGE,
+): string {
+  const offset = (page - 1) * perPage;
+  return `[${offset}...${offset + perPage}]`;
+}
+
 /**
  * Maps frontend gender values to database values
  */

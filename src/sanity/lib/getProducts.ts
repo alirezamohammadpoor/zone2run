@@ -4,8 +4,17 @@ import {
   BASE_PRODUCT_PROJECTION,
   FULL_PRODUCT_PROJECTION,
   buildLimitClause,
+  buildPaginationSlice,
   mapGenderValue,
+  PRODUCTS_PER_PAGE,
 } from "./groqUtils";
+
+// Pagination result type
+export interface PaginatedProducts {
+  products: SanityProduct[];
+  totalCount: number;
+  totalPages: number;
+}
 
 export async function getSanityProductByHandle(
   handle: string
@@ -55,11 +64,26 @@ export async function getAllProducts(): Promise<SanityProduct[]> {
   }
 }
 
+// Overload: with page parameter returns paginated result
+export async function getProductsByBrand(
+  brandSlug: string,
+  limit: number | undefined,
+  gender: string | undefined,
+  page: number
+): Promise<PaginatedProducts>;
+// Overload: without page parameter returns array
 export async function getProductsByBrand(
   brandSlug: string,
   limit?: number,
   gender?: string
-): Promise<SanityProduct[]> {
+): Promise<SanityProduct[]>;
+// Implementation
+export async function getProductsByBrand(
+  brandSlug: string,
+  limit?: number,
+  gender?: string,
+  page?: number
+): Promise<SanityProduct[] | PaginatedProducts> {
   const genderMap: { [key: string]: string } = {
     men: "mens",
     women: "womens",
@@ -74,7 +98,43 @@ export async function getProductsByBrand(
     ? `&& (gender == $dbGender || gender == "unisex")`
     : "";
 
-  const query = `*[_type == "product" && (brand->slug.current == $brandSlug || lower(brand->slug.current) == lower($brandSlug))${genderFilter}] {
+  const baseFilter = `*[_type == "product" && (brand->slug.current == $brandSlug || lower(brand->slug.current) == lower($brandSlug))${genderFilter}]`;
+
+  // If page is provided, use pagination; otherwise use limit (backwards compatible)
+  if (page !== undefined) {
+    const countQuery = `count(${baseFilter})`;
+    const productsQuery = `${baseFilter} {
+      ${BASE_PRODUCT_PROJECTION},
+      brand-> {
+        _id,
+        name,
+        description,
+        slug {
+          current
+        }
+      }
+    } | order(title asc)${buildPaginationSlice(page)}`;
+
+    try {
+      const params = dbGender ? { brandSlug, dbGender } : { brandSlug };
+      const [totalCount, products] = await Promise.all([
+        sanityFetch<number>(countQuery, params),
+        sanityFetch<SanityProduct[]>(productsQuery, params),
+      ]);
+
+      return {
+        products,
+        totalCount,
+        totalPages: Math.ceil(totalCount / PRODUCTS_PER_PAGE),
+      };
+    } catch (error) {
+      console.error(`Error fetching paginated products for brand ${brandSlug}:`, error);
+      return { products: [], totalCount: 0, totalPages: 0 };
+    }
+  }
+
+  // Legacy: no pagination, use limit
+  const query = `${baseFilter} {
     ${BASE_PRODUCT_PROJECTION},
     brand-> {
       _id,
