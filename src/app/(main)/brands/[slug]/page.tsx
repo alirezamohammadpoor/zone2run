@@ -6,6 +6,9 @@ import { notFound } from "next/navigation";
 import { decodeBrandSlug } from "@/lib/utils/brandUrls";
 import Image from "next/image";
 import type { EditorialImage } from "@/components/ProductGridWithImages";
+import PaginationNav from "@/components/PaginationNav";
+import type { PaginatedProducts } from "@/sanity/lib/getProducts";
+import { PRODUCTS_PER_PAGE } from "@/sanity/lib/groqUtils";
 
 // Dynamic import reduces TBT by deferring JS parsing
 const ProductGridWithImages = dynamic(
@@ -48,27 +51,54 @@ export async function generateMetadata({
   };
 }
 
-// Async component for streaming products grid
+// Async component for streaming products grid with pagination
 async function BrandProductGrid({
   slug,
   gender,
   editorialImages,
+  currentPage,
 }: {
   slug: string;
   gender?: string;
   editorialImages?: EditorialImage[];
+  currentPage: number;
 }) {
-  const products = await getProductsByBrand(slug, undefined, gender);
+  const result = await getProductsByBrand(slug, undefined, gender, currentPage);
 
-  if (!products || products.length === 0) {
+  // Type guard for paginated result
+  const isPaginated = (r: typeof result): r is PaginatedProducts =>
+    typeof r === "object" && "totalPages" in r;
+
+  if (!isPaginated(result)) {
     return null;
   }
 
+  const { products, totalPages } = result;
+
+  if (!products || products.length === 0) {
+    return (
+      <div className="px-2 py-8 text-center text-sm text-gray-500">
+        No products found.
+      </div>
+    );
+  }
+
+  // Calculate the starting product index for editorial image positioning
+  const productStartIndex = (currentPage - 1) * PRODUCTS_PER_PAGE;
+
   return (
-    <ProductGridWithImages
-      products={products}
-      editorialImages={editorialImages}
-    />
+    <>
+      <ProductGridWithImages
+        products={products}
+        editorialImages={editorialImages}
+        productStartIndex={productStartIndex}
+      />
+      <PaginationNav
+        currentPage={currentPage}
+        totalPages={totalPages}
+        className="my-8 md:my-12"
+      />
+    </>
   );
 }
 
@@ -77,11 +107,14 @@ export default async function BrandPage({
   searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ gender?: string }>;
+  searchParams: Promise<{ gender?: string; page?: string }>;
 }) {
   const { slug } = await params;
-  const { gender } = await searchParams;
+  const { gender, page: pageParam } = await searchParams;
   const decodedSlug = decodeBrandSlug(slug);
+
+  // Parse page number, default to 1, ensure positive integer
+  const currentPage = Math.max(1, parseInt(pageParam || "1", 10) || 1);
 
   // Fetch brand info FIRST - hero renders immediately
   const brand = await getBrandBySlug(decodedSlug);
@@ -135,6 +168,7 @@ export default async function BrandPage({
           slug={decodedSlug}
           gender={gender}
           editorialImages={remainingEditorialImages}
+          currentPage={currentPage}
         />
       </Suspense>
     </div>

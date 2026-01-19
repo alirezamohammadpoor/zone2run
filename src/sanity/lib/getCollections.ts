@@ -1,5 +1,13 @@
 import { sanityFetch } from "@/sanity/lib/client";
 import type { SanityProduct } from "@/types/sanityProduct";
+import { PRODUCTS_PER_PAGE } from "./groqUtils";
+
+// Pagination result type
+export interface PaginatedCollectionProducts {
+  products: SanityProduct[];
+  totalCount: number;
+  totalPages: number;
+}
 
 // Extended product type for collection queries that include createdAt
 type CollectionProduct = SanityProduct & { createdAt?: string };
@@ -236,14 +244,31 @@ export async function getCollectionInfo(slug: string): Promise<Omit<Collection, 
 }
 
 // Get products for a collection by slug - for streaming with Suspense
+// Overload: with page parameter returns paginated result
+export async function getCollectionProducts(
+  collectionId: string,
+  shopifyId: number | undefined,
+  curatedProducts: Array<{ _id: string }> | undefined,
+  page: number
+): Promise<PaginatedCollectionProducts>;
+// Overload: without page parameter returns array
 export async function getCollectionProducts(
   collectionId: string,
   shopifyId?: number,
   curatedProducts?: Array<{ _id: string }>
-): Promise<SanityProduct[]> {
+): Promise<SanityProduct[]>;
+// Implementation
+export async function getCollectionProducts(
+  collectionId: string,
+  shopifyId?: number,
+  curatedProducts?: Array<{ _id: string }>,
+  page?: number
+): Promise<SanityProduct[] | PaginatedCollectionProducts> {
   const shopifyIdStr = shopifyId ? shopifyId.toString() : "";
 
-  const productsQuery = `*[_type == "product" && (references($collectionId) || (defined(shopifyCollectionIds) && $shopifyIdStr in shopifyCollectionIds))]{
+  const baseFilter = `*[_type == "product" && (references($collectionId) || (defined(shopifyCollectionIds) && $shopifyIdStr in shopifyCollectionIds))]`;
+
+  const productProjection = `{
     _id,
     "title": coalesce(title, store.title),
     "handle": coalesce(shopifyHandle, store.slug.current),
@@ -304,13 +329,8 @@ export async function getCollectionProducts(
     "createdAt": store.createdAt
   }`;
 
-  try {
-    let products = await sanityFetch<CollectionProduct[]>(productsQuery, {
-      collectionId,
-      shopifyIdStr,
-    });
-
-    // Sort by curated order if available, otherwise by createdAt
+  // Helper to sort products by curated order then createdAt
+  const sortProducts = (products: CollectionProduct[]): CollectionProduct[] => {
     if (curatedProducts && curatedProducts.length > 0) {
       const curatedIds = new Map(
         curatedProducts.map((p: { _id: string }, idx: number) => [p._id, idx])
@@ -339,8 +359,48 @@ export async function getCollectionProducts(
         return Number(bDate) - Number(aDate);
       });
     }
+    return products;
+  };
 
-    return products || [];
+  // If page is provided, use pagination
+  if (page !== undefined) {
+    const countQuery = `count(${baseFilter})`;
+    const productsQuery = `${baseFilter}${productProjection}`;
+
+    try {
+      const [totalCount, allProducts] = await Promise.all([
+        sanityFetch<number>(countQuery, { collectionId, shopifyIdStr }),
+        sanityFetch<CollectionProduct[]>(productsQuery, { collectionId, shopifyIdStr }),
+      ]);
+
+      // Sort all products first (curated order matters)
+      const sortedProducts = sortProducts(allProducts);
+
+      // Then apply pagination slice
+      const startIndex = (page - 1) * PRODUCTS_PER_PAGE;
+      const paginatedProducts = sortedProducts.slice(startIndex, startIndex + PRODUCTS_PER_PAGE);
+
+      return {
+        products: paginatedProducts,
+        totalCount,
+        totalPages: Math.ceil(totalCount / PRODUCTS_PER_PAGE),
+      };
+    } catch (error) {
+      console.error(`Error fetching paginated products for collection ${collectionId}:`, error);
+      return { products: [], totalCount: 0, totalPages: 0 };
+    }
+  }
+
+  // Legacy: no pagination
+  const productsQuery = `${baseFilter}${productProjection}`;
+
+  try {
+    let products = await sanityFetch<CollectionProduct[]>(productsQuery, {
+      collectionId,
+      shopifyIdStr,
+    });
+
+    return sortProducts(products) || [];
   } catch (error) {
     console.error(`Error fetching products for collection ${collectionId}:`, error);
     return [];

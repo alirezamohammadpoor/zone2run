@@ -22,6 +22,8 @@ interface ProductGridWithImagesProps {
   productsPerImage?: number;
   productsPerImageXL?: number;
   gridLayout?: "4col" | "3col";
+  /** Starting product index for pagination (0-indexed). Used to correctly position editorial images across pages. */
+  productStartIndex?: number;
 }
 
 type GridItem = {
@@ -32,31 +34,36 @@ type GridItem = {
 };
 
 // Helper function to create grid items array
+// productStartIndex is the global index of the first product on this page (for pagination)
 function createGridItems(
   products: SanityProduct[],
   editorialImages: EditorialImage[],
-  productsPerImage: number
+  productsPerImage: number,
+  productStartIndex: number = 0
 ): GridItem[] {
   const gridItems: GridItem[] = [];
-  let imageIndex = 0;
 
   for (let i = 0; i < products.length; i++) {
-    const productIndex = i + 1;
+    // Global product position (1-indexed for modulo calculation)
+    const globalProductIndex = productStartIndex + i + 1;
+
     gridItems.push({
       type: "product",
       product: products[i],
       index: i,
     });
 
-    if (
-      productIndex % productsPerImage === 0 &&
-      imageIndex < editorialImages.length
-    ) {
-      gridItems.push({
-        type: "image",
-        image: editorialImages[imageIndex],
-      });
-      imageIndex++;
+    // Check if an editorial image should appear after this product
+    if (globalProductIndex % productsPerImage === 0) {
+      // Calculate which editorial image (0-indexed)
+      const imageIndex = Math.floor(globalProductIndex / productsPerImage) - 1;
+
+      if (imageIndex < editorialImages.length) {
+        gridItems.push({
+          type: "image",
+          image: editorialImages[imageIndex],
+        });
+      }
     }
   }
   return gridItems;
@@ -178,6 +185,7 @@ export default function ProductGridWithImages({
   productsPerImage = 4,
   productsPerImageXL = 8,
   gridLayout = "4col",
+  productStartIndex = 0,
 }: ProductGridWithImagesProps) {
   // Determine XL grid columns based on layout
   const xlGridCols =
@@ -205,12 +213,14 @@ export default function ProductGridWithImages({
   const mobileGridItems = createGridItems(
     products,
     editorialImages,
-    productsPerImage
+    productsPerImage,
+    productStartIndex
   );
   const xlGridItems = createGridItems(
     products,
     editorialImages,
-    productsPerImageXL
+    productsPerImageXL,
+    productStartIndex
   );
 
   return (
