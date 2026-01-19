@@ -164,7 +164,7 @@ export default async function BrandPage({
       </div>
 
       {/* Products grid streams in via Suspense */}
-      <Suspense fallback={null}>
+      <Suspense fallback={<div className="min-h-screen" />}>
         <BrandProductGrid
           slug={decodedSlug}
           gender={gender}
