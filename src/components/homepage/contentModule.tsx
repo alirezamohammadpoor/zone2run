@@ -4,53 +4,12 @@ import { type PortableTextModule } from "../../../sanity.types";
 import PortableTextRenderer from "@/components/PortableTextRenderer";
 import Link from "next/link";
 import Image from "next/image";
-import React, { useCallback, memo, useState, useEffect } from "react";
+import React, { memo } from "react";
 import HomeProductGrid from "./HomeProductGrid";
-import ProductCard from "@/components/ProductCard";
-import { type SanityProduct } from "@/types/sanityProduct";
-import useEmblaCarousel from "embla-carousel-react";
+import ProductCarousel from "@/components/ProductCarousel";
+import type { SanityProduct } from "@/types/sanityProduct";
 import { getBlurProps } from "@/lib/utils/imageProps";
-
-// Helper function to get the selected image based on imageSelection
-function getSelectedImage(product: SanityProduct, imageSelection: string) {
-  if (imageSelection === "main") {
-    return {
-      url: product.mainImage?.url || "",
-      alt: product.mainImage?.alt || "Product",
-    };
-  }
-
-  // Handle gallery images (gallery_0, gallery_1, etc.)
-  if (imageSelection.startsWith("gallery_")) {
-    const index = parseInt(imageSelection.split("_")[1]);
-    const galleryLength = product.gallery?.length || 0;
-
-    // Check if index is valid
-    if (index >= galleryLength) {
-      // Fall back to main image if index doesn't exist
-      return {
-        url: product.mainImage?.url || "",
-        alt: product.mainImage?.alt || "Product",
-      };
-    }
-
-    const galleryImage = product.gallery?.[index];
-
-    // Check if gallery image exists and has URL
-    if (galleryImage?.url) {
-      return {
-        url: galleryImage.url,
-        alt: galleryImage.alt || "Product",
-      };
-    }
-  }
-
-  // Fallback to main image
-  return {
-    url: product.mainImage?.url || "",
-    alt: product.mainImage?.alt || "Product",
-  };
-}
+import { getSelectedImage } from "@/lib/utils/imageSelection";
 
 const ContentModuleComponent = memo(function ContentModuleComponent({
   contentModule,
@@ -64,35 +23,19 @@ const ContentModuleComponent = memo(function ContentModuleComponent({
   const isSplitLayout = layout === "split";
   const isFullWidth = layout === "full-width";
 
-  // Products carousel setup with drag detection
-  const [emblaRef, emblaApi] = useEmblaCarousel({
-    align: "start",
-    containScroll: "trimSnaps",
-    dragFree: false,
-  });
-  const [isDragging, setIsDragging] = useState(false);
-
-  useEffect(() => {
-    if (!emblaApi) return;
-    const onSettle = () => setIsDragging(false);
-    const onScroll = () => setIsDragging(true);
-    emblaApi.on("settle", onSettle).on("scroll", onScroll);
-    return () => {
-      emblaApi.off("settle", onSettle).off("scroll", onScroll);
-    };
-  }, [emblaApi]);
-
-  // Create a map of products with their selected images
-  const productsWithImages = React.useMemo(() => {
+  // Create products with their selected images applied
+  const productsWithImages = React.useMemo((): Array<
+    SanityProduct & { selectedImage: { url: string; alt: string } }
+  > => {
     if (!products) return [];
 
     const productSource = (contentModule as any).productSource || "manual";
 
-    // If products come from a collection, they don't have imageSelection
+    // If products come from a collection, use main image
     if (productSource === "collection") {
       return products.map((product) => ({
-        product,
-        imageSelection: "main" as string,
+        ...product,
+        selectedImage: getSelectedImage(product, "main"),
       }));
     }
 
@@ -103,12 +46,10 @@ const ContentModuleComponent = memo(function ContentModuleComponent({
       const productItem = contentModule.featuredProducts?.find(
         (item) => item.product?._ref === product._id
       );
-
       const imageSelection = productItem?.imageSelection || "main";
-
       return {
-        product,
-        imageSelection,
+        ...product,
+        selectedImage: getSelectedImage(product, imageSelection),
       };
     });
   }, [
@@ -116,16 +57,6 @@ const ContentModuleComponent = memo(function ContentModuleComponent({
     contentModule.featuredProducts,
     (contentModule as any).productSource,
   ]);
-
-  // Handle click prevention during drag
-  const handleProductClick = useCallback(
-    (e: React.MouseEvent) => {
-      if (isDragging) {
-        e.preventDefault();
-      }
-    },
-    [isDragging]
-  );
 
   // Render media (image or video)
   const renderMedia = () => {
@@ -262,10 +193,7 @@ const ContentModuleComponent = memo(function ContentModuleComponent({
 
     const renderGrid = () => (
       <HomeProductGrid
-        products={productsWithImages.map(({ product, imageSelection }) => ({
-          ...product,
-          selectedImage: getSelectedImage(product, imageSelection),
-        }))}
+        products={productsWithImages}
         count={
           contentModule.productCount && contentModule.productCount > 0
             ? contentModule.productCount
@@ -278,31 +206,7 @@ const ContentModuleComponent = memo(function ContentModuleComponent({
     );
 
     const renderHorizontal = () => (
-      <div className="overflow-hidden -mx-2 px-2" ref={emblaRef}>
-        <div className="flex gap-2">
-          {productsWithImages.map(({ product, imageSelection }) => {
-            const selectedImage = getSelectedImage(product, imageSelection);
-            return (
-              <Link
-                key={product._id}
-                href={`/products/${product.handle}`}
-                onClick={handleProductClick}
-                className={`cursor-pointer ${isDragging ? "pointer-events-none" : ""}`}
-              >
-                <ProductCard
-                  product={{
-                    ...product,
-                    selectedImage,
-                  }}
-                  className="flex-shrink-0 w-[70vw] min-w-0 xl:w-[30vw]"
-                  sizes="(max-width: 768px) 70vw, 33vw"
-                  disableGallery
-                />
-              </Link>
-            );
-          })}
-        </div>
-      </div>
+      <ProductCarousel products={productsWithImages} />
     );
 
     // If both layouts are the same, render just one

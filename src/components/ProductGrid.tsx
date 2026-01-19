@@ -1,26 +1,36 @@
+import { memo } from "react";
 import Link from "next/link";
 import ProductCard from "./ProductCard";
 import type { SanityProduct } from "@/types/sanityProduct";
 
 interface ProductGridProps {
-  products: Array<SanityProduct>;
+  products: Array<SanityProduct & { selectedImage?: { url: string; alt: string } }>;
+  count?: number;
+  className?: string;
 }
 
-export default function ProductGrid({ products }: ProductGridProps) {
+const ProductGrid = memo(function ProductGrid({
+  products,
+  count,
+  className,
+}: ProductGridProps) {
+  const displayProducts = count ? products.slice(0, count) : products;
+
   return (
-    <div className="grid grid-cols-2 xl:grid-cols-4 gap-2 px-2 my-8 md:my-12 xl:my-16">
-      {products?.map((product) => {
-        return (
-          <Link
-            key={`${product._id}-${product.handle}`}
-            href={`/products/${product.handle}`}
-          >
-            <article>
-              <ProductCard product={product} />
-            </article>
-          </Link>
-        );
-      })}
+    <div className={className ?? "grid grid-cols-2 xl:grid-cols-4 gap-2 px-2 my-8 md:my-12 xl:my-16"}>
+      {displayProducts?.map((product) => (
+        <Link
+          key={`${product._id}-${product.handle}`}
+          href={`/products/${product.handle}`}
+        >
+          <ProductCard
+            product={product}
+            sizes="(max-width: 1280px) 50vw, 25vw"
+          />
+        </Link>
+      ))}
     </div>
   );
-}
+});
+
+export default ProductGrid;

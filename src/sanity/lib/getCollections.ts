@@ -19,7 +19,10 @@ interface Collection {
   productsPerImage?: number;
   editorialImages?: Array<{
     _key: string;
-    image: { asset: { _id: string; url: string }; alt?: string };
+    image: {
+      asset: { _id: string; url: string; metadata?: { lqip?: string } };
+      alt?: string;
+    };
     caption?: string;
   }>;
   curatedProducts?: Array<{ _id: string; handle?: string }>;
@@ -194,6 +197,153 @@ export async function getCollectionBySlug(slug: string): Promise<Collection | nu
   } catch (error) {
     console.error(`Error fetching collection ${slug}:`, error);
     return null;
+  }
+}
+
+// Get collection info only (no products) - for hero/LCP optimization
+export async function getCollectionInfo(slug: string): Promise<Omit<Collection, 'products'> | null> {
+  const query = `*[_type == "collection" && (store.slug.current == $slug || lower(store.slug.current) == lower($slug))][0]{
+    _id,
+    "title": store.title,
+    "shopifyId": store.id,
+    description,
+    gridLayout,
+    productsPerImage,
+    editorialImages[] {
+      _key,
+      image {
+        asset-> {
+          _id,
+          url,
+          metadata { lqip }
+        },
+        alt
+      },
+      caption
+    },
+    "curatedProducts": curatedProducts[]-> {
+      _id,
+      "handle": coalesce(shopifyHandle, store.slug.current)
+    }
+  }`;
+
+  try {
+    return await sanityFetch<Omit<Collection, 'products'> | null>(query, { slug });
+  } catch (error) {
+    console.error(`Error fetching collection info for ${slug}:`, error);
+    return null;
+  }
+}
+
+// Get products for a collection by slug - for streaming with Suspense
+export async function getCollectionProducts(
+  collectionId: string,
+  shopifyId?: number,
+  curatedProducts?: Array<{ _id: string }>
+): Promise<SanityProduct[]> {
+  const shopifyIdStr = shopifyId ? shopifyId.toString() : "";
+
+  const productsQuery = `*[_type == "product" && (references($collectionId) || (defined(shopifyCollectionIds) && $shopifyIdStr in shopifyCollectionIds))]{
+    _id,
+    "title": coalesce(title, store.title),
+    "handle": coalesce(shopifyHandle, store.slug.current),
+    "description": store.descriptionHtml,
+    "vendor": store.vendor,
+    "productType": store.productType,
+    "tags": store.tags,
+    "priceRange": {
+      "minVariantPrice": store.priceRange.minVariantPrice,
+      "maxVariantPrice": store.priceRange.maxVariantPrice
+    },
+    "mainImage": {
+      "url": store.previewImageUrl,
+      "alt": store.title,
+      "lqip": mainImage.asset->metadata.lqip
+    },
+    "gallery": gallery[] {
+      "url": asset->url,
+      alt,
+      "lqip": asset->metadata.lqip
+    } | order(_key asc),
+    "options": store.options,
+    "variants": store.variants[]-> {
+      "id": store.gid,
+      "title": store.title,
+      "sku": store.sku,
+      "price": store.price,
+      "compareAtPrice": store.compareAtPrice,
+      "available": store.inventory.isAvailable,
+      "selectedOptions": [
+        select(store.option1 != null => {"name": "Size", "value": store.option1}),
+        select(store.option2 != null => {"name": "Color", "value": store.option2}),
+        select(store.option3 != null => {"name": "Material", "value": store.option3})
+      ]
+    },
+    category-> {
+      _id,
+      title,
+      "slug": slug.current,
+      categoryType,
+      parentCategory-> {
+        _id,
+        title,
+        "slug": slug.current
+      }
+    },
+    brand-> {
+      _id,
+      name,
+      logo {
+        asset-> {
+          url
+        }
+      }
+    },
+    gender,
+    featured,
+    "createdAt": store.createdAt
+  }`;
+
+  try {
+    let products = await sanityFetch<CollectionProduct[]>(productsQuery, {
+      collectionId,
+      shopifyIdStr,
+    });
+
+    // Sort by curated order if available, otherwise by createdAt
+    if (curatedProducts && curatedProducts.length > 0) {
+      const curatedIds = new Map(
+        curatedProducts.map((p: { _id: string }, idx: number) => [p._id, idx])
+      );
+
+      products.sort((a: CollectionProduct, b: CollectionProduct) => {
+        const aInCurated = curatedIds.has(a._id);
+        const bInCurated = curatedIds.has(b._id);
+
+        if (aInCurated && bInCurated) {
+          const aIdx = curatedIds.get(a._id) ?? 0;
+          const bIdx = curatedIds.get(b._id) ?? 0;
+          return Number(aIdx) - Number(bIdx);
+        }
+        if (aInCurated) return -1;
+        if (bInCurated) return 1;
+
+        const aDate = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const bDate = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return Number(bDate) - Number(aDate);
+      });
+    } else {
+      products.sort((a: CollectionProduct, b: CollectionProduct) => {
+        const aDate = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const bDate = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return Number(bDate) - Number(aDate);
+      });
+    }
+
+    return products || [];
+  } catch (error) {
+    console.error(`Error fetching products for collection ${collectionId}:`, error);
+    return [];
   }
 }
 
