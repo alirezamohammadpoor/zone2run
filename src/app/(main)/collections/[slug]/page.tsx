@@ -1,8 +1,16 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
+import dynamic from "next/dynamic";
 import { notFound } from "next/navigation";
-import ProductGridWithImages from "@/components/ProductGridWithImages";
-import { getCollectionBySlug } from "@/sanity/lib/getData";
+import { getCollectionInfo, getCollectionProducts } from "@/sanity/lib/getData";
 import Image from "next/image";
+import type { EditorialImage } from "@/components/ProductGridWithImages";
+
+// Dynamic import reduces TBT by deferring JS parsing
+const ProductGridWithImages = dynamic(
+  () => import("@/components/ProductGridWithImages"),
+  { ssr: true }
+);
 
 // ISR: Revalidate every hour, on-demand via Sanity webhook
 export const revalidate = 3600;
@@ -16,7 +24,7 @@ export async function generateMetadata({
   params,
 }: CollectionPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const collection = await getCollectionBySlug(slug);
+  const collection = await getCollectionInfo(slug);
 
   if (!collection) {
     return { title: "Collection Not Found | Zone2Run" };
@@ -41,22 +49,59 @@ export async function generateMetadata({
   };
 }
 
+// Async component for streaming products grid
+async function CollectionProductGrid({
+  collectionId,
+  shopifyId,
+  curatedProducts,
+  editorialImages,
+  productsPerImage,
+  gridLayout,
+}: {
+  collectionId: string;
+  shopifyId?: number;
+  curatedProducts?: Array<{ _id: string }>;
+  editorialImages?: EditorialImage[];
+  productsPerImage?: number;
+  gridLayout?: "4col" | "3col";
+}) {
+  const products = await getCollectionProducts(collectionId, shopifyId, curatedProducts);
+
+  if (!products || products.length === 0) {
+    return null;
+  }
+
+  return (
+    <ProductGridWithImages
+      products={products}
+      editorialImages={editorialImages}
+      productsPerImage={productsPerImage || 4}
+      productsPerImageXL={productsPerImage || 4}
+      gridLayout={gridLayout || "4col"}
+    />
+  );
+}
+
 export default async function CollectionPage({ params }: CollectionPageProps) {
   const { slug } = await params;
-  const collection = await getCollectionBySlug(slug);
 
-  if (!collection || !collection.products || collection.products.length === 0) {
+  // Fetch collection info FIRST - hero renders immediately
+  const collection = await getCollectionInfo(slug);
+
+  if (!collection) {
     notFound();
   }
 
   // Extract first editorial image for header, rest for grid
   const firstEditorialImage = collection.editorialImages?.[0];
   const remainingEditorialImages = collection.editorialImages?.slice(1);
+  const blurDataURL = firstEditorialImage?.image?.asset?.metadata?.lqip;
+
   const imageUrl = firstEditorialImage?.image?.asset?.url;
 
   return (
     <div>
-      {/* Header: Description + First editorial image */}
+      {/* Header: Description + First editorial image (renders immediately) */}
       <div className="px-2 mt-8 md:mt-12 xl:mt-16 mb-8 md:mb-12 xl:mb-16 xl:flex xl:justify-between xl:items-start xl:gap-8">
         <div className="xl:w-1/3">
           <h1 className="text-sm">{collection.title}</h1>
@@ -69,24 +114,31 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
             <div className="relative aspect-[4/5]">
               <Image
                 src={imageUrl}
-                alt={firstEditorialImage.image.alt || collection.title}
+                alt={firstEditorialImage?.image?.alt || collection.title}
                 fill
                 className="object-cover"
                 sizes="(min-width: 1280px) 50vw, 100vw"
                 priority
                 fetchPriority="high"
+                placeholder={blurDataURL ? "blur" : "empty"}
+                blurDataURL={blurDataURL}
               />
             </div>
           </div>
         )}
       </div>
-      <ProductGridWithImages
-        products={collection.products}
-        editorialImages={remainingEditorialImages}
-        productsPerImage={collection.productsPerImage || 4}
-        productsPerImageXL={collection.productsPerImage || 4}
-        gridLayout={collection.gridLayout || "4col"}
-      />
+
+      {/* Products grid streams in via Suspense */}
+      <Suspense>
+        <CollectionProductGrid
+          collectionId={collection._id}
+          shopifyId={collection.shopifyId}
+          curatedProducts={collection.curatedProducts}
+          editorialImages={remainingEditorialImages}
+          productsPerImage={collection.productsPerImage}
+          gridLayout={collection.gridLayout}
+        />
+      </Suspense>
     </div>
   );
 }

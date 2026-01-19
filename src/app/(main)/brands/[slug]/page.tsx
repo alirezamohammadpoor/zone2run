@@ -1,9 +1,17 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
+import dynamic from "next/dynamic";
 import { getProductsByBrand, getBrandBySlug } from "@/sanity/lib/getData";
 import { notFound } from "next/navigation";
-import ProductGridWithImages from "@/components/ProductGridWithImages";
 import { decodeBrandSlug } from "@/lib/utils/brandUrls";
 import Image from "next/image";
+import type { EditorialImage } from "@/components/ProductGridWithImages";
+
+// Dynamic import reduces TBT by deferring JS parsing
+const ProductGridWithImages = dynamic(
+  () => import("@/components/ProductGridWithImages"),
+  { ssr: true }
+);
 
 // ISR: Revalidate every 10 minutes, on-demand via Sanity webhook
 export const revalidate = 600;
@@ -40,6 +48,30 @@ export async function generateMetadata({
   };
 }
 
+// Async component for streaming products grid
+async function BrandProductGrid({
+  slug,
+  gender,
+  editorialImages,
+}: {
+  slug: string;
+  gender?: string;
+  editorialImages?: EditorialImage[];
+}) {
+  const products = await getProductsByBrand(slug, undefined, gender);
+
+  if (!products || products.length === 0) {
+    return null;
+  }
+
+  return (
+    <ProductGridWithImages
+      products={products}
+      editorialImages={editorialImages}
+    />
+  );
+}
+
 export default async function BrandPage({
   params,
   searchParams,
@@ -51,30 +83,26 @@ export default async function BrandPage({
   const { gender } = await searchParams;
   const decodedSlug = decodeBrandSlug(slug);
 
-  const [products, brand] = await Promise.all([
-    getProductsByBrand(decodedSlug, undefined, gender),
-    getBrandBySlug(decodedSlug),
-  ]);
+  // Fetch brand info FIRST - hero renders immediately
+  const brand = await getBrandBySlug(decodedSlug);
 
-  if (!products || products.length === 0) {
+  if (!brand) {
     notFound();
   }
 
-  // Get brand name from brand document or first product
-  const brandName = brand?.name || products[0]?.brand?.name || slug;
-  const brandDescription =
-    brand?.description || products[0]?.brand?.description || "";
+  const brandName = brand.name;
+  const brandDescription = brand.description || "";
 
   // Extract first editorial image for header, rest for grid
-  const firstEditorialImage = brand?.editorialImages?.[0];
-  const remainingEditorialImages = brand?.editorialImages?.slice(1);
+  const firstEditorialImage = brand.editorialImages?.[0];
+  const remainingEditorialImages = brand.editorialImages?.slice(1);
   const blurDataURL = firstEditorialImage?.image?.asset?.metadata?.lqip;
 
   const imageUrl = firstEditorialImage?.image?.asset?.url;
 
   return (
     <div>
-      {/* Header: Description + First editorial image */}
+      {/* Header: Description + First editorial image (renders immediately) */}
       <div className="px-2 mt-8 md:mt-12 xl:mt-16 mb-8 md:mb-12 xl:mb-16 xl:flex xl:justify-between xl:items-start xl:gap-8">
         <div className="xl:w-1/3">
           <h1 className="text-sm">{brandName}</h1>
@@ -87,7 +115,7 @@ export default async function BrandPage({
             <div className="relative aspect-[4/5]">
               <Image
                 src={imageUrl}
-                alt={firstEditorialImage.image.alt || brandName}
+                alt={firstEditorialImage?.image?.alt || brandName}
                 fill
                 className="object-cover"
                 sizes="(min-width: 1280px) 50vw, 100vw"
@@ -100,10 +128,15 @@ export default async function BrandPage({
           </div>
         )}
       </div>
-      <ProductGridWithImages
-        products={products}
-        editorialImages={remainingEditorialImages}
-      />
+
+      {/* Products grid streams in via Suspense */}
+      <Suspense>
+        <BrandProductGrid
+          slug={decodedSlug}
+          gender={gender}
+          editorialImages={remainingEditorialImages}
+        />
+      </Suspense>
     </div>
   );
 }
