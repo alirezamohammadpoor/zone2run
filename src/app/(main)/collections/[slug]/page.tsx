@@ -165,7 +165,7 @@ export default async function CollectionPage({ params, searchParams }: Collectio
       </div>
 
       {/* Products grid streams in via Suspense */}
-      <Suspense fallback={null}>
+      <Suspense fallback={<div className="min-h-screen" />}>
         <CollectionProductGrid
           collectionId={collection._id}
           shopifyId={collection.shopifyId}
