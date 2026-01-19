@@ -66,7 +66,7 @@ function CartModal({
           aria-labelledby="cart-title"
           inert={!isCartOpen ? true : undefined}
           className={
-            "fixed top-0 right-0 h-screen w-full bg-white z-50 transform transition-transform duration-300 flex flex-col xl:w-[25vw]" +
+            "fixed inset-0 bg-white z-50 transform transition-transform duration-300 flex flex-col xl:left-auto xl:right-0 xl:w-[25vw] overscroll-contain" +
             (isCartOpen ? " translate-x-0" : " translate-x-full")
           }
         >
@@ -85,7 +85,7 @@ function CartModal({
           </div>
 
         {/* Scrollable Content Area */}
-        <div className="flex-1 min-h-0 overflow-y-auto px-2">
+        <div className="flex-1 min-h-0 overflow-y-auto px-2 overscroll-contain">
           {hasMounted ? (
             items.length > 0 ? (
               <div className="py-4">
@@ -190,7 +190,7 @@ function CartModal({
         </div>
 
         {/* Fixed Bottom Section */}
-        <div className="flex-shrink-0 border-t border-gray-300 bg-white h-60">
+        <div className="flex-shrink-0 border-t border-gray-300 bg-white h-48">
           <div className="px-2 py-4 h-full flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <div className="flex flex-col gap-2">
@@ -226,7 +226,7 @@ function CartModal({
             </div>
 
             <button
-              className="mt-10 bg-black text-white text-xs py-3 w-full cursor-pointer hover:bg-gray-800 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
+              className="mt-4 bg-black text-white text-xs py-3 w-full cursor-pointer hover:bg-gray-800 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
               onClick={async () => {
                 if (items.length === 0) return;
                 setIsRedirecting(true);

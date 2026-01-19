@@ -2,7 +2,6 @@
 import useEmblaCarousel from "embla-carousel-react";
 import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
-import { getBlurProps } from "@/lib/utils/imageProps";
 
 interface ProductGalleryClientProps {
   images: Array<{ url: string; alt: string; lqip?: string }>;
@@ -64,12 +63,11 @@ export default function ProductGalleryClient({
                 alt=""
                 fill
                 className="object-cover"
-                priority={index < 3}
-                loading={index < 3 ? "eager" : "lazy"}
+                priority={index === 0}
+                loading="eager"
                 fetchPriority={index === 0 ? "high" : "auto"}
                 sizes="(min-width: 1280px) 50vw, (min-width: 768px) 60vw, 100vw"
                 draggable={false}
-                {...getBlurProps(image)}
               />
             </div>
           ))}
