@@ -3,7 +3,7 @@ import { getBlogPost, getProductsByCollectionId } from "@/sanity/lib/getData";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { PortableText } from "@portabletext/react";
-import BlogProductGrid from "@/components/blog/BlogProductGrid";
+import ProductGrid from "@/components/ProductGrid";
 import BlogProductCarousel from "@/components/blog/BlogProductCarousel";
 import type { SanityProduct } from "@/types/sanityProduct";
 
@@ -219,7 +219,7 @@ export default async function PostPage({
                       )}
                     </div>
                     {value.displayType === "grid" ? (
-                      <BlogProductGrid
+                      <ProductGrid
                         products={(value.featuredProducts || []).map(
                           (item: BlogProductsModuleItem) => {
                             const p = item?.product;
@@ -243,6 +243,7 @@ export default async function PostPage({
                           }
                         )}
                         count={value.productCount}
+                        className="grid grid-cols-2 xl:grid-cols-4 gap-2"
                       />
                     ) : (
                       <BlogProductCarousel
@@ -286,11 +287,12 @@ export default async function PostPage({
               }))}
             />
           ) : (
-            <BlogProductGrid
+            <ProductGrid
               products={collectionProducts.map((p) => ({
                 ...p,
                 selectedImage: p.mainImage,
               }))}
+              className="grid grid-cols-2 xl:grid-cols-4 gap-2"
             />
           )}
         </div>
