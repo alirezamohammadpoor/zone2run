@@ -117,7 +117,8 @@ export const BASE_PRODUCT_PROJECTION =
 },
 "mainImage": {
   "url": coalesce(mainImage.asset->url, store.previewImageUrl),
-  "alt": coalesce(mainImage.alt, store.title)
+  "alt": coalesce(mainImage.alt, store.title),
+  "lqip": mainImage.asset->metadata.lqip
 },
 "gallery": gallery[] {
   "url": asset->url,

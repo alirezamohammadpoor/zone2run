@@ -157,6 +157,7 @@ export default async function CollectionPage({ params, searchParams }: Collectio
                 fetchPriority="high"
                 placeholder={blurDataURL ? "blur" : "empty"}
                 blurDataURL={blurDataURL}
+                unoptimized
               />
             </div>
           </div>
@@ -164,7 +165,7 @@ export default async function CollectionPage({ params, searchParams }: Collectio
       </div>
 
       {/* Products grid streams in via Suspense */}
-      <Suspense>
+      <Suspense fallback={null}>
         <CollectionProductGrid
           collectionId={collection._id}
           shopifyId={collection.shopifyId}

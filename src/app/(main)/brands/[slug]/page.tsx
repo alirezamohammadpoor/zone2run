@@ -156,6 +156,7 @@ export default async function BrandPage({
                 fetchPriority="high"
                 placeholder={blurDataURL ? "blur" : "empty"}
                 blurDataURL={blurDataURL}
+                unoptimized
               />
             </div>
           </div>
@@ -163,7 +164,7 @@ export default async function BrandPage({
       </div>
 
       {/* Products grid streams in via Suspense */}
-      <Suspense>
+      <Suspense fallback={null}>
         <BrandProductGrid
           slug={decodedSlug}
           gender={gender}
