@@ -2,8 +2,8 @@ import Image from "next/image";
 import ProductGalleryClient from "./ProductGalleryClient";
 
 interface ProductGalleryServerProps {
-  mainImage: { url: string; alt: string } | null;
-  galleryImages?: Array<{ url: string; alt?: string }> | null;
+  mainImage: { url: string; alt: string; lqip?: string } | null;
+  galleryImages?: Array<{ url: string; alt?: string; lqip?: string }> | null;
   title?: string;
 }
 
@@ -13,18 +13,23 @@ export default function ProductGalleryServer({
   title,
 }: ProductGalleryServerProps) {
   // Build images array (same logic as was in client component)
-  const images: Array<{ url: string; alt: string }> = [];
+  const images: Array<{ url: string; alt: string; lqip?: string }> = [];
 
   if (mainImage?.url) {
     images.push({
       url: mainImage.url,
       alt: mainImage.alt || title || "Product",
+      lqip: mainImage.lqip,
     });
   }
 
   galleryImages?.forEach((img) => {
     if (img?.url) {
-      images.push({ url: img.url, alt: img.alt || title || "Product" });
+      images.push({
+        url: img.url,
+        alt: img.alt || title || "Product",
+        lqip: img.lqip,
+      });
     }
   });
 
@@ -50,6 +55,8 @@ export default function ProductGalleryServer({
           priority
           fetchPriority="high"
           sizes="(min-width: 1280px) 50vw, (min-width: 768px) 60vw, 100vw"
+          placeholder={firstImage.lqip ? "blur" : "empty"}
+          blurDataURL={firstImage.lqip}
         />
       </div>
 
