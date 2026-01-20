@@ -133,6 +133,8 @@ export default function DesktopDropdown({
                         fill
                         className="object-cover"
                         sizes="(min-width: 1280px) 12.5vw, 150px"
+                        placeholder={post.featuredImage.asset.lqip ? "blur" : "empty"}
+                        blurDataURL={post.featuredImage.asset.lqip}
                       />
                     ) : (
                       <div className="w-full h-full bg-gray-200 flex items-center justify-center">
