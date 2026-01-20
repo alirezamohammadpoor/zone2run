@@ -11,8 +11,8 @@ export interface BlogPostListing {
   author?: string;
   readingTime?: number;
   category?: { title: string; slug: { current: string } };
-  featuredImage?: { asset: { url: string; metadata?: unknown }; alt?: string };
-  editorialImage?: { asset: { url: string; metadata?: unknown }; alt?: string };
+  featuredImage?: { asset: { url: string; lqip?: string }; alt?: string };
+  editorialImage?: { asset: { url: string; lqip?: string }; alt?: string };
   productsModule?: unknown;
   featuredProductsModule?: unknown;
   productShowcaseModule?: unknown;
@@ -92,14 +92,14 @@ export async function getBlogPosts(limit?: number) {
     featuredImage {
       asset-> {
         url,
-        metadata
+        "lqip": metadata.lqip
       },
       alt
     },
     editorialImage {
       asset-> {
         url,
-        metadata
+        "lqip": metadata.lqip
       },
       alt
     },
