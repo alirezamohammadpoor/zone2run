@@ -7,6 +7,8 @@ import { notFound } from "next/navigation";
 import RelatedProductsServer from "@/components/product/RelatedProductsServer";
 import ColorVariants from "@/components/product/ColorVariants";
 import ProductEditorialImages from "@/components/product/ProductEditorialImages";
+import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/schemas";
+import { getBreadcrumbsFromProduct } from "@/components/product/Breadcrumbs";
 
 // ISR: Revalidate every 30 minutes, on-demand via Sanity webhook
 export const revalidate = 1800;
@@ -79,8 +81,15 @@ export default async function ProductPage({
     notFound();
   }
 
+  // Generate breadcrumb trail from product's category hierarchy
+  const breadcrumbs = getBreadcrumbsFromProduct(product);
+
   return (
     <>
+      {/* JSON-LD Structured Data for SEO */}
+      <ProductJsonLd product={product} />
+      <BreadcrumbJsonLd items={breadcrumbs} />
+
       <div>
         <div className="xl:flex xl:flex-row">
           <ProductGalleryServer

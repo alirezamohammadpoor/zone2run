@@ -6,6 +6,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { FooterContent } from "@/components/Footer";
 import PreviewProvider from "@/components/PreviewProvider";
+import { OrganizationJsonLd } from "@/components/schemas";
 
 export const metadata: Metadata = {
   title: "Zone2Run",
@@ -27,6 +28,9 @@ export default function MainLayout({
         {/* Preconnect - establish early connections to critical origins */}
         <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://cdn.shopify.com" crossOrigin="anonymous" />
+
+        {/* Organization JSON-LD for SEO */}
+        <OrganizationJsonLd />
       </head>
       <body>
         <a
