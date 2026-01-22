@@ -28,6 +28,7 @@ const RelatedProducts = memo(function RelatedProducts({
         <h2 className="text-black text-xl">More from {brandName}</h2>
         <Link
           href={getBrandUrl(brandSlug)}
+          prefetch={true}
           className="text-black text-sm hover:underline cursor-pointer mr-4"
         >
           View All

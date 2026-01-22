@@ -88,6 +88,7 @@ function HeroModule({ heroModule }: { heroModule: HeroModule }) {
           <div className="flex items-center">
             <Link
               href={heroModule.buttonLink || "/"}
+              prefetch={true}
               className={`${
                 heroModule.textColor === "white" ? "text-white" : "text-black"
               } text-xs ml-2 mt-4 flex items-center`}

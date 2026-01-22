@@ -135,6 +135,7 @@ function WomenContent({
                 <Link
                   href={`/womens/${category}`}
                   onClick={onClose}
+                  prefetch={true}
                   className="text-xs hover:text-gray-500 pl-2 text-left w-full block"
                 >
                   View All{" "}
@@ -212,6 +213,7 @@ function WomenContent({
                           <Link
                             href={`/womens/${category}/${subcategory.slug.current}`}
                             onClick={onClose}
+                            prefetch={true}
                             className="text-xs hover:text-gray-500 pl-2 text-left w-full block"
                           >
                             View All {subcategory.title}
