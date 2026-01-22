@@ -65,6 +65,7 @@ const DropdownContent = memo(function DropdownContent({
             <Link
               href={`/${genderPath}/${category}`}
               onClick={onClose}
+              prefetch={true}
               className="text-xs mb-3 capitalize hover:text-gray-500 block"
               aria-label={`View all ${category}`}
             >

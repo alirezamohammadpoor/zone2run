@@ -108,7 +108,7 @@ function Header({
         </div>
 
         <div className="absolute left-1/2 transform -translate-x-1/2">
-          <Link href="/" className="text-sm cursor-pointer">
+          <Link href="/" prefetch={true} className="text-sm cursor-pointer">
             Zone 2
           </Link>
         </div>
