@@ -9,6 +9,7 @@ import type { EditorialImage } from "@/components/ProductGridWithImages";
 import PaginationNav from "@/components/PaginationNav";
 import type { PaginatedProducts } from "@/sanity/lib/getProducts";
 import { PRODUCTS_PER_PAGE } from "@/sanity/lib/groqUtils";
+import { BreadcrumbJsonLd } from "@/components/schemas";
 
 // Dynamic import reduces TBT by deferring JS parsing
 const ProductGridWithImages = dynamic(
@@ -133,8 +134,17 @@ export default async function BrandPage({
 
   const imageUrl = firstEditorialImage?.image?.asset?.url;
 
+  // Breadcrumb trail for brands: Home > Brands > Brand Name
+  const breadcrumbs = [
+    { label: "Brands", href: "/brands" },
+    { label: brandName, href: `/brands/${slug}` },
+  ];
+
   return (
     <div>
+      {/* JSON-LD Breadcrumb for SEO */}
+      <BreadcrumbJsonLd items={breadcrumbs} />
+
       {/* Header: Description + First editorial image (renders immediately) */}
       <div className="px-2 mt-8 md:mt-12 xl:mt-16 mb-8 md:mb-12 xl:mb-16 xl:flex xl:justify-between xl:items-start xl:gap-8">
         <div className="xl:w-1/3">

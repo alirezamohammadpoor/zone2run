@@ -15,7 +15,11 @@
       "Bash(pnpm lint:*)",
       "Bash(ls:*)",
       "Bash(bun run build)",
-      "Bash(bun build)"
+      "Bash(bun build)",
+      "Bash(git show:*)",
+      "Bash(grep:*)",
+      "Bash(cat:*)",
+      "Bash(xargs ls:*)"
     ],
     "deny": [],
     "ask": []

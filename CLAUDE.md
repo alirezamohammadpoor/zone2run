@@ -4,6 +4,8 @@ Premium headless e-commerce for running apparel. Sanity CMS + Shopify + Next.js.
 
 **Market**: Scandinavian | **Currency**: SEK | **VAT**: 25% included
 
+**Production URL**: https://zone2run-build.vercel.app
+
 ---
 
 ## Tech Stack
