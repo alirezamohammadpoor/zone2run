@@ -10,13 +10,13 @@ interface ProductFormProps {
 }
 
 /**
- * Server Component that displays fresh variant data from Shopify.
+ * Server Component that displays variant data from Shopify.
  * Shopify data is fetched in parallel with Sanity data at the page level.
  *
  * This ensures users always see accurate:
- * - Price (not cached from Sanity)
+ * - Price
  * - Stock status (real-time availability)
- * - Variant options (in case they changed)
+ * - Variant options
  */
 export default function ProductForm({
   staticProduct,
@@ -34,7 +34,7 @@ export default function ProductForm({
 
   return (
     <>
-      {/* Fresh price from Shopify */}
+      {/* Price from Shopify */}
       <div className="flex items-center gap-2 mt-1">
         <p className="text-xs">
           {formatPrice(price.amount)} {price.currencyCode}
@@ -46,10 +46,10 @@ export default function ProductForm({
         )}
       </div>
 
-      {/* Fresh variants from Shopify */}
+      {/* Variants from Shopify */}
       <VariantSelector variants={shopifyProduct.variants} />
 
-      {/* Add to cart with fresh variant data */}
+      {/* Add to cart */}
       <AddToCart
         staticProduct={staticProduct}
         variants={shopifyProduct.variants}

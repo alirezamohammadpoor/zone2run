@@ -1,5 +1,5 @@
 "use client";
-import React, { memo, useState, useTransition, useCallback } from "react";
+import { memo, useState, useTransition, useCallback } from "react";
 import { useCartStore } from "@/lib/cart/store";
 import { useUIStore } from "@/lib/cart/uiStore";
 import { useProductStore } from "@/store/variantStore";
@@ -14,31 +14,31 @@ interface AddToCartProps {
 }
 
 /**
- * Add to Cart button that uses fresh variant data from Shopify.
+ * Add to Cart button using Shopify variant data.
  * The selectedVariant comes from Zustand (set by VariantSelector).
- * We verify the variant still exists in fresh data before adding.
+ * We verify the variant exists in Shopify data before adding.
  */
 const AddToCart = memo(function AddToCart({
   staticProduct,
   variants,
 }: AddToCartProps) {
   const [isAdded, setIsAdded] = useState(false);
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const addItem = useCartStore((state) => state.addItem);
   const showAddedToCart = useUIStore((state) => state.showAddedToCart);
   const { selectedVariant } = useProductStore();
 
-  // Find the FRESH variant data for the selected variant
-  const freshVariant = selectedVariant
+  // Find the Shopify variant data for the selected variant
+  const shopifyVariant = selectedVariant
     ? variants.find((v) => v.id === selectedVariant.id)
     : null;
 
-  // Use fresh availability status
-  const isAvailable = freshVariant?.availableForSale ?? false;
-  const freshPrice = freshVariant?.price.amount ?? selectedVariant?.price ?? 0;
+  // Use Shopify availability status
+  const isAvailable = shopifyVariant?.availableForSale ?? false;
+  const price = shopifyVariant?.price.amount ?? selectedVariant?.price ?? 0;
 
   const handleClick = useCallback(() => {
-    if (!selectedVariant || !freshVariant || isAdded || !isAvailable) return;
+    if (!selectedVariant || !shopifyVariant || isAdded || !isAvailable) return;
 
     // Immediate UI feedback
     setIsAdded(true);
@@ -47,11 +47,11 @@ const AddToCart = memo(function AddToCart({
     startTransition(() => {
       addItem({
         id: `${staticProduct.handle}-${selectedVariant.size}`,
-        variantId: freshVariant.id, // Use fresh Shopify variant ID
+        variantId: shopifyVariant.id,
         productHandle: staticProduct.handle,
         title: staticProduct.title,
         price: {
-          amount: freshPrice, // Use FRESH price from Shopify
+          amount: price,
           currencyCode: "SEK",
         },
         image: staticProduct.mainImage?.url || "",
@@ -66,7 +66,7 @@ const AddToCart = memo(function AddToCart({
         image: staticProduct.mainImage?.url || "",
         size: selectedVariant.size,
         color: selectedVariant.color ?? "",
-        price: freshPrice,
+        price: price,
         currencyCode: "SEK",
       });
     });
@@ -76,10 +76,10 @@ const AddToCart = memo(function AddToCart({
     }, 3000);
   }, [
     selectedVariant,
-    freshVariant,
+    shopifyVariant,
     isAdded,
     isAvailable,
-    freshPrice,
+    price,
     staticProduct,
     addItem,
     showAddedToCart,
@@ -90,7 +90,8 @@ const AddToCart = memo(function AddToCart({
     if (!selectedVariant) {
       return { text: "SELECT SIZE", disabled: true, className: "bg-gray-300 text-gray-500 cursor-not-allowed border border-gray-300" };
     }
-    if (!isAvailable) {
+    // Only show OUT OF STOCK if we found the variant AND it's not available
+    if (shopifyVariant && !shopifyVariant.availableForSale) {
       return { text: "OUT OF STOCK", disabled: true, className: "bg-red-500 text-white cursor-not-allowed border border-red-500" };
     }
     if (isAdded) {

@@ -78,7 +78,7 @@ export default async function ProductPage({
 }) {
   const handle = (await params).handle;
 
-  // Parallel fetch: Sanity (ISR cached) + Shopify (fresh) at the same time
+  // Parallel fetch: Sanity (ISR cached) + Shopify at the same time
   const [product, shopifyProduct] = await Promise.all([
     getProductByHandle(handle),
     getShopifyProductByHandle(handle),
@@ -105,7 +105,7 @@ export default async function ProductPage({
             title={product.title}
           />
           <ProductInfo product={product}>
-            {/* Fresh Shopify data - fetched in parallel with Sanity */}
+            {/* Shopify data - fetched in parallel with Sanity */}
             <ProductForm
               staticProduct={product}
               shopifyProduct={shopifyProduct}

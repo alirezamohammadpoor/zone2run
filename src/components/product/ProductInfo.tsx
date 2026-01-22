@@ -63,7 +63,7 @@ function ProductInfo({ product, children }: ProductInfoProps) {
           </div>
         )}
 
-        {/* Children slot for fresh Shopify data (price, variants, add-to-cart) */}
+        {/* Children slot for Shopify data (price, variants, add-to-cart) */}
         {children}
         <ProductTabs />
       </div>
