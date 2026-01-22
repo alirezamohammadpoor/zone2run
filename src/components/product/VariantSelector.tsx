@@ -1,20 +1,29 @@
 "use client";
-import React, { memo, useMemo, useCallback } from "react";
+import React, { memo, useMemo } from "react";
 import { useProductStore } from "@/store/variantStore";
-import type { SanityProduct } from "@/types/sanityProduct";
+import type { ShopifyProduct } from "@/types/shopify";
+
+type ShopifyVariant = ShopifyProduct["variants"][number];
 
 interface VariantSelectorProps {
-  product: SanityProduct;
+  variants: ShopifyVariant[];
 }
 
-const VariantSelector = memo(function VariantSelector({ product }: VariantSelectorProps) {
+/**
+ * Client component for size selection.
+ * Receives fresh variant data from Shopify (via ProductForm).
+ * Updates Zustand store when user selects a size.
+ */
+const VariantSelector = memo(function VariantSelector({
+  variants,
+}: VariantSelectorProps) {
   const { selectedVariant, setSelectedVariant } = useProductStore();
 
-  // Memoize size calculations to prevent recalculation on every render
+  // Extract unique sizes from variants
   const allSizes = useMemo(
     () =>
-      product.variants
-        ?.filter((variant) =>
+      variants
+        .filter((variant) =>
           variant.selectedOptions.some((opt) => opt.name === "Size")
         )
         .map(
@@ -22,16 +31,16 @@ const VariantSelector = memo(function VariantSelector({ product }: VariantSelect
             variant.selectedOptions.find((opt) => opt.name === "Size")?.value
         )
         .filter((size, index, arr) => size && arr.indexOf(size) === index) || [],
-    [product.variants]
+    [variants]
   );
 
-  // Memoize available sizes calculation
+  // Extract available (in-stock) sizes
   const availableSizes = useMemo(
     () =>
-      product.variants
-        ?.filter(
+      variants
+        .filter(
           (variant) =>
-            variant.available &&
+            variant.availableForSale &&
             variant.selectedOptions.some((opt) => opt.name === "Size")
         )
         .map(
@@ -39,7 +48,7 @@ const VariantSelector = memo(function VariantSelector({ product }: VariantSelect
             variant.selectedOptions.find((opt) => opt.name === "Size")?.value
         )
         .filter((size, index, arr) => size && arr.indexOf(size) === index) || [],
-    [product.variants]
+    [variants]
   );
 
   return (
@@ -72,26 +81,25 @@ const VariantSelector = memo(function VariantSelector({ product }: VariantSelect
                   : "border-gray-300 hover:bg-black hover:text-white hover:border-black"
               }`}
               onClick={() => {
-                if (!isAvailable) return; // Prevent selection of unavailable variants
+                if (!isAvailable) return;
 
-                // Find the correct variant for this size
-                const variant = product.variants?.find(
-                  (variant) =>
-                    variant.selectedOptions.find((opt) => opt.name === "Size")
-                      ?.value === size && variant.available
+                // Find the variant for this size (prefer available ones)
+                const variant = variants.find(
+                  (v) =>
+                    v.selectedOptions.find((opt) => opt.name === "Size")
+                      ?.value === size && v.availableForSale
                 );
 
                 if (variant && size) {
                   setSelectedVariant({
                     size,
                     id: variant.id,
-                    available: variant.available,
+                    available: variant.availableForSale,
                     title: variant.title,
-                    price: variant.price,
+                    price: variant.price.amount,
                     color:
-                      variant.selectedOptions.find(
-                        (opt) => opt.name === "Color"
-                      )?.value || "",
+                      variant.selectedOptions.find((opt) => opt.name === "Color")
+                        ?.value || "",
                   });
                 }
               }}

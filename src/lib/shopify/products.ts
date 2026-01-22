@@ -243,14 +243,18 @@ const transformShopifyProduct = (product: any): ShopifyProduct => ({
 export async function getShopifyProductByHandle(
   handle: string
 ): Promise<ShopifyProduct | null> {
+  const start = performance.now();
   try {
     const { productByHandle } = (await shopifyClient.request(
       GET_PRODUCT_BY_HANDLE,
       { handle }
     )) as any;
+    const duration = performance.now() - start;
+    console.log(`⚡ Shopify fetch [${handle}]: ${duration.toFixed(0)}ms`);
     return productByHandle ? transformShopifyProduct(productByHandle) : null;
   } catch (error) {
-    console.error("Error fetching Shopify product:", error);
+    const duration = performance.now() - start;
+    console.error(`❌ Shopify fetch failed [${handle}]: ${duration.toFixed(0)}ms`, error);
     return null;
   }
 }
