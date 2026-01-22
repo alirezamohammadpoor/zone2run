@@ -1,14 +1,16 @@
 import type { Metadata } from "next";
 import ProductGalleryServer from "@/components/product/ProductGalleryServer";
 import ProductInfo from "@/components/product/ProductInfo";
+import ProductForm from "@/components/product/ProductForm";
 import { getProductByHandle } from "@/lib/product/getProductByHandle";
-import { Suspense } from "react";
+import { getShopifyProductByHandle } from "@/lib/shopify/products";
 import { notFound } from "next/navigation";
 import RelatedProductsServer from "@/components/product/RelatedProductsServer";
 import ColorVariants from "@/components/product/ColorVariants";
 import ProductEditorialImages from "@/components/product/ProductEditorialImages";
 import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/schemas";
 import { getBreadcrumbsFromProduct } from "@/components/product/Breadcrumbs";
+import { Suspense } from "react";
 
 // ISR: Revalidate every 30 minutes, on-demand via Sanity webhook
 export const revalidate = 1800;
@@ -75,7 +77,12 @@ export default async function ProductPage({
   params: Promise<{ handle: string }>;
 }) {
   const handle = (await params).handle;
-  const product = await getProductByHandle(handle);
+
+  // Parallel fetch: Sanity (ISR cached) + Shopify (fresh) at the same time
+  const [product, shopifyProduct] = await Promise.all([
+    getProductByHandle(handle),
+    getShopifyProductByHandle(handle),
+  ]);
 
   if (!product) {
     notFound();
@@ -97,7 +104,13 @@ export default async function ProductPage({
             galleryImages={product.gallery}
             title={product.title}
           />
-          <ProductInfo product={product} />
+          <ProductInfo product={product}>
+            {/* Fresh Shopify data - fetched in parallel with Sanity */}
+            <ProductForm
+              staticProduct={product}
+              shopifyProduct={shopifyProduct}
+            />
+          </ProductInfo>
         </div>
         <ColorVariants
           colorVariants={product.colorVariants}
