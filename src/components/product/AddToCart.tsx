@@ -46,7 +46,7 @@ const AddToCart = memo(function AddToCart({
     // Defer heavy operations
     startTransition(() => {
       addItem({
-        id: `${staticProduct.handle}-${selectedVariant.size}`,
+        id: shopifyVariant.id,
         variantId: shopifyVariant.id,
         productHandle: staticProduct.handle,
         title: staticProduct.title,
