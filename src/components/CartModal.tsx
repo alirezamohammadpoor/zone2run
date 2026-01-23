@@ -6,7 +6,8 @@ import { useHasMounted } from "@/hooks/useHasMounted";
 import Image from "next/image";
 import { useCartStore } from "@/lib/cart/store";
 import { formatPrice } from "@/lib/utils/formatPrice";
-import { createCart, addToCart } from "@/lib/shopify/cart";
+import { createCart } from "@/lib/shopify/cart";
+import { checkCartAvailability } from "@/app/actions/cart";
 
 function CartModal({
   isCartOpen,
@@ -35,6 +36,8 @@ function CartModal({
   };
 
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
+  const [oosItems, setOosItems] = useState<string[]>([]);
 
   // Non-blocking quantity updates - UI updates immediately, API syncs in background
   const handleIncreaseQuantity = (itemId: string, currentQuantity: number) => {
@@ -89,10 +92,12 @@ function CartModal({
           {hasMounted ? (
             items.length > 0 ? (
               <div className="py-4">
-                {items.map((item) => (
+                {items.map((item) => {
+                  const isOos = oosItems.includes(item.id);
+                  return (
                   <div
                     key={item.id}
-                    className="flex w-full overflow-hidden mb-8"
+                    className={`flex w-full overflow-hidden mb-8 ${isOos ? "opacity-50" : ""}`}
                   >
                     <Link
                       href={`/products/${item.productHandle}`}
@@ -134,6 +139,11 @@ function CartModal({
                         {formatPrice(item.price?.amount)}{" "}
                         {item.price?.currencyCode}
                       </span>
+                      {isOos && (
+                        <span className="text-xs text-red-500 block mt-1">
+                          Out of Stock
+                        </span>
+                      )}
                       <div className="mt-4 w-full flex items-center">
                         <button
                           className="text-xs mr-4 cursor-pointer hover:text-gray-600 min-h-[44px] min-w-[44px]"
@@ -164,7 +174,8 @@ function CartModal({
                       </div>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
                 <button
                   className="text-xs cursor-pointer hover:text-gray-600 w-full text-center mb-4"
                   onClick={() => {
@@ -225,39 +236,69 @@ function CartModal({
               </div>
             </div>
 
+            {oosItems.length > 0 && (
+              <p className="text-xs text-red-500 mb-2">
+                Some items are no longer available. Remove them to continue.
+              </p>
+            )}
+
             <button
               className="mt-4 bg-black text-white text-xs py-3 w-full cursor-pointer hover:bg-gray-800 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
               onClick={async () => {
                 if (items.length === 0) return;
-                setIsRedirecting(true);
+
+                setIsCheckingAvailability(true);
+                setOosItems([]);
 
                 try {
-                  // Create fresh cart with current items
-                  const freshCartResult = await createCart();
+                  // Check availability - single Shopify request
+                  const variantIds = items.map((i) => i.variantId);
+                  const availability = await checkCartAvailability(variantIds);
 
-                  if (freshCartResult) {
-                    // Add all items in PARALLEL instead of sequential loop
-                    // This reduces checkout time from N*latency to just 1*latency
-                    await Promise.all(
-                      items.map((item) =>
-                        addToCart(
-                          freshCartResult.cartId,
-                          item.variantId,
-                          item.quantity
-                        )
-                      )
-                    );
+                  // Find unavailable items (by cart item id)
+                  const unavailable = items
+                    .filter((item) => availability[item.variantId] === false)
+                    .map((item) => item.id);
 
-                    window.location.href = freshCartResult.checkoutUrl;
+                  if (unavailable.length > 0) {
+                    setOosItems(unavailable);
+                    setIsCheckingAvailability(false);
+                    return;
+                  }
+
+                  // All available - proceed to checkout
+                  setIsCheckingAvailability(false);
+                  setIsRedirecting(true);
+
+                  // Create cart with ALL items in single API call
+                  const cartResult = await createCart(
+                    items.map((i) => ({
+                      variantId: i.variantId,
+                      quantity: i.quantity,
+                    }))
+                  );
+
+                  if (cartResult) {
+                    // Update store with new cart ID (for abandoned cart tracking)
+                    useCartStore
+                      .getState()
+                      .setShopifyCart(cartResult.cartId, cartResult.checkoutUrl);
+
+                    window.location.href = cartResult.checkoutUrl;
                   }
                 } catch (error) {
                   console.error("Checkout failed:", error);
+                  setIsCheckingAvailability(false);
                   setIsRedirecting(false);
                 }
               }}
-              disabled={items.length === 0 || isRedirecting}
+              disabled={items.length === 0 || isCheckingAvailability || isRedirecting}
             >
-              {isRedirecting ? "Redirecting..." : "Go to checkout"}
+              {isCheckingAvailability
+                ? "Processing..."
+                : isRedirecting
+                  ? "Redirecting..."
+                  : "Go to checkout"}
             </button>
           </div>
         </div>
