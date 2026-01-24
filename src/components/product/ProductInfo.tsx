@@ -8,10 +8,11 @@ import { getBrandUrl } from "@/lib/utils/brandUrls";
 
 interface ProductInfoProps {
   product: SanityProduct;
+  priceSlot?: ReactNode;
   children?: ReactNode;
 }
 
-function ProductInfo({ product, children }: ProductInfoProps) {
+function ProductInfo({ product, priceSlot, children }: ProductInfoProps) {
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
   const brandName = product.brand?.name || product.vendor;
@@ -41,7 +42,10 @@ function ProductInfo({ product, children }: ProductInfoProps) {
             <p className="text-xs font-semibold">{brandName}</p>
           )}
         </div>
-        <p className="text-xs">{displayTitle}</p>
+        <div className="flex justify-between items-center xl:block">
+          <p className="w-[70%] xl:w-full text-xs">{displayTitle}</p>
+          {priceSlot}
+        </div>
 
         {cleanDescription && (
           <div className="mt-4">
@@ -63,7 +67,7 @@ function ProductInfo({ product, children }: ProductInfoProps) {
           </div>
         )}
 
-        {/* Children slot for Shopify data (price, variants, add-to-cart) */}
+        {/* Children slot for Shopify data (variants, add-to-cart) */}
         {children}
         <ProductTabs />
       </div>

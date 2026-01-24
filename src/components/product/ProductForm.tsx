@@ -10,13 +10,8 @@ interface ProductFormProps {
 }
 
 /**
- * Server Component that displays variant data from Shopify.
- * Shopify data is fetched in parallel with Sanity data at the page level.
- *
- * This ensures users always see accurate:
- * - Price
- * - Stock status (real-time availability)
- * - Variant options
+ * Returns price element and form elements separately for flexible layout.
+ * Price goes inline with title, form elements go below description.
  */
 export default function ProductForm({
   staticProduct,
@@ -28,24 +23,8 @@ export default function ProductForm({
     return <ProductFormFallback product={staticProduct} />;
   }
 
-  const price = shopifyProduct.priceRange.minVariantPrice;
-  const compareAtPrice = shopifyProduct.priceRange.maxVariantPrice;
-  const hasDiscount = compareAtPrice.amount > price.amount;
-
   return (
     <>
-      {/* Price from Shopify */}
-      <div className="flex items-center gap-2 mt-1">
-        <p className="text-xs">
-          {formatPrice(price.amount)} {price.currencyCode}
-        </p>
-        {hasDiscount && (
-          <p className="text-xs text-gray-400 line-through">
-            {formatPrice(compareAtPrice.amount)} {compareAtPrice.currencyCode}
-          </p>
-        )}
-      </div>
-
       {/* Variants from Shopify */}
       <VariantSelector variants={shopifyProduct.variants} />
 
@@ -59,12 +38,45 @@ export default function ProductForm({
 }
 
 /**
+ * Price component - rendered inline with title
+ */
+export function ProductPrice({
+  shopifyProduct,
+  fallbackPrice,
+}: {
+  shopifyProduct: ShopifyProduct | null;
+  fallbackPrice: number;
+}) {
+  if (!shopifyProduct) {
+    return (
+      <p className="xl:mt-1 text-xs">
+        {formatPrice(fallbackPrice)} SEK
+      </p>
+    );
+  }
+
+  const price = shopifyProduct.priceRange.minVariantPrice;
+  const compareAtPrice = shopifyProduct.priceRange.maxVariantPrice;
+  const hasDiscount = compareAtPrice.amount > price.amount;
+
+  return (
+    <div className="flex items-center gap-2 xl:mt-1">
+      <p className="text-xs">
+        {formatPrice(price.amount)} {price.currencyCode}
+      </p>
+      {hasDiscount && (
+        <p className="text-xs text-gray-400 line-through">
+          {formatPrice(compareAtPrice.amount)} {compareAtPrice.currencyCode}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/**
  * Fallback when Shopify API fails - uses cached Sanity data
- * This ensures the page still works even if Shopify is down
  */
 function ProductFormFallback({ product }: { product: SanityProduct }) {
-  const price = product.priceRange.minVariantPrice;
-
   // Convert Sanity variants to match Shopify shape
   const variants = product.variants?.map((v) => ({
     id: v.id,
@@ -82,9 +94,6 @@ function ProductFormFallback({ product }: { product: SanityProduct }) {
 
   return (
     <>
-      <p className="text-xs mt-1">
-        {formatPrice(price)} SEK
-      </p>
       <VariantSelector variants={variants} />
       <AddToCart staticProduct={product} variants={variants} />
     </>

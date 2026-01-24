@@ -94,13 +94,18 @@ export default function Breadcrumbs({ product }: BreadcrumbsProps) {
           return (
             <li key={crumb.href} className={`flex items-center ${isLast ? "min-w-0" : "flex-shrink-0"}`}>
               {index > 0 && <span aria-hidden="true" className="mx-1">&gt;</span>}
-              <Link
-                href={crumb.href}
-                className={`hover:text-gray-700 hover:underline py-3 md:py-1 ${isLast ? "truncate" : ""}`}
-                aria-current={isLast ? "page" : undefined}
-              >
-                {crumb.label}
-              </Link>
+              {isLast ? (
+                <span className="py-3 md:py-1 truncate" aria-current="page">
+                  {crumb.label}
+                </span>
+              ) : (
+                <Link
+                  href={crumb.href}
+                  className="hover:text-gray-700 hover:underline py-3 md:py-1"
+                >
+                  {crumb.label}
+                </Link>
+              )}
             </li>
           );
         })}
