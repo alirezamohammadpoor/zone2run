@@ -1,18 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@sanity/client";
+import { createClient, type SanityClient } from "@sanity/client";
 import {
   getSanityCollectionsByShopifyIds,
   getProductCollections,
 } from "@/lib/shopify-webhook-utils";
 
-// Sanity client
-const sanityClient = createClient({
-  projectId: process.env.SANITY_PROJECT_ID!,
-  dataset: process.env.SANITY_DATASET || "production",
-  token: process.env.SANITY_API_TOKEN!,
-  useCdn: false,
-  apiVersion: "2023-05-03",
-});
+// Lazy-initialized Sanity client (avoids build-time env var errors)
+let _sanityClient: SanityClient | null = null;
+function getSanityClient(): SanityClient {
+  if (!_sanityClient) {
+    const projectId = process.env.SANITY_PROJECT_ID;
+    const token = process.env.SANITY_API_TOKEN;
+    if (!projectId || !token) {
+      throw new Error("Missing SANITY_PROJECT_ID or SANITY_API_TOKEN");
+    }
+    _sanityClient = createClient({
+      projectId,
+      dataset: process.env.SANITY_DATASET || "production",
+      token,
+      useCdn: false,
+      apiVersion: "2023-05-03",
+    });
+  }
+  return _sanityClient;
+}
 
 // Helper function to extract gender
 function extractGender(
@@ -58,7 +69,7 @@ function extractGender(
 async function getOrCreateBrand(vendor: string): Promise<string | null> {
   try {
     // First, try to find existing brand
-    const existingBrands = await sanityClient.fetch(
+    const existingBrands = await getSanityClient().fetch(
       `*[_type == "brand" && name == $vendor][0]`,
       { vendor }
     );
@@ -77,7 +88,7 @@ async function getOrCreateBrand(vendor: string): Promise<string | null> {
       },
     };
 
-    const result = await sanityClient.create(brandDoc);
+    const result = await getSanityClient().create(brandDoc);
     return result._id;
   } catch (error) {
     console.error("Error getting/creating brand:", error);
@@ -94,7 +105,7 @@ export async function POST(request: NextRequest) {
     );
 
     // Get existing products from Sanity
-    const existingProducts = await sanityClient.fetch(`
+    const existingProducts = await getSanityClient().fetch(`
       *[_type == "product"] | order(_createdAt) [${offset}...${
       offset + limit
     }] {
@@ -162,7 +173,7 @@ export async function POST(request: NextRequest) {
 
             // Also check smart collections by matching vendor
             if (product.vendor) {
-              const smartCollections = await sanityClient.fetch(
+              const smartCollections = await getSanityClient().fetch(
                 `*[_type == "collection" && defined(store.rules) && count(store.rules) > 0] {
                   _id,
                   "shopifyId": store.id,
@@ -221,7 +232,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Update product with gender, brand, and collections
-        await sanityClient
+        await getSanityClient()
           .patch(product._id)
           .set({
             gender: gender,
@@ -271,12 +282,12 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     // Get total count of products
-    const totalProducts = await sanityClient.fetch(
+    const totalProducts = await getSanityClient().fetch(
       `count(*[_type == "product"])`
     );
 
     // Get products that need syncing (no gender or brand)
-    const needsSync = await sanityClient.fetch(`
+    const needsSync = await getSanityClient().fetch(`
       count(*[_type == "product" && (!defined(gender) || !defined(brand))])
     `);
 

@@ -1,105 +1,57 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import useEmblaCarousel from "embla-carousel-react";
 import { getBrandUrl } from "@/lib/utils/brandUrls";
 import { urlFor } from "@/sanity/lib/image";
-import type { BrandMenuItem, CollectionMenuItem, MenuData, SubcategoryMenuItem, SubSubcategoryMenuItem } from "@/types/menu";
+import { useSetToggle } from "@/hooks/useSetToggle";
+import { useEmblaCarouselDrag } from "@/hooks/useEmblaCarouselDrag";
+import { ChevronRightIcon } from "@/components/icons/ChevronRightIcon";
+import { NavLink } from "@/components/ui/NavLink";
+import type {
+  BrandMenuItem,
+  CollectionMenuItem,
+  MenuData,
+  SubcategoryMenuItem,
+  SubSubcategoryMenuItem,
+} from "@/types/menu";
 
-function WomenContent({
-  onClose,
-  data,
-  brands,
-  featuredCollections,
-}: {
+interface GenderMenuContentProps {
+  gender: "mens" | "womens";
   onClose: () => void;
   data: MenuData[string];
   brands?: BrandMenuItem[];
   featuredCollections?: CollectionMenuItem[];
-}) {
-  const [openCategories, setOpenCategories] = useState<Set<string>>(new Set());
-  const [openSubcategories, setOpenSubcategories] = useState<Set<string>>(
-    new Set()
-  );
-  const [openBrands, setOpenBrands] = useState<Set<string>>(new Set());
-  const [isDragging, setIsDragging] = useState(false);
+}
+
+function GenderMenuContent({
+  gender,
+  onClose,
+  data,
+  brands,
+  featuredCollections,
+}: GenderMenuContentProps) {
+  const { has: hasCategory, toggle: toggleCategory } = useSetToggle<string>();
+  const { has: hasSubcategory, toggle: toggleSubcategory } =
+    useSetToggle<string>();
+  const { has: hasBrand, toggle: toggleBrand } = useSetToggle<string>();
+
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: "start",
     containScroll: "trimSnaps",
     dragFree: false,
   });
+  const { isDragging, handleDragClick } = useEmblaCarouselDrag(emblaApi);
 
-  // Handle embla carousel drag state
-  useEffect(() => {
-    if (!emblaApi) return;
-
-    const onSettle = () => setIsDragging(false);
-    const onScroll = () => setIsDragging(true);
-
-    emblaApi.on("settle", onSettle);
-    emblaApi.on("scroll", onScroll);
-
-    return () => {
-      emblaApi.off("settle", onSettle);
-      emblaApi.off("scroll", onScroll);
-    };
-  }, [emblaApi]);
-
-  const toggleBrand = (brandSlug: string) => {
-    setOpenBrands((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(brandSlug)) {
-        newSet.delete(brandSlug);
-      } else {
-        newSet.add(brandSlug);
-      }
-      return newSet;
-    });
-  };
-
-  const toggleCategory = (categorySlug: string) => {
-    setOpenCategories((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(categorySlug)) {
-        newSet.delete(categorySlug);
-      } else {
-        newSet.add(categorySlug);
-      }
-      return newSet;
-    });
-  };
-
-  const toggleSubcategory = (subcategorySlug: string) => {
-    setOpenSubcategories((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(subcategorySlug)) {
-        newSet.delete(subcategorySlug);
-      } else {
-        newSet.add(subcategorySlug);
-      }
-      return newSet;
-    });
-  };
-
-  const handleCollectionClick = useCallback(
-    (e: React.MouseEvent) => {
-      if (isDragging) {
-        e.preventDefault();
-      } else {
-        onClose();
-      }
-    },
-    [onClose, isDragging]
-  );
+  // Gender path for URLs (e.g., "/mens/" or "/womens/")
+  const genderPath = `/${gender}`;
 
   return (
     <div className="mt-2">
       {Object.entries(data || {}).map(([category, subcategories]) => {
-        const isOpen = openCategories.has(category);
+        const isOpen = hasCategory(category);
         return (
-          // <div key={category} className="border-b">
           <div key={category}>
             <div className="px-2 py-2">
               <button
@@ -107,23 +59,11 @@ function WomenContent({
                 className="w-full text-left flex justify-between items-center"
               >
                 <span className="text-xs capitalize">{category}</span>
-                <svg
-                  aria-hidden="true"
-                  viewBox="0 0 5 8"
-                  style={{
-                    transform: isOpen ? "rotate(90deg)" : "rotate(0deg)",
-                    transition: "transform 0.3s ease-in-out",
-                  }}
+                <ChevronRightIcon
                   className="w-2 h-2 text-black"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fillRule="evenodd"
-                    clipRule="evenodd"
-                    d="M0.707107 7.70711L0 7L3.14645 3.85355L0 0.707107L0.707107 0L4.56066 3.85355L0.707107 7.70711Z"
-                    fill="currentColor"
-                  />
-                </svg>
+                  rotate={isOpen ? 90 : 0}
+                  animated
+                />
               </button>
 
               <div
@@ -132,21 +72,18 @@ function WomenContent({
                 }`}
               >
                 {/* View All button */}
-                <Link
-                  href={`/womens/${category}`}
+                <NavLink
+                  href={`${genderPath}/${category}`}
                   onClick={onClose}
                   prefetch={true}
-                  className="text-xs hover:text-gray-500 pl-2 text-left w-full block"
+                  className="pl-2"
                 >
-                  View All{" "}
-                  {category.charAt(0).toUpperCase() + category.slice(1)}
-                </Link>
+                  View All {category.charAt(0).toUpperCase() + category.slice(1)}
+                </NavLink>
 
                 {/* Subcategories */}
                 {(subcategories as SubcategoryMenuItem[]).map((subcategory) => {
-                  const isSubOpen = openSubcategories.has(
-                    subcategory.slug.current
-                  );
+                  const isSubOpen = hasSubcategory(subcategory.slug.current);
                   const subSubcats = subcategory.subSubcategories || [];
 
                   return (
@@ -168,35 +105,21 @@ function WomenContent({
                               }
                               className="ml-2 p-1"
                             >
-                              <svg
-                                aria-hidden="true"
-                                viewBox="0 0 5 8"
-                                style={{
-                                  transform: isSubOpen
-                                    ? "rotate(90deg)"
-                                    : "rotate(0deg)",
-                                  transition: "transform 0.3s ease-in-out",
-                                }}
+                              <ChevronRightIcon
                                 className="w-2 h-2 text-black"
-                                xmlns="http://www.w3.org/2000/svg"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  clipRule="evenodd"
-                                  d="M0.707107 7.70711L0 7L3.14645 3.85355L0 0.707107L0.707107 0L4.56066 3.85355L0.707107 7.70711Z"
-                                  fill="currentColor"
-                                />
-                              </svg>
+                                rotate={isSubOpen ? 90 : 0}
+                                animated
+                              />
                             </button>
                           </>
                         ) : (
-                          <Link
-                            href={`/womens/${category}/${subcategory.slug.current}`}
+                          <NavLink
+                            href={`${genderPath}/${category}/${subcategory.slug.current}`}
                             onClick={onClose}
-                            className="text-xs hover:text-gray-500 text-left flex-1"
+                            className="flex-1"
                           >
                             {subcategory.title}
-                          </Link>
+                          </NavLink>
                         )}
                       </div>
 
@@ -210,24 +133,24 @@ function WomenContent({
                           }`}
                         >
                           {/* View All button for subcategory */}
-                          <Link
-                            href={`/womens/${category}/${subcategory.slug.current}`}
+                          <NavLink
+                            href={`${genderPath}/${category}/${subcategory.slug.current}`}
                             onClick={onClose}
                             prefetch={true}
-                            className="text-xs hover:text-gray-500 pl-2 text-left w-full block"
+                            className="pl-2"
                           >
                             View All {subcategory.title}
-                          </Link>
+                          </NavLink>
 
                           {subSubcats.map((subSubcat: SubSubcategoryMenuItem) => (
-                            <Link
+                            <NavLink
                               key={subSubcat._id}
-                              href={`/womens/${category}/${subcategory.slug.current}/${subSubcat.slug.current}`}
+                              href={`${genderPath}/${category}/${subcategory.slug.current}/${subSubcat.slug.current}`}
                               onClick={onClose}
-                              className="text-xs hover:text-gray-500 pl-2 text-left w-full block"
+                              className="pl-2"
                             >
                               {subSubcat.title}
-                            </Link>
+                            </NavLink>
                           ))}
                         </div>
                       )}
@@ -249,30 +172,16 @@ function WomenContent({
               className="w-full text-left flex justify-between items-center"
             >
               <span className="text-xs">Brands</span>
-              <svg
-                aria-hidden="true"
-                viewBox="0 0 5 8"
-                style={{
-                  transform: openBrands.has("brands")
-                    ? "rotate(90deg)"
-                    : "rotate(0deg)",
-                  transition: "transform 0.3s ease-in-out",
-                }}
+              <ChevronRightIcon
                 className="w-2 h-2 text-black"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  fillRule="evenodd"
-                  clipRule="evenodd"
-                  d="M0.707107 7.70711L0 7L3.14645 3.85355L0 0.707107L0.707107 0L4.56066 3.85355L0.707107 7.70711Z"
-                  fill="currentColor"
-                />
-              </svg>
+                rotate={hasBrand("brands") ? 90 : 0}
+                animated
+              />
             </button>
 
             <div
               className={`mt-2 space-y-2 overflow-hidden transition-all duration-700 ease-in-out ${
-                openBrands.has("brands")
+                hasBrand("brands")
                   ? "max-h-[1000px] opacity-100"
                   : "max-h-0 opacity-0"
               }`}
@@ -281,20 +190,21 @@ function WomenContent({
               {brands.map((brand) => {
                 if (!brand?.slug?.current) return null;
                 return (
-                  <Link
+                  <NavLink
                     key={brand._id || brand.slug.current}
-                    href={`${getBrandUrl(brand.slug.current)}?gender=womens`}
+                    href={`${getBrandUrl(brand.slug.current)}?gender=${gender}`}
                     onClick={onClose}
-                    className="text-xs hover:text-gray-500 pl-2 text-left w-full block"
+                    className="pl-2"
                   >
                     {brand.name}
-                  </Link>
+                  </NavLink>
                 );
               })}
             </div>
           </div>
         </div>
       )}
+
       {/* Collections Section */}
       {featuredCollections && featuredCollections.length > 0 && (
         <div>
@@ -310,7 +220,7 @@ function WomenContent({
                     <Link
                       key={collection._id || collection.slug.current}
                       href={`/collections/${collection.slug.current}`}
-                      onClick={handleCollectionClick}
+                      onClick={(e) => handleDragClick(e, onClose)}
                       className={`flex-shrink-0 w-[70vw] min-w-0 aspect-[3/4] flex flex-col cursor-pointer ${
                         isDragging ? "pointer-events-none" : ""
                       }`}
@@ -354,4 +264,4 @@ function WomenContent({
   );
 }
 
-export default WomenContent;
+export default GenderMenuContent;

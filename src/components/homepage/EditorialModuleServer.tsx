@@ -1,6 +1,6 @@
 import { type EditorialModule } from "../../../sanity.types";
 import { getBlogPosts } from "@/sanity/lib/getBlog";
-import EditorialModuleComponent from "./editorialModule";
+import EditorialModuleComponent from "./EditorialModule";
 
 async function EditorialModuleServer({
   editorialModule,

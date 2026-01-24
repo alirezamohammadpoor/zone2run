@@ -2,8 +2,7 @@ import { useState, useEffect } from "react";
 import FocusLock from "react-focus-lock";
 import { useModalScroll } from "@/hooks/useModalScroll";
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
-import MenContent from "./MenContent";
-import WomenContent from "./WomenContent";
+import GenderMenuContent from "./GenderMenuContent";
 import HelpContent from "./HelpContent";
 import OurSpaceContent from "./OurSpaceContent";
 import type { BrandMenuItem, MenuData, MenuConfig } from "@/types/menu";
@@ -114,7 +113,8 @@ function MenuModal({
           {!isMounted || !menuData || Object.keys(menuData).length === 0 ? null : (
             <>
               {activeTab === "men" && (
-                <MenContent
+                <GenderMenuContent
+                  gender="mens"
                   onClose={handleClose}
                   data={menuData["men"] || {}}
                   brands={brands}
@@ -122,7 +122,8 @@ function MenuModal({
                 />
               )}
               {activeTab === "women" && (
-                <WomenContent
+                <GenderMenuContent
+                  gender="womens"
                   onClose={handleClose}
                   data={menuData["women"] || {}}
                   brands={brands}

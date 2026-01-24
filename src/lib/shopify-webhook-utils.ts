@@ -1,19 +1,74 @@
-import { createClient } from "@sanity/client";
+import { createClient, type SanityClient } from "@sanity/client";
 import { createHash } from "crypto";
 
-// Sanity client for webhook operations
-export const webhookSanityClient = createClient({
-  projectId: process.env.SANITY_PROJECT_ID!,
-  dataset: process.env.SANITY_DATASET || "production",
-  token: process.env.SANITY_API_TOKEN!,
-  useCdn: false,
-  apiVersion: "2023-05-03",
+// Shopify Webhook Types
+interface ShopifyWebhookImage {
+  id: number;
+  src: string;
+  altText?: string | null;
+  width?: number;
+  height?: number;
+  position?: number;
+}
+
+interface ShopifyWebhookProduct {
+  id: number;
+  title: string;
+  handle: string;
+  vendor?: string | null;
+  product_type?: string | null;
+  body_html?: string | null;
+  tags?: string | null;
+  images?: ShopifyWebhookImage[];
+}
+
+// Sanity Image Types
+interface SanityImageAsset {
+  _type: "image";
+  asset: {
+    _type: "reference";
+    _ref: string;
+  };
+  alt: string;
+}
+
+interface ProcessedImages {
+  mainImage: SanityImageAsset | null;
+  gallery: SanityImageAsset[];
+}
+
+// Lazy-initialized Sanity client for webhook operations
+// Uses a getter pattern to avoid build-time env var validation errors
+let _webhookClient: SanityClient | null = null;
+export function getWebhookSanityClient(): SanityClient {
+  if (!_webhookClient) {
+    const projectId = process.env.SANITY_PROJECT_ID;
+    const token = process.env.SANITY_API_TOKEN;
+    if (!projectId || !token) {
+      throw new Error("Missing SANITY_PROJECT_ID or SANITY_API_TOKEN");
+    }
+    _webhookClient = createClient({
+      projectId,
+      dataset: process.env.SANITY_DATASET || "production",
+      token,
+      useCdn: false,
+      apiVersion: "2023-05-03",
+    });
+  }
+  return _webhookClient;
+}
+
+// Backwards compatibility - direct client access (lazy-initialized)
+export const webhookSanityClient = new Proxy({} as SanityClient, {
+  get(_, prop) {
+    return getWebhookSanityClient()[prop as keyof SanityClient];
+  },
 });
 
 // Helper function to generate unique filename
 export function generateImageFilename(
   imageUrl: string,
-  productId: string,
+  productId: string | number,
   index: number = 0
 ): string {
   const urlHash = createHash("md5")
@@ -51,7 +106,7 @@ export async function getSanityCollectionsByShopifyIds(
       `,
       { shopifyIds: shopifyCollectionIds.map(Number) }
     );
-    return collections.map((collection: any) => collection._id);
+    return collections.map((collection: { _id: string }) => collection._id);
   } catch (error) {
     console.error("Error finding Sanity collections by Shopify IDs:", error);
     return [];
@@ -88,7 +143,7 @@ export async function getCollectionProducts(
         `📦 Found ${products.length} products in collection ${collectionId}`
       );
 
-      return products.map((product: any) => ({
+      return products.map((product: { id: number; title: string; handle: string }) => ({
         id: product.id,
         title: product.title,
         handle: product.handle,
@@ -119,7 +174,7 @@ export async function getCollectionProducts(
       }
 
       // Get product IDs from collects
-      const productIds = collects.map((collect: any) => collect.product_id);
+      const productIds = collects.map((collect: { product_id: number }) => collect.product_id);
 
       // Fetch product details in batches
       const products: Array<{ id: number; title: string; handle: string }> = [];
@@ -212,7 +267,7 @@ export async function getProductCollections(
 
     // Check if product has collections data
     if (productData.product?.collections) {
-      return productData.product.collections.map((collection: any) => ({
+      return productData.product.collections.map((collection: { id: number; title: string; handle: string }) => ({
         id: collection.id,
         title: collection.title,
         handle: collection.handle,
@@ -236,7 +291,7 @@ export async function getProductCollections(
       if (collects.length > 0) {
         // Get collection details for each collect
         const collectionIds = collects.map(
-          (collect: any) => collect.collection_id
+          (collect: { collection_id: number }) => collect.collection_id
         );
 
         // Fetch collection details
@@ -379,13 +434,10 @@ export async function downloadImage(imageUrl: string): Promise<Buffer> {
 
 // Helper function to process product images and upload to Sanity
 export async function processProductImages(
-  client: any,
-  images: any[],
-  product: any
-): Promise<{
-  mainImage: any;
-  gallery: any[];
-}> {
+  client: SanityClient,
+  images: ShopifyWebhookImage[],
+  product: ShopifyWebhookProduct
+): Promise<ProcessedImages> {
   if (!images || images.length === 0) {
     return { mainImage: null, gallery: [] };
   }
@@ -394,8 +446,8 @@ export async function processProductImages(
     `🖼️ Processing ${images.length} images for product: ${product.title}`
   );
 
-  const gallery: any[] = [];
-  let mainImage: any = null;
+  const gallery: SanityImageAsset[] = [];
+  let mainImage: SanityImageAsset | null = null;
 
   for (const [index, image] of images.entries()) {
     try {
@@ -409,7 +461,7 @@ export async function processProductImages(
         title: `${product.title} - Image ${index + 1}`,
       });
 
-      const imageObj = {
+      const imageObj: SanityImageAsset = {
         _type: "image",
         asset: {
           _type: "reference",

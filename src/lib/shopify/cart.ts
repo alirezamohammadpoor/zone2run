@@ -1,6 +1,75 @@
 // lib/shopify/cart.ts
 import shopifyClient from "@/lib/client";
 
+// Shopify Cart API Response Types
+interface ShopifyUserError {
+  field: string[];
+  message: string;
+}
+
+interface ShopifyMoney {
+  amount: string;
+  currencyCode: string;
+}
+
+interface ShopifyCart {
+  id: string;
+  checkoutUrl: string;
+  lines: {
+    edges: Array<{
+      node: {
+        id: string;
+        quantity: number;
+        merchandise: {
+          id: string;
+          title: string;
+          price: ShopifyMoney;
+          product: {
+            title: string;
+            handle: string;
+            featuredImage: {
+              url: string;
+              altText: string | null;
+            } | null;
+          };
+        };
+      };
+    }>;
+  };
+  cost: {
+    subtotalAmount: ShopifyMoney;
+    totalAmount: ShopifyMoney;
+  };
+}
+
+interface CartCreateResponse {
+  cartCreate: {
+    cart: ShopifyCart;
+    userErrors: ShopifyUserError[];
+  };
+}
+
+interface CartLinesAddResponse {
+  cartLinesAdd: {
+    cart: ShopifyCart;
+    userErrors: ShopifyUserError[];
+  };
+}
+
+interface CartLinesUpdateResponse {
+  cartLinesUpdate: {
+    cart: ShopifyCart;
+    userErrors: ShopifyUserError[];
+  };
+}
+
+interface CartLinesRemoveResponse {
+  cartLinesRemove: {
+    cart: ShopifyCart;
+    userErrors: ShopifyUserError[];
+  };
+}
+
 // GraphQL mutations for cart operations
 export const CART_CREATE = `
   mutation cartCreate($input: CartInput!) {
@@ -224,7 +293,7 @@ export async function createCart(
       input,
     });
 
-    const { cartCreate } = response as any;
+    const { cartCreate } = response as CartCreateResponse;
 
     if (cartCreate.userErrors.length > 0) {
       return null;
@@ -260,7 +329,7 @@ export async function addToCart(
       ],
     });
 
-    const { cartLinesAdd } = response as any;
+    const { cartLinesAdd } = response as CartLinesAddResponse;
 
     if (cartLinesAdd.userErrors.length > 0) {
       return false;
@@ -288,7 +357,7 @@ export async function updateCartQuantity(
       ],
     });
 
-    const { cartLinesUpdate } = response as any;
+    const { cartLinesUpdate } = response as CartLinesUpdateResponse;
 
     if (cartLinesUpdate.userErrors.length > 0) {
       return false;
@@ -310,7 +379,7 @@ export async function removeFromCart(
       lineIds: [lineId],
     });
 
-    const { cartLinesRemove } = response as any;
+    const { cartLinesRemove } = response as CartLinesRemoveResponse;
 
     if (cartLinesRemove.userErrors.length > 0) {
       return false;

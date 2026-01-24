@@ -2,6 +2,80 @@
 import shopifyClient from "@/lib/client";
 import type { ShopifyProduct } from "@/types/shopify";
 
+// Shopify GraphQL Response Types
+interface ShopifyMoney {
+  amount: string;
+  currencyCode: string;
+}
+
+interface ShopifyImage {
+  url: string;
+  altText: string | null;
+  width?: number;
+  height?: number;
+}
+
+interface ShopifySelectedOption {
+  name: string;
+  value: string;
+}
+
+interface ShopifyVariantNode {
+  id: string;
+  title: string;
+  sku: string | null;
+  price: ShopifyMoney;
+  compareAtPrice: ShopifyMoney | null;
+  availableForSale: boolean;
+  quantityAvailable?: number;
+  selectedOptions: ShopifySelectedOption[];
+  image: ShopifyImage | null;
+}
+
+interface ShopifyCollectionNode {
+  id: string;
+  title: string;
+  handle: string;
+}
+
+interface ShopifyProductNode {
+  id: string;
+  title: string;
+  handle: string;
+  description: string;
+  vendor: string;
+  productType: string;
+  availableForSale: boolean;
+  priceRange: {
+    minVariantPrice: ShopifyMoney;
+    maxVariantPrice: ShopifyMoney;
+  };
+  featuredImage: ShopifyImage | null;
+  images: { edges: Array<{ node: ShopifyImage }> };
+  variants: { edges: Array<{ node: ShopifyVariantNode }> };
+  options: Array<{ name: string; values: string[] }>;
+  seo: { title: string | null; description: string | null } | null;
+  collections?: { edges: Array<{ node: ShopifyCollectionNode }> };
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
+}
+
+interface ProductByHandleResponse {
+  productByHandle: ShopifyProductNode | null;
+}
+
+interface ProductsByCollectionResponse {
+  collectionByHandle: {
+    products: { edges: Array<{ node: ShopifyProductNode }> };
+  } | null;
+}
+
+interface AllProductHandlesResponse {
+  products: { edges: Array<{ node: { handle: string; title: string } }> };
+}
+
 // GraphQL queries
 export const GET_PRODUCT_BY_HANDLE = `
   query getProductByHandle($handle: String!) {
@@ -140,7 +214,7 @@ export const GET_ALL_PRODUCT_HANDLES = `
 `;
 
 // Transform function
-const transformShopifyProduct = (product: any): ShopifyProduct => ({
+const transformShopifyProduct = (product: ShopifyProductNode): ShopifyProduct => ({
   id: product.id,
   title: product.title,
   handle: product.handle,
@@ -164,28 +238,28 @@ const transformShopifyProduct = (product: any): ShopifyProduct => ({
   featuredImage: product.featuredImage
     ? {
         url: product.featuredImage.url,
-        altText: product.featuredImage.altText,
-        width: product.featuredImage.width,
-        height: product.featuredImage.height,
+        altText: product.featuredImage.altText ?? undefined,
+        width: product.featuredImage.width ?? 0,
+        height: product.featuredImage.height ?? 0,
       }
     : undefined,
 
-  images: product.images.edges.map(({ node }: any) => ({
+  images: product.images.edges.map(({ node }) => ({
     url: node.url,
-    altText: node.altText,
-    width: node.width,
-    height: node.height,
+    altText: node.altText ?? undefined,
+    width: node.width ?? 0,
+    height: node.height ?? 0,
   })),
 
-  variants: product.variants.edges.map(({ node }: any) => {
+  variants: product.variants.edges.map(({ node }) => {
     const optionsMap = Object.fromEntries(
-      node.selectedOptions.map((opt: any) => [opt.name, opt.value])
+      node.selectedOptions.map((opt) => [opt.name, opt.value])
     );
 
     return {
       id: node.id,
       title: node.title,
-      sku: node.sku,
+      sku: node.sku ?? "",
       price: {
         amount: parseFloat(node.price.amount),
         currencyCode: node.price.currencyCode,
@@ -202,7 +276,7 @@ const transformShopifyProduct = (product: any): ShopifyProduct => ({
       image: node.image
         ? {
             url: node.image.url,
-            altText: node.image.altText,
+            altText: node.image.altText ?? undefined,
           }
         : undefined,
 
@@ -213,20 +287,20 @@ const transformShopifyProduct = (product: any): ShopifyProduct => ({
     };
   }),
 
-  options: product.options.map((option: any) => ({
+  options: product.options.map((option) => ({
     name: option.name,
     values: option.values,
   })),
 
   seo: product.seo
     ? {
-        title: product.seo.title,
-        description: product.seo.description,
+        title: product.seo.title ?? "",
+        description: product.seo.description ?? "",
       }
     : undefined,
 
   collections:
-    product.collections?.edges.map(({ node }: any) => ({
+    product.collections?.edges.map(({ node }) => ({
       id: node.id,
       title: node.title,
       handle: node.handle,
@@ -248,7 +322,7 @@ export async function getShopifyProductByHandle(
     const { productByHandle } = (await shopifyClient.request(
       GET_PRODUCT_BY_HANDLE,
       { handle }
-    )) as any;
+    )) as ProductByHandleResponse;
     const duration = performance.now() - start;
     console.log(`⚡ Shopify fetch [${handle}]: ${duration.toFixed(0)}ms`);
     return productByHandle ? transformShopifyProduct(productByHandle) : null;
@@ -267,10 +341,10 @@ export async function getShopifyProductsByCollection(
     const response = (await shopifyClient.request(GET_PRODUCTS_BY_COLLECTION, {
       handle: collectionHandle,
       first,
-    })) as any;
+    })) as ProductsByCollectionResponse;
 
     const products = response.collectionByHandle?.products?.edges || [];
-    return products.map(({ node }: any) => transformShopifyProduct(node));
+    return products.map(({ node }) => transformShopifyProduct(node));
   } catch (error) {
     console.error("Error fetching Shopify products by collection:", error);
     return [];
@@ -281,8 +355,8 @@ export async function getAllShopifyHandles(): Promise<string[]> {
   try {
     const response = (await shopifyClient.request(
       GET_ALL_PRODUCT_HANDLES
-    )) as any;
-    const handles = response.products.edges.map(({ node }: any) => node.handle);
+    )) as AllProductHandlesResponse;
+    const handles = response.products.edges.map(({ node }) => node.handle);
     console.log("🛍️ Available Shopify handles:", handles);
     return handles;
   } catch (error) {
