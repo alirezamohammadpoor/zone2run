@@ -6,10 +6,10 @@ import {
   type EditorialModule as EditorialModuleType,
   type ImageModule as ImageModuleType,
 } from "../../../sanity.types";
-import HeroModule from "./heroModule";
+import HeroModule from "./HeroModule";
 import EditorialModuleServer from "./EditorialModuleServer";
-import ImageModuleComponent from "./imageModule";
-import ContentModuleComponent from "./contentModule";
+import ImageModuleComponent from "./ImageModule";
+import ContentModuleComponent from "./ContentModule";
 import {
   getProductsByIds,
   getProductsByCollectionId,
@@ -105,16 +105,6 @@ async function HomePageSanity({ homepage }: { homepage: Home }) {
             </Suspense>
           );
         }
-
-        // if (module._type === "spotifyPlaylistsModule") {
-        //   return (
-        //     <div key={module._key}>
-        //       <SpotifyPlaylistsModuleComponent
-        //         spotifyPlaylistsModule={module}
-        //       />
-        //     </div>
-        //   );
-        // }
 
         if (module._type === "imageModule") {
           return (

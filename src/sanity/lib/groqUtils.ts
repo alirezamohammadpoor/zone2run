@@ -143,3 +143,112 @@ featured`;
  * @deprecated Use BASE_PRODUCT_PROJECTION instead - gallery is now included by default
  */
 export const FULL_PRODUCT_PROJECTION = BASE_PRODUCT_PROJECTION;
+
+/**
+ * Gallery projection fragment (with LQIP)
+ */
+export const GALLERY_PROJECTION = `gallery[] {
+  "url": asset->url,
+  alt,
+  "lqip": asset->metadata.lqip
+} | order(_key asc)`;
+
+/**
+ * Gallery projection fragment (without LQIP - for lighter queries)
+ */
+export const GALLERY_PROJECTION_SIMPLE = `gallery[] {
+  "url": asset->url,
+  alt
+} | order(_key asc)`;
+
+/**
+ * Editorial images projection fragment
+ */
+export const EDITORIAL_IMAGES_PROJECTION = `editorialImages[] {
+  _key,
+  image {
+    asset-> {
+      _id,
+      url,
+      metadata { lqip }
+    },
+    alt
+  },
+  caption
+}`;
+
+/**
+ * Menu image projection fragment
+ */
+export const MENU_IMAGE_PROJECTION = `menuImage {
+  asset-> {
+    _id,
+    url,
+    metadata { lqip }
+  },
+  alt
+}`;
+
+/**
+ * Simple brand reference projection (without logo)
+ */
+export const BRAND_REFERENCE_SIMPLE = `brand-> {
+  _id,
+  name,
+  "slug": slug.current
+}`;
+
+/**
+ * Simple category reference projection (2 levels only)
+ */
+export const CATEGORY_REFERENCE_SIMPLE = `category-> {
+  _id,
+  title,
+  "slug": slug.current,
+  categoryType,
+  parentCategory-> {
+    _id,
+    title,
+    "slug": slug.current
+  }
+}`;
+
+/**
+ * Collection product projection (for collection pages)
+ * Uses store.previewImageUrl for mainImage (no mainImage asset resolution)
+ */
+export const COLLECTION_PRODUCT_PROJECTION = `{
+  _id,
+  "title": coalesce(title, store.title),
+  "handle": coalesce(shopifyHandle, store.slug.current),
+  "description": store.descriptionHtml,
+  "vendor": store.vendor,
+  "productType": store.productType,
+  "tags": store.tags,
+  "priceRange": {
+    "minVariantPrice": store.priceRange.minVariantPrice,
+    "maxVariantPrice": store.priceRange.maxVariantPrice
+  },
+  "mainImage": {
+    "url": store.previewImageUrl,
+    "alt": store.title,
+    "lqip": mainImage.asset->metadata.lqip
+  },
+  "gallery": ${GALLERY_PROJECTION},
+  "options": store.options,
+  "variants": ${PRODUCT_VARIANTS_PROJECTION},
+  ${CATEGORY_REFERENCE_SIMPLE},
+  brand-> {
+    _id,
+    name,
+    "slug": slug.current,
+    logo {
+      asset-> {
+        url
+      }
+    }
+  },
+  gender,
+  featured,
+  "createdAt": store.createdAt
+}`;

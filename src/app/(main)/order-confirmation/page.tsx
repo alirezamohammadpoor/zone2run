@@ -74,13 +74,13 @@ export default function OrderConfirmation() {
       <div className="flex-shrink-0 border-t border-gray-300 bg-white h-40 mt-12">
         <div className="px-4 py-4 h-full flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <div className="flex flex-col gap-2.5">
+            <div className="flex flex-col gap-2">
               <p className="text-sm">Shipping</p>
               <p className="text-sm">Subtotal (excl. VAT)</p>
               <p className="text-sm text-gray-500">VAT (25%)</p>
               <p className="text-sm font-semibold">Total (incl. VAT)</p>
             </div>
-            <div className="flex flex-col gap-2.5 items-end">
+            <div className="flex flex-col gap-2 items-end">
               <p className="text-sm text-gray-500">Calculated at checkout</p>
               <p className="text-sm">
                 {hasMounted && totalPrice
@@ -111,7 +111,7 @@ export default function OrderConfirmation() {
       <div className="flex-shrink-0 border-t border-gray-300 bg-white h-40 w-full">
         <div className="px-4 py-4 h-full flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <div className="flex flex-col gap-2.5">
+            <div className="flex flex-col gap-2">
               <p className="text-sm font-semibold">Billing Address</p>
               <p className="text-sm text-gray-600">John Doe</p>
               <p className="text-sm text-gray-600">123 Main Street</p>
@@ -120,7 +120,7 @@ export default function OrderConfirmation() {
               <p className="text-sm text-gray-600">+46 70 123 45 67</p>
               <p className="text-sm text-gray-600">john.doe@email.com</p>
             </div>
-            <div className="flex flex-col gap-2.5 items-end">
+            <div className="flex flex-col gap-2 items-end">
               <p className="text-sm font-semibold">Shipping Address</p>
               <p className="text-sm text-gray-600">John Doe</p>
               <p className="text-sm text-gray-600">123 Main Street</p>

@@ -1,4 +1,4 @@
-import { searchProducts } from "@/app/actions/search";
+import { searchProducts } from "@/lib/actions/search";
 import ProductGrid from "@/components/ProductGrid";
 import PaginationNav from "@/components/PaginationNav";
 import type { SanityProduct } from "@/types/sanityProduct";

@@ -1,6 +1,11 @@
 import { sanityFetch } from "@/sanity/lib/client";
 import type { SanityProduct } from "@/types/sanityProduct";
-import { PRODUCTS_PER_PAGE } from "./groqUtils";
+import {
+  PRODUCTS_PER_PAGE,
+  COLLECTION_PRODUCT_PROJECTION,
+  EDITORIAL_IMAGES_PROJECTION,
+  MENU_IMAGE_PROJECTION,
+} from "./groqUtils";
 
 // Pagination result type
 export interface PaginatedCollectionProducts {
@@ -44,14 +49,7 @@ export async function getAllCollections() {
     "slug": store.slug {
       current
     },
-    menuImage {
-      asset-> {
-        _id,
-        url,
-        metadata { lqip }
-      },
-      alt
-    },
+    ${MENU_IMAGE_PROJECTION},
     sortOrder
   }`;
 
@@ -71,84 +69,14 @@ export async function getCollectionBySlug(slug: string): Promise<Collection | nu
     description,
     gridLayout,
     productsPerImage,
-    editorialImages[] {
-      _key,
-      image {
-        asset-> {
-          _id,
-          url,
-          metadata { lqip }
-        },
-        alt
-      },
-      caption
-    },
+    ${EDITORIAL_IMAGES_PROJECTION},
     "curatedProducts": curatedProducts[]-> {
       _id,
       "handle": coalesce(shopifyHandle, store.slug.current)
     }
   }`;
 
-  const productsQuery = `*[_type == "product" && (references($collectionId) || (defined(shopifyCollectionIds) && $shopifyIdStr in shopifyCollectionIds))]{
-    _id,
-    "title": coalesce(title, store.title),
-    "handle": coalesce(shopifyHandle, store.slug.current),
-    "description": store.descriptionHtml,
-    "vendor": store.vendor,
-    "productType": store.productType,
-    "tags": store.tags,
-    "priceRange": {
-      "minVariantPrice": store.priceRange.minVariantPrice,
-      "maxVariantPrice": store.priceRange.maxVariantPrice
-    },
-    "mainImage": {
-      "url": store.previewImageUrl,
-      "alt": store.title,
-      "lqip": mainImage.asset->metadata.lqip
-    },
-    "gallery": gallery[] {
-      "url": asset->url,
-      alt,
-      "lqip": asset->metadata.lqip
-    } | order(_key asc),
-    "options": store.options,
-    "variants": store.variants[]-> {
-      "id": store.gid,
-      "title": store.title,
-      "sku": store.sku,
-      "price": store.price,
-      "compareAtPrice": store.compareAtPrice,
-      "available": store.inventory.isAvailable,
-      "selectedOptions": [
-        select(store.option1 != null => {"name": "Size", "value": store.option1}),
-        select(store.option2 != null => {"name": "Color", "value": store.option2}),
-        select(store.option3 != null => {"name": "Material", "value": store.option3})
-      ]
-    },
-    category-> {
-      _id,
-      title,
-      "slug": slug.current,
-      categoryType,
-      parentCategory-> {
-        _id,
-        title,
-        "slug": slug.current
-      }
-    },
-    brand-> {
-      _id,
-      name,
-      logo {
-        asset-> {
-          url
-        }
-      }
-    },
-    gender,
-    featured,
-    "createdAt": store.createdAt
-  }`;
+  const productsQuery = `*[_type == "product" && (references($collectionId) || (defined(shopifyCollectionIds) && $shopifyIdStr in shopifyCollectionIds))]${COLLECTION_PRODUCT_PROJECTION}`;
 
   try {
     const collection = await sanityFetch<Collection | null>(collectionQuery, { slug });
@@ -217,18 +145,7 @@ export async function getCollectionInfo(slug: string): Promise<Omit<Collection, 
     description,
     gridLayout,
     productsPerImage,
-    editorialImages[] {
-      _key,
-      image {
-        asset-> {
-          _id,
-          url,
-          metadata { lqip }
-        },
-        alt
-      },
-      caption
-    },
+    ${EDITORIAL_IMAGES_PROJECTION},
     "curatedProducts": curatedProducts[]-> {
       _id,
       "handle": coalesce(shopifyHandle, store.slug.current)
@@ -268,67 +185,6 @@ export async function getCollectionProducts(
 
   const baseFilter = `*[_type == "product" && (references($collectionId) || (defined(shopifyCollectionIds) && $shopifyIdStr in shopifyCollectionIds))]`;
 
-  const productProjection = `{
-    _id,
-    "title": coalesce(title, store.title),
-    "handle": coalesce(shopifyHandle, store.slug.current),
-    "description": store.descriptionHtml,
-    "vendor": store.vendor,
-    "productType": store.productType,
-    "tags": store.tags,
-    "priceRange": {
-      "minVariantPrice": store.priceRange.minVariantPrice,
-      "maxVariantPrice": store.priceRange.maxVariantPrice
-    },
-    "mainImage": {
-      "url": store.previewImageUrl,
-      "alt": store.title,
-      "lqip": mainImage.asset->metadata.lqip
-    },
-    "gallery": gallery[] {
-      "url": asset->url,
-      alt,
-      "lqip": asset->metadata.lqip
-    } | order(_key asc),
-    "options": store.options,
-    "variants": store.variants[]-> {
-      "id": store.gid,
-      "title": store.title,
-      "sku": store.sku,
-      "price": store.price,
-      "compareAtPrice": store.compareAtPrice,
-      "available": store.inventory.isAvailable,
-      "selectedOptions": [
-        select(store.option1 != null => {"name": "Size", "value": store.option1}),
-        select(store.option2 != null => {"name": "Color", "value": store.option2}),
-        select(store.option3 != null => {"name": "Material", "value": store.option3})
-      ]
-    },
-    category-> {
-      _id,
-      title,
-      "slug": slug.current,
-      categoryType,
-      parentCategory-> {
-        _id,
-        title,
-        "slug": slug.current
-      }
-    },
-    brand-> {
-      _id,
-      name,
-      logo {
-        asset-> {
-          url
-        }
-      }
-    },
-    gender,
-    featured,
-    "createdAt": store.createdAt
-  }`;
-
   // Helper to sort products by curated order then createdAt
   const sortProducts = (products: CollectionProduct[]): CollectionProduct[] => {
     if (curatedProducts && curatedProducts.length > 0) {
@@ -365,7 +221,7 @@ export async function getCollectionProducts(
   // If page is provided, use pagination
   if (page !== undefined) {
     const countQuery = `count(${baseFilter})`;
-    const productsQuery = `${baseFilter}${productProjection}`;
+    const productsQuery = `${baseFilter}${COLLECTION_PRODUCT_PROJECTION}`;
 
     try {
       const [totalCount, allProducts] = await Promise.all([
@@ -392,7 +248,7 @@ export async function getCollectionProducts(
   }
 
   // Legacy: no pagination
-  const productsQuery = `${baseFilter}${productProjection}`;
+  const productsQuery = `${baseFilter}${COLLECTION_PRODUCT_PROJECTION}`;
 
   try {
     let products = await sanityFetch<CollectionProduct[]>(productsQuery, {
@@ -420,67 +276,7 @@ export async function getProductsByCollectionId(
     }
   }`;
 
-  const productsQuery = `*[_type == "product" && (references($collectionId) || (defined(shopifyCollectionIds) && $shopifyIdStr in shopifyCollectionIds))]{
-    _id,
-    "title": coalesce(title, store.title),
-    "handle": coalesce(shopifyHandle, store.slug.current),
-    "description": store.descriptionHtml,
-    "vendor": store.vendor,
-    "productType": store.productType,
-    "tags": store.tags,
-    "priceRange": {
-      "minVariantPrice": store.priceRange.minVariantPrice,
-      "maxVariantPrice": store.priceRange.maxVariantPrice
-    },
-    "mainImage": {
-      "url": store.previewImageUrl,
-      "alt": store.title,
-      "lqip": mainImage.asset->metadata.lqip
-    },
-    "gallery": gallery[] {
-      "url": asset->url,
-      "alt": alt,
-      "lqip": asset->metadata.lqip
-    },
-    "options": store.options,
-    "variants": store.variants[]-> {
-      "id": store.gid,
-      "title": store.title,
-      "sku": store.sku,
-      "price": store.price,
-      "compareAtPrice": store.compareAtPrice,
-      "available": store.inventory.isAvailable,
-      "selectedOptions": [
-        select(store.option1 != null => {"name": "Size", "value": store.option1}),
-        select(store.option2 != null => {"name": "Color", "value": store.option2}),
-        select(store.option3 != null => {"name": "Material", "value": store.option3})
-      ]
-    },
-    category-> {
-      _id,
-      title,
-      "slug": slug.current,
-      categoryType,
-      parentCategory-> {
-        _id,
-        title,
-        "slug": slug.current
-      }
-    },
-    brand-> {
-      _id,
-      name,
-      "slug": slug.current,
-      logo {
-        asset-> {
-          url
-        }
-      }
-    },
-    gender,
-    featured,
-    "createdAt": store.createdAt
-  }`;
+  const productsQuery = `*[_type == "product" && (references($collectionId) || (defined(shopifyCollectionIds) && $shopifyIdStr in shopifyCollectionIds))]${COLLECTION_PRODUCT_PROJECTION}`;
 
   try {
     const collection = await sanityFetch<Collection | null>(collectionQuery, { collectionId });
