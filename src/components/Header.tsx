@@ -8,6 +8,7 @@ import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
 import { useCartStore } from "@/lib/cart/store";
 import { useHasMounted } from "@/hooks/useHasMounted";
 import AddedToCartModal from "./product/AddedToCartModal";
+import SearchModal from "./SearchModal";
 import DesktopDropdown from "./header/DesktopDropdown";
 import type {
   BrandMenuItem,
@@ -30,7 +31,7 @@ function Header({
   blogPosts?: BlogPostMenuItem[];
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  // const { isSearchOpen, setIsSearchOpen } = useSearchStore();
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<DropdownType>(null);
   const { lockScroll } = useModalScrollRestoration();
@@ -108,24 +109,25 @@ function Header({
         </div>
 
         <div className="absolute left-1/2 transform -translate-x-1/2">
-          <Link href="/" className="text-sm cursor-pointer">
+          <Link href="/" prefetch={true} className="text-sm cursor-pointer">
             Zone 2
           </Link>
         </div>
 
         <div className="flex items-center gap-2 px-2">
-          {/* <button
+          <button
             onClick={() => {
               lockScroll();
               setIsSearchOpen(true);
             }}
-            className="hover:text-gray-300"
+            className="hover:text-gray-500 text-xs"
+            aria-label="Search products"
           >
             Search
-          </button> */}
+          </button>
           <button
             className="text-xs"
-            aria-label={`Open cart, ${totalItems} items`}
+            aria-label={`Open cart, ${hasMounted ? totalItems : 0} items`}
             onClick={() => {
               lockScroll();
               setIsCartOpen(true);
@@ -155,6 +157,7 @@ function Header({
       />
       <CartModal isCartOpen={isCartOpen} setIsCartOpen={setIsCartOpen} />
       <AddedToCartModal isCartOpen={isCartOpen} setIsCartOpen={setIsCartOpen} />
+      <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
     </header>
   );
 }

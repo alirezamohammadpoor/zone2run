@@ -204,13 +204,24 @@ export const CART_LINES_REMOVE = `
 `;
 
 // Main cart functions
-export async function createCart(): Promise<{
+export async function createCart(
+  lines?: { variantId: string; quantity: number }[]
+): Promise<{
   cartId: string;
   checkoutUrl: string;
 } | null> {
   try {
+    const input = lines?.length
+      ? {
+          lines: lines.map((l) => ({
+            merchandiseId: l.variantId,
+            quantity: l.quantity,
+          })),
+        }
+      : {};
+
     const response = await shopifyClient.request(CART_CREATE, {
-      input: {},
+      input,
     });
 
     const { cartCreate } = response as any;

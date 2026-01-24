@@ -87,6 +87,7 @@ export type BlogPostMenuItem = {
   featuredImage?: {
     asset?: {
       url: string;
+      lqip?: string;
     };
     alt?: string;
   };

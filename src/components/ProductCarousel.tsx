@@ -7,7 +7,9 @@ import ProductCard from "./ProductCard";
 import type { SanityProduct } from "@/types/sanityProduct";
 
 interface ProductCarouselProps {
-  products: Array<SanityProduct & { selectedImage?: { url: string; alt: string } }>;
+  products: Array<
+    SanityProduct & { selectedImage?: { url: string; alt: string } }
+  >;
   className?: string;
   cardClassName?: string;
   sizes?: string;
@@ -42,7 +44,7 @@ const ProductCarousel = memo(function ProductCarousel({
         e.preventDefault();
       }
     },
-    [isDragging]
+    [isDragging],
   );
 
   if (!products?.length) {

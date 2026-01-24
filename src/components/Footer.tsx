@@ -33,7 +33,7 @@ function FooterLink({ link }: { link: FooterLink }) {
   }
 
   return (
-    <Link href={link.url} className="hover:text-gray-600">
+    <Link href={link.url} prefetch={true} className="hover:text-gray-600">
       {link.label}
     </Link>
   );

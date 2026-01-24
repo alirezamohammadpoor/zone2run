@@ -23,12 +23,13 @@ const RelatedProducts = memo(function RelatedProducts({
   if (!products?.length) return null;
 
   return (
-    <div className="ml-2 my-8 md:my-12 xl:my-16 pr-2 w-full">
+    <div className="ml-2 my-8 md:my-12 xl:my-16 w-full">
       <div className="py-4 flex justify-between items-center">
         <h2 className="text-black text-xl">More from {brandName}</h2>
         <Link
           href={getBrandUrl(brandSlug)}
-          className="text-black text-sm hover:underline cursor-pointer"
+          prefetch={true}
+          className="text-black text-sm hover:underline cursor-pointer mr-4"
         >
           View All
         </Link>
