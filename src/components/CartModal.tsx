@@ -275,6 +275,9 @@ function CartModal({
                         );
 
                       window.location.href = cartResult.checkoutUrl;
+                    } else {
+                      // Cart creation failed without throwing
+                      setIsRedirecting(false);
                     }
                   } catch (error) {
                     console.error("Checkout failed:", error);
