@@ -1,3 +1,32 @@
+// Predictive Search Types
+export interface PredictiveSearchResult {
+  products: SearchProduct[];
+  collections: SearchCollection[];
+  queries: SearchQuery[];
+  isDefault: boolean;
+}
+
+export interface SearchProduct {
+  id: string;
+  title: string;
+  handle: string;
+  featuredImage: { url: string; altText: string | null } | null;
+  priceRange: { minVariantPrice: { amount: string; currencyCode: string } };
+}
+
+export interface SearchCollection {
+  id: string;
+  title: string;
+  handle: string;
+  image: { url: string; altText: string | null } | null;
+}
+
+export interface SearchQuery {
+  text: string;
+  styledText: string;
+}
+
+// Product Types
 export interface ShopifyProduct {
   id: string;
   title: string;

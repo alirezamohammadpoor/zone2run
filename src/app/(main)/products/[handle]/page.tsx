@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import ProductGalleryServer from "@/components/product/ProductGalleryServer";
 import ProductInfo from "@/components/product/ProductInfo";
-import ProductForm from "@/components/product/ProductForm";
+import ProductForm, { ProductPrice } from "@/components/product/ProductForm";
 import { getProductByHandle } from "@/lib/product/getProductByHandle";
 import { getShopifyProductByHandle } from "@/lib/shopify/products";
 import { notFound } from "next/navigation";
@@ -104,7 +104,15 @@ export default async function ProductPage({
             galleryImages={product.gallery}
             title={product.title}
           />
-          <ProductInfo product={product}>
+          <ProductInfo
+            product={product}
+            priceSlot={
+              <ProductPrice
+                shopifyProduct={shopifyProduct}
+                fallbackPrice={product.priceRange.minVariantPrice}
+              />
+            }
+          >
             {/* Shopify data - fetched in parallel with Sanity */}
             <ProductForm
               staticProduct={product}
