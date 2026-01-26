@@ -1,7 +1,7 @@
 interface BackdropProps {
   isOpen: boolean;
   onClick: () => void;
-  /** Blur effect (default: true) */
+  /** Blur effect (default: false for better performance) */
   blur?: boolean;
 }
 
@@ -9,7 +9,7 @@ interface BackdropProps {
  * Modal backdrop overlay with opacity transition.
  * Handles click-outside-to-close functionality.
  */
-export function Backdrop({ isOpen, onClick, blur = true }: BackdropProps) {
+export function Backdrop({ isOpen, onClick, blur = false }: BackdropProps) {
   return (
     <div
       className={`fixed inset-0 bg-black/30 z-40 transition-opacity duration-300 ${
