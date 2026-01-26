@@ -2,10 +2,12 @@
 
 import { useState, useTransition, useRef, useEffect } from "react";
 import Link from "next/link";
-import { searchProducts } from "@/app/actions/search";
+import { searchProducts } from "@/lib/actions/search";
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
 import ProductCard from "./ProductCard";
-import type { SanitySearchResult } from "@/app/actions/search";
+import { Backdrop } from "@/components/ui/Backdrop";
+import { NavLink } from "@/components/ui/NavLink";
+import type { SanitySearchResult } from "@/lib/actions/search";
 import type { SanityProduct } from "@/types/sanityProduct";
 
 interface SearchModalProps {
@@ -64,14 +66,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
   return (
     <>
-      {/* Backdrop */}
-      <div
-        className={
-          "fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300" +
-          (isOpen ? " opacity-100" : " opacity-0 pointer-events-none")
-        }
-        onClick={handleClose}
-      />
+      <Backdrop isOpen={isOpen} onClick={handleClose} blur={false} />
 
       {/* Modal - Full screen on mobile, 25vw on desktop (matches CartModal) */}
       <div
@@ -149,14 +144,14 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             <div className="mt-8">
               <span className="text-gray-500 text-xs block mb-3">Brands</span>
               {results.brands.map((brand) => (
-                <Link
+                <NavLink
                   key={brand._id}
                   href={`/brands/${brand.slug}`}
                   onClick={handleClose}
-                  className="text-xs block mt-2 hover:text-gray-500"
+                  className="mt-2"
                 >
                   {brand.name}
-                </Link>
+                </NavLink>
               ))}
             </div>
           )}
@@ -168,14 +163,14 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 Collections
               </span>
               {results.collections.map((collection) => (
-                <Link
+                <NavLink
                   key={collection._id}
                   href={`/collections/${collection.slug}`}
                   onClick={handleClose}
-                  className="text-xs block mt-2 hover:text-gray-500"
+                  className="mt-2"
                 >
                   {collection.title}
-                </Link>
+                </NavLink>
               ))}
             </div>
           )}

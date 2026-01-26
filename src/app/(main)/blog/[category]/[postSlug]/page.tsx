@@ -83,7 +83,7 @@ export default async function PostPage({
   let collectionProducts: SanityProduct[] = [];
   if (post.featuredCollection?._id) {
     const allProducts = await getProductsByCollectionId(
-      post.featuredCollection._id
+      post.featuredCollection._id,
     );
     collectionProducts = post.featuredCollectionLimit
       ? allProducts.slice(0, post.featuredCollectionLimit)
@@ -183,17 +183,17 @@ export default async function PostPage({
               types: {
                 image: ({ value }) =>
                   value?.asset?.url && (
-                    <div className="mb-4">
+                    <div className="mb-6">
                       <div className="relative w-full h-[50vh] xl:h-[70vh] overflow-hidden">
                         <Image
                           src={value.asset.url}
                           alt={value.alt || ""}
                           fill
-                          className="object-contain"
+                          className="object-cover"
                         />
                       </div>
                       {value.caption && (
-                        <p className="text-xs text-black mt-2 italic text-center">
+                        <p className="text-xs text-black mt-1 italic text-center">
                           {value.caption}
                         </p>
                       )}
@@ -240,7 +240,7 @@ export default async function PostPage({
                                     : undefined,
                                 }
                               : ({} as SanityProduct);
-                          }
+                          },
                         )}
                         count={value.productCount}
                         className="grid grid-cols-2 xl:grid-cols-4 gap-2"

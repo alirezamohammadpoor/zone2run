@@ -25,7 +25,7 @@ function FooterLink({ link }: { link: FooterLink }) {
         href={link.url}
         target="_blank"
         rel="noopener noreferrer"
-        className="hover:text-gray-600"
+        className="hover:text-gray-500"
       >
         {link.label}
       </a>
@@ -33,7 +33,7 @@ function FooterLink({ link }: { link: FooterLink }) {
   }
 
   return (
-    <Link href={link.url} prefetch={true} className="hover:text-gray-600">
+    <Link href={link.url} prefetch={true} className="hover:text-gray-500">
       {link.label}
     </Link>
   );

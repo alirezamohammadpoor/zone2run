@@ -7,7 +7,9 @@ import Image from "next/image";
 import { useCartStore } from "@/lib/cart/store";
 import { formatPrice } from "@/lib/utils/formatPrice";
 import { createCart } from "@/lib/shopify/cart";
-import { checkCartAvailability } from "@/app/actions/cart";
+import { checkCartAvailability } from "@/lib/actions/cart";
+import { Backdrop } from "@/components/ui/Backdrop";
+import { ModalHeader } from "@/components/ui/ModalHeader";
 
 function CartModal({
   isCartOpen,
@@ -47,16 +49,7 @@ function CartModal({
 
   return (
     <>
-      {/* Backdrop */}
-      <div
-        className={`fixed inset-0 bg-black/30 backdrop-blur-sm z-40 transition-opacity duration-300 ${
-          isCartOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-        }`}
-        onClick={handleClose}
-        role="presentation"
-        aria-hidden="true"
-      />
-      {/* Modal */}
+      <Backdrop isOpen={isCartOpen} onClick={handleClose} />
       <FocusLock disabled={!isCartOpen}>
         <div
           role="dialog"
@@ -68,19 +61,12 @@ function CartModal({
             (isCartOpen ? " translate-x-0" : " translate-x-full")
           }
         >
-          {/* Fixed Header */}
-          <div className="flex-shrink-0 bg-white z-10 h-12 xl:h-16 border-b border-gray-300">
-            <div className="text-xs flex justify-between items-center h-full px-2">
-              <span id="cart-title">Cart</span>
-              <button
-                className="text-xs hover:text-gray-500"
-                onClick={handleClose}
-                aria-label="Close cart"
-              >
-                Close
-              </button>
-            </div>
-          </div>
+          <ModalHeader
+            title="Cart"
+            titleId="cart-title"
+            onClose={handleClose}
+            bordered
+          />
 
           {/* Scrollable Content Area */}
           <div className="flex-1 min-h-0 overflow-y-auto px-2 overscroll-contain">
@@ -130,7 +116,7 @@ function CartModal({
                           )}
                           <div className="-ml-4 w-full flex items-center">
                             <button
-                              className="cursor-pointer hover:text-gray-600 min-h-[44px] min-w-[44px]"
+                              className="cursor-pointer hover:text-gray-500 min-h-[44px] min-w-[44px]"
                               onClick={() =>
                                 handleDecreaseQuantity(item.id, item.quantity)
                               }
@@ -140,7 +126,7 @@ function CartModal({
                             </button>
                             <span>{item.quantity}</span>
                             <button
-                              className="cursor-pointer hover:text-gray-600 min-h-[44px] min-w-[44px]"
+                              className="cursor-pointer hover:text-gray-500 min-h-[44px] min-w-[44px]"
                               onClick={() =>
                                 handleIncreaseQuantity(item.id, item.quantity)
                               }
@@ -149,7 +135,7 @@ function CartModal({
                               +
                             </button>
                             <button
-                              className="ml-auto -mr-4 cursor-pointer hover:text-gray-600 min-h-[44px] min-w-[44px]"
+                              className="ml-auto -mr-4 cursor-pointer hover:text-gray-500 min-h-[44px] min-w-[44px]"
                               onClick={() => removeItem(item.id)}
                               aria-label={`Remove ${item.title} from cart`}
                             >
@@ -161,7 +147,7 @@ function CartModal({
                     );
                   })}
                   <button
-                    className="text-xs cursor-pointer hover:text-gray-600 w-full text-center mb-4"
+                    className="text-xs cursor-pointer hover:text-gray-500 w-full text-center mb-4"
                     onClick={() => {
                       removeAllItems();
                     }}
@@ -187,32 +173,30 @@ function CartModal({
           {/* Fixed Bottom Section */}
           <div className="flex-shrink-0 border-t border-gray-300 bg-white h-48">
             <div className="px-2 py-4 h-full flex flex-col justify-between">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between text-xs">
                 <div className="flex flex-col gap-2">
-                  <p className="text-xs">Shipping</p>
-                  <p className="text-xs">Subtotal (excl. VAT)</p>
-                  <p className="text-xs text-gray-500">VAT (25%)</p>
-                  <p className="text-xs font-semibold">Total (incl. VAT)</p>
+                  <p>Shipping</p>
+                  <p>Subtotal (excl. VAT)</p>
+                  <p className="text-gray-500">VAT (25%)</p>
+                  <p className="font-semibold">Total (incl. VAT)</p>
                 </div>
                 <div className="flex flex-col gap-2 items-end">
-                  <p className="text-xs text-gray-500">
-                    Calculated at checkout
-                  </p>
-                  <p className="text-xs">
+                  <p className="text-gray-500">Calculated at checkout</p>
+                  <p>
                     {hasMounted && totalPrice
                       ? `${formatPrice(totalPrice / 1.25)} ${
                           items[0]?.price?.currencyCode || "SEK"
                         }`
                       : ""}
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-gray-500">
                     {hasMounted && totalPrice
                       ? `${formatPrice(totalPrice * 0.2)} ${
                           items[0]?.price?.currencyCode || "SEK"
                         }`
                       : ""}
                   </p>
-                  <p className="text-xs font-semibold">
+                  <p className="font-semibold">
                     {hasMounted && totalPrice
                       ? `${formatPrice(totalPrice)} ${
                           items[0]?.price?.currencyCode || "SEK"
