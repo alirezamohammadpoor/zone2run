@@ -79,6 +79,15 @@ export const blogPost = defineType({
               },
             ],
           },
+          // Add block-level validation
+          validation: (Rule) =>
+            Rule.custom((block: any) => {
+              // Ensure blocks have content
+              if (!block.children || block.children.length === 0) {
+                return "Block must have content";
+              }
+              return true;
+            }),
         },
         {
           type: "image",
@@ -98,21 +107,12 @@ export const blogPost = defineType({
           ],
         },
         {
-          type: "file",
+          type: "mux.video",
           title: "Video",
-          options: {
-            accept: "video/*",
-          },
         },
-        { type: "blogProductsModule" },
-        { type: "muxVideo" },
+        { type: "productShowcaseModule" },
       ],
       validation: (Rule) => Rule.required().min(1),
-    }),
-    defineField({
-      name: "productsModule",
-      title: "Products Module",
-      type: "blogProductsModule",
     }),
     defineField({
       name: "mediaType",
@@ -249,34 +249,17 @@ export const blogPost = defineType({
       type: "number",
       validation: (Rule) => Rule.required().min(1),
     }),
-    // FEATURED COLLECTION
     defineField({
-      name: "featuredCollection",
-      title: "Featured Collection",
-      type: "reference",
-      to: [{ type: "collection" }],
-      description: "Select a collection to display products from",
-    }),
-    defineField({
-      name: "featuredCollectionLimit",
-      title: "Product Limit",
-      type: "number",
-      description: "Maximum number of products to show (leave empty for all)",
-      validation: (Rule) => Rule.min(1).max(50),
-    }),
-    defineField({
-      name: "featuredCollectionDisplayType",
-      title: "Display Type",
-      type: "string",
-      options: {
-        list: [
-          { title: "Grid", value: "grid" },
-          { title: "Horizontal Scroll", value: "horizontal" },
-        ],
-        layout: "radio",
-      },
-      initialValue: "grid",
-      description: "How to display the featured collection products",
+      name: "linkedProducts",
+      title: "Linked Products",
+      type: "array",
+      of: [
+        {
+          type: "reference",
+          to: [{ type: "product" }],
+        },
+      ],
+      description: "Products mentioned or recommended in this post",
     }),
     // SEO FIELDS
     defineField({

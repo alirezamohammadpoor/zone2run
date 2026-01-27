@@ -5,7 +5,6 @@ import Link from "next/link";
 import { searchProducts } from "@/lib/actions/search";
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
 import ProductCard from "./ProductCard";
-import RecentlyViewedSection from "./RecentlyViewedSection";
 import { Backdrop } from "@/components/ui/Backdrop";
 import { NavLink } from "@/components/ui/NavLink";
 import type { SanitySearchResult } from "@/lib/actions/search";
@@ -72,13 +71,13 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
       {/* Modal - Full screen on mobile, 25vw on desktop (matches CartModal) */}
       <div
         className={
-          "fixed top-0 right-0 h-screen w-full xl:w-1/2 bg-white z-50 transform transition-transform duration-300 overflow-hidden flex flex-col" +
+          "fixed top-0 right-0 h-screen w-full xl:w-[25vw] bg-white z-50 transform transition-transform duration-300 overflow-hidden flex flex-col" +
           (isOpen ? " translate-x-0" : " translate-x-full")
         }
       >
         {/* Fixed Header */}
         <div className="bg-white z-10 flex-shrink-0">
-          <div className="text-xs flex justify-between items-center h-12 xl:h-16 px-4 xl:px-4">
+          <div className="text-xs flex justify-between items-center h-12 xl:h-16 px-4 xl:px-16">
             <span>Search</span>
             <button
               className="text-xs hover:text-gray-500"
@@ -91,7 +90,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
         </div>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto px-4 xl:px-4">
+        <div className="flex-1 overflow-y-auto px-4 xl:px-16">
           {/* Search Input */}
           <div className="mt-6">
             <input
@@ -176,19 +175,18 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             </div>
           )}
 
-          {/* Recently Viewed - shown in default state (no search query) */}
-          {results?.isDefault && (
-            <RecentlyViewedSection onProductClick={handleClose} />
-          )}
-
           {/* Products */}
           {results?.products && results.products.length > 0 && (
             <div className="mt-12 mb-8">
-              <div className="flex justify-between items-center mb-4 text-xs">
-                <span>{results.isDefault ? "New arrivals" : "Results"}</span>
-                <span>{results.totalCount} products</span>
+              <div className="flex justify-between items-center mb-4">
+                <span className="text-gray-500 text-xs">
+                  {results.isDefault ? "New arrivals" : "Results"}
+                </span>
+                <span className="text-gray-500 text-xs">
+                  {results.totalCount} products
+                </span>
               </div>
-              <div className="grid grid-cols-2 xl:grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 {results.products.map((product) => (
                   <Link
                     key={product._id}

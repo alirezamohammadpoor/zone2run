@@ -72,7 +72,7 @@ const buildSearchProductsQuery = (page: number) => `
 
 // Default: newest products
 const NEW_ARRIVALS = `
-*[_type == "product"] | order(_createdAt desc)[0...12] ${SEARCH_PROJECTION}`;
+*[_type == "product"] | order(_createdAt desc)[0...6] ${SEARCH_PROJECTION}`;
 
 // Brand search
 const SEARCH_BRANDS = `
