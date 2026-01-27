@@ -15,6 +15,7 @@ export function useTrackRecentlyViewed(product: SanityProduct) {
     if (!product?.handle) return;
 
     addProduct({
+      _id: product.handle,
       handle: product.handle,
       title: product.title,
       mainImage: {

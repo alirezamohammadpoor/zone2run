@@ -1,4 +1,5 @@
 export interface RecentlyViewedProduct {
+  _id: string;
   handle: string;
   title: string;
   mainImage: {

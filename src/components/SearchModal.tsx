@@ -178,22 +178,15 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
           {/* Recently Viewed - shown in default state (no search query) */}
           {results?.isDefault && (
-            <RecentlyViewedSection
-              maxProducts={4}
-              onProductClick={handleClose}
-            />
+            <RecentlyViewedSection onProductClick={handleClose} />
           )}
 
           {/* Products */}
           {results?.products && results.products.length > 0 && (
             <div className="mt-12 mb-8">
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-gray-500 text-xs">
-                  {results.isDefault ? "New arrivals" : "Results"}
-                </span>
-                <span className="text-gray-500 text-xs">
-                  {results.totalCount} products
-                </span>
+              <div className="flex justify-between items-center mb-4 text-xs">
+                <span>{results.isDefault ? "New arrivals" : "Results"}</span>
+                <span>{results.totalCount} products</span>
               </div>
               <div className="grid grid-cols-2 xl:grid-cols-4 gap-2">
                 {results.products.map((product) => (

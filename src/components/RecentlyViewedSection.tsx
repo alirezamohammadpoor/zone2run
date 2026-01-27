@@ -1,9 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useRecentlyViewedStore } from "@/lib/recentlyViewed/store";
 import { useHasMounted } from "@/hooks/useHasMounted";
-import ProductCard from "./ProductCard";
+import ProductCarousel from "./ProductCarousel";
 import type { SanityProduct } from "@/types/sanityProduct";
 
 interface RecentlyViewedSectionProps {
@@ -16,7 +15,7 @@ interface RecentlyViewedSectionProps {
 }
 
 export default function RecentlyViewedSection({
-  maxProducts = 4,
+  maxProducts = 10,
   excludeHandle,
   onProductClick,
 }: RecentlyViewedSectionProps) {
@@ -35,23 +34,21 @@ export default function RecentlyViewedSection({
   if (displayProducts.length === 0) return null;
 
   return (
-    <div className="mt-8">
-      <span className="text-gray-500 text-xs block mb-4">Recently viewed</span>
-      <div className="grid grid-cols-2 xl:grid-cols-4 gap-2">
-        {displayProducts.map((product) => (
-          <Link
-            key={product.handle}
-            href={`/products/${product.handle}`}
-            onClick={onProductClick}
-          >
-            <ProductCard
-              product={product as unknown as SanityProduct}
-              sizes="(max-width: 768px) 50vw, 25vw"
-              disableGallery
-            />
-          </Link>
-        ))}
+    <div className="mt-8 flex-col">
+      <div className="flex justify-between items-center w-full text-xs mb-4">
+        <span>Recently viewed</span>
+        <span>
+          {displayProducts.length} product
+          {displayProducts.length > 1 ? "s" : ""}
+        </span>
       </div>
+      <ProductCarousel
+        products={displayProducts as unknown as SanityProduct[]}
+        onProductClick={onProductClick}
+        className="overflow-hidden"
+        cardClassName="flex-shrink-0 w-[60vw] md:w-[30vw] lg:w-[22vw] xl:w-[18vw] min-w-0"
+        sizes="(max-width: 768px) 60vw, (max-width: 1024px) 30vw, 18vw"
+      />
     </div>
   );
 }
