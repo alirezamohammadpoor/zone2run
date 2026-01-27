@@ -1,0 +1,28 @@
+export interface RecentlyViewedProduct {
+  handle: string;
+  title: string;
+  mainImage: {
+    url: string;
+    alt?: string;
+  };
+  priceRange: {
+    minVariantPrice: number;
+  };
+  brand?: {
+    name: string;
+    slug?: string;
+  };
+  vendor?: string;
+}
+
+export interface RecentlyViewedState {
+  products: RecentlyViewedProduct[];
+}
+
+export interface RecentlyViewedActions {
+  addProduct: (product: RecentlyViewedProduct) => void;
+  getLatest: (count: number) => RecentlyViewedProduct[];
+  clearAll: () => void;
+}
+
+export type RecentlyViewedStore = RecentlyViewedState & RecentlyViewedActions;

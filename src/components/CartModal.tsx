@@ -57,7 +57,7 @@ function CartModal({
           aria-labelledby="cart-title"
           inert={!isCartOpen ? true : undefined}
           className={
-            "fixed inset-0 bg-white z-50 transform transition-transform duration-300 flex flex-col xl:left-auto xl:right-0 xl:w-[25vw] overscroll-contain" +
+            "fixed inset-0 bg-white z-50 transform transition-transform duration-300 flex flex-col xl:left-auto xl:right-0 xl:w-1/2 overscroll-contain" +
             (isCartOpen ? " translate-x-0" : " translate-x-full")
           }
         >

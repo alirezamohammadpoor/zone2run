@@ -5,6 +5,7 @@ import ProductTabs from "./ProductTabs";
 import Breadcrumbs from "./Breadcrumbs";
 import type { SanityProduct } from "@/types/sanityProduct";
 import { getBrandUrl } from "@/lib/utils/brandUrls";
+import { useTrackRecentlyViewed } from "@/hooks/useTrackRecentlyViewed";
 
 interface ProductInfoProps {
   product: SanityProduct;
@@ -14,6 +15,9 @@ interface ProductInfoProps {
 
 function ProductInfo({ product, priceSlot, children }: ProductInfoProps) {
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+
+  // Track product view for recently viewed feature
+  useTrackRecentlyViewed(product);
 
   const brandName = product.brand?.name || product.vendor;
   const displayTitle = product.title;
