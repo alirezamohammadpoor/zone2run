@@ -13,6 +13,8 @@ interface ProductCarouselProps {
   className?: string;
   cardClassName?: string;
   sizes?: string;
+  /** Callback when a product is clicked (fires only on tap, not drag) */
+  onProductClick?: () => void;
 }
 
 const ProductCarousel = memo(function ProductCarousel({
@@ -20,6 +22,7 @@ const ProductCarousel = memo(function ProductCarousel({
   className,
   cardClassName = "flex-shrink-0 w-[70vw] min-w-0 xl:w-[30vw]",
   sizes = "(max-width: 768px) 70vw, 33vw",
+  onProductClick,
 }: ProductCarouselProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: "start",
@@ -42,9 +45,11 @@ const ProductCarousel = memo(function ProductCarousel({
     (e: React.MouseEvent) => {
       if (isDragging) {
         e.preventDefault();
+      } else {
+        onProductClick?.();
       }
     },
-    [isDragging],
+    [isDragging, onProductClick],
   );
 
   if (!products?.length) {
@@ -56,7 +61,7 @@ const ProductCarousel = memo(function ProductCarousel({
       <div className="flex gap-2">
         {products.map((product) => (
           <Link
-            key={product._id}
+            key={product._id || product.handle}
             href={`/products/${product.handle}`}
             onClick={handleProductClick}
             className={`cursor-pointer ${isDragging ? "pointer-events-none" : ""}`}

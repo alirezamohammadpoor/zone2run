@@ -105,7 +105,6 @@ export const blogPost = defineType({
           },
         },
         { type: "blogProductsModule" },
-        { type: "muxVideo" },
       ],
       validation: (Rule) => Rule.required().min(1),
     }),
