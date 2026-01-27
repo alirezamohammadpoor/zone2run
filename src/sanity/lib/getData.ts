@@ -25,7 +25,6 @@ export { getAllBrands, getBrandBySlug } from "./getBrands";
 
 export {
   getAllCollections,
-  getCollectionBySlug,
   getCollectionInfo,
   getCollectionProducts,
   getProductsByCollectionId,

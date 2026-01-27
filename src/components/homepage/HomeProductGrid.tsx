@@ -1,10 +1,27 @@
 import React, { memo } from "react";
 import Link from "next/link";
 import ProductCard from "@/components/ProductCard";
-import type { SanityProduct } from "@/types/sanityProduct";
+
+/**
+ * Flexible product shape for grid display.
+ * Accepts both full SanityProduct and minimal HomepageProduct.
+ */
+interface GridProduct {
+  _id: string;
+  handle: string;
+  title: string;
+  vendor: string;
+  priceRange: { minVariantPrice: number };
+  selectedImage?: { url: string; alt: string };
+  gallery?: Array<{ url: string; alt?: string }>;
+  mainImage?: { url: string; alt: string };
+  brand?: { name?: string; slug?: string };
+  brandName?: string | null;
+  brandSlug?: string | null;
+}
 
 interface HomeProductGridProps {
-  products: Array<SanityProduct>;
+  products: Array<GridProduct>;
   count?: number;
   columns?: "2" | "2-lg" | "3-lg" | "4" | "4-lg" | "auto"; // "auto" = 2 on mobile, 4 on xl; "3-lg" = 3 on lg+; "4-lg" = 4 on lg+
 }
