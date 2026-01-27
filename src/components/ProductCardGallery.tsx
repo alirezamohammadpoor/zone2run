@@ -37,29 +37,32 @@ const ProductCardGallery = memo(function ProductCardGallery({
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start" });
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  const onSelect = useCallback(() => {
-    if (!emblaApi) return;
-    setSelectedIndex(emblaApi.selectedScrollSnap());
-  }, [emblaApi]);
-
   useEffect(() => {
     if (!emblaApi || disableGallery) return;
+    // Inline callback avoids dependency chain: onSelect → emblaApi → effect
+    const onSelect = () => setSelectedIndex(emblaApi.selectedScrollSnap());
     onSelect();
     emblaApi.on("select", onSelect);
     return () => {
       emblaApi.off("select", onSelect);
     };
-  }, [emblaApi, onSelect, disableGallery]);
+  }, [emblaApi, disableGallery]);
 
-  const scrollPrev = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (emblaApi) emblaApi.scrollPrev();
-  }, [emblaApi]);
+  const scrollPrev = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      emblaApi?.scrollPrev();
+    },
+    [emblaApi],
+  );
 
-  const scrollNext = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (emblaApi) emblaApi.scrollNext();
-  }, [emblaApi]);
+  const scrollNext = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      emblaApi?.scrollNext();
+    },
+    [emblaApi],
+  );
 
   // Static image when gallery is disabled or single image
   if (disableGallery || images.length <= 1) {

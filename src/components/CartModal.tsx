@@ -21,12 +21,17 @@ function CartModal({
   isCartOpen: boolean;
   setIsCartOpen: (isOpen: boolean) => void;
 }) {
-  const { items, removeItem, getTotalPrice, updateQuantity, removeAllItems } =
-    useCartStore();
+  // Granular selectors - only re-render when specific values change
+  const items = useCartStore((state) => state.items);
+  const removeItem = useCartStore((state) => state.removeItem);
+  const updateQuantity = useCartStore((state) => state.updateQuantity);
+  const removeAllItems = useCartStore((state) => state.removeAllItems);
+  // Compute total inline - avoids function call overhead
+  const totalPrice = useCartStore((state) =>
+    state.items.reduce((sum, i) => sum + (i.price?.amount || 0) * i.quantity, 0)
+  );
   const { unlockScroll } = useModalScrollRestoration();
   const hasMounted = useHasMounted();
-
-  const totalPrice = getTotalPrice();
 
   const handleClose = () => {
     setIsCartOpen(false);
