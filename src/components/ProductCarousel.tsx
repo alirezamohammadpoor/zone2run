@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useRef } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Link from "next/link";
 import ProductCard from "./ProductCard";
@@ -44,12 +44,17 @@ const ProductCarousel = memo(function ProductCarousel({
     containScroll: "trimSnaps",
     dragFree: false,
   });
-  const [isDragging, setIsDragging] = useState(false);
+  // Use ref instead of state to avoid callback recreation on drag
+  const isDraggingRef = useRef(false);
 
   useEffect(() => {
     if (!emblaApi) return;
-    const onSettle = () => setIsDragging(false);
-    const onScroll = () => setIsDragging(true);
+    const onSettle = () => {
+      isDraggingRef.current = false;
+    };
+    const onScroll = () => {
+      isDraggingRef.current = true;
+    };
     emblaApi.on("settle", onSettle).on("scroll", onScroll);
     return () => {
       emblaApi.off("settle", onSettle).off("scroll", onScroll);
@@ -58,13 +63,13 @@ const ProductCarousel = memo(function ProductCarousel({
 
   const handleProductClick = useCallback(
     (e: React.MouseEvent) => {
-      if (isDragging) {
+      if (isDraggingRef.current) {
         e.preventDefault();
       } else {
         onProductClick?.();
       }
     },
-    [isDragging, onProductClick],
+    [onProductClick],
   );
 
   if (!products?.length) {
@@ -79,7 +84,8 @@ const ProductCarousel = memo(function ProductCarousel({
             key={product._id || product.handle}
             href={`/products/${product.handle}`}
             onClick={handleProductClick}
-            className={`cursor-pointer ${isDragging ? "pointer-events-none" : ""}`}
+            draggable={false}
+            className="cursor-pointer"
           >
             <ProductCard
               product={product}

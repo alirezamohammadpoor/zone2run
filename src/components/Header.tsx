@@ -38,7 +38,10 @@ function Header({
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<DropdownType>(null);
   const { lockScroll } = useModalScrollRestoration();
-  const totalItems = useCartStore((state) => state.getTotalItems());
+  // Inline selector - computes once per items change, avoids function call overhead
+  const totalItems = useCartStore((state) =>
+    state.items.reduce((sum, i) => sum + i.quantity, 0)
+  );
   const hasMounted = useHasMounted();
 
   const handleNavClick = (type: DropdownType) => {
