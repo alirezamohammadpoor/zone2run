@@ -1,7 +1,10 @@
 import { useState } from "react";
 import Link from "next/link";
-import FocusLock from "react-focus-lock";
+import dynamic from "next/dynamic";
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
+
+// Lazy load FocusLock - only needed when modal is visible
+const FocusLock = dynamic(() => import("react-focus-lock"), { ssr: false });
 import { useHasMounted } from "@/hooks/useHasMounted";
 import Image from "next/image";
 import { useCartStore } from "@/lib/cart/store";

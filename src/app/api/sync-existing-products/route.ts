@@ -123,19 +123,34 @@ export async function POST(request: NextRequest) {
     let updated = 0;
     let skipped = 0;
 
+    // Fetch smart collections once (shared across all products)
+    const smartCollections = await getSanityClient().fetch(
+      `*[_type == "collection" && defined(store.rules) && count(store.rules) > 0] {
+        _id,
+        "shopifyId": store.id,
+        "rules": store.rules
+      }`
+    );
+
     for (const product of existingProducts) {
       try {
         console.log(`🔄 Processing: ${product.title}`);
 
-        // Extract gender
+        // Extract gender (sync operation - no await needed)
         const gender = extractGender(
           product.title,
           product.tags || "",
           product.product_type || ""
         );
 
-        // Get or create brand
-        const brandId = await getOrCreateBrand(product.vendor);
+        // Run independent operations in parallel
+        const [brandId, shopifyCollections] = await Promise.all([
+          getOrCreateBrand(product.vendor),
+          product.shopifyId
+            ? getProductCollections(product.shopifyId.toString())
+            : Promise.resolve([]),
+        ]);
+
         if (!brandId) {
           console.log(`⚠️  Skipping - no brand for vendor: ${product.vendor}`);
           skipped++;
@@ -147,19 +162,13 @@ export async function POST(request: NextRequest) {
         if (product.shopifyId) {
           try {
             console.log(
-              `🔍 Fetching collections for product ${product.shopifyId}...`
-            );
-            const shopifyCollections = await getProductCollections(
-              product.shopifyId.toString()
-            );
-            console.log(
               `📚 Found ${shopifyCollections.length} manual collections from Shopify`
             );
 
             const allCollectionIds: string[] = [];
             const allShopifyIds: string[] = [];
 
-            // Add manual collections
+            // Add manual collections (this depends on shopifyCollections result)
             if (shopifyCollections.length > 0) {
               const sanityCollectionIds = await getSanityCollectionsByShopifyIds(
                 shopifyCollections.map((c) => c.id.toString())
@@ -171,16 +180,8 @@ export async function POST(request: NextRequest) {
               allShopifyIds.push(...shopifyCollections.map((c) => c.id.toString()));
             }
 
-            // Also check smart collections by matching vendor
+            // Check smart collections by matching vendor (uses pre-fetched data)
             if (product.vendor) {
-              const smartCollections = await getSanityClient().fetch(
-                `*[_type == "collection" && defined(store.rules) && count(store.rules) > 0] {
-                  _id,
-                  "shopifyId": store.id,
-                  "rules": store.rules
-                }`
-              );
-
               for (const collection of smartCollections) {
                 const vendorRule = collection.rules?.find(
                   (r: any) => r.column?.toLowerCase() === "vendor"
@@ -281,15 +282,13 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    // Get total count of products
-    const totalProducts = await getSanityClient().fetch(
-      `count(*[_type == "product"])`
-    );
-
-    // Get products that need syncing (no gender or brand)
-    const needsSync = await getSanityClient().fetch(`
-      count(*[_type == "product" && (!defined(gender) || !defined(brand))])
-    `);
+    // Run both count queries in parallel
+    const [totalProducts, needsSync] = await Promise.all([
+      getSanityClient().fetch(`count(*[_type == "product"])`),
+      getSanityClient().fetch(
+        `count(*[_type == "product" && (!defined(gender) || !defined(brand))])`
+      ),
+    ]);
 
     return NextResponse.json({
       message: "Existing products sync status",

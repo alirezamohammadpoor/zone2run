@@ -1,6 +1,9 @@
 "use client";
-import FocusLock from "react-focus-lock";
+import dynamic from "next/dynamic";
 import SortButtons from "./SortButtons";
+
+// Lazy load FocusLock - only needed when modal is visible
+const FocusLock = dynamic(() => import("react-focus-lock"), { ssr: false });
 import { FilterButtons } from "./FilterButtons";
 import type { SanityProduct } from "@/types/sanityProduct";
 

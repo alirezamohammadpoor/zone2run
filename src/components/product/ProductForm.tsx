@@ -1,5 +1,5 @@
 import VariantSelector from "./VariantSelector";
-import AddToCart from "./AddToCart";
+import AddToCart, { type ProductMeta } from "./AddToCart";
 import { formatPrice } from "@/lib/utils/formatPrice";
 import type { SanityProduct } from "@/types/sanityProduct";
 import type { ShopifyProduct } from "@/types/shopify";
@@ -7,6 +7,17 @@ import type { ShopifyProduct } from "@/types/shopify";
 interface ProductFormProps {
   staticProduct: SanityProduct;
   shopifyProduct: ShopifyProduct | null;
+}
+
+// Extract minimal product data to reduce serialization payload to client
+function extractProductMeta(product: SanityProduct): ProductMeta {
+  return {
+    handle: product.handle,
+    title: product.title,
+    imageUrl: product.mainImage?.url || "",
+    brandName: product.brand?.name || null,
+    vendor: product.vendor,
+  };
 }
 
 /**
@@ -23,14 +34,17 @@ export default function ProductForm({
     return <ProductFormFallback product={staticProduct} />;
   }
 
+  // Extract only the minimal data needed for cart operations
+  const productMeta = extractProductMeta(staticProduct);
+
   return (
     <>
       {/* Variants from Shopify */}
       <VariantSelector variants={shopifyProduct.variants} />
 
-      {/* Add to cart */}
+      {/* Add to cart - receives minimal product data to reduce serialization */}
       <AddToCart
-        staticProduct={staticProduct}
+        productMeta={productMeta}
         variants={shopifyProduct.variants}
       />
     </>
@@ -92,10 +106,13 @@ function ProductFormFallback({ product }: { product: SanityProduct }) {
     color: v.selectedOptions.find((o) => o.name === "Color")?.value,
   })) || [];
 
+  // Extract minimal data for cart operations
+  const productMeta = extractProductMeta(product);
+
   return (
     <>
       <VariantSelector variants={variants} />
-      <AddToCart staticProduct={product} variants={variants} />
+      <AddToCart productMeta={productMeta} variants={variants} />
     </>
   );
 }

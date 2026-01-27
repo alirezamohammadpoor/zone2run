@@ -2,14 +2,17 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import MenuModal from "./menumodal/MenuModal";
-import CartModal from "./CartModal";
+import dynamic from "next/dynamic";
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
 import { useCartStore } from "@/lib/cart/store";
 import { useHasMounted } from "@/hooks/useHasMounted";
-import AddedToCartModal from "./product/AddedToCartModal";
-import SearchModal from "./SearchModal";
 import DesktopDropdown from "./header/DesktopDropdown";
+
+// Lazy load modals - only downloaded when user opens them
+const MenuModal = dynamic(() => import("./menumodal/MenuModal"));
+const CartModal = dynamic(() => import("./CartModal"));
+const AddedToCartModal = dynamic(() => import("./product/AddedToCartModal"));
+const SearchModal = dynamic(() => import("./SearchModal"));
 import type {
   BrandMenuItem,
   MenuData,

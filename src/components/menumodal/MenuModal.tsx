@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
-import FocusLock from "react-focus-lock";
+import dynamic from "next/dynamic";
 import { useModalScroll } from "@/hooks/useModalScroll";
+
+// Lazy load FocusLock - only needed when modal is visible
+const FocusLock = dynamic(() => import("react-focus-lock"), { ssr: false });
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
 import GenderMenuContent from "./GenderMenuContent";
 import HelpContent from "./HelpContent";

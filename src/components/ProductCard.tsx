@@ -1,14 +1,32 @@
 "use client";
 
 import React, { memo, useCallback } from "react";
-import type { SanityProduct } from "@/types/sanityProduct";
 import { formatPrice } from "@/lib/utils/formatPrice";
 import ProductCardGallery from "./ProductCardGallery";
 
+/**
+ * Flexible product shape that works with both:
+ * - Full SanityProduct (from product grids, search results)
+ * - Minimal HomepageProduct (from homepage modules)
+ */
+interface ProductCardProduct {
+  _id: string;
+  handle: string;
+  title: string;
+  vendor: string;
+  priceRange: { minVariantPrice: number };
+  selectedImage?: { url: string; alt: string };
+  gallery?: Array<{ url: string; alt?: string }>;
+  // Full SanityProduct shape (brand as object)
+  mainImage?: { url: string; alt: string };
+  brand?: { name?: string; slug?: string };
+  // Minimal HomepageProduct shape (brand as primitives)
+  brandName?: string | null;
+  brandSlug?: string | null;
+}
+
 interface ProductCardProps {
-  product: SanityProduct & {
-    selectedImage?: { url: string; alt: string };
-  };
+  product: ProductCardProduct;
   sizes?: string;
   className?: string;
   onBrandClick?: (slug: string) => void;
@@ -40,7 +58,9 @@ const ProductCard = memo(function ProductCard({
     (img): img is NonNullable<typeof img> => Boolean(img?.url)
   );
 
-  const brandName = product.brand?.name || product.vendor || "";
+  // Support both SanityProduct (brand.name) and HomepageProduct (brandName)
+  const brandName = product.brand?.name || product.brandName || product.vendor || "";
+  const brandSlug = product.brand?.slug || product.brandSlug || undefined;
   const price = formatPrice(product.priceRange.minVariantPrice);
 
   return (
@@ -58,7 +78,7 @@ const ProductCard = memo(function ProductCard({
           <button
             type="button"
             className="text-xs font-medium hover:underline text-left"
-            onClick={(e) => handleBrandClick(e, product.brand?.slug)}
+            onClick={(e) => handleBrandClick(e, brandSlug)}
           >
             {brandName}
           </button>

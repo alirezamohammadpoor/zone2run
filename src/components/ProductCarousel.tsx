@@ -4,12 +4,27 @@ import { memo, useCallback, useEffect, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Link from "next/link";
 import ProductCard from "./ProductCard";
-import type { SanityProduct } from "@/types/sanityProduct";
+
+/**
+ * Minimal product shape for carousel.
+ * Accepts both full SanityProduct and minimal HomepageProduct.
+ */
+interface CarouselProduct {
+  _id: string;
+  handle: string;
+  title: string;
+  vendor: string;
+  priceRange: { minVariantPrice: number };
+  selectedImage?: { url: string; alt: string };
+  gallery?: Array<{ url: string; alt?: string }>;
+  mainImage?: { url: string; alt: string };
+  brand?: { name?: string; slug?: string };
+  brandName?: string | null;
+  brandSlug?: string | null;
+}
 
 interface ProductCarouselProps {
-  products: Array<
-    SanityProduct & { selectedImage?: { url: string; alt: string } }
-  >;
+  products: Array<CarouselProduct>;
   className?: string;
   cardClassName?: string;
   sizes?: string;

@@ -3,13 +3,21 @@ import { memo, useState, useTransition, useCallback } from "react";
 import { useCartStore } from "@/lib/cart/store";
 import { useUIStore } from "@/lib/cart/uiStore";
 import { useProductStore } from "@/store/variantStore";
-import type { SanityProduct } from "@/types/sanityProduct";
 import type { ShopifyProduct } from "@/types/shopify";
 
 type ShopifyVariant = ShopifyProduct["variants"][number];
 
+// Minimal product data needed for cart operations (reduces serialization payload)
+export interface ProductMeta {
+  handle: string;
+  title: string;
+  imageUrl: string;
+  brandName: string | null;
+  vendor: string;
+}
+
 interface AddToCartProps {
-  staticProduct: SanityProduct;
+  productMeta: ProductMeta;
   variants: ShopifyVariant[];
 }
 
@@ -19,7 +27,7 @@ interface AddToCartProps {
  * We verify the variant exists in Shopify data before adding.
  */
 const AddToCart = memo(function AddToCart({
-  staticProduct,
+  productMeta,
   variants,
 }: AddToCartProps) {
   const [isAdded, setIsAdded] = useState(false);
@@ -48,22 +56,22 @@ const AddToCart = memo(function AddToCart({
       addItem({
         id: shopifyVariant.id,
         variantId: shopifyVariant.id,
-        productHandle: staticProduct.handle,
-        title: staticProduct.title,
+        productHandle: productMeta.handle,
+        title: productMeta.title,
         price: {
           amount: price,
           currencyCode: "SEK",
         },
-        image: staticProduct.mainImage?.url || "",
+        image: productMeta.imageUrl,
         color: selectedVariant.color ?? "",
         size: selectedVariant.size,
-        brand: staticProduct.brand?.name || staticProduct.vendor,
+        brand: productMeta.brandName || productMeta.vendor,
       });
 
       showAddedToCart({
-        brand: staticProduct.brand?.name || staticProduct.vendor,
-        title: staticProduct.title,
-        image: staticProduct.mainImage?.url || "",
+        brand: productMeta.brandName || productMeta.vendor,
+        title: productMeta.title,
+        image: productMeta.imageUrl,
         size: selectedVariant.size,
         color: selectedVariant.color ?? "",
         price: price,
@@ -80,7 +88,7 @@ const AddToCart = memo(function AddToCart({
     isAdded,
     isAvailable,
     price,
-    staticProduct,
+    productMeta,
     addItem,
     showAddedToCart,
   ]);
