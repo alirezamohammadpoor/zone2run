@@ -1,6 +1,9 @@
 import { getBlogPosts } from "@/sanity/lib/getData";
 import Image from "next/image";
 import Link from "next/link";
+import { blogMetadata } from "@/lib/metadata";
+
+export const metadata = blogMetadata;
 
 // ISR: Revalidate every 10 minutes, on-demand via Sanity webhook
 export const revalidate = 600;

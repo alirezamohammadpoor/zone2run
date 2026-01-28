@@ -113,3 +113,34 @@ export default function Breadcrumbs({ product }: BreadcrumbsProps) {
     </nav>
   );
 }
+
+/**
+ * PLP Breadcrumbs - renders breadcrumb segments with h1 styling for category pages.
+ * Uses same layout as brand page headers (text-sm).
+ */
+interface PLPBreadcrumbsProps {
+  segments: BreadcrumbItem[];
+}
+
+export function PLPBreadcrumbs({ segments }: PLPBreadcrumbsProps) {
+  if (segments.length === 0) return null;
+
+  return (
+    <div className="px-2 mt-8 md:mt-12 xl:mt-16 mb-8 md:mb-12 xl:mb-16">
+      <h1 className="text-sm">
+        {segments.map((segment, index) => (
+          <span key={segment.href}>
+            {index > 0 && " / "}
+            {index === segments.length - 1 ? (
+              segment.label
+            ) : (
+              <Link href={segment.href} className="hover:underline">
+                {segment.label}
+              </Link>
+            )}
+          </span>
+        ))}
+      </h1>
+    </div>
+  );
+}

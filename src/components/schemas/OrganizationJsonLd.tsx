@@ -24,6 +24,7 @@ export default function OrganizationJsonLd() {
 
   return (
     <script
+      id="organization-jsonld"
       type="application/ld+json"
       suppressHydrationWarning
       dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}

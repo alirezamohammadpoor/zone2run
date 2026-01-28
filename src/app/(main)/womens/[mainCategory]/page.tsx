@@ -1,6 +1,19 @@
+import type { Metadata } from "next";
 import { getProductsByPath } from "@/sanity/lib/getData";
+import { mapToMinimalProducts } from "@/lib/mapToMinimalProduct";
 import { notFound } from "next/navigation";
-import ProductGrid from "@/components/ProductGrid";
+import { ProductListing } from "@/components/plp/ProductListing";
+import { buildCategoryBreadcrumbs } from "@/lib/utils/breadcrumbs";
+import { buildCategoryMetadata } from "@/lib/metadata";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ mainCategory: string }>;
+}): Promise<Metadata> {
+  const { mainCategory } = await params;
+  return buildCategoryMetadata("womens", mainCategory);
+}
 
 // ISR: Revalidate every hour, on-demand via Sanity webhook
 export const revalidate = 3600;
@@ -18,12 +31,12 @@ export default async function WomensCategoryPage({
     notFound();
   }
 
-  const categoryTitle =
-    mainCategory.charAt(0).toUpperCase() + mainCategory.slice(1);
-
   return (
     <div>
-      <ProductGrid products={products} />
+      <ProductListing
+        products={mapToMinimalProducts(products)}
+        breadcrumbs={buildCategoryBreadcrumbs("womens", [mainCategory])}
+      />
     </div>
   );
 }

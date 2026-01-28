@@ -30,6 +30,7 @@ const nextConfig = {
       "@sanity/visual-editing",
       "next-sanity",
       "framer-motion",
+      "@portabletext/react",
     ],
   },
 

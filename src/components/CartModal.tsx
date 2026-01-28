@@ -179,7 +179,10 @@ function CartModal({
           </div>
 
           {/* Fixed Bottom Section */}
-          <div className="flex-shrink-0 border-t border-gray-300 bg-white h-48">
+          <div
+            className="flex-shrink-0 border-t border-gray-300 bg-white"
+            style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+          >
             <div className="px-2 py-4 h-full flex flex-col justify-between">
               <div className="flex items-center justify-between text-xs">
                 <div className="flex flex-col gap-2">

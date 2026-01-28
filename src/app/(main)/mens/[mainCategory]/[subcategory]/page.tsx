@@ -1,6 +1,19 @@
+import type { Metadata } from "next";
 import { getProductsBySubcategoryIncludingSubSubcategories } from "@/sanity/lib/getData";
+import { mapToMinimalProducts } from "@/lib/mapToMinimalProduct";
 import { notFound } from "next/navigation";
-import ProductGrid from "@/components/ProductGrid";
+import { ProductListing } from "@/components/plp/ProductListing";
+import { buildCategoryBreadcrumbs } from "@/lib/utils/breadcrumbs";
+import { buildCategoryMetadata } from "@/lib/metadata";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ mainCategory: string; subcategory: string }>;
+}): Promise<Metadata> {
+  const { mainCategory, subcategory } = await params;
+  return buildCategoryMetadata("mens", mainCategory, subcategory);
+}
 
 // ISR: Revalidate every hour, on-demand via Sanity webhook
 export const revalidate = 3600;
@@ -22,14 +35,12 @@ export default async function MensSubcategoryPage({
     notFound();
   }
 
-  const categoryTitle =
-    mainCategory.charAt(0).toUpperCase() + mainCategory.slice(1);
-  const subcategoryTitle =
-    subcategory.charAt(0).toUpperCase() + subcategory.slice(1);
-
   return (
     <div>
-      <ProductGrid products={products} />
+      <ProductListing
+        products={mapToMinimalProducts(products)}
+        breadcrumbs={buildCategoryBreadcrumbs("mens", [mainCategory, subcategory])}
+      />
     </div>
   );
 }
