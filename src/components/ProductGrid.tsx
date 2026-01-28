@@ -2,9 +2,14 @@ import { memo } from "react";
 import Link from "next/link";
 import ProductCard from "./ProductCard";
 import type { SanityProduct } from "@/types/sanityProduct";
+import type { PLPProduct } from "@/types/plpProduct";
+
+type ProductGridProduct = (SanityProduct | PLPProduct) & {
+  selectedImage?: { url: string; alt: string };
+};
 
 interface ProductGridProps {
-  products: Array<SanityProduct & { selectedImage?: { url: string; alt: string } }>;
+  products: ProductGridProduct[];
   count?: number;
   className?: string;
 }

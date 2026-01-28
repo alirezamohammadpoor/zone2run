@@ -13,7 +13,7 @@ export default async function NotFound() {
   const buttons = notFoundData?.buttons || [{ text: "Go Home", link: "/" }];
 
   return (
-    <div className="relative w-full h-[calc(100vh-60px)]">
+    <div className="relative w-full h-[calc(100dvh-60px)]">
       {/* Background Image */}
       {image?.asset?.url && (
         <Image
@@ -21,6 +21,7 @@ export default async function NotFound() {
           alt={image.alt || "404 background"}
           fill
           className="object-cover"
+          sizes="100vw"
           style={{
             objectPosition: image.hotspot
               ? `${image.hotspot.x * 100}% ${image.hotspot.y * 100}%`

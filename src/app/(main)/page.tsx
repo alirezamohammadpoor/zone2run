@@ -1,6 +1,9 @@
 import { getHomepage } from "@/sanity/lib/getData";
 import HomePageSanity from "@/components/homepage/HomePageSanity";
 import { notFound } from "next/navigation";
+import { homeMetadata } from "@/lib/metadata";
+
+export const metadata = homeMetadata;
 
 // ISR: Revalidate every hour, on-demand via Sanity webhook
 export const revalidate = 3600;

@@ -65,6 +65,7 @@ export default function ProductJsonLd({ product }: ProductJsonLdProps) {
 
   return (
     <script
+      id="product-jsonld"
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
     />

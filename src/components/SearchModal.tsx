@@ -72,7 +72,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
       {/* Modal - Full screen on mobile, 25vw on desktop (matches CartModal) */}
       <div
         className={
-          "fixed top-0 right-0 h-screen w-full xl:w-1/2 bg-white z-50 transform transition-transform duration-300 overflow-hidden flex flex-col" +
+          "fixed top-0 right-0 h-[100dvh] w-full xl:w-1/2 bg-white z-50 transform transition-transform duration-300 overflow-hidden flex flex-col" +
           (isOpen ? " translate-x-0" : " translate-x-full")
         }
       >

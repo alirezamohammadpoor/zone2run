@@ -1,6 +1,6 @@
 {
   "lockfileVersion": 1,
-  "configVersion": 0,
+  "configVersion": 1,
   "workspaces": {
     "": {
       "name": "zone2run",
@@ -49,6 +49,10 @@
       },
     },
   },
+  "trustedDependencies": [
+    "@vercel/speed-insights",
+    "unrs-resolver",
+  ],
   "overrides": {
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",

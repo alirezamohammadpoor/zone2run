@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export type UrlFilters = {
   category: string[];
@@ -10,27 +10,48 @@ export type UrlFilters = {
   size: string[];
 };
 
-export function useUrlFilters() {
+/**
+ * @param initialFilters - Default filters to apply when no URL params exist.
+ *   Used by specific category pages to pre-select the category filter
+ *   while still showing sibling categories in the modal.
+ */
+export function useUrlFilters(initialFilters?: Partial<UrlFilters>) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+  const initialFiltersRef = useRef(initialFilters);
 
-  // ✅ keep local state in sync with URL
-  const [filters, setFilters] = useState<UrlFilters>({
-    category: searchParams?.getAll("category") || [],
-    brand: searchParams?.getAll("brand") || [],
-    gender: searchParams?.getAll("gender") || [],
-    size: searchParams?.getAll("size") || [],
+  // Merge URL params with initial filters (URL takes precedence)
+  const [filters, setFilters] = useState<UrlFilters>(() => {
+    const urlCategory = searchParams?.getAll("category") || [];
+    const urlBrand = searchParams?.getAll("brand") || [];
+    const urlGender = searchParams?.getAll("gender") || [];
+    const urlSize = searchParams?.getAll("size") || [];
+    const init = initialFiltersRef.current;
+
+    return {
+      category: urlCategory.length > 0 ? urlCategory : (init?.category || []),
+      brand: urlBrand.length > 0 ? urlBrand : (init?.brand || []),
+      gender: urlGender.length > 0 ? urlGender : (init?.gender || []),
+      size: urlSize.length > 0 ? urlSize : (init?.size || []),
+    };
   });
 
   // When URL changes (e.g. back/forward nav), sync again
+  // Falls back to initial filters when URL has no params for that key
   useEffect(() => {
     if (searchParams) {
+      const urlCategory = searchParams.getAll("category");
+      const urlBrand = searchParams.getAll("brand");
+      const urlGender = searchParams.getAll("gender");
+      const urlSize = searchParams.getAll("size");
+      const init = initialFiltersRef.current;
+
       setFilters({
-        category: searchParams.getAll("category"),
-        brand: searchParams.getAll("brand"),
-        gender: searchParams.getAll("gender"),
-        size: searchParams.getAll("size"),
+        category: urlCategory.length > 0 ? urlCategory : (init?.category || []),
+        brand: urlBrand.length > 0 ? urlBrand : (init?.brand || []),
+        gender: urlGender.length > 0 ? urlGender : (init?.gender || []),
+        size: urlSize.length > 0 ? urlSize : (init?.size || []),
       });
     }
   }, [searchParams]);

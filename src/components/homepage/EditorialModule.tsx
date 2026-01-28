@@ -152,6 +152,7 @@ const EditorialModuleComponent = memo(function EditorialModuleComponent({
                         alt={selectedImage.alt}
                         className="w-full h-full object-cover"
                         fill
+                        sizes="(max-width: 768px) 60vw, (max-width: 1024px) 40vw, 25vw"
                         draggable={false}
                       />
                     )}
