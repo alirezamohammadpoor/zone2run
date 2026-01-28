@@ -36,6 +36,7 @@ export default function BreadcrumbJsonLd({ items }: BreadcrumbJsonLdProps) {
 
   return (
     <script
+      id="breadcrumb-jsonld"
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
     />

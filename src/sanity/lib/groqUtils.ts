@@ -136,7 +136,8 @@ export const BASE_PRODUCT_PROJECTION =
   BRAND_REFERENCE_PROJECTION +
   `,
 gender,
-featured`;
+featured,
+"_createdAt": coalesce(store.createdAt, _createdAt)`;
 
 /**
  * Full product projection (same as BASE now that gallery is included)

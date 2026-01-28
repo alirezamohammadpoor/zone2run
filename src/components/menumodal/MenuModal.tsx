@@ -1,6 +1,11 @@
+"use client";
+
 import { useState, useEffect } from "react";
-import FocusLock from "react-focus-lock";
+import dynamic from "next/dynamic";
 import { useModalScroll } from "@/hooks/useModalScroll";
+
+// Lazy load FocusLock - only needed when modal is visible
+const FocusLock = dynamic(() => import("react-focus-lock"), { ssr: false });
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
 import GenderMenuContent from "./GenderMenuContent";
 import HelpContent from "./HelpContent";
@@ -60,7 +65,7 @@ function MenuModal({
         aria-label="Navigation menu"
         inert={!isMenuOpen ? true : undefined}
         className={
-          "fixed top-0 left-0 h-screen w-full bg-white z-50 transform transition-transform duration-300 overflow-hidden flex flex-col" +
+          "fixed top-0 left-0 h-[100dvh] w-full bg-white z-50 transform transition-transform duration-300 overflow-hidden flex flex-col" +
           (isMenuOpen ? " translate-x-0" : " -translate-x-full")
         }
       >

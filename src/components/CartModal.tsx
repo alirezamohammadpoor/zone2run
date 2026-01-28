@@ -1,7 +1,10 @@
 import { useState } from "react";
 import Link from "next/link";
-import FocusLock from "react-focus-lock";
+import dynamic from "next/dynamic";
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
+
+// Lazy load FocusLock - only needed when modal is visible
+const FocusLock = dynamic(() => import("react-focus-lock"), { ssr: false });
 import { useHasMounted } from "@/hooks/useHasMounted";
 import Image from "next/image";
 import { useCartStore } from "@/lib/cart/store";
@@ -18,12 +21,17 @@ function CartModal({
   isCartOpen: boolean;
   setIsCartOpen: (isOpen: boolean) => void;
 }) {
-  const { items, removeItem, getTotalPrice, updateQuantity, removeAllItems } =
-    useCartStore();
+  // Granular selectors - only re-render when specific values change
+  const items = useCartStore((state) => state.items);
+  const removeItem = useCartStore((state) => state.removeItem);
+  const updateQuantity = useCartStore((state) => state.updateQuantity);
+  const removeAllItems = useCartStore((state) => state.removeAllItems);
+  // Compute total inline - avoids function call overhead
+  const totalPrice = useCartStore((state) =>
+    state.items.reduce((sum, i) => sum + (i.price?.amount || 0) * i.quantity, 0)
+  );
   const { unlockScroll } = useModalScrollRestoration();
   const hasMounted = useHasMounted();
-
-  const totalPrice = getTotalPrice();
 
   const handleClose = () => {
     setIsCartOpen(false);
@@ -57,7 +65,7 @@ function CartModal({
           aria-labelledby="cart-title"
           inert={!isCartOpen ? true : undefined}
           className={
-            "fixed inset-0 bg-white z-50 transform transition-transform duration-300 flex flex-col xl:left-auto xl:right-0 xl:w-[25vw] overscroll-contain" +
+            "fixed inset-0 bg-white z-50 transform transition-transform duration-300 flex flex-col xl:left-auto xl:right-0 xl:w-1/2 overscroll-contain" +
             (isCartOpen ? " translate-x-0" : " translate-x-full")
           }
         >
@@ -171,7 +179,10 @@ function CartModal({
           </div>
 
           {/* Fixed Bottom Section */}
-          <div className="flex-shrink-0 border-t border-gray-300 bg-white h-48">
+          <div
+            className="flex-shrink-0 border-t border-gray-300 bg-white"
+            style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+          >
             <div className="px-2 py-4 h-full flex flex-col justify-between">
               <div className="flex items-center justify-between text-xs">
                 <div className="flex flex-col gap-2">

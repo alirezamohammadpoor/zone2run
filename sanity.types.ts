@@ -486,13 +486,6 @@ export type HeroModule = {
   height?: "100vh" | "95vh" | "90vh" | "85vh" | "80vh" | "75vh" | "70vh" | "65vh" | "60vh" | "55vh" | "50vh";
 };
 
-export type MuxVideo = {
-  _type: "muxVideo";
-  playbackId?: string;
-  title?: string;
-  description?: string;
-};
-
 export type Spot = {
   _type: "spot";
   productWithVariant?: ProductWithVariant;
@@ -891,9 +884,7 @@ export type BlogPost = {
     _key: string;
   } | {
     _key: string;
-  } & BlogProductsModule | {
-    _key: string;
-  } & MuxVideo>;
+  } & BlogProductsModule>;
   productsModule?: BlogProductsModule;
   mediaType?: "image" | "video";
   heroHeight?: "100vh" | "95vh" | "90vh" | "85vh" | "80vh" | "75vh" | "70vh" | "65vh" | "60vh" | "55vh" | "50vh";
@@ -1404,5 +1395,5 @@ export type Geopoint = {
   alt?: number;
 };
 
-export type AllSanitySchemaTypes = PortableTextSimple | PortableText | SiteSettings | HomepageVersion | Seo | Settings | NotFoundPage | FooterSettings | Menu | NavigationMenu | BlogProductsModule | PortableTextModule | ImageModule | SpotifyPlaylistsModule | EditorialModule | HeroModule | MuxVideo | Spot | ShopifyProductVariant | ShopifyProduct | ShopifyCollection | ProxyString | ProductWithVariant | ProductVariant | Inventory | ProductReference | ProductHotspots | PriceRange | PlaceholderString | Option | SanityImageCrop | SanityImageHotspot | MenuLinks | ImageWithProductHotspots | Hero | CustomProductOptionSize | CustomProductOptionSizeObject | CustomProductOptionColor | CustomProductOptionColorObject | Color | CollectionRule | CollectionReference | CollectionLinks | CollectionGroup | LinkProduct | LinkInternal | Page | Slug | Home | BlogPost | BlogCategory | Product | Brand | Category | Collection | ColorTheme | LinkExternal | LinkEmail | MediaTag | RgbaColor | HsvaColor | HslaColor | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageMetadata | SanityFileAsset | SanityAssetSourceData | SanityImageAsset | Geopoint;
+export type AllSanitySchemaTypes = PortableTextSimple | PortableText | SiteSettings | HomepageVersion | Seo | Settings | NotFoundPage | FooterSettings | Menu | NavigationMenu | BlogProductsModule | PortableTextModule | ImageModule | SpotifyPlaylistsModule | EditorialModule | HeroModule | Spot | ShopifyProductVariant | ShopifyProduct | ShopifyCollection | ProxyString | ProductWithVariant | ProductVariant | Inventory | ProductReference | ProductHotspots | PriceRange | PlaceholderString | Option | SanityImageCrop | SanityImageHotspot | MenuLinks | ImageWithProductHotspots | Hero | CustomProductOptionSize | CustomProductOptionSizeObject | CustomProductOptionColor | CustomProductOptionColorObject | Color | CollectionRule | CollectionReference | CollectionLinks | CollectionGroup | LinkProduct | LinkInternal | Page | Slug | Home | BlogPost | BlogCategory | Product | Brand | Category | Collection | ColorTheme | LinkExternal | LinkEmail | MediaTag | RgbaColor | HsvaColor | HslaColor | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageMetadata | SanityFileAsset | SanityAssetSourceData | SanityImageAsset | Geopoint;
 export declare const internalGroqTypeReferenceTo: unique symbol;

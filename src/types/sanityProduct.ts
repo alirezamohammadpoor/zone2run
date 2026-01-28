@@ -2,6 +2,7 @@
 export interface SanityProduct {
   // Core product data
   _id: string;
+  _createdAt?: string;
   title: string;
   handle: string;
   description: string;

@@ -10,6 +10,7 @@ export {
   getProductsBySubcategoryIncludingSubSubcategories,
   getProductsByPath3Level,
   getProductsByIds,
+  getBrandFilterOptions,
 } from "./getProducts";
 
 export {
@@ -25,10 +26,10 @@ export { getAllBrands, getBrandBySlug } from "./getBrands";
 
 export {
   getAllCollections,
-  getCollectionBySlug,
   getCollectionInfo,
   getCollectionProducts,
   getProductsByCollectionId,
+  getCollectionFilterOptions,
 } from "./getCollections";
 
 export { getBlogPosts, getBlogPost } from "./getBlog";

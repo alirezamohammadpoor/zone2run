@@ -1,6 +1,19 @@
+import type { Metadata } from "next";
 import { getProductsByPath } from "@/sanity/lib/getData";
+import { mapToMinimalProducts } from "@/lib/mapToMinimalProduct";
 import { notFound } from "next/navigation";
-import ProductGrid from "@/components/ProductGrid";
+import { ProductListing } from "@/components/plp/ProductListing";
+import { buildCategoryBreadcrumbs } from "@/lib/utils/breadcrumbs";
+import { buildCategoryMetadata } from "@/lib/metadata";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ mainCategory: string }>;
+}): Promise<Metadata> {
+  const { mainCategory } = await params;
+  return buildCategoryMetadata("mens", mainCategory);
+}
 
 // ISR: Revalidate every hour, on-demand via Sanity webhook
 export const revalidate = 3600;
@@ -12,13 +25,14 @@ export default async function MensCategoryPage({
 }) {
   const { mainCategory } = await params;
 
-  // Try to get products with a more flexible approach
-  let products = await getProductsByPath("men", "main", mainCategory);
+  // Fetch both category approaches in parallel to avoid waterfall
+  const [mainProducts, subProducts] = await Promise.all([
+    getProductsByPath("men", "main", mainCategory),
+    getProductsByPath("men", "subcategory", mainCategory),
+  ]);
 
-  // If no products found with main category approach, try subcategory approach
-  if (!products || products.length === 0) {
-    products = await getProductsByPath("men", "subcategory", mainCategory);
-  }
+  // Use main category results if available, otherwise fall back to subcategory
+  const products = mainProducts?.length ? mainProducts : subProducts;
 
   if (!products || products.length === 0) {
     notFound();
@@ -26,7 +40,10 @@ export default async function MensCategoryPage({
 
   return (
     <div>
-      <ProductGrid products={products} />
+      <ProductListing
+        products={mapToMinimalProducts(products)}
+        breadcrumbs={buildCategoryBreadcrumbs("mens", [mainCategory])}
+      />
     </div>
   );
 }

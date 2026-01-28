@@ -1,18 +1,35 @@
 "use client";
 
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useRef } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Link from "next/link";
 import ProductCard from "./ProductCard";
-import type { SanityProduct } from "@/types/sanityProduct";
+
+/**
+ * Minimal product shape for carousel.
+ * Accepts both full SanityProduct and minimal HomepageProduct.
+ */
+interface CarouselProduct {
+  _id: string;
+  handle: string;
+  title: string;
+  vendor: string;
+  priceRange: { minVariantPrice: number };
+  selectedImage?: { url: string; alt: string };
+  gallery?: Array<{ url: string; alt?: string }>;
+  mainImage?: { url: string; alt: string };
+  brand?: { name?: string; slug?: string };
+  brandName?: string | null;
+  brandSlug?: string | null;
+}
 
 interface ProductCarouselProps {
-  products: Array<
-    SanityProduct & { selectedImage?: { url: string; alt: string } }
-  >;
+  products: Array<CarouselProduct>;
   className?: string;
   cardClassName?: string;
   sizes?: string;
+  /** Callback when a product is clicked (fires only on tap, not drag) */
+  onProductClick?: () => void;
 }
 
 const ProductCarousel = memo(function ProductCarousel({
@@ -20,18 +37,24 @@ const ProductCarousel = memo(function ProductCarousel({
   className,
   cardClassName = "flex-shrink-0 w-[70vw] min-w-0 xl:w-[30vw]",
   sizes = "(max-width: 768px) 70vw, 33vw",
+  onProductClick,
 }: ProductCarouselProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: "start",
     containScroll: "trimSnaps",
     dragFree: false,
   });
-  const [isDragging, setIsDragging] = useState(false);
+  // Use ref instead of state to avoid callback recreation on drag
+  const isDraggingRef = useRef(false);
 
   useEffect(() => {
     if (!emblaApi) return;
-    const onSettle = () => setIsDragging(false);
-    const onScroll = () => setIsDragging(true);
+    const onSettle = () => {
+      isDraggingRef.current = false;
+    };
+    const onScroll = () => {
+      isDraggingRef.current = true;
+    };
     emblaApi.on("settle", onSettle).on("scroll", onScroll);
     return () => {
       emblaApi.off("settle", onSettle).off("scroll", onScroll);
@@ -40,11 +63,13 @@ const ProductCarousel = memo(function ProductCarousel({
 
   const handleProductClick = useCallback(
     (e: React.MouseEvent) => {
-      if (isDragging) {
+      if (isDraggingRef.current) {
         e.preventDefault();
+      } else {
+        onProductClick?.();
       }
     },
-    [isDragging],
+    [onProductClick],
   );
 
   if (!products?.length) {
@@ -56,10 +81,11 @@ const ProductCarousel = memo(function ProductCarousel({
       <div className="flex gap-2">
         {products.map((product) => (
           <Link
-            key={product._id}
+            key={product._id || product.handle}
             href={`/products/${product.handle}`}
             onClick={handleProductClick}
-            className={`cursor-pointer ${isDragging ? "pointer-events-none" : ""}`}
+            draggable={false}
+            className="cursor-pointer"
           >
             <ProductCard
               product={product}

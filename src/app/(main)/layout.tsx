@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "../globals.css";
 import HeaderServer from "@/components/HeaderServer";
 import { ScrollRestoration } from "@/components/ScrollRestoration";
@@ -9,8 +9,16 @@ import PreviewProvider from "@/components/PreviewProvider";
 import { OrganizationJsonLd } from "@/components/schemas";
 
 export const metadata: Metadata = {
-  title: "Zone2Run",
+  title: {
+    default: "Zone2Run",
+    template: "%s | Zone2Run",
+  },
   description: "Purposefully Curated. Built to Perform.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function MainLayout({
@@ -43,7 +51,7 @@ export default function MainLayout({
         <ScrollRestoration />
         <HeaderServer />
         <main id="main-content" className="relative" tabIndex={-1}>
-          <div className="relative z-20 bg-white">
+          <div className="relative bg-white">
             {children}
             <FooterContent />
           </div>

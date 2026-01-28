@@ -2,14 +2,17 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import MenuModal from "./menumodal/MenuModal";
-import CartModal from "./CartModal";
+import dynamic from "next/dynamic";
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
 import { useCartStore } from "@/lib/cart/store";
 import { useHasMounted } from "@/hooks/useHasMounted";
-import AddedToCartModal from "./product/AddedToCartModal";
-import SearchModal from "./SearchModal";
 import DesktopDropdown from "./header/DesktopDropdown";
+
+// Lazy load modals - only downloaded when user opens them
+const MenuModal = dynamic(() => import("./menumodal/MenuModal"));
+const CartModal = dynamic(() => import("./CartModal"));
+const AddedToCartModal = dynamic(() => import("./product/AddedToCartModal"));
+const SearchModal = dynamic(() => import("./SearchModal"));
 import type {
   BrandMenuItem,
   MenuData,
@@ -35,7 +38,10 @@ function Header({
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<DropdownType>(null);
   const { lockScroll } = useModalScrollRestoration();
-  const totalItems = useCartStore((state) => state.getTotalItems());
+  // Inline selector - computes once per items change, avoids function call overhead
+  const totalItems = useCartStore((state) =>
+    state.items.reduce((sum, i) => sum + i.quantity, 0)
+  );
   const hasMounted = useHasMounted();
 
   const handleNavClick = (type: DropdownType) => {

@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { searchProducts } from "@/lib/actions/search";
 import ProductGrid from "@/components/ProductGrid";
 import PaginationNav from "@/components/PaginationNav";
@@ -42,11 +43,13 @@ export default async function SearchPage({
         <>
           <ProductGrid products={results.products as SanityProduct[]} />
           {results.totalPages > 1 && (
-            <PaginationNav
-              currentPage={currentPage}
-              totalPages={results.totalPages}
-              className="my-8"
-            />
+            <Suspense fallback={<div className="my-8 h-10" />}>
+              <PaginationNav
+                currentPage={currentPage}
+                totalPages={results.totalPages}
+                className="my-8"
+              />
+            </Suspense>
           )}
         </>
       ) : (

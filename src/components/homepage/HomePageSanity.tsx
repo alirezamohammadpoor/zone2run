@@ -9,12 +9,15 @@ import {
 import HeroModule from "./HeroModule";
 import EditorialModuleServer from "./EditorialModuleServer";
 import ImageModuleComponent from "./ImageModule";
-import ContentModuleComponent from "./ContentModule";
+import ContentModuleComponent, {
+  type HomepageProduct,
+} from "./ContentModule";
 import {
   getProductsByIds,
   getProductsByCollectionId,
 } from "@/sanity/lib/getData";
 import type { SanityProduct } from "@/types/sanityProduct";
+import { getSelectedImage } from "@/lib/utils/imageSelection";
 
 // Union type for all homepage modules
 type HomepageModule =
@@ -22,6 +25,33 @@ type HomepageModule =
   | ({ _key: string } & EditorialModuleType)
   | ({ _key: string } & ImageModuleType)
   | ({ _key: string } & PortableTextModule);
+
+/**
+ * Extract minimal product data for client serialization.
+ * Computes selectedImage on server to avoid passing full gallery to client.
+ */
+function extractHomepageProduct(
+  product: SanityProduct,
+  imageSelection: string = "main"
+): HomepageProduct {
+  return {
+    _id: product._id,
+    handle: product.handle,
+    title: product.title,
+    brandName: product.brand?.name || null,
+    brandSlug: product.brand?.slug || null,
+    vendor: product.vendor,
+    priceRange: {
+      minVariantPrice: product.priceRange.minVariantPrice,
+    },
+    selectedImage: getSelectedImage(product, imageSelection),
+    // Include gallery for ProductCard hover effect (only url/alt needed)
+    gallery: product.gallery?.map((img) => ({
+      url: img.url,
+      alt: img.alt || product.title,
+    })),
+  };
+}
 
 async function HomePageSanity({ homepage }: { homepage: Home }) {
   if (!homepage) {
@@ -47,13 +77,14 @@ async function HomePageSanity({ homepage }: { homepage: Home }) {
 
       // If using collection source, fetch products from the collection
       if (productSource === "collection" && module.collection?._ref) {
-        const products = await getProductsByCollectionId(
+        const fullProducts = await getProductsByCollectionId(
           module.collection._ref
         );
-        return {
-          module,
-          products: products,
-        };
+        // Extract minimal data on server - collection products use main image
+        const products: HomepageProduct[] = fullProducts.map(
+          (p: SanityProduct) => extractHomepageProduct(p, "main")
+        );
+        return { module, products };
       }
 
       // Otherwise, use manual product selection
@@ -63,23 +94,26 @@ async function HomePageSanity({ homepage }: { homepage: Home }) {
           .filter(Boolean) as string[]) || [];
 
       // Fetch specific products by their IDs
-      const products = await getProductsByIds(productRefs);
+      const fullProducts = await getProductsByIds(productRefs);
 
-      const orderedProducts =
+      // Extract minimal data on server with per-product imageSelection
+      const products: HomepageProduct[] =
         module.featuredProducts
           ?.map((item) => {
             if (!item.product?._ref) return null;
-            const product = products.find(
+            const product = fullProducts.find(
               (p: SanityProduct) => p?._id === item.product?._ref
             );
-            return product;
+            if (!product) return null;
+            // Use imageSelection from the featured product config
+            return extractHomepageProduct(
+              product,
+              item.imageSelection || "main"
+            );
           })
-          .filter((product) => product !== null && product !== undefined) || [];
+          .filter((p): p is HomepageProduct => p !== null) || [];
 
-      return {
-        module,
-        products: orderedProducts,
-      };
+      return { module, products };
     })
   );
 
