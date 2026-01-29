@@ -1,10 +1,10 @@
 "use client";
 
 import { type EditorialModule } from "../../../sanity.types";
-import React, { useRef, useMemo, memo } from "react";
+import React, { useEffect, useState, useMemo, useCallback, memo } from "react";
+import useEmblaCarousel from "embla-carousel-react";
 import Image from "next/image";
 import Link from "next/link";
-import useEmblaCarousel from "embla-carousel-react";
 
 // Type for editorial blog posts (from getLatestBlogPosts query)
 interface EditorialBlogPost {
@@ -67,15 +67,22 @@ const EditorialModuleComponent = memo(function EditorialModuleComponent({
   editorialModule: EditorialModule;
   posts: EditorialBlogPost[];
 }) {
-  const [emblaRef] = useEmblaCarousel({
+  const [emblaRef, emblaApi] = useEmblaCarousel({
     align: "start",
     containScroll: "trimSnaps",
     dragFree: false,
   });
+  const [isDragging, setIsDragging] = useState(false);
 
-  // Track pointer position to detect actual dragging vs. taps
-  const pointerStartRef = useRef<{ x: number; y: number } | null>(null);
-  const hasDraggedRef = useRef(false);
+  useEffect(() => {
+    if (!emblaApi) return;
+    const onSettle = () => setIsDragging(false);
+    const onScroll = () => setIsDragging(true);
+    emblaApi.on("settle", onSettle).on("scroll", onScroll);
+    return () => {
+      emblaApi.off("settle", onSettle).off("scroll", onScroll);
+    };
+  }, [emblaApi]);
 
   // Create a map of posts with their selected images
   // Use editorial image by default for latest posts
@@ -91,28 +98,12 @@ const EditorialModuleComponent = memo(function EditorialModuleComponent({
     [posts]
   );
 
-  // Track pointer movement to distinguish taps from drags
-  const handlePointerDown = (e: React.PointerEvent) => {
-    pointerStartRef.current = { x: e.clientX, y: e.clientY };
-    hasDraggedRef.current = false;
-  };
-
-  const handlePointerMove = (e: React.PointerEvent) => {
-    if (!pointerStartRef.current) return;
-    const dx = Math.abs(e.clientX - pointerStartRef.current.x);
-    const dy = Math.abs(e.clientY - pointerStartRef.current.y);
-    // 10px threshold - anything more is a drag, not a tap
-    if (dx > 10 || dy > 10) {
-      hasDraggedRef.current = true;
-    }
-  };
-
   // Prevent navigation when dragging the carousel
-  const handleLinkClick = (e: React.MouseEvent) => {
-    if (hasDraggedRef.current) {
+  const handleLinkClick = useCallback((e: React.MouseEvent) => {
+    if (isDragging) {
       e.preventDefault();
     }
-  };
+  }, [isDragging]);
 
   return (
     <div className="px-2 my-8 md:my-12 xl:my-16 w-full">
@@ -138,10 +129,8 @@ const EditorialModuleComponent = memo(function EditorialModuleComponent({
               <Link
                 key={post._id}
                 href={postUrl}
-                className="flex-shrink-0 w-[60vw] md:w-[40vw] lg:w-[30vw] xl:w-[25vw] min-w-0"
+                className={`flex-shrink-0 w-[60vw] md:w-[40vw] lg:w-[30vw] xl:w-[25vw] min-w-0 ${isDragging ? "pointer-events-none" : ""}`}
                 onClick={handleLinkClick}
-                onPointerDown={handlePointerDown}
-                onPointerMove={handlePointerMove}
                 draggable={false}
               >
                 <article>

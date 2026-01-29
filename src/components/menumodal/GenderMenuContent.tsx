@@ -1,12 +1,11 @@
 "use client";
 
+import { useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import useEmblaCarousel from "embla-carousel-react";
 import { getBrandUrl } from "@/lib/utils/brandUrls";
 import { urlFor } from "@/sanity/lib/image";
 import { useSetToggle } from "@/hooks/useSetToggle";
-import { useEmblaCarouselDrag } from "@/hooks/useEmblaCarouselDrag";
 import { ChevronRightIcon } from "@/components/icons/ChevronRightIcon";
 import { NavLink } from "@/components/ui/NavLink";
 import type {
@@ -37,12 +36,27 @@ function GenderMenuContent({
     useSetToggle<string>();
   const { has: hasBrand, toggle: toggleBrand } = useSetToggle<string>();
 
-  const [emblaRef, emblaApi] = useEmblaCarousel({
-    align: "start",
-    containScroll: "trimSnaps",
-    dragFree: false,
-  });
-  const { isDragging, handleDragClick } = useEmblaCarouselDrag(emblaApi);
+  // Pointer-based drag detection (replaces Embla scroll/settle events)
+  const pointerStartRef = useRef<{ x: number; y: number } | null>(null);
+  const hasDraggedRef = useRef(false);
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    pointerStartRef.current = { x: e.clientX, y: e.clientY };
+    hasDraggedRef.current = false;
+  };
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!pointerStartRef.current) return;
+    const dx = Math.abs(e.clientX - pointerStartRef.current.x);
+    const dy = Math.abs(e.clientY - pointerStartRef.current.y);
+    if (dx > 10 || dy > 10) hasDraggedRef.current = true;
+  };
+  const handleLinkClick = (e: React.MouseEvent) => {
+    if (hasDraggedRef.current) {
+      e.preventDefault();
+    } else {
+      onClose();
+    }
+  };
 
   // Gender path for URLs (e.g., "/mens/" or "/womens/")
   const genderPath = `/${gender}`;
@@ -212,7 +226,7 @@ function GenderMenuContent({
             <span className="text-xs">Featured Collections</span>
 
             {/* Collection carousel */}
-            <div className="mt-2 overflow-hidden -mx-2 px-2" ref={emblaRef}>
+            <div className="mt-2 overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-2 px-2">
               <div className="flex gap-2">
                 {featuredCollections.map((collection: CollectionMenuItem) => {
                   if (!collection?.slug?.current) return null;
@@ -220,10 +234,11 @@ function GenderMenuContent({
                     <Link
                       key={collection._id || collection.slug.current}
                       href={`/collections/${collection.slug.current}`}
-                      onClick={(e) => handleDragClick(e, onClose)}
-                      className={`flex-shrink-0 w-[70vw] min-w-0 aspect-[3/4] flex flex-col cursor-pointer ${
-                        isDragging ? "pointer-events-none" : ""
-                      }`}
+                      onClick={handleLinkClick}
+                      onPointerDown={handlePointerDown}
+                      onPointerMove={handlePointerMove}
+                      draggable={false}
+                      className="flex-shrink-0 w-[70vw] min-w-0 aspect-[3/4] flex flex-col cursor-pointer snap-start"
                     >
                       <div className="w-full h-full relative bg-gray-100">
                         {collection.menuImage?.asset?.url ? (

@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useCallback, useEffect, useRef } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Link from "next/link";
 import ProductCard from "./ProductCard";
@@ -15,9 +15,7 @@ interface CarouselProduct {
   title: string;
   vendor: string;
   priceRange: { minVariantPrice: number };
-  selectedImage?: { url: string; alt: string };
-  gallery?: Array<{ url: string; alt?: string }>;
-  mainImage?: { url: string; alt: string };
+  images?: Array<{ url: string; alt?: string }>;
   brand?: { name?: string; slug?: string };
   brandName?: string | null;
   brandSlug?: string | null;
@@ -44,17 +42,12 @@ const ProductCarousel = memo(function ProductCarousel({
     containScroll: "trimSnaps",
     dragFree: false,
   });
-  // Use ref instead of state to avoid callback recreation on drag
-  const isDraggingRef = useRef(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
     if (!emblaApi) return;
-    const onSettle = () => {
-      isDraggingRef.current = false;
-    };
-    const onScroll = () => {
-      isDraggingRef.current = true;
-    };
+    const onSettle = () => setIsDragging(false);
+    const onScroll = () => setIsDragging(true);
     emblaApi.on("settle", onSettle).on("scroll", onScroll);
     return () => {
       emblaApi.off("settle", onSettle).off("scroll", onScroll);
@@ -63,13 +56,13 @@ const ProductCarousel = memo(function ProductCarousel({
 
   const handleProductClick = useCallback(
     (e: React.MouseEvent) => {
-      if (isDraggingRef.current) {
+      if (isDragging) {
         e.preventDefault();
       } else {
         onProductClick?.();
       }
     },
-    [onProductClick],
+    [isDragging, onProductClick],
   );
 
   if (!products?.length) {
@@ -85,7 +78,7 @@ const ProductCarousel = memo(function ProductCarousel({
             href={`/products/${product.handle}`}
             onClick={handleProductClick}
             draggable={false}
-            className="cursor-pointer"
+            className={`cursor-pointer ${isDragging ? "pointer-events-none" : ""}`}
           >
             <ProductCard
               product={product}

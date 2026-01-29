@@ -4,9 +4,7 @@ import ProductCard from "./ProductCard";
 import type { SanityProduct } from "@/types/sanityProduct";
 import type { PLPProduct } from "@/types/plpProduct";
 
-type ProductGridProduct = (SanityProduct | PLPProduct) & {
-  selectedImage?: { url: string; alt: string };
-};
+type ProductGridProduct = SanityProduct | PLPProduct;
 
 interface ProductGridProps {
   products: ProductGridProduct[];

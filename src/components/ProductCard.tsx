@@ -15,10 +15,8 @@ interface ProductCardProduct {
   title: string;
   vendor: string;
   priceRange: { minVariantPrice: number };
-  selectedImage?: { url: string; alt: string };
-  gallery?: Array<{ url: string; alt?: string }>;
+  images?: Array<{ url: string; alt?: string }>;
   // Full SanityProduct shape (brand as object)
-  mainImage?: { url: string; alt: string };
   brand?: { name?: string; slug?: string };
   // Minimal HomepageProduct shape (brand as primitives)
   brandName?: string | null;
@@ -49,14 +47,8 @@ const ProductCard = memo(function ProductCard({
     }
   }, [onBrandClick]);
 
-  // Build images array: selectedImage or mainImage first, then gallery
-  const primaryImage = product.selectedImage || product.mainImage;
-  const allImages = [
-    primaryImage,
-    ...(product.gallery || []),
-  ].filter(
-    (img): img is NonNullable<typeof img> => Boolean(img?.url)
-  );
+  // images[0] = main image, rest = gallery (combined at GROQ level)
+  const allImages = (product.images || []).filter((img) => Boolean(img?.url));
 
   // Support both SanityProduct (brand.name) and HomepageProduct (brandName)
   const brandName = product.brand?.name || product.brandName || product.vendor || "";

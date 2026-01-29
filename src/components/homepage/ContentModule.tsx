@@ -23,8 +23,7 @@ export interface HomepageProduct {
   priceRange: {
     minVariantPrice: number;
   };
-  selectedImage: { url: string; alt: string };
-  gallery?: Array<{ url: string; alt: string }>;
+  images?: Array<{ url: string; alt: string }>;
 }
 
 const ContentModuleComponent = memo(function ContentModuleComponent({
@@ -39,7 +38,7 @@ const ContentModuleComponent = memo(function ContentModuleComponent({
   const isSplitLayout = layout === "split";
   const isFullWidth = layout === "full-width";
 
-  // Products now come pre-processed from server with selectedImage already computed
+  // Products now come pre-processed from server with images already ordered
   const productsWithImages = products || [];
 
   // Render media (image or video)

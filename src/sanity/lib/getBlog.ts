@@ -35,12 +35,11 @@ export async function getBlogPosts(limit?: number) {
           "title": coalesce(title, store.title),
           "handle": coalesce(shopifyHandle, store.slug.current),
           brand-> { _id, name },
-          "mainImage": {
+          "images": [{
             "url": coalesce(mainImage.asset->url, store.previewImageUrl),
             "alt": coalesce(mainImage.alt, store.title),
             "lqip": mainImage.asset->metadata.lqip
-          },
-          "gallery": gallery[] { "url": asset->url, alt, "lqip": asset->metadata.lqip } | order(_key asc)
+          }] + coalesce(gallery[] { "url": asset->url, "alt": coalesce(alt, ^.title), "lqip": asset->metadata.lqip }, [])
         }
       }
     },
@@ -53,12 +52,11 @@ export async function getBlogPosts(limit?: number) {
           "title": coalesce(title, store.title),
           "handle": coalesce(shopifyHandle, store.slug.current),
           brand-> { _id, name },
-          "mainImage": {
+          "images": [{
             "url": coalesce(mainImage.asset->url, store.previewImageUrl),
             "alt": coalesce(mainImage.alt, store.title),
             "lqip": mainImage.asset->metadata.lqip
-          },
-          "gallery": gallery[] { "url": asset->url, alt, "lqip": asset->metadata.lqip } | order(_key asc)
+          }] + coalesce(gallery[] { "url": asset->url, "alt": coalesce(alt, ^.title), "lqip": asset->metadata.lqip }, [])
         }
       }
     },
@@ -71,12 +69,11 @@ export async function getBlogPosts(limit?: number) {
           "title": coalesce(title, store.title),
           "handle": coalesce(shopifyHandle, store.slug.current),
           brand-> { _id, name },
-          "mainImage": {
+          "images": [{
             "url": coalesce(mainImage.asset->url, store.previewImageUrl),
             "alt": coalesce(mainImage.alt, store.title),
             "lqip": mainImage.asset->metadata.lqip
-          },
-          "gallery": gallery[] { "url": asset->url, alt, "lqip": asset->metadata.lqip } | order(_key asc)
+          }] + coalesce(gallery[] { "url": asset->url, "alt": coalesce(alt, ^.title), "lqip": asset->metadata.lqip }, [])
         }
       }
     },
@@ -139,11 +136,10 @@ export async function getBlogPost(slug: string) {
               "minVariantPrice": store.priceRange.minVariantPrice,
               "maxVariantPrice": store.priceRange.maxVariantPrice
             },
-            "mainImage": {
+            "images": [{
               "url": coalesce(mainImage.asset->url, store.previewImageUrl),
               "alt": coalesce(mainImage.alt, store.title)
-            },
-            "gallery": gallery[] { "url": asset->url, alt } | order(_key asc)
+            }] + coalesce(gallery[] { "url": asset->url, "alt": coalesce(alt, ^.title) }, [])
           }
         }
       }
@@ -170,12 +166,11 @@ export async function getBlogPost(slug: string) {
             "minVariantPrice": store.priceRange.minVariantPrice,
             "maxVariantPrice": store.priceRange.maxVariantPrice
           },
-          "mainImage": {
+          "images": [{
             "url": coalesce(mainImage.asset->url, store.previewImageUrl),
             "alt": coalesce(mainImage.alt, store.title),
             "lqip": mainImage.asset->metadata.lqip
-          },
-          "gallery": gallery[] { "url": asset->url, alt, "lqip": asset->metadata.lqip } | order(_key asc)
+          }] + coalesce(gallery[] { "url": asset->url, "alt": coalesce(alt, ^.title), "lqip": asset->metadata.lqip }, [])
         }
       }
     },

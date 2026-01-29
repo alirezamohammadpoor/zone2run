@@ -63,7 +63,7 @@ export function FilterSortModal({
       category: [],
       gender: [],
     });
-    onSortChange("default");
+    onSortChange("newest");
   };
 
   return (
@@ -90,17 +90,17 @@ export function FilterSortModal({
           {/* Scrollable Content */}
           <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
             {/* Active Selections Summary */}
-            {(activeFilterCount > 0 || sort !== "default") && (
+            {(activeFilterCount > 0 || sort !== "newest") && (
               <div className="px-4 py-3 border-b border-gray-200">
                 <div className="flex flex-wrap gap-2">
                   {/* Sort pill */}
-                  {sort !== "default" && (
+                  {sort !== "newest" && (
                     <button
                       type="button"
                       className="inline-flex items-center gap-2 px-2 py-1 text-xs bg-black text-white w-fit"
-                      onClick={() => onSortChange("default")}
+                      onClick={() => onSortChange("newest")}
                     >
-                      Sort: {sort === "newest" ? "Newest" : sort === "price-low" ? "Price ↑" : sort === "price-high" ? "Price ↓" : sort === "name-a" ? "A-Z" : "Z-A"}
+                      Sort: {sort === "price-low" ? "Price ↑" : sort === "price-high" ? "Price ↓" : sort === "name-a" ? "A-Z" : "Z-A"}
                       <span className="text-gray-300" aria-hidden="true">×</span>
                     </button>
                   )}
@@ -190,7 +190,7 @@ export function FilterSortModal({
               type="button"
               className="flex-1 py-3 text-sm border border-gray-300 hover:bg-gray-50 transition-colors"
               onClick={handleClearAll}
-              disabled={activeFilterCount === 0 && sort === "default"}
+              disabled={activeFilterCount === 0 && sort === "newest"}
             >
               Clear All
             </button>
