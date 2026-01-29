@@ -12,9 +12,7 @@ interface GridProduct {
   title: string;
   vendor: string;
   priceRange: { minVariantPrice: number };
-  selectedImage?: { url: string; alt: string };
-  gallery?: Array<{ url: string; alt?: string }>;
-  mainImage?: { url: string; alt: string };
+  images?: Array<{ url: string; alt?: string }>;
   brand?: { name?: string; slug?: string };
   brandName?: string | null;
   brandSlug?: string | null;

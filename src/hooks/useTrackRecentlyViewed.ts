@@ -18,10 +18,10 @@ export function useTrackRecentlyViewed(product: SanityProduct) {
       _id: product.handle,
       handle: product.handle,
       title: product.title,
-      mainImage: {
-        url: product.mainImage?.url || "",
-        alt: product.mainImage?.alt,
-      },
+      images: [{
+        url: product.images?.[0]?.url || "",
+        alt: product.images?.[0]?.alt,
+      }],
       priceRange: {
         minVariantPrice: product.priceRange?.minVariantPrice || 0,
       },

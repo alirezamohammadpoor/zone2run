@@ -38,6 +38,13 @@ export function useFilteredProducts(
       );
     }
 
+    // Filter by gender
+    if (filters.gender.length > 0) {
+      filtered = filtered.filter(
+        (product) => product.gender && filters.gender.includes(product.gender)
+      );
+    }
+
     // Sort
     if (sort === "newest") {
       filtered = [...filtered].sort((a, b) => {
@@ -66,7 +73,6 @@ export function useFilteredProducts(
         (b.title || "").localeCompare(a.title || "")
       );
     }
-    // "default" keeps original server order
 
     return filtered;
   }, [products, filters, sort]);

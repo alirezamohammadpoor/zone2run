@@ -1,17 +1,17 @@
 // Shared GROQ utilities and common query patterns
 
-// Pagination constants
-export const PRODUCTS_PER_PAGE = 16;
+// Search page size — used for server-side GROQ slicing in search queries
+export const SEARCH_PAGE_SIZE = 28;
 
 /**
- * Builds a pagination slice for GROQ queries
+ * Builds a pagination slice for GROQ queries (used by search)
  * @param page - 1-indexed page number
- * @param perPage - Number of items per page (default: PRODUCTS_PER_PAGE)
- * @returns GROQ slice string like "[0...12]" or "[12...24]"
+ * @param perPage - Number of items per page (default: SEARCH_PAGE_SIZE)
+ * @returns GROQ slice string like "[0...28]" or "[28...56]"
  */
 export function buildPaginationSlice(
   page: number,
-  perPage: number = PRODUCTS_PER_PAGE,
+  perPage: number = SEARCH_PAGE_SIZE,
 ): string {
   const offset = (page - 1) * perPage;
   return `[${offset}...${offset + perPage}]`;
@@ -115,16 +115,15 @@ export const BASE_PRODUCT_PROJECTION =
   "minVariantPrice": store.priceRange.minVariantPrice,
   "maxVariantPrice": store.priceRange.maxVariantPrice
 },
-"mainImage": {
+"images": [{
   "url": coalesce(mainImage.asset->url, store.previewImageUrl),
   "alt": coalesce(mainImage.alt, store.title),
   "lqip": mainImage.asset->metadata.lqip
-},
-"gallery": gallery[] {
+}] + coalesce(gallery[] {
   "url": asset->url,
-  alt,
+  "alt": coalesce(alt, ^.title),
   "lqip": asset->metadata.lqip
-} | order(_key asc),
+}, []),
 "options": store.options,
 "variants": ` +
   PRODUCT_VARIANTS_PROJECTION +
@@ -161,6 +160,22 @@ export const GALLERY_PROJECTION_SIMPLE = `gallery[] {
   "url": asset->url,
   alt
 } | order(_key asc)`;
+
+/**
+ * Hero image projection fragment (single image for LCP)
+ */
+export const HERO_IMAGE_PROJECTION = `heroImage {
+  _key,
+  image {
+    asset-> {
+      _id,
+      url,
+      metadata { lqip }
+    },
+    alt
+  },
+  caption
+}`;
 
 /**
  * Editorial images projection fragment
@@ -230,12 +245,15 @@ export const COLLECTION_PRODUCT_PROJECTION = `{
     "minVariantPrice": store.priceRange.minVariantPrice,
     "maxVariantPrice": store.priceRange.maxVariantPrice
   },
-  "mainImage": {
+  "images": [{
     "url": store.previewImageUrl,
     "alt": store.title,
     "lqip": mainImage.asset->metadata.lqip
-  },
-  "gallery": ${GALLERY_PROJECTION},
+  }] + coalesce(gallery[] {
+    "url": asset->url,
+    "alt": coalesce(alt, ^.title),
+    "lqip": asset->metadata.lqip
+  }, []),
   "options": store.options,
   "variants": ${PRODUCT_VARIANTS_PROJECTION},
   ${CATEGORY_REFERENCE_SIMPLE},

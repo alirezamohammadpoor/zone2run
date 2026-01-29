@@ -17,14 +17,11 @@ export interface SanityProduct {
     currencyCode: string;
   };
 
-  // Images
-  mainImage: {
+  // Images (images[0] = main image, rest = gallery)
+  images: Array<{
     url: string;
     alt: string;
-  };
-  gallery?: Array<{
-    url: string;
-    alt?: string;
+    lqip?: string;
   }>;
 
   // Options & Variants

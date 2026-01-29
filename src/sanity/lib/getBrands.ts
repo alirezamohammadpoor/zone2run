@@ -1,5 +1,11 @@
 import { sanityFetch } from "@/sanity/lib/client";
 
+interface EditorialImage {
+  _key: string;
+  image: { asset: { _id: string; url: string; metadata?: { lqip?: string } }; alt?: string };
+  caption?: string;
+}
+
 interface Brand {
   _id: string;
   name: string;
@@ -8,11 +14,8 @@ interface Brand {
   productCount: number;
   featured?: boolean;
   description?: string;
-  editorialImages?: Array<{
-    _key: string;
-    image: { asset: { _id: string; url: string; metadata?: { lqip?: string } }; alt?: string };
-    caption?: string;
-  }>;
+  heroImage?: EditorialImage;
+  editorialImages?: EditorialImage[];
 }
 
 export async function getAllBrands() {
@@ -44,6 +47,20 @@ export async function getBrandBySlug(slug: string) {
     _id,
     name,
     description,
+    heroImage {
+      _key,
+      image {
+        asset-> {
+          _id,
+          url,
+          metadata {
+            lqip
+          }
+        },
+        alt
+      },
+      caption
+    },
     editorialImages[] {
       _key,
       image {

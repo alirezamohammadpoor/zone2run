@@ -18,14 +18,10 @@ export default function ProductJsonLd({ product }: ProductJsonLdProps) {
     .trim()
     .slice(0, 5000); // Schema.org recommends max 5000 chars
 
-  // Collect all product images
-  const images: string[] = [];
-  if (product.mainImage?.url) {
-    images.push(product.mainImage.url);
-  }
-  if (product.gallery?.length) {
-    images.push(...product.gallery.map((img) => img.url).filter(Boolean));
-  }
+  // Collect all product images (images[0] = main, rest = gallery)
+  const images: string[] = product.images
+    ?.map((img) => img.url)
+    .filter(Boolean) || [];
 
   // Check if any variant is available
   const anyVariantAvailable = product.variants?.some((v) => v.available) ?? false;

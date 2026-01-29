@@ -14,7 +14,7 @@ function extractProductMeta(product: SanityProduct): ProductMeta {
   return {
     handle: product.handle,
     title: product.title,
-    imageUrl: product.mainImage?.url || "",
+    imageUrl: product.images?.[0]?.url || "",
     brandName: product.brand?.name || null,
     vendor: product.vendor,
   };

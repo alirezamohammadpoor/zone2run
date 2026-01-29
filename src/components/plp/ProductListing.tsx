@@ -1,15 +1,15 @@
 "use client";
 
-import { useState, Suspense, useEffect } from "react";
+import { useState, Suspense, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import ProductGrid from "@/components/ProductGrid";
-import PaginationNav from "@/components/PaginationNav";
+import ProductGridWithImages from "@/components/ProductGridWithImages";
+import LoadMoreButton from "@/components/LoadMoreButton";
 import { FilterSortButton } from "./FilterSortButton";
 import { PLPBreadcrumbs } from "@/components/product/Breadcrumbs";
 import { useUrlFilters } from "@/hooks/useUrlFilters";
 import { useUrlSort } from "@/hooks/useUrlSort";
-import { useUrlPage } from "@/hooks/useUrlPage";
 import { usePLPFilters } from "@/hooks/usePLPFilters";
 import {
   useFilteredProducts,
@@ -18,8 +18,9 @@ import {
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
 import type { PLPProduct } from "@/types/plpProduct";
 import type { BreadcrumbItem } from "@/lib/utils/breadcrumbs";
+import type { EditorialImage } from "@/components/ProductGridWithImages";
 
-const PRODUCTS_PER_PAGE = 16;
+const PRODUCTS_PER_LOAD = 28;
 
 // Lazy load the modal for better initial bundle
 const FilterSortModal = dynamic(
@@ -41,12 +42,24 @@ interface ProductListingProps {
     size?: string[];
     gender?: string[];
   };
+  /** Editorial images to interleave in the product grid */
+  editorialImages?: EditorialImage[];
+  /** Products between editorial images on mobile (default: 4) */
+  productsPerImage?: number;
+  /** Products between editorial images on XL (default: 8) */
+  productsPerImageXL?: number;
+  /** Grid layout variant (default: "4col") */
+  gridLayout?: "4col" | "3col";
 }
 
 function ProductListingInner({
   products,
   breadcrumbs,
   initialFilters,
+  editorialImages,
+  productsPerImage,
+  productsPerImageXL,
+  gridLayout,
 }: ProductListingProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { lockScroll } = useModalScrollRestoration();
@@ -54,34 +67,32 @@ function ProductListingInner({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // URL-based filter, sort & page state
+  // URL-based filter & sort state
   const { filters, updateFilters } = useUrlFilters(initialFilters);
   const { sort, updateSort } = useUrlSort();
-  const currentPage = useUrlPage();
+
+  // Read visible limit from URL (?limit=56) — shareable & survives back/forward
+  const urlLimit = searchParams.get("limit");
+  const visibleCount = urlLimit ? Math.max(PRODUCTS_PER_LOAD, parseInt(urlLimit, 10) || PRODUCTS_PER_LOAD) : PRODUCTS_PER_LOAD;
 
   // Extract available filter options with cascading behavior
-  const { availableSizes, availableBrands, availableCategories } =
+  const { availableSizes, availableBrands, availableCategories, availableGenders } =
     usePLPFilters(products, filters);
 
   // Apply filters & sort client-side
   const filteredProducts = useFilteredProducts(products, filters, sort);
   const activeFilterCount = countActiveFilters(filters);
 
-  // Client-side pagination
-  const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
-  const paginatedProducts = filteredProducts.slice(
-    (currentPage - 1) * PRODUCTS_PER_PAGE,
-    currentPage * PRODUCTS_PER_PAGE
-  );
+  // Load More: show first N products, grow on click
+  const visibleProducts = filteredProducts.slice(0, visibleCount);
+  const remainingCount = Math.max(0, filteredProducts.length - visibleCount);
 
-  // Auto-reset to page 1 if current page exceeds total pages after filtering
-  useEffect(() => {
-    if (currentPage > 1 && currentPage > totalPages && totalPages > 0) {
-      const params = new URLSearchParams(searchParams.toString());
-      params.delete("page");
-      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-    }
-  }, [currentPage, totalPages, pathname, router, searchParams]);
+  const handleLoadMore = useCallback(() => {
+    const newLimit = visibleCount + PRODUCTS_PER_LOAD;
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("limit", newLimit.toString());
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }, [visibleCount, searchParams, router, pathname]);
 
   const handleOpenModal = () => {
     lockScroll();
@@ -117,6 +128,9 @@ function ProductListingInner({
     return breadcrumbs;
   })();
 
+  // Choose grid component based on whether editorial images are provided
+  const hasEditorialImages = editorialImages && editorialImages.length > 0;
+
   return (
     <>
       {/* Breadcrumbs Header */}
@@ -126,21 +140,31 @@ function ProductListingInner({
       <FilterSortButton
         onClick={handleOpenModal}
         activeCount={activeFilterCount}
-        currentPage={currentPage}
-        displayedCount={paginatedProducts.length}
         totalCount={filteredProducts.length}
-        pageSize={PRODUCTS_PER_PAGE}
       />
 
       {/* Product Grid */}
-      <ProductGrid products={paginatedProducts} />
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="my-8">
-          <PaginationNav currentPage={currentPage} totalPages={totalPages} />
-        </div>
+      {hasEditorialImages ? (
+        <ProductGridWithImages
+          products={visibleProducts}
+          editorialImages={editorialImages}
+          productsPerImage={productsPerImage}
+          productsPerImageXL={productsPerImageXL}
+          gridLayout={gridLayout}
+          hasMore={remainingCount > 0}
+        />
+      ) : (
+        <ProductGrid
+          products={visibleProducts}
+          priorityCount={4}
+        />
       )}
+
+      {/* Load More */}
+      <LoadMoreButton
+        onLoadMore={handleLoadMore}
+        remainingCount={remainingCount}
+      />
 
       {/* Filter/Sort Modal */}
       <FilterSortModal
@@ -153,6 +177,7 @@ function ProductListingInner({
         availableSizes={availableSizes}
         availableBrands={availableBrands}
         availableCategories={availableCategories}
+        availableGenders={availableGenders}
         activeFilterCount={activeFilterCount}
       />
     </>

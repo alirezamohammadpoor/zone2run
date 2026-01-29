@@ -7,20 +7,11 @@ export interface SanityProduct {
   shopifyHandle?: string;
   shortDescription?: string;
   gender?: string;
-  // Images
-  mainImage?: {
-    asset?: {
-      url: string;
-      metadata?: any;
-    };
+  // Images (images[0] = main image, rest = gallery)
+  images?: Array<{
+    url: string;
     alt?: string;
-  };
-  gallery?: Array<{
-    asset?: {
-      url: string;
-      metadata?: any;
-    };
-    alt?: string;
+    lqip?: string;
   }>;
 
   // Rich content

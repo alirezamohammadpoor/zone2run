@@ -1,7 +1,7 @@
 "use server";
 
 import { sanityFetch } from "@/sanity/lib/client";
-import { buildPaginationSlice, PRODUCTS_PER_PAGE } from "@/sanity/lib/groqUtils";
+import { buildPaginationSlice, SEARCH_PAGE_SIZE } from "@/sanity/lib/groqUtils";
 import type { SanityProduct } from "@/types/sanityProduct";
 
 export interface SearchBrand {
@@ -21,32 +21,30 @@ export interface SanitySearchResult {
   brands: SearchBrand[];
   collections: SearchCollection[];
   totalCount: number;
-  totalPages: number;
   isDefault: boolean;
 }
 
 // Product type for search results - compatible with ProductCard
 export type SearchProduct = Pick<
   SanityProduct,
-  "_id" | "title" | "handle" | "mainImage" | "priceRange" | "brand" | "vendor" | "gallery"
+  "_id" | "title" | "handle" | "images" | "priceRange" | "brand" | "vendor"
 >;
 
-// Shared projection for search results - includes gallery for ProductCard
+// Shared projection for search results - combined images array for ProductCard
 const SEARCH_PROJECTION = `{
   _id,
   "title": coalesce(title, store.title),
   "handle": coalesce(shopifyHandle, store.slug.current),
   "vendor": store.vendor,
-  "mainImage": {
+  "images": [{
     "url": coalesce(mainImage.asset->url, store.previewImageUrl),
     "alt": coalesce(mainImage.alt, store.title),
     "lqip": mainImage.asset->metadata.lqip
-  },
-  "gallery": gallery[] {
+  }] + coalesce(gallery[] {
     "url": asset->url,
-    alt,
+    "alt": coalesce(alt, ^.title),
     "lqip": asset->metadata.lqip
-  } | order(_key asc),
+  }, []),
   "priceRange": {
     "minVariantPrice": store.priceRange.minVariantPrice,
     "maxVariantPrice": store.priceRange.maxVariantPrice
@@ -101,9 +99,11 @@ count(*[_type == "product" && (
   $searchTerm in tags[]
 )])`;
 
+/**
+ * Initial search — fetches page 1 products, brands, collections, and total count.
+ */
 export async function searchProducts(
-  query: string,
-  page: number = 1
+  query: string
 ): Promise<SanitySearchResult> {
   // Empty query → return new arrivals only
   if (!query || query.length < 2) {
@@ -113,7 +113,6 @@ export async function searchProducts(
       brands: [],
       collections: [],
       totalCount: products.length,
-      totalPages: 1,
       isDefault: true,
     };
   }
@@ -123,7 +122,7 @@ export async function searchProducts(
 
   // Parallel fetch for performance (includes count query)
   const [products, brands, collections, totalCount] = await Promise.all([
-    sanityFetch<SearchProduct[]>(buildSearchProductsQuery(page), {
+    sanityFetch<SearchProduct[]>(buildSearchProductsQuery(1), {
       searchTerm: query,
       searchPattern,
     }),
@@ -140,7 +139,24 @@ export async function searchProducts(
     brands,
     collections,
     totalCount,
-    totalPages: Math.ceil(totalCount / PRODUCTS_PER_PAGE),
     isDefault: false,
   };
+}
+
+/**
+ * Load More — fetches the next page of search results.
+ * Called from client component to append more products.
+ */
+export async function searchProductsPage(
+  query: string,
+  page: number
+): Promise<SearchProduct[]> {
+  if (!query || query.length < 2 || page < 1) return [];
+
+  const searchPattern = `${query}*`;
+
+  return sanityFetch<SearchProduct[]>(buildSearchProductsQuery(page), {
+    searchTerm: query,
+    searchPattern,
+  });
 }

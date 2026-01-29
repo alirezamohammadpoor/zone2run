@@ -9,11 +9,11 @@ export interface PLPProduct {
   handle: string;
   /** Required by ProductCard - usually same as brand name */
   vendor: string;
-  mainImage: {
+  images: Array<{
     url: string;
     alt: string;
     lqip?: string;
-  };
+  }>;
   priceRange: {
     minVariantPrice: number;
     maxVariantPrice?: number;
@@ -28,6 +28,8 @@ export interface PLPProduct {
     title: string;
     slug: string;
   };
+  /** Used for gender filtering */
+  gender?: string;
   /** Used for "newest" sorting */
   _createdAt?: string;
 }

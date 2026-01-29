@@ -3,7 +3,6 @@
 import React from "react";
 import Image from "next/image";
 import { urlFor } from "@/sanity/lib/image";
-import useEmblaCarousel from "embla-carousel-react";
 
 export type EditorialImage = {
   _key: string;
@@ -24,19 +23,13 @@ interface ProductEditorialImagesProps {
 export default function ProductEditorialImages({
   editorialImages,
 }: ProductEditorialImagesProps) {
-  const [emblaRef] = useEmblaCarousel({
-    align: "start",
-    containScroll: "trimSnaps",
-    dragFree: false,
-  });
-
   if (!editorialImages || editorialImages.length === 0) {
     return null;
   }
 
   return (
     <div className="ml-2 my-8 md:my-12 xl:my-16 pr-2 w-full">
-      <div className="overflow-hidden -mx-2 px-2" ref={emblaRef}>
+      <div className="overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-2 px-2">
         <div className="flex gap-2">
           {editorialImages.map((item) => {
             const imageUrl = item.image?.asset?.url;
@@ -45,7 +38,7 @@ export default function ProductEditorialImages({
             return (
               <div
                 key={item._key}
-                className="flex-shrink-0 w-[70vw] xl:w-[30vw] aspect-[4/5] relative"
+                className="flex-shrink-0 w-[70vw] xl:w-[30vw] aspect-[4/5] relative snap-start"
               >
                 <Image
                   src={urlFor(item.image).url()}

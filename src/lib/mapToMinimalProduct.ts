@@ -39,10 +39,11 @@ export function mapToMinimalProduct(product: SanityProduct): PLPProduct {
     title: product.title,
     handle: product.handle,
     vendor: product.vendor || product.brand?.name || "",
-    mainImage: {
-      url: product.mainImage?.url || "",
-      alt: product.mainImage?.alt || product.title,
-    },
+    images: [{
+      url: product.images?.[0]?.url || "",
+      alt: product.images?.[0]?.alt || product.title,
+      lqip: product.images?.[0]?.lqip,
+    }],
     priceRange: {
       minVariantPrice: product.priceRange?.minVariantPrice || 0,
       maxVariantPrice: product.priceRange?.maxVariantPrice,
@@ -56,6 +57,7 @@ export function mapToMinimalProduct(product: SanityProduct): PLPProduct {
       title: product.category?.title || "",
       slug: product.category?.slug || "",
     },
+    gender: product.gender,
     _createdAt: product._createdAt,
   };
 }

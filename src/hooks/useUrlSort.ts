@@ -3,7 +3,6 @@
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 
 export type SortOption =
-  | "default"
   | "newest"
   | "price-low"
   | "price-high"
@@ -11,7 +10,6 @@ export type SortOption =
   | "name-z";
 
 const VALID_SORT_OPTIONS: SortOption[] = [
-  "default",
   "newest",
   "price-low",
   "price-high",
@@ -27,21 +25,21 @@ export function useUrlSort() {
   const sort: SortOption =
     sortParam && VALID_SORT_OPTIONS.includes(sortParam as SortOption)
       ? (sortParam as SortOption)
-      : "default";
+      : "newest";
 
   const updateSort = (newSort: SortOption) => {
     if (newSort === sort || !searchParams) {
       return;
     }
     const newSearchParams = new URLSearchParams(searchParams.toString());
-    if (newSort === "default") {
+    if (newSort === "newest") {
       // Remove sort param for default (cleaner URLs)
       newSearchParams.delete("sort");
     } else {
       newSearchParams.set("sort", newSort);
     }
-    // Reset page to 1 when sort changes
-    newSearchParams.delete("page");
+    // Reset limit when sort changes (back to first page of results)
+    newSearchParams.delete("limit");
     const queryString = newSearchParams.toString();
     router.push(queryString ? `${pathname}?${queryString}` : pathname, {
       scroll: false,

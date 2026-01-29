@@ -28,12 +28,18 @@ type HomepageModule =
 
 /**
  * Extract minimal product data for client serialization.
- * Computes selectedImage on server to avoid passing full gallery to client.
+ * Computes selected image on server, then builds images array with it first.
  */
 function extractHomepageProduct(
   product: SanityProduct,
   imageSelection: string = "main"
 ): HomepageProduct {
+  const selectedImage = getSelectedImage(product, imageSelection);
+  // Build images: selected image first, then remaining (deduped)
+  const remaining = (product.images || [])
+    .filter((img) => img.url !== selectedImage.url)
+    .map((img) => ({ url: img.url, alt: img.alt || product.title }));
+
   return {
     _id: product._id,
     handle: product.handle,
@@ -44,12 +50,7 @@ function extractHomepageProduct(
     priceRange: {
       minVariantPrice: product.priceRange.minVariantPrice,
     },
-    selectedImage: getSelectedImage(product, imageSelection),
-    // Include gallery for ProductCard hover effect (only url/alt needed)
-    gallery: product.gallery?.map((img) => ({
-      url: img.url,
-      alt: img.alt || product.title,
-    })),
+    images: [selectedImage, ...remaining],
   };
 }
 

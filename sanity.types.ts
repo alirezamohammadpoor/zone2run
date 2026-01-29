@@ -1088,6 +1088,22 @@ export type Brand = {
   description?: string;
   website?: string;
   featured?: boolean;
+  heroImage?: {
+    image?: {
+      asset?: {
+        _ref: string;
+        _type: "reference";
+        _weak?: boolean;
+        [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+      };
+      media?: unknown;
+      hotspot?: SanityImageHotspot;
+      crop?: SanityImageCrop;
+      alt?: string;
+      _type: "image";
+    };
+    caption?: string;
+  };
   editorialImages?: Array<{
     image?: {
       asset?: {
@@ -1215,6 +1231,22 @@ export type Collection = {
     _type: "image";
   };
   gridLayout?: "4col" | "3col";
+  heroImage?: {
+    image?: {
+      asset?: {
+        _ref: string;
+        _type: "reference";
+        _weak?: boolean;
+        [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+      };
+      media?: unknown;
+      hotspot?: SanityImageHotspot;
+      crop?: SanityImageCrop;
+      alt?: string;
+      _type: "image";
+    };
+    caption?: string;
+  };
   productsPerImage?: 2 | 4 | 6 | 8;
   editorialImages?: Array<{
     image?: {

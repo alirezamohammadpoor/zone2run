@@ -8,7 +8,6 @@ interface SortContentProps {
 }
 
 const SORT_OPTIONS: { key: SortOption; label: string }[] = [
-  { key: "default", label: "Relevance" },
   { key: "newest", label: "Newest" },
   { key: "price-low", label: "Price: Low to High" },
   { key: "price-high", label: "Price: High to Low" },
