@@ -14,7 +14,7 @@ interface BlogProductCarouselProps {
 
 /**
  * Blog-specific wrapper for ProductCarousel.
- * Transforms { product, imageSelection }[] format into products with selectedImage.
+ * Reorders product images so the selected image appears first.
  */
 const BlogProductCarousel = memo(function BlogProductCarousel({
   products,
@@ -24,10 +24,16 @@ const BlogProductCarousel = memo(function BlogProductCarousel({
       .filter((item): item is { product: SanityProduct; imageSelection?: string } =>
         item?.product != null
       )
-      .map((item) => ({
-        ...item.product,
-        selectedImage: getSelectedImage(item.product, item.imageSelection || "main"),
-      }));
+      .map((item) => {
+        const selected = getSelectedImage(item.product, item.imageSelection || "main");
+        // Reorder: selected image first, then remaining
+        const remaining = (item.product.images || [])
+          .filter((img) => img.url !== selected.url);
+        return {
+          ...item.product,
+          images: [selected, ...remaining],
+        };
+      });
   }, [products]);
 
   if (productsWithImages.length === 0) {

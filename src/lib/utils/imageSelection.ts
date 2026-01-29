@@ -2,7 +2,7 @@ import type { SanityProduct } from "@/types/sanityProduct";
 
 /**
  * Get the selected image for a product based on imageSelection string.
- * Supports "main" for main image, or "gallery_N" for gallery index N.
+ * Supports "main" for main image (images[0]), or "gallery_N" for gallery index N (images[N+1]).
  */
 export function getSelectedImage(
   product: SanityProduct | undefined,
@@ -12,16 +12,19 @@ export function getSelectedImage(
     return { url: "", alt: "Product" };
   }
 
+  const mainImage = product.images?.[0];
+
   if (imageSelection === "main" || !imageSelection) {
     return {
-      url: product.mainImage?.url || "",
-      alt: product.mainImage?.alt || product.title || "Product",
+      url: mainImage?.url || "",
+      alt: mainImage?.alt || product.title || "Product",
     };
   }
 
   if (imageSelection.startsWith("gallery_")) {
     const index = parseInt(imageSelection.split("_")[1]);
-    const galleryImage = product.gallery?.[index];
+    // gallery_N maps to images[N+1] since images[0] is the main image
+    const galleryImage = product.images?.[index + 1];
     if (galleryImage?.url) {
       return {
         url: galleryImage.url,
@@ -32,7 +35,7 @@ export function getSelectedImage(
 
   // Fallback to main image
   return {
-    url: product.mainImage?.url || "",
-    alt: product.mainImage?.alt || product.title || "Product",
+    url: mainImage?.url || "",
+    alt: mainImage?.alt || product.title || "Product",
   };
 }

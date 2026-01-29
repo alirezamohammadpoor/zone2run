@@ -26,10 +26,17 @@ export default async function RelatedProductsServer({
     ? products.filter((product) => product._id !== currentProductId)
     : products;
 
+  // Shuffle so the carousel feels fresh on every visit (Fisher-Yates)
+  const shuffled = [...filteredProducts];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+
   // Limit products if specified
   const displayProducts = limit
-    ? filteredProducts.slice(0, limit)
-    : filteredProducts;
+    ? shuffled.slice(0, limit)
+    : shuffled;
 
   if (displayProducts.length === 0) {
     return null;

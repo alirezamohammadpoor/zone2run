@@ -115,16 +115,15 @@ export const BASE_PRODUCT_PROJECTION =
   "minVariantPrice": store.priceRange.minVariantPrice,
   "maxVariantPrice": store.priceRange.maxVariantPrice
 },
-"mainImage": {
+"images": [{
   "url": coalesce(mainImage.asset->url, store.previewImageUrl),
   "alt": coalesce(mainImage.alt, store.title),
   "lqip": mainImage.asset->metadata.lqip
-},
-"gallery": gallery[] {
+}] + coalesce(gallery[] {
   "url": asset->url,
-  alt,
+  "alt": coalesce(alt, ^.title),
   "lqip": asset->metadata.lqip
-} | order(_key asc),
+}, []),
 "options": store.options,
 "variants": ` +
   PRODUCT_VARIANTS_PROJECTION +
@@ -246,12 +245,15 @@ export const COLLECTION_PRODUCT_PROJECTION = `{
     "minVariantPrice": store.priceRange.minVariantPrice,
     "maxVariantPrice": store.priceRange.maxVariantPrice
   },
-  "mainImage": {
+  "images": [{
     "url": store.previewImageUrl,
     "alt": store.title,
     "lqip": mainImage.asset->metadata.lqip
-  },
-  "gallery": ${GALLERY_PROJECTION},
+  }] + coalesce(gallery[] {
+    "url": asset->url,
+    "alt": coalesce(alt, ^.title),
+    "lqip": asset->metadata.lqip
+  }, []),
   "options": store.options,
   "variants": ${PRODUCT_VARIANTS_PROJECTION},
   ${CATEGORY_REFERENCE_SIMPLE},

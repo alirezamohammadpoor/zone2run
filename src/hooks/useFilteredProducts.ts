@@ -73,7 +73,6 @@ export function useFilteredProducts(
         (b.title || "").localeCompare(a.title || "")
       );
     }
-    // "default" keeps original server order
 
     return filtered;
   }, [products, filters, sort]);

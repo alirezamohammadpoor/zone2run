@@ -27,25 +27,24 @@ export interface SanitySearchResult {
 // Product type for search results - compatible with ProductCard
 export type SearchProduct = Pick<
   SanityProduct,
-  "_id" | "title" | "handle" | "mainImage" | "priceRange" | "brand" | "vendor" | "gallery"
+  "_id" | "title" | "handle" | "images" | "priceRange" | "brand" | "vendor"
 >;
 
-// Shared projection for search results - includes gallery for ProductCard
+// Shared projection for search results - combined images array for ProductCard
 const SEARCH_PROJECTION = `{
   _id,
   "title": coalesce(title, store.title),
   "handle": coalesce(shopifyHandle, store.slug.current),
   "vendor": store.vendor,
-  "mainImage": {
+  "images": [{
     "url": coalesce(mainImage.asset->url, store.previewImageUrl),
     "alt": coalesce(mainImage.alt, store.title),
     "lqip": mainImage.asset->metadata.lqip
-  },
-  "gallery": gallery[] {
+  }] + coalesce(gallery[] {
     "url": asset->url,
-    alt,
+    "alt": coalesce(alt, ^.title),
     "lqip": asset->metadata.lqip
-  } | order(_key asc),
+  }, []),
   "priceRange": {
     "minVariantPrice": store.priceRange.minVariantPrice,
     "maxVariantPrice": store.priceRange.maxVariantPrice

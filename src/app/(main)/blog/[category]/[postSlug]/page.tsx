@@ -6,6 +6,7 @@ import { PortableText } from "@portabletext/react";
 import ProductGrid from "@/components/ProductGrid";
 import BlogProductCarousel from "@/components/blog/BlogProductCarousel";
 import type { SanityProduct } from "@/types/sanityProduct";
+import { getSelectedImage } from "@/lib/utils/imageSelection";
 
 // ISR: Revalidate every 24 hours, on-demand via Sanity webhook
 export const revalidate = 86400;
@@ -223,23 +224,10 @@ export default async function PostPage({
                         products={(value.featuredProducts || []).map(
                           (item: BlogProductsModuleItem) => {
                             const p = item?.product;
-                            const selection = item?.imageSelection || "main";
-                            let selectedUrl = p?.mainImage?.url || "";
-                            if (selection.startsWith("gallery_")) {
-                              const i = parseInt(selection.split("_")[1]);
-                              selectedUrl = p?.gallery?.[i]?.url || selectedUrl;
-                            }
-                            return p
-                              ? {
-                                  ...p,
-                                  selectedImage: selectedUrl
-                                    ? {
-                                        url: selectedUrl,
-                                        alt: p.title || "Product",
-                                      }
-                                    : undefined,
-                                }
-                              : ({} as SanityProduct);
+                            if (!p) return {} as SanityProduct;
+                            const selected = getSelectedImage(p, item?.imageSelection || "main");
+                            const remaining = (p.images || []).filter((img) => img.url !== selected.url);
+                            return { ...p, images: [selected, ...remaining] };
                           },
                         )}
                         count={value.productCount}
@@ -288,10 +276,7 @@ export default async function PostPage({
             />
           ) : (
             <ProductGrid
-              products={collectionProducts.map((p) => ({
-                ...p,
-                selectedImage: p.mainImage,
-              }))}
+              products={collectionProducts}
               className="grid grid-cols-2 xl:grid-cols-4 gap-2"
             />
           )}

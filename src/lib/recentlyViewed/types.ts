@@ -2,10 +2,10 @@ export interface RecentlyViewedProduct {
   _id: string;
   handle: string;
   title: string;
-  mainImage: {
+  images: Array<{
     url: string;
     alt?: string;
-  };
+  }>;
   priceRange: {
     minVariantPrice: number;
   };

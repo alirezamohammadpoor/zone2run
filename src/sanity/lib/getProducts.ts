@@ -84,7 +84,7 @@ export async function getProductsByBrand(
       description,
       "slug": slug.current
     }
-  } | order(title asc)${buildLimitClause(limit)}`;
+  } | order(_createdAt desc)${buildLimitClause(limit)}`;
 
   try {
     const params = dbGender ? { brandSlug, dbGender } : { brandSlug };
@@ -103,7 +103,7 @@ export async function getProductsByGender(
 
   const query = `*[_type == "product" && (gender == $gender || gender == "unisex")] {
     ${BASE_PRODUCT_PROJECTION}
-  } | order(title asc)${buildLimitClause(limit)}`;
+  } | order(_createdAt desc)${buildLimitClause(limit)}`;
 
   try {
     return await sanityFetch<SanityProduct[]>(query, { gender: dbGender });
@@ -137,14 +137,14 @@ export async function getProductsByPath(
         )
       ] {
     ${BASE_PRODUCT_PROJECTION}
-  } | order(title asc)${buildLimitClause(limit)}`
+  } | order(_createdAt desc)${buildLimitClause(limit)}`
       : `*[_type == "product" &&
         (gender == $gender || gender == "unisex") &&
         category->categoryType == $categoryType &&
         category->slug.current == $categorySlug
       ] {
     ${BASE_PRODUCT_PROJECTION}
-  } | order(title asc)${buildLimitClause(limit)}`;
+  } | order(_createdAt desc)${buildLimitClause(limit)}`;
 
   try {
     return await sanityFetch<SanityProduct[]>(query, {
@@ -203,7 +203,7 @@ export async function getProductsBySubcategoryIncludingSubSubcategories(
         }
       }
     }
-  } | order(title asc)${buildLimitClause(limit)}`;
+  } | order(_createdAt desc)${buildLimitClause(limit)}`;
 
   try {
     return await sanityFetch<SanityProduct[]>(query, {
@@ -237,7 +237,7 @@ export async function getProductsByPath3Level(
     category->parentCategory->parentCategory->slug.current == $mainCategorySlug
   ] {
     ${BASE_PRODUCT_PROJECTION}
-  } | order(title asc)${buildLimitClause(limit)}`;
+  } | order(_createdAt desc)${buildLimitClause(limit)}`;
 
   try {
     return await sanityFetch<SanityProduct[]>(query, {

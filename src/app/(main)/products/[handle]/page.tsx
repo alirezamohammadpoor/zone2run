@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import ProductGalleryServer from "@/components/product/ProductGalleryServer";
+import ProductGalleryClient from "@/components/product/ProductGalleryClient";
 import ProductInfo from "@/components/product/ProductInfo";
 import ProductForm, { ProductPrice } from "@/components/product/ProductForm";
 import { getProductByHandle } from "@/lib/product/getProductByHandle";
@@ -52,11 +52,11 @@ export async function generateMetadata({
       description,
       url: `${baseUrl}/products/${handle}`,
       siteName: "Zone2Run",
-      images: product.mainImage?.url
+      images: product.images?.[0]?.url
         ? [
             {
-              url: product.mainImage.url,
-              alt: product.mainImage.alt || product.title,
+              url: product.images[0].url,
+              alt: product.images[0].alt || product.title,
             },
           ]
         : [],
@@ -66,7 +66,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: product.title,
       description,
-      images: product.mainImage?.url ? [product.mainImage.url] : [],
+      images: product.images?.[0]?.url ? [product.images[0].url] : [],
     },
   };
 }
@@ -99,11 +99,15 @@ export default async function ProductPage({
 
       <div>
         <div className="xl:flex xl:flex-row">
-          <ProductGalleryServer
-            mainImage={product.mainImage}
-            galleryImages={product.gallery}
-            title={product.title}
-          />
+          <div className="relative w-full xl:w-1/2">
+            {product.images?.length > 0 ? (
+              <ProductGalleryClient images={product.images} />
+            ) : (
+              <div className="w-full relative aspect-[4/5] flex items-center justify-center bg-gray-100">
+                <p className="text-gray-400">No images available</p>
+              </div>
+            )}
+          </div>
           <ProductInfo
             product={product}
             priceSlot={
