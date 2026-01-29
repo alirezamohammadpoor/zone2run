@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, Suspense, useEffect } from "react";
+import { useState, Suspense, useCallback } from "react";
 import dynamic from "next/dynamic";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import ProductGrid from "@/components/ProductGrid";
 import ProductGridWithImages from "@/components/ProductGridWithImages";
 import LoadMoreButton from "@/components/LoadMoreButton";
@@ -61,12 +62,18 @@ function ProductListingInner({
   gridLayout,
 }: ProductListingProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [visibleCount, setVisibleCount] = useState(PRODUCTS_PER_LOAD);
   const { lockScroll } = useModalScrollRestoration();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   // URL-based filter & sort state
   const { filters, updateFilters } = useUrlFilters(initialFilters);
   const { sort, updateSort } = useUrlSort();
+
+  // Read visible limit from URL (?limit=56) — shareable & survives back/forward
+  const urlLimit = searchParams.get("limit");
+  const visibleCount = urlLimit ? Math.max(PRODUCTS_PER_LOAD, parseInt(urlLimit, 10) || PRODUCTS_PER_LOAD) : PRODUCTS_PER_LOAD;
 
   // Extract available filter options with cascading behavior
   const { availableSizes, availableBrands, availableCategories, availableGenders } =
@@ -78,12 +85,14 @@ function ProductListingInner({
 
   // Load More: show first N products, grow on click
   const visibleProducts = filteredProducts.slice(0, visibleCount);
-  const remainingCount = filteredProducts.length - visibleCount;
+  const remainingCount = Math.max(0, filteredProducts.length - visibleCount);
 
-  // Reset visible count when filters or sort change
-  useEffect(() => {
-    setVisibleCount(PRODUCTS_PER_LOAD);
-  }, [filters, sort]);
+  const handleLoadMore = useCallback(() => {
+    const newLimit = visibleCount + PRODUCTS_PER_LOAD;
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("limit", newLimit.toString());
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }, [visibleCount, searchParams, router, pathname]);
 
   const handleOpenModal = () => {
     lockScroll();
@@ -153,7 +162,7 @@ function ProductListingInner({
 
       {/* Load More */}
       <LoadMoreButton
-        onLoadMore={() => setVisibleCount((prev) => prev + PRODUCTS_PER_LOAD)}
+        onLoadMore={handleLoadMore}
         remainingCount={remainingCount}
       />
 

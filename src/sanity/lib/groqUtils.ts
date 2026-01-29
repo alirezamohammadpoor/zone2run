@@ -1,17 +1,17 @@
 // Shared GROQ utilities and common query patterns
 
-// Pagination constants
-export const PRODUCTS_PER_PAGE = 28;
+// Search page size — used for server-side GROQ slicing in search queries
+export const SEARCH_PAGE_SIZE = 28;
 
 /**
- * Builds a pagination slice for GROQ queries
+ * Builds a pagination slice for GROQ queries (used by search)
  * @param page - 1-indexed page number
- * @param perPage - Number of items per page (default: PRODUCTS_PER_PAGE)
- * @returns GROQ slice string like "[0...12]" or "[12...24]"
+ * @param perPage - Number of items per page (default: SEARCH_PAGE_SIZE)
+ * @returns GROQ slice string like "[0...28]" or "[28...56]"
  */
 export function buildPaginationSlice(
   page: number,
-  perPage: number = PRODUCTS_PER_PAGE,
+  perPage: number = SEARCH_PAGE_SIZE,
 ): string {
   const offset = (page - 1) * perPage;
   return `[${offset}...${offset + perPage}]`;

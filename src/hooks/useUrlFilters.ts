@@ -74,6 +74,9 @@ export function useUrlFilters(initialFilters?: Partial<UrlFilters>) {
       }
     });
 
+    // Reset limit when filters change (back to first page of results)
+    newSearchParams.delete("limit");
+
     // ✅ update URL
     router.push(`${pathname}?${newSearchParams.toString()}`, { scroll: false });
 
