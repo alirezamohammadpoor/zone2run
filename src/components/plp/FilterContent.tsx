@@ -15,6 +15,7 @@ interface FilterContentProps {
   availableSizes: FilterOption[];
   availableBrands: FilterOption[];
   availableCategories: FilterOption[];
+  availableGenders: FilterOption[];
 }
 
 function FilterPill({
@@ -56,6 +57,7 @@ export function FilterContent({
   availableSizes,
   availableBrands,
   availableCategories,
+  availableGenders,
 }: FilterContentProps) {
   const toggleFilter = (key: keyof UrlFilters, value: string) => {
     const current = filters[key];
@@ -121,6 +123,26 @@ export function FilterContent({
                 option={option}
                 isSelected={filters.category.includes(option.value)}
                 onToggle={() => toggleFilter("category", option.value)}
+              />
+            ))}
+          </div>
+        </CollapsibleFilterSection>
+      )}
+
+      {/* Gender Filter */}
+      {availableGenders.length > 0 && (
+        <CollapsibleFilterSection
+          title="Gender"
+          defaultOpen={false}
+          count={filters.gender.length}
+        >
+          <div className="flex flex-col gap-1">
+            {availableGenders.map((option) => (
+              <FilterPill
+                key={option.value}
+                option={option}
+                isSelected={filters.gender.includes(option.value)}
+                onToggle={() => toggleFilter("gender", option.value)}
               />
             ))}
           </div>

@@ -1,27 +1,17 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import dynamic from "next/dynamic";
 import { notFound } from "next/navigation";
 import { getCollectionInfo, getCollectionProducts } from "@/sanity/lib/getData";
 import Image from "next/image";
-import type { EditorialImage } from "@/components/ProductGridWithImages";
-import PaginationNav from "@/components/PaginationNav";
-import type { PaginatedCollectionProducts } from "@/sanity/lib/getCollections";
-import { PRODUCTS_PER_PAGE } from "@/sanity/lib/groqUtils";
+import { ProductListing } from "@/components/plp/ProductListing";
+import { mapToMinimalProducts } from "@/lib/mapToMinimalProduct";
 import { BreadcrumbJsonLd } from "@/components/schemas";
-
-// Dynamic import reduces TBT by deferring JS parsing
-const ProductGridWithImages = dynamic(
-  () => import("@/components/ProductGridWithImages"),
-  { ssr: true }
-);
 
 // ISR: Revalidate every hour, on-demand via Sanity webhook
 export const revalidate = 3600;
 
 interface CollectionPageProps {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ page?: string }>;
 }
 
 // Generate dynamic metadata for SEO
@@ -54,7 +44,7 @@ export async function generateMetadata({
   };
 }
 
-// Async component for streaming products grid with pagination
+// Async component for streaming products grid with filtering
 async function CollectionProductGrid({
   collectionId,
   shopifyId,
@@ -62,29 +52,20 @@ async function CollectionProductGrid({
   editorialImages,
   productsPerImage,
   gridLayout,
-  currentPage,
 }: {
   collectionId: string;
   shopifyId?: number;
   curatedProducts?: Array<{ _id: string }>;
-  editorialImages?: EditorialImage[];
+  editorialImages?: NonNullable<
+    Awaited<ReturnType<typeof getCollectionInfo>>
+  >["editorialImages"];
   productsPerImage?: number;
   gridLayout?: "4col" | "3col";
-  currentPage: number;
 }) {
-  const result = await getCollectionProducts(collectionId, shopifyId, curatedProducts, currentPage);
+  // Fetch all products (no pagination — Load More handles display)
+  const products = await getCollectionProducts(collectionId, shopifyId, curatedProducts);
 
-  // Type guard for paginated result
-  const isPaginated = (r: typeof result): r is PaginatedCollectionProducts =>
-    typeof r === "object" && "totalPages" in r;
-
-  if (!isPaginated(result)) {
-    return null;
-  }
-
-  const { products, totalPages } = result;
-
-  if (!products || products.length === 0) {
+  if (!Array.isArray(products) || products.length === 0) {
     return (
       <div className="px-2 py-8 text-center text-sm text-gray-500">
         No products found.
@@ -92,34 +73,22 @@ async function CollectionProductGrid({
     );
   }
 
-  // Calculate the starting product index for editorial image positioning
-  const productStartIndex = (currentPage - 1) * PRODUCTS_PER_PAGE;
+  // Convert to minimal PLPProduct for filtering
+  const plpProducts = mapToMinimalProducts(products);
 
   return (
-    <>
-      <ProductGridWithImages
-        products={products}
-        editorialImages={editorialImages}
-        productsPerImage={productsPerImage || 4}
-        productsPerImageXL={productsPerImage || 4}
-        gridLayout={gridLayout || "4col"}
-        productStartIndex={productStartIndex}
-      />
-      <PaginationNav
-        currentPage={currentPage}
-        totalPages={totalPages}
-        className="my-8 md:my-12"
-      />
-    </>
+    <ProductListing
+      products={plpProducts}
+      editorialImages={editorialImages}
+      productsPerImage={productsPerImage || 4}
+      productsPerImageXL={productsPerImage || 4}
+      gridLayout={gridLayout || "4col"}
+    />
   );
 }
 
-export default async function CollectionPage({ params, searchParams }: CollectionPageProps) {
+export default async function CollectionPage({ params }: CollectionPageProps) {
   const { slug } = await params;
-  const { page: pageParam } = await searchParams;
-
-  // Parse page number, default to 1, ensure positive integer
-  const currentPage = Math.max(1, parseInt(pageParam || "1", 10) || 1);
 
   // Fetch collection info FIRST - hero renders immediately
   const collection = await getCollectionInfo(slug);
@@ -128,12 +97,13 @@ export default async function CollectionPage({ params, searchParams }: Collectio
     notFound();
   }
 
-  // Extract first editorial image for header, rest for grid
-  const firstEditorialImage = collection.editorialImages?.[0];
-  const remainingEditorialImages = collection.editorialImages?.slice(1);
-  const blurDataURL = firstEditorialImage?.image?.asset?.metadata?.lqip;
+  // Hero image is separate from editorial images (cleaner data model)
+  const heroImage = collection.heroImage;
+  const blurDataURL = heroImage?.image?.asset?.metadata?.lqip;
+  const imageUrl = heroImage?.image?.asset?.url;
 
-  const imageUrl = firstEditorialImage?.image?.asset?.url;
+  // Editorial images go in the product grid
+  const editorialImages = collection.editorialImages;
 
   // Breadcrumb trail for collections: Home > Collection Name
   const breadcrumbs = [
@@ -158,7 +128,7 @@ export default async function CollectionPage({ params, searchParams }: Collectio
             <div className="relative aspect-[4/5]">
               <Image
                 src={imageUrl}
-                alt={firstEditorialImage?.image?.alt || collection.title}
+                alt={heroImage?.image?.alt || collection.title}
                 fill
                 className="object-cover"
                 sizes="(min-width: 1280px) 50vw, 100vw"
@@ -179,10 +149,9 @@ export default async function CollectionPage({ params, searchParams }: Collectio
           collectionId={collection._id}
           shopifyId={collection.shopifyId}
           curatedProducts={collection.curatedProducts}
-          editorialImages={remainingEditorialImages}
+          editorialImages={editorialImages}
           productsPerImage={collection.productsPerImage}
           gridLayout={collection.gridLayout}
-          currentPage={currentPage}
         />
       </Suspense>
     </div>

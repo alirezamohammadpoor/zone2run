@@ -68,6 +68,37 @@ export default defineType({
       description: "Show this brand in featured sections",
     }),
     defineField({
+      name: "heroImage",
+      title: "Hero Image",
+      type: "object",
+      description:
+        "Large hero image displayed at the top of the brand page (LCP - loads with priority)",
+      fields: [
+        defineField({
+          name: "image",
+          title: "Image",
+          type: "image",
+          options: {
+            hotspot: true,
+          },
+          fields: [
+            {
+              name: "alt",
+              type: "string",
+              title: "Alternative Text",
+              description: "Important for SEO and accessibility",
+            },
+          ],
+        }),
+        defineField({
+          name: "caption",
+          title: "Caption",
+          type: "string",
+          description: "Optional caption text for the image",
+        }),
+      ],
+    }),
+    defineField({
       name: "editorialImages",
       title: "Editorial Images",
       type: "array",

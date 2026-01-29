@@ -28,6 +28,8 @@ export interface PLPProduct {
     title: string;
     slug: string;
   };
+  /** Used for gender filtering */
+  gender?: string;
   /** Used for "newest" sorting */
   _createdAt?: string;
 }

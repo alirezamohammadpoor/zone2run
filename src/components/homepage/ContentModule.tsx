@@ -64,8 +64,8 @@ const ContentModuleComponent = memo(function ContentModuleComponent({
             isFullWidth
               ? "w-full"
               : isSplitLayout
-              ? "w-full xl:w-[50vw]"
-              : "w-full"
+                ? "w-full xl:w-[50vw]"
+                : "w-full"
           }`}
           style={{
             height: mediaHeight,
@@ -104,8 +104,8 @@ const ContentModuleComponent = memo(function ContentModuleComponent({
             isFullWidth
               ? "w-full"
               : isSplitLayout
-              ? "w-full xl:w-[50vw]"
-              : "w-full"
+                ? "w-full xl:w-[50vw]"
+                : "w-full"
           }`}
           style={{
             height: mediaHeight,
@@ -150,10 +150,10 @@ const ContentModuleComponent = memo(function ContentModuleComponent({
       contentType === "products-only"
         ? "w-full"
         : isMediaWithProductsSplit
-        ? "w-full xl:w-[50vw] flex-shrink-0"
-        : isSplitLayout
-        ? "w-full xl:w-[50vw] xl:max-w-[50vw]"
-        : "w-full"
+          ? "w-full xl:w-[50vw] flex-shrink-0"
+          : isSplitLayout
+            ? "w-full xl:w-[50vw] xl:max-w-[50vw]"
+            : "w-full"
     }`;
 
     const renderHeader = () =>
@@ -229,10 +229,10 @@ const ContentModuleComponent = memo(function ContentModuleComponent({
       isSplitLayout && contentType === "text-with-products"
         ? "w-full xl:w-[50vw] flex-shrink-0"
         : isSplitLayout
-        ? "w-full xl:w-[50vw] flex-shrink-0"
-        : `${contentModule.maxWidth || "max-w-4xl"} ${
-            contentModule.textAlign || "text-left"
-          }`;
+          ? "w-full xl:w-[50vw] flex-shrink-0"
+          : `${contentModule.maxWidth || "max-w-4xl"} ${
+              contentModule.textAlign || "text-left"
+            }`;
 
     return (
       <div className={textWidth}>
@@ -311,7 +311,9 @@ const ContentModuleComponent = memo(function ContentModuleComponent({
         <div className={`w-full ${sectionSpacing}`}>
           <div className="flex flex-col xl:flex-row xl:justify-between xl:items-center gap-8">
             <div className="px-2 order-2 xl:order-1">{renderProducts()}</div>
-            <div className="px-2 xl:px-0 xl:pr-2 order-1 xl:order-2">{renderContent()}</div>
+            <div className="px-2 xl:px-0 xl:pr-2 order-1 xl:order-2">
+              {renderContent()}
+            </div>
           </div>
         </div>
       );
@@ -332,7 +334,9 @@ const ContentModuleComponent = memo(function ContentModuleComponent({
 
   // Single column layout or products-only
   if (contentType === "products-only") {
-    return <div className={`w-full px-2 ${sectionSpacing}`}>{renderProducts()}</div>;
+    return (
+      <div className={`w-full px-2 ${sectionSpacing}`}>{renderProducts()}</div>
+    );
   }
 
   // Single column media-with-products
@@ -367,9 +371,7 @@ const ContentModuleComponent = memo(function ContentModuleComponent({
 
   // Text only
   return (
-    <div className={`w-full px-2 ${sectionSpacing}`}>
-      {renderContent()}
-    </div>
+    <div className={`w-full px-2 ${sectionSpacing}`}>{renderContent()}</div>
   );
 });
 

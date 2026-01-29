@@ -42,6 +42,7 @@ export function mapToMinimalProduct(product: SanityProduct): PLPProduct {
     mainImage: {
       url: product.mainImage?.url || "",
       alt: product.mainImage?.alt || product.title,
+      lqip: product.mainImage?.lqip,
     },
     priceRange: {
       minVariantPrice: product.priceRange?.minVariantPrice || 0,
@@ -56,6 +57,7 @@ export function mapToMinimalProduct(product: SanityProduct): PLPProduct {
       title: product.category?.title || "",
       slug: product.category?.slug || "",
     },
+    gender: product.gender,
     _createdAt: product._createdAt,
   };
 }
