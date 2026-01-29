@@ -14,6 +14,7 @@ export interface PLPFilters {
   availableSizes: FilterOption[];
   availableBrands: FilterOption[];
   availableCategories: FilterOption[];
+  availableGenders: FilterOption[];
 }
 
 /**
@@ -21,6 +22,12 @@ export interface PLPFilters {
  * Letter sizes first (XXS → XXXL), then numeric, then alphabetic.
  */
 const SIZE_ORDER = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "XXXL"];
+
+const GENDER_LABELS: Record<string, string> = {
+  mens: "Men",
+  womens: "Women",
+  unisex: "Unisex",
+};
 
 function sortSizes(sizes: FilterOption[]): FilterOption[] {
   return sizes.sort((a, b) => {
@@ -57,7 +64,7 @@ function sortSizes(sizes: FilterOption[]): FilterOption[] {
  */
 function filterProducts(
   products: PLPProduct[],
-  filters: { sizes?: string[]; brands?: string[]; categories?: string[] }
+  filters: { sizes?: string[]; brands?: string[]; categories?: string[]; genders?: string[] }
 ): PLPProduct[] {
   let filtered = products;
 
@@ -74,6 +81,12 @@ function filterProducts(
   if (filters.categories && filters.categories.length > 0) {
     filtered = filtered.filter((p) =>
       filters.categories!.includes(p.category.slug)
+    );
+  }
+
+  if (filters.genders && filters.genders.length > 0) {
+    filtered = filtered.filter(
+      (p) => p.gender && filters.genders!.includes(p.gender)
     );
   }
 
@@ -160,13 +173,35 @@ function countCategories(products: PLPProduct[]): FilterOption[] {
 }
 
 /**
+ * Counts genders from a list of products.
+ */
+function countGenders(products: PLPProduct[]): FilterOption[] {
+  const genderMap = new Map<string, number>();
+
+  for (const product of products) {
+    if (product.gender) {
+      genderMap.set(product.gender, (genderMap.get(product.gender) || 0) + 1);
+    }
+  }
+
+  return Array.from(genderMap.entries())
+    .map(([value, count]) => ({
+      value,
+      label: GENDER_LABELS[value] || value,
+      count,
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+}
+
+/**
  * Extracts available filter options with cascading behavior.
  *
  * Each filter type shows options based on products that match
  * the OTHER active filters. This way:
- * - Size options update when brand/category changes
- * - Brand options update when size/category changes
- * - Category options update when size/brand changes
+ * - Size options update when brand/category/gender changes
+ * - Brand options update when size/category/gender changes
+ * - Category options update when size/brand/gender changes
+ * - Gender options update when size/brand/category changes
  *
  * @param products - All products for this page
  * @param filters - Currently active filters from URL
@@ -176,28 +211,39 @@ export function usePLPFilters(
   filters: UrlFilters
 ): PLPFilters {
   return useMemo(() => {
-    // For sizes: filter by brand + category (not size)
+    // For sizes: filter by brand + category + gender (not size)
     const productsForSizes = filterProducts(products, {
       brands: filters.brand,
       categories: filters.category,
+      genders: filters.gender,
     });
 
-    // For brands: filter by size + category (not brand)
+    // For brands: filter by size + category + gender (not brand)
     const productsForBrands = filterProducts(products, {
       sizes: filters.size,
       categories: filters.category,
+      genders: filters.gender,
     });
 
-    // For categories: filter by size + brand (not category)
+    // For categories: filter by size + brand + gender (not category)
     const productsForCategories = filterProducts(products, {
       sizes: filters.size,
       brands: filters.brand,
+      genders: filters.gender,
+    });
+
+    // For genders: filter by size + brand + category (not gender)
+    const productsForGenders = filterProducts(products, {
+      sizes: filters.size,
+      brands: filters.brand,
+      categories: filters.category,
     });
 
     return {
       availableSizes: countSizes(productsForSizes),
       availableBrands: countBrands(productsForBrands),
       availableCategories: countCategories(productsForCategories),
+      availableGenders: countGenders(productsForGenders),
     };
   }, [products, filters]);
 }

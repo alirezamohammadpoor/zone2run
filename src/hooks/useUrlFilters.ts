@@ -74,9 +74,6 @@ export function useUrlFilters(initialFilters?: Partial<UrlFilters>) {
       }
     });
 
-    // Reset page to 1 when filters change
-    newSearchParams.delete("page");
-
     // ✅ update URL
     router.push(`${pathname}?${newSearchParams.toString()}`, { scroll: false });
 

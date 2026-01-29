@@ -40,8 +40,6 @@ export function useUrlSort() {
     } else {
       newSearchParams.set("sort", newSort);
     }
-    // Reset page to 1 when sort changes
-    newSearchParams.delete("page");
     const queryString = newSearchParams.toString();
     router.push(queryString ? `${pathname}?${queryString}` : pathname, {
       scroll: false,

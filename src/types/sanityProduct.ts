@@ -21,6 +21,7 @@ export interface SanityProduct {
   mainImage: {
     url: string;
     alt: string;
+    lqip?: string;
   };
   gallery?: Array<{
     url: string;

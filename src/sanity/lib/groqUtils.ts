@@ -1,7 +1,7 @@
 // Shared GROQ utilities and common query patterns
 
 // Pagination constants
-export const PRODUCTS_PER_PAGE = 16;
+export const PRODUCTS_PER_PAGE = 28;
 
 /**
  * Builds a pagination slice for GROQ queries
@@ -161,6 +161,22 @@ export const GALLERY_PROJECTION_SIMPLE = `gallery[] {
   "url": asset->url,
   alt
 } | order(_key asc)`;
+
+/**
+ * Hero image projection fragment (single image for LCP)
+ */
+export const HERO_IMAGE_PROJECTION = `heroImage {
+  _key,
+  image {
+    asset-> {
+      _id,
+      url,
+      metadata { lqip }
+    },
+    alt
+  },
+  caption
+}`;
 
 /**
  * Editorial images projection fragment

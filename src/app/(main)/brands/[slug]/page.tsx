@@ -1,21 +1,12 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import dynamic from "next/dynamic";
 import { getProductsByBrand, getBrandBySlug } from "@/sanity/lib/getData";
 import { notFound } from "next/navigation";
 import { decodeBrandSlug } from "@/lib/utils/brandUrls";
 import Image from "next/image";
-import type { EditorialImage } from "@/components/ProductGridWithImages";
-import PaginationNav from "@/components/PaginationNav";
-import type { PaginatedProducts } from "@/sanity/lib/getProducts";
-import { PRODUCTS_PER_PAGE } from "@/sanity/lib/groqUtils";
+import { ProductListing } from "@/components/plp/ProductListing";
+import { mapToMinimalProducts } from "@/lib/mapToMinimalProduct";
 import { BreadcrumbJsonLd } from "@/components/schemas";
-
-// Dynamic import reduces TBT by deferring JS parsing
-const ProductGridWithImages = dynamic(
-  () => import("@/components/ProductGridWithImages"),
-  { ssr: true }
-);
 
 // ISR: Revalidate every 10 minutes, on-demand via Sanity webhook
 export const revalidate = 600;
@@ -52,31 +43,20 @@ export async function generateMetadata({
   };
 }
 
-// Async component for streaming products grid with pagination
+// Async component for streaming products grid with filtering
 async function BrandProductGrid({
-  slug,
-  gender,
+  decodedSlug,
   editorialImages,
-  currentPage,
 }: {
-  slug: string;
-  gender?: string;
-  editorialImages?: EditorialImage[];
-  currentPage: number;
+  decodedSlug: string;
+  editorialImages?: NonNullable<
+    Awaited<ReturnType<typeof getBrandBySlug>>
+  >["editorialImages"];
 }) {
-  const result = await getProductsByBrand(slug, undefined, gender, currentPage);
+  // Fetch all products for this brand (gender filtering is client-side)
+  const products = await getProductsByBrand(decodedSlug);
 
-  // Type guard for paginated result
-  const isPaginated = (r: typeof result): r is PaginatedProducts =>
-    typeof r === "object" && "totalPages" in r;
-
-  if (!isPaginated(result)) {
-    return null;
-  }
-
-  const { products, totalPages } = result;
-
-  if (!products || products.length === 0) {
+  if (!Array.isArray(products) || products.length === 0) {
     return (
       <div className="px-2 py-8 text-center text-sm text-gray-500">
         No products found.
@@ -84,38 +64,24 @@ async function BrandProductGrid({
     );
   }
 
-  // Calculate the starting product index for editorial image positioning
-  const productStartIndex = (currentPage - 1) * PRODUCTS_PER_PAGE;
+  // Convert to minimal PLPProduct for filtering
+  const plpProducts = mapToMinimalProducts(products);
 
   return (
-    <>
-      <ProductGridWithImages
-        products={products}
-        editorialImages={editorialImages}
-        productStartIndex={productStartIndex}
-      />
-      <PaginationNav
-        currentPage={currentPage}
-        totalPages={totalPages}
-        className="my-8 md:my-12"
-      />
-    </>
+    <ProductListing
+      products={plpProducts}
+      editorialImages={editorialImages}
+    />
   );
 }
 
 export default async function BrandPage({
   params,
-  searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ gender?: string; page?: string }>;
 }) {
   const { slug } = await params;
-  const { gender, page: pageParam } = await searchParams;
   const decodedSlug = decodeBrandSlug(slug);
-
-  // Parse page number, default to 1, ensure positive integer
-  const currentPage = Math.max(1, parseInt(pageParam || "1", 10) || 1);
 
   // Fetch brand info FIRST - hero renders immediately
   const brand = await getBrandBySlug(decodedSlug);
@@ -127,12 +93,13 @@ export default async function BrandPage({
   const brandName = brand.name;
   const brandDescription = brand.description || "";
 
-  // Extract first editorial image for header, rest for grid
-  const firstEditorialImage = brand.editorialImages?.[0];
-  const remainingEditorialImages = brand.editorialImages?.slice(1);
-  const blurDataURL = firstEditorialImage?.image?.asset?.metadata?.lqip;
+  // Hero image is separate from editorial images (cleaner data model)
+  const heroImage = brand.heroImage;
+  const blurDataURL = heroImage?.image?.asset?.metadata?.lqip;
+  const imageUrl = heroImage?.image?.asset?.url;
 
-  const imageUrl = firstEditorialImage?.image?.asset?.url;
+  // Editorial images go in the product grid
+  const editorialImages = brand.editorialImages;
 
   // Breadcrumb trail for brands: Home > Brands > Brand Name
   const breadcrumbs = [
@@ -158,7 +125,7 @@ export default async function BrandPage({
             <div className="relative aspect-[4/5]">
               <Image
                 src={imageUrl}
-                alt={firstEditorialImage?.image?.alt || brandName}
+                alt={heroImage?.image?.alt || brandName}
                 fill
                 className="object-cover"
                 sizes="(min-width: 1280px) 50vw, 100vw"
@@ -176,10 +143,8 @@ export default async function BrandPage({
       {/* Products grid streams in via Suspense */}
       <Suspense fallback={<div className="min-h-screen" />}>
         <BrandProductGrid
-          slug={decodedSlug}
-          gender={gender}
-          editorialImages={remainingEditorialImages}
-          currentPage={currentPage}
+          decodedSlug={decodedSlug}
+          editorialImages={editorialImages}
         />
       </Suspense>
     </div>

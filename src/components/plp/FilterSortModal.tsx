@@ -29,6 +29,7 @@ interface FilterSortModalProps {
   availableSizes: FilterOption[];
   availableBrands: FilterOption[];
   availableCategories: FilterOption[];
+  availableGenders: FilterOption[];
   activeFilterCount: number;
 }
 
@@ -42,6 +43,7 @@ export function FilterSortModal({
   availableSizes,
   availableBrands,
   availableCategories,
+  availableGenders,
   activeFilterCount,
 }: FilterSortModalProps) {
   useModalScroll(isOpen);
@@ -144,6 +146,21 @@ export function FilterSortModal({
                       </button>
                     );
                   })}
+                  {/* Gender pills */}
+                  {filters.gender.map((gender) => {
+                    const genderOption = availableGenders.find((g) => g.value === gender);
+                    return (
+                      <button
+                        key={`gender-${gender}`}
+                        type="button"
+                        className="inline-flex items-center gap-2 px-2 py-1 text-xs bg-black text-white w-fit"
+                        onClick={() => onFiltersChange({ gender: filters.gender.filter((g) => g !== gender) })}
+                      >
+                        {genderOption?.label || gender}
+                        <span className="text-gray-300" aria-hidden="true">×</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -163,6 +180,7 @@ export function FilterSortModal({
               availableSizes={availableSizes}
               availableBrands={availableBrands}
               availableCategories={availableCategories}
+              availableGenders={availableGenders}
             />
           </div>
 

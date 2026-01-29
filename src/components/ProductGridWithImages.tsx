@@ -3,6 +3,7 @@ import Link from "next/link";
 import ProductCard from "./ProductCard";
 import { urlFor } from "@/sanity/lib/image";
 import type { SanityProduct } from "@/types/sanityProduct";
+import type { PLPProduct } from "@/types/plpProduct";
 
 export type EditorialImage = {
   _key: string;
@@ -16,36 +17,40 @@ export type EditorialImage = {
   caption?: string;
 };
 
+type GridProduct = SanityProduct | PLPProduct;
+
 interface ProductGridWithImagesProps {
-  products: Array<SanityProduct>;
+  products: GridProduct[];
   editorialImages?: EditorialImage[];
   productsPerImage?: number;
   productsPerImageXL?: number;
   gridLayout?: "4col" | "3col";
-  /** Starting product index for pagination (0-indexed). Used to correctly position editorial images across pages. */
-  productStartIndex?: number;
+  /** Whether more products exist beyond what's shown (guards editorial image boundary) */
+  hasMore?: boolean;
 }
 
 type GridItem = {
   type: "product" | "image";
-  product?: SanityProduct;
+  product?: GridProduct;
   image?: EditorialImage;
   index?: number;
+  imageIndex?: number; // 0-indexed editorial image position (for alternating layout)
 };
 
 // Helper function to create grid items array
-// productStartIndex is the global index of the first product on this page (for pagination)
 function createGridItems(
-  products: SanityProduct[],
+  products: GridProduct[],
   editorialImages: EditorialImage[],
   productsPerImage: number,
-  productStartIndex: number = 0
+  hasMore: boolean,
+  /** Minimum products needed after insertion point to show the image */
+  minProductsAfter: number = 0
 ): GridItem[] {
   const gridItems: GridItem[] = [];
 
   for (let i = 0; i < products.length; i++) {
-    // Global product position (1-indexed for modulo calculation)
-    const globalProductIndex = productStartIndex + i + 1;
+    // Product position (1-indexed for modulo calculation)
+    const globalProductIndex = i + 1;
 
     gridItems.push({
       type: "product",
@@ -58,10 +63,23 @@ function createGridItems(
       // Calculate which editorial image (0-indexed)
       const imageIndex = Math.floor(globalProductIndex / productsPerImage) - 1;
 
-      if (imageIndex < editorialImages.length) {
+      // Skip if this is the last visible product and more products exist
+      // (prevents row-span-2 image peeking above Load More button)
+      const isLastVisible = i === products.length - 1;
+
+      // Skip if not enough remaining products to fill the grid alongside the image
+      const productsRemaining = products.length - (i + 1);
+      const hasEnoughProducts = hasMore || productsRemaining >= minProductsAfter;
+
+      if (
+        imageIndex < editorialImages.length &&
+        !(isLastVisible && hasMore) &&
+        hasEnoughProducts
+      ) {
         gridItems.push({
           type: "image",
           image: editorialImages[imageIndex],
+          imageIndex, // Track position for alternating layout
         });
       }
     }
@@ -74,7 +92,7 @@ function ProductItem({
   product,
   idx,
 }: {
-  product: SanityProduct;
+  product: GridProduct;
   idx: number;
 }) {
   return (
@@ -93,14 +111,19 @@ function EditorialImageBlock({
   idx,
   isMobile,
   gridLayout = "4col",
+  imageIndex = 0,
 }: {
   image: EditorialImage;
   idx: number;
   isMobile: boolean;
   gridLayout?: "4col" | "3col";
+  imageIndex?: number;
 }) {
   const imageUrl = image.image?.asset?.url;
   if (!imageUrl) return null;
+
+  // Alternate position: even images on left (default), odd images on right
+  const isRightAligned = !isMobile && gridLayout === "4col" && imageIndex % 2 === 1;
 
   // 3col layout: image same size as product card
   // 4col layout: image spans 2x2
@@ -112,9 +135,11 @@ function EditorialImageBlock({
       return "w-full aspect-[4/5] relative";
     }
     // 4col layout: spans 2x2 grid cells
-    // h-[93.15%] aligns with 2 stacked ProductCards (each aspect-[4/5] + text area below)
+    // h-[94.1%] aligns with 2 stacked ProductCards (each aspect-[4/5] + text area below)
     // This value accounts for the text area height (~6.85% of card) so image aligns with card images
-    return "col-span-2 row-span-2 w-full h-[94.1%] relative";
+    // Alternate position: even images start at col 1 (left), odd images start at col 3 (right)
+    const baseClass = "col-span-2 row-span-2 w-full h-[94.1%] relative";
+    return isRightAligned ? `${baseClass} col-start-3` : baseClass;
   };
 
   return (
@@ -127,7 +152,7 @@ function EditorialImageBlock({
         alt={image.image.alt || image.caption || "Editorial image"}
         fill
         className="object-cover"
-        sizes={isMobile ? "100vw" : "50vw"}
+        sizes={isMobile ? "calc(100vw - 16px)" : "calc(50vw - 12px)"}
       />
       {image.caption && (
         <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white p-2 text-sm">
@@ -169,6 +194,7 @@ function GridContent({
               idx={idx}
               isMobile={isMobile}
               gridLayout={gridLayout}
+              imageIndex={item.imageIndex}
             />
           );
         }
@@ -185,13 +211,13 @@ export default function ProductGridWithImages({
   productsPerImage = 4,
   productsPerImageXL = 8,
   gridLayout = "4col",
-  productStartIndex = 0,
+  hasMore = false,
 }: ProductGridWithImagesProps) {
   // Determine XL grid columns based on layout
   const xlGridCols =
     gridLayout === "3col" ? "xl:grid-cols-3" : "xl:grid-cols-4";
 
-  // If no images, fallback to regular ProductGrid
+  // If no images, fallback to simple grid
   if (!editorialImages || editorialImages.length === 0) {
     return (
       <div
@@ -214,13 +240,17 @@ export default function ProductGridWithImages({
     products,
     editorialImages,
     productsPerImage,
-    productStartIndex
+    hasMore
   );
+  // 4-col: editorial image is 2×2, needs 4 products in adjacent cells
+  // 3-col: editorial image is 1×1, no minimum needed
+  const xlMinProductsAfter = gridLayout === "4col" ? 4 : 0;
   const xlGridItems = createGridItems(
     products,
     editorialImages,
     productsPerImageXL,
-    productStartIndex
+    hasMore,
+    xlMinProductsAfter
   );
 
   return (
@@ -234,8 +264,8 @@ export default function ProductGridWithImages({
         />
       </div>
 
-      {/* XL grid */}
-      <div className={`hidden xl:grid ${xlGridCols} gap-2 px-2`}>
+      {/* XL grid — dense fills the 2 cells next to row-span-2 editorial images */}
+      <div className={`hidden xl:grid ${xlGridCols} grid-flow-dense gap-2 px-2`}>
         <GridContent
           gridItems={xlGridItems}
           isMobile={false}
