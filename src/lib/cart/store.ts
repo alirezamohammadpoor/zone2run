@@ -17,6 +17,7 @@ const initialState: CartState = {
   error: null,
   shopifyCartId: null,
   shopifyCheckoutUrl: null,
+  shopifyLineIds: {},
 };
 
 export const useCartStore = create<CartStore>()(
@@ -41,21 +42,45 @@ export const useCartStore = create<CartStore>()(
         // Sync with Shopify in background (non-blocking for INP)
         queueMicrotask(async () => {
           try {
-            const state = get();
-            if (!state.shopifyCartId) {
+            let { shopifyCartId } = get();
+            if (!shopifyCartId) {
               const cartResult = await createCart();
               if (cartResult) {
                 set({
                   shopifyCartId: cartResult.cartId,
                   shopifyCheckoutUrl: cartResult.checkoutUrl,
+                  shopifyLineIds: cartResult.lineIds,
                 });
+                shopifyCartId = cartResult.cartId;
               }
             }
+            if (!shopifyCartId) return;
 
-            // Add item to Shopify cart
-            const updatedState = get();
-            if (updatedState.shopifyCartId && !existing) {
-              await addToCart(updatedState.shopifyCartId, item.variantId, 1);
+            if (existing) {
+              // Increment existing item — update quantity via line ID
+              const lineId = get().shopifyLineIds[item.variantId];
+              if (lineId) {
+                await updateCartQuantity(
+                  shopifyCartId,
+                  lineId,
+                  existing.quantity + 1,
+                );
+              }
+            } else {
+              // New item — add to cart and store the returned line ID
+              const result = await addToCart(
+                shopifyCartId,
+                item.variantId,
+                1,
+              );
+              if (result.lineId) {
+                set((state) => ({
+                  shopifyLineIds: {
+                    ...state.shopifyLineIds,
+                    [item.variantId]: result.lineId!,
+                  },
+                }));
+              }
             }
           } catch (error) {
             console.error("Failed to sync with Shopify:", error);
@@ -63,30 +88,65 @@ export const useCartStore = create<CartStore>()(
         });
       },
 
-      removeItem: (id) =>
-        set({
-          items: get().items.filter((i) => i.id !== id),
-          shopifyCartId: null,
-          shopifyCheckoutUrl: null,
-        }),
+      removeItem: (id) => {
+        const item = get().items.find((i) => i.id === id);
+
+        // Optimistic local update — keep shopifyCartId intact
+        set({ items: get().items.filter((i) => i.id !== id) });
+
+        // Sync removal to Shopify
+        if (item) {
+          queueMicrotask(async () => {
+            try {
+              const { shopifyCartId, shopifyLineIds } = get();
+              const lineId = shopifyLineIds[item.variantId];
+              if (shopifyCartId && lineId) {
+                await removeFromCart(shopifyCartId, lineId);
+                // Clean up line ID mapping
+                const { [item.variantId]: _, ...rest } = shopifyLineIds;
+                set({ shopifyLineIds: rest });
+              }
+            } catch (error) {
+              console.error("Failed to remove from Shopify cart:", error);
+            }
+          });
+        }
+      },
 
       removeAllItems: () =>
         set({
           items: [],
-          shopifyCartId: null,
-          shopifyCheckoutUrl: null,
+          shopifyLineIds: {},
         }),
 
-      // Optimistic update - immediate UI feedback, no blocking
+      // Optimistic update + background Shopify sync
       updateQuantity: (id, quantity) => {
+        const item = get().items.find((i) => i.id === id);
+        const safeQty = Math.max(0, quantity);
+
         set({
           items: get().items.map((i) =>
-            i.id === id ? { ...i, quantity: Math.max(0, quantity) } : i
+            i.id === id ? { ...i, quantity: safeQty } : i
           ),
         });
+
+        // Sync quantity change to Shopify
+        if (item) {
+          queueMicrotask(async () => {
+            try {
+              const { shopifyCartId, shopifyLineIds } = get();
+              const lineId = shopifyLineIds[item.variantId];
+              if (shopifyCartId && lineId) {
+                await updateCartQuantity(shopifyCartId, lineId, safeQty);
+              }
+            } catch (error) {
+              console.error("Failed to update Shopify cart quantity:", error);
+            }
+          });
+        }
       },
 
-      clearCart: () => set({ items: [] }),
+      clearCart: () => set({ items: [], shopifyLineIds: {} }),
 
       setLoading: (loading) => set({ isLoading: loading }),
 
@@ -107,8 +167,16 @@ export const useCartStore = create<CartStore>()(
         ),
 
       // Shopify cart management
-      setShopifyCart: (cartId: string, checkoutUrl: string) =>
-        set({ shopifyCartId: cartId, shopifyCheckoutUrl: checkoutUrl }),
+      setShopifyCart: (
+        cartId: string,
+        checkoutUrl: string,
+        lineIds?: Record<string, string>,
+      ) =>
+        set({
+          shopifyCartId: cartId,
+          shopifyCheckoutUrl: checkoutUrl,
+          ...(lineIds && { shopifyLineIds: lineIds }),
+        }),
 
       syncWithShopify: async () => {
         const state = get();
@@ -120,15 +188,9 @@ export const useCartStore = create<CartStore>()(
             set({
               shopifyCartId: cartResult.cartId,
               shopifyCheckoutUrl: cartResult.checkoutUrl,
+              shopifyLineIds: cartResult.lineIds,
             });
           }
-        }
-      },
-
-      checkout: () => {
-        const state = get();
-        if (state.shopifyCheckoutUrl) {
-          window.location.href = state.shopifyCheckoutUrl;
         }
       },
     }),

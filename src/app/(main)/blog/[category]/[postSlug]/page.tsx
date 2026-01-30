@@ -5,7 +5,7 @@ import Image from "next/image";
 import { PortableText } from "@portabletext/react";
 import ProductGrid from "@/components/ProductGrid";
 import BlogProductCarousel from "@/components/blog/BlogProductCarousel";
-import type { SanityProduct } from "@/types/sanityProduct";
+import type { CardProduct } from "@/types/cardProduct";
 import type { PLPProduct } from "@/types/plpProduct";
 import { getSelectedImage } from "@/lib/utils/imageSelection";
 
@@ -57,7 +57,7 @@ export async function generateMetadata({
 type BlogProductsDisplayType = "horizontal" | "grid";
 
 interface BlogProductsModuleItem {
-  product: SanityProduct | undefined;
+  product: CardProduct | undefined;
   imageSelection?: string;
 }
 
@@ -227,7 +227,7 @@ export default async function PostPage({
                         products={(value.featuredProducts || []).map(
                           (item: BlogProductsModuleItem) => {
                             const p = item?.product;
-                            if (!p) return {} as SanityProduct;
+                            if (!p) return {} as CardProduct;
                             const selected = getSelectedImage(p, item?.imageSelection || "main");
                             const remaining = (p.images || []).filter((img) => img.url !== selected.url);
                             return { ...p, images: [selected, ...remaining] };

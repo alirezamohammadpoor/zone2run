@@ -15,7 +15,7 @@ import {
   getProductsByCollectionId,
 } from "@/sanity/lib/getData";
 import type { CardProduct } from "@/types/cardProduct";
-import { getSelectedImage } from "@/lib/utils/imageSelection";
+import { reorderProductImages } from "@/lib/utils/imageSelection";
 
 // Union type for all homepage modules
 type HomepageModule =
@@ -23,24 +23,6 @@ type HomepageModule =
   | ({ _key: string } & EditorialModuleType)
   | ({ _key: string } & ImageModuleType)
   | ({ _key: string } & PortableTextModule);
-
-/**
- * Reorder product images based on imageSelection config.
- * Selected image moves to front; rest follow (deduped).
- */
-function reorderProductImages(
-  product: CardProduct,
-  imageSelection: string = "main"
-): CardProduct {
-  const selectedImage = getSelectedImage(product, imageSelection);
-  const remaining = (product.images || [])
-    .filter((img) => img.url !== selectedImage.url);
-
-  return {
-    ...product,
-    images: [selectedImage, ...remaining],
-  };
-}
 
 async function HomePageSanity({ homepage }: { homepage: Home }) {
   if (!homepage) {
