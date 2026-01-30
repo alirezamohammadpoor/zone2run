@@ -272,12 +272,22 @@ export const CART_LINES_REMOVE = `
   }
 `;
 
+/** Extract variantId → Shopify lineId mapping from cart response */
+function extractLineIds(cart: ShopifyCart): Record<string, string> {
+  const map: Record<string, string> = {};
+  for (const edge of cart.lines.edges) {
+    map[edge.node.merchandise.id] = edge.node.id;
+  }
+  return map;
+}
+
 // Main cart functions
 export async function createCart(
   lines?: { variantId: string; quantity: number }[]
 ): Promise<{
   cartId: string;
   checkoutUrl: string;
+  lineIds: Record<string, string>;
 } | null> {
   try {
     const input = lines?.length
@@ -302,6 +312,7 @@ export async function createCart(
     return {
       cartId: cartCreate.cart.id,
       checkoutUrl: cartCreate.cart.checkoutUrl,
+      lineIds: extractLineIds(cartCreate.cart),
     };
   } catch (error) {
     return null;
@@ -312,11 +323,11 @@ export async function addToCart(
   cartId: string,
   variantId: string,
   quantity: number = 1
-): Promise<boolean> {
+): Promise<{ success: boolean; lineId?: string }> {
   try {
     // Validate variant ID format
     if (!variantId || !variantId.startsWith("gid://shopify/ProductVariant/")) {
-      return false;
+      return { success: false };
     }
 
     const response = await shopifyClient.request(CART_LINES_ADD, {
@@ -332,12 +343,14 @@ export async function addToCart(
     const { cartLinesAdd } = response as CartLinesAddResponse;
 
     if (cartLinesAdd.userErrors.length > 0) {
-      return false;
+      return { success: false };
     }
 
-    return true;
+    // Find the line ID for the added variant
+    const lineId = extractLineIds(cartLinesAdd.cart)[variantId];
+    return { success: true, lineId };
   } catch (error) {
-    return false;
+    return { success: false };
   }
 }
 

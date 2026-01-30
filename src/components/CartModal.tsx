@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -252,7 +254,14 @@ function CartModal({
                     setIsCheckingAvailability(false);
                     setIsRedirecting(true);
 
-                    // Create cart with ALL items in single API call
+                    // Reuse existing Shopify cart if synced, otherwise create fresh
+                    const state = useCartStore.getState();
+                    if (state.shopifyCartId && state.shopifyCheckoutUrl) {
+                      window.location.href = state.shopifyCheckoutUrl;
+                      return;
+                    }
+
+                    // Fallback: create cart with ALL items in single API call
                     const cartResult = await createCart(
                       items.map((i) => ({
                         variantId: i.variantId,
@@ -261,13 +270,11 @@ function CartModal({
                     );
 
                     if (cartResult) {
-                      // Update store with new cart ID (for abandoned cart tracking)
-                      useCartStore
-                        .getState()
-                        .setShopifyCart(
-                          cartResult.cartId,
-                          cartResult.checkoutUrl,
-                        );
+                      state.setShopifyCart(
+                        cartResult.cartId,
+                        cartResult.checkoutUrl,
+                        cartResult.lineIds,
+                      );
 
                       window.location.href = cartResult.checkoutUrl;
                     } else {
