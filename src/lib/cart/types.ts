@@ -20,6 +20,8 @@ export interface CartState {
   error: string | null;
   shopifyCartId: string | null;
   shopifyCheckoutUrl: string | null;
+  /** Maps variantId → Shopify cart line ID (needed for update/remove operations) */
+  shopifyLineIds: { [variantId: string]: string };
 }
 
 export interface CartActions {
@@ -34,7 +36,7 @@ export interface CartActions {
   getTotalItems: () => number;
   getTotalPrice: () => number;
   // Shopify cart management
-  setShopifyCart: (cartId: string, checkoutUrl: string) => void;
+  setShopifyCart: (cartId: string, checkoutUrl: string, lineIds?: Record<string, string>) => void;
   syncWithShopify: () => Promise<void>;
 }
 
