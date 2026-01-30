@@ -101,9 +101,11 @@ export const BRAND_REFERENCE_PROJECTION = `brand-> {
 }`;
 
 /**
- * Base product projection fragment (common fields used across product queries)
+ * PDP (Product Detail Page) projection — full product data.
+ * Used only by getProductByHandle() for the detail page.
+ * Includes variants, options, description, tags, full category hierarchy, brand with logo.
  */
-export const BASE_PRODUCT_PROJECTION =
+export const PDP_PRODUCT_PROJECTION =
   `_id,
 "title": coalesce(title, store.title),
 "handle": coalesce(shopifyHandle, store.slug.current),
@@ -139,10 +141,68 @@ featured,
 "_createdAt": coalesce(store.createdAt, _createdAt)`;
 
 /**
- * Full product projection (same as BASE now that gallery is included)
- * @deprecated Use BASE_PRODUCT_PROJECTION instead - gallery is now included by default
+ * PLP (Product Listing Page) projection — lean listing data.
+ * Used by category, gender, brand, and collection pages.
+ * Drops: variants (full), options, tags, description, productType, featured, brand logo, category nesting.
+ * Keeps: full gallery (for card carousel), sizes (from variant option1), flat brand/category refs.
  */
-export const FULL_PRODUCT_PROJECTION = BASE_PRODUCT_PROJECTION;
+export const PLP_PRODUCT_PROJECTION = `
+_id,
+"title": coalesce(title, store.title),
+"handle": coalesce(shopifyHandle, store.slug.current),
+"vendor": store.vendor,
+"priceRange": {
+  "minVariantPrice": store.priceRange.minVariantPrice,
+  "maxVariantPrice": store.priceRange.maxVariantPrice
+},
+"images": [{
+  "url": coalesce(mainImage.asset->url, store.previewImageUrl),
+  "alt": coalesce(mainImage.alt, store.title),
+  "lqip": mainImage.asset->metadata.lqip
+}] + coalesce(gallery[] {
+  "url": asset->url,
+  "alt": coalesce(alt, ^.title),
+  "lqip": asset->metadata.lqip
+}, []),
+"sizes": store.variants[]->store.option1,
+brand-> {
+  name,
+  "slug": slug.current
+},
+category-> {
+  title,
+  "slug": slug.current
+},
+gender,
+"_createdAt": coalesce(store.createdAt, _createdAt)`;
+
+/**
+ * Card projection — minimal display-only data.
+ * Used by related products, homepage modules, and carousels.
+ * No sizes, category, gender, or sorting fields.
+ */
+export const CARD_PRODUCT_PROJECTION = `
+_id,
+"title": coalesce(title, store.title),
+"handle": coalesce(shopifyHandle, store.slug.current),
+"vendor": store.vendor,
+"priceRange": {
+  "minVariantPrice": store.priceRange.minVariantPrice
+},
+"images": [{
+  "url": coalesce(mainImage.asset->url, store.previewImageUrl),
+  "alt": coalesce(mainImage.alt, store.title),
+  "lqip": mainImage.asset->metadata.lqip
+}] + coalesce(gallery[] {
+  "url": asset->url,
+  "alt": coalesce(alt, ^.title),
+  "lqip": asset->metadata.lqip
+}, []),
+brand-> {
+  name,
+  "slug": slug.current
+},
+"sizes": store.variants[]->store.option1`;
 
 /**
  * Gallery projection fragment (with LQIP)
@@ -230,17 +290,15 @@ export const CATEGORY_REFERENCE_SIMPLE = `category-> {
 }`;
 
 /**
- * Collection product projection (for collection pages)
- * Uses store.previewImageUrl for mainImage (no mainImage asset resolution)
+ * Collection product projection — lean PLP shape using previewImageUrl.
+ * Uses store.previewImageUrl for mainImage (skips mainImage asset resolution).
+ * Drops: variants (full), options, tags, description, productType, featured, brand logo.
  */
 export const COLLECTION_PRODUCT_PROJECTION = `{
   _id,
   "title": coalesce(title, store.title),
   "handle": coalesce(shopifyHandle, store.slug.current),
-  "description": store.descriptionHtml,
   "vendor": store.vendor,
-  "productType": store.productType,
-  "tags": store.tags,
   "priceRange": {
     "minVariantPrice": store.priceRange.minVariantPrice,
     "maxVariantPrice": store.priceRange.maxVariantPrice
@@ -254,20 +312,15 @@ export const COLLECTION_PRODUCT_PROJECTION = `{
     "alt": coalesce(alt, ^.title),
     "lqip": asset->metadata.lqip
   }, []),
-  "options": store.options,
-  "variants": ${PRODUCT_VARIANTS_PROJECTION},
-  ${CATEGORY_REFERENCE_SIMPLE},
+  "sizes": store.variants[]->store.option1,
+  category-> {
+    title,
+    "slug": slug.current
+  },
   brand-> {
-    _id,
     name,
-    "slug": slug.current,
-    logo {
-      asset-> {
-        url
-      }
-    }
+    "slug": slug.current
   },
   gender,
-  featured,
-  "createdAt": store.createdAt
+  "_createdAt": coalesce(store.createdAt, _createdAt)
 }`;

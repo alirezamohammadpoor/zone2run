@@ -3,12 +3,12 @@
 import { memo } from "react";
 import Link from "next/link";
 import ProductCarousel from "@/components/ProductCarousel";
-import HomeProductGrid from "@/components/homepage/HomeProductGrid";
-import type { SanityProduct } from "@/types/sanityProduct";
+import ProductGrid from "@/components/ProductGrid";
+import type { CardProduct } from "@/types/cardProduct";
 import { getBrandUrl } from "@/lib/utils/brandUrls";
 
 interface RelatedProductsProps {
-  products: SanityProduct[];
+  products: CardProduct[];
   brandName: string;
   brandSlug: string;
   displayType?: "grid" | "carousel";
@@ -36,7 +36,7 @@ const RelatedProducts = memo(function RelatedProducts({
       </div>
 
       {displayType === "grid" ? (
-        <HomeProductGrid products={products} />
+        <ProductGrid products={products} />
       ) : (
         <ProductCarousel
           products={products}

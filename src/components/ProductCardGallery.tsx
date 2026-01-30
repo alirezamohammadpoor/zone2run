@@ -61,11 +61,15 @@ const ProductCardGallery = memo(function ProductCardGallery({
     if (emblaApi) emblaApi.scrollNext();
   }, [emblaApi]);
 
-  // Static image when gallery is disabled or single image
-  if (disableGallery || images.length <= 1) {
-    const mainImage = images[0];
-    const hoverImage = images[1];
+  const mainImage = images[0];
+  const hoverImage = images[1];
+  const hasMultipleImages = images.length > 1;
+  const showCarousel = !disableGallery && hasMultipleImages;
 
+  // Desktop: always show hover crossfade (main → 2nd image)
+  // Mobile: show Embla carousel when gallery enabled + 2+ images, otherwise static
+  if (!showCarousel) {
+    // Static + desktop hover crossfade only
     return (
       <div
         className="w-full h-full relative group"
@@ -103,59 +107,70 @@ const ProductCardGallery = memo(function ProductCardGallery({
 
   return (
     <div
-      className="w-full h-full relative"
+      className="w-full h-full relative group"
       aria-hidden="true"
     >
-      <div className="overflow-hidden h-full" ref={emblaRef}>
-        <div className="flex h-full">
-          {images.map((image, index) => (
-            <div
-              key={`${image.url}-${index}`}
-              className="relative flex-[0_0_100%] h-full"
-            >
-              <Image
-                src={image.url}
-                alt=""
-                fill
-                sizes={sizes}
-                className="object-cover"
-                priority={priority && index === 0}
-                loading={priority && index === 0 ? "eager" : "lazy"}
-                fetchPriority={priority && index === 0 ? "high" : "auto"}
-                draggable={false}
-                {...getBlurProps(image)}
-              />
-            </div>
-          ))}
-        </div>
+      {/* Desktop: hover crossfade (hidden on mobile) */}
+      <div className="hidden xl:block w-full h-full">
+        {mainImage?.url && (
+          <Image
+            src={mainImage.url}
+            alt=""
+            fill
+            sizes={sizes}
+            className={`object-cover ${hoverImage?.url ? "transition-opacity duration-300 group-hover:opacity-0" : ""}`}
+            priority={priority}
+            loading={priority ? "eager" : "lazy"}
+            fetchPriority={priority ? "high" : "auto"}
+            draggable={false}
+            {...getBlurProps(mainImage)}
+          />
+        )}
+        {hoverImage?.url && (
+          <Image
+            src={hoverImage.url}
+            alt=""
+            fill
+            sizes={sizes}
+            className="object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+            draggable={false}
+          />
+        )}
       </div>
 
-      {/* Navigation Arrows - hidden on mobile, visible on md+ */}
-      {images.length > 1 && (
-        <>
-          <button
-            onClick={scrollPrev}
-            className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 p-3 min-w-[44px] min-h-[44px] items-center justify-center focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
-            aria-label="Previous image"
-          >
-            <ArrowIcon className="rotate-180" />
-          </button>
-          <button
-            onClick={scrollNext}
-            className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 p-3 min-w-[44px] min-h-[44px] items-center justify-center focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
-            aria-label="Next image"
-          >
-            <ArrowIcon />
-          </button>
-        </>
-      )}
+      {/* Mobile: Embla carousel (hidden on desktop) */}
+      <div className="xl:hidden w-full h-full">
+        <div className="overflow-hidden h-full" ref={emblaRef}>
+          <div className="flex h-full">
+            {images.map((image, index) => (
+              <div
+                key={`${image.url}-${index}`}
+                className="relative flex-[0_0_100%] h-full"
+              >
+                <Image
+                  src={image.url}
+                  alt=""
+                  fill
+                  sizes={sizes}
+                  className="object-cover"
+                  priority={priority && index === 0}
+                  loading={priority && index === 0 ? "eager" : "lazy"}
+                  fetchPriority={priority && index === 0 ? "high" : "auto"}
+                  draggable={false}
+                  {...getBlurProps(image)}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
 
-      {/* Progress bar */}
-      <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gray-300">
-        <div
-          className="h-full bg-black transition-all duration-300"
-          style={{ width: `${progressPercentage}%` }}
-        />
+        {/* Progress bar — mobile only */}
+        <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gray-300">
+          <div
+            className="h-full bg-black transition-all duration-300"
+            style={{ width: `${progressPercentage}%` }}
+          />
+        </div>
       </div>
     </div>
   );

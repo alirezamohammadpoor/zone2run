@@ -5,33 +5,17 @@ import PortableTextRenderer from "@/components/PortableTextRenderer";
 import Link from "next/link";
 import Image from "next/image";
 import React, { memo } from "react";
-import HomeProductGrid from "./HomeProductGrid";
+import ProductGrid from "@/components/ProductGrid";
 import ProductCarousel from "@/components/ProductCarousel";
 import { getBlurProps } from "@/lib/utils/imageProps";
-
-/**
- * Minimal product data for homepage modules.
- * Server extracts only what client needs, reducing serialization payload ~70-80%.
- */
-export interface HomepageProduct {
-  _id: string;
-  handle: string;
-  title: string;
-  brandName: string | null;
-  brandSlug: string | null;
-  vendor: string;
-  priceRange: {
-    minVariantPrice: number;
-  };
-  images?: Array<{ url: string; alt: string }>;
-}
+import type { CardProduct } from "@/types/cardProduct";
 
 const ContentModuleComponent = memo(function ContentModuleComponent({
   contentModule,
   products,
 }: {
   contentModule: PortableTextModule;
-  products?: HomepageProduct[];
+  products?: CardProduct[];
 }) {
   const contentType = contentModule.contentType || "text-only";
   const layout = contentModule.layout || "single";
@@ -175,7 +159,7 @@ const ContentModuleComponent = memo(function ContentModuleComponent({
       );
 
     const renderGrid = () => (
-      <HomeProductGrid
+      <ProductGrid
         products={productsWithImages}
         count={
           contentModule.productCount && contentModule.productCount > 0

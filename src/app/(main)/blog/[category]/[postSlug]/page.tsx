@@ -6,6 +6,7 @@ import { PortableText } from "@portabletext/react";
 import ProductGrid from "@/components/ProductGrid";
 import BlogProductCarousel from "@/components/blog/BlogProductCarousel";
 import type { SanityProduct } from "@/types/sanityProduct";
+import type { PLPProduct } from "@/types/plpProduct";
 import { getSelectedImage } from "@/lib/utils/imageSelection";
 
 // ISR: Revalidate every 24 hours, on-demand via Sanity webhook
@@ -81,7 +82,7 @@ export default async function PostPage({
   if (!post) return notFound();
 
   // Fetch products from featured collection if set
-  let collectionProducts: SanityProduct[] = [];
+  let collectionProducts: PLPProduct[] = [];
   if (post.featuredCollection?._id) {
     const allProducts = await getProductsByCollectionId(
       post.featuredCollection._id,

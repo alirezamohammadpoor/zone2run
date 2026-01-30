@@ -6,7 +6,7 @@ import type { SanityProduct } from "@/types/sanityProduct";
 
 /**
  * Tracks a product view in the recently viewed store.
- * Call this hook in the PDP component to record product views.
+ * Extracts CardProduct-compatible fields from the full SanityProduct.
  */
 export function useTrackRecentlyViewed(product: SanityProduct) {
   const addProduct = useRecentlyViewedStore((state) => state.addProduct);
@@ -15,23 +15,20 @@ export function useTrackRecentlyViewed(product: SanityProduct) {
     if (!product?.handle) return;
 
     addProduct({
-      _id: product.handle,
+      _id: product._id,
       handle: product.handle,
       title: product.title,
-      images: [{
-        url: product.images?.[0]?.url || "",
-        alt: product.images?.[0]?.alt,
-      }],
+      vendor: product.vendor,
       priceRange: {
         minVariantPrice: product.priceRange?.minVariantPrice || 0,
       },
+      images: (product.images || []).map((img) => ({
+        url: img.url,
+        alt: img.alt,
+      })),
       brand: product.brand
-        ? {
-            name: product.brand.name,
-            slug: product.brand.slug,
-          }
+        ? { name: product.brand.name, slug: product.brand.slug }
         : undefined,
-      vendor: product.vendor,
     });
   }, [product.handle, addProduct]);
 }

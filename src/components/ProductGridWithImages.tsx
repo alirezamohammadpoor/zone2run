@@ -1,9 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import ProductCard from "./ProductCard";
+import ProductGrid from "./ProductGrid";
 import { urlFor } from "@/sanity/lib/image";
-import type { SanityProduct } from "@/types/sanityProduct";
-import type { PLPProduct } from "@/types/plpProduct";
+import type { CardProduct } from "@/types/cardProduct";
 
 export type EditorialImage = {
   _key: string;
@@ -17,10 +17,8 @@ export type EditorialImage = {
   caption?: string;
 };
 
-type GridProduct = SanityProduct | PLPProduct;
-
 interface ProductGridWithImagesProps {
-  products: GridProduct[];
+  products: CardProduct[];
   editorialImages?: EditorialImage[];
   productsPerImage?: number;
   productsPerImageXL?: number;
@@ -31,7 +29,7 @@ interface ProductGridWithImagesProps {
 
 type GridItem = {
   type: "product" | "image";
-  product?: GridProduct;
+  product?: CardProduct;
   image?: EditorialImage;
   index?: number;
   imageIndex?: number; // 0-indexed editorial image position (for alternating layout)
@@ -39,7 +37,7 @@ type GridItem = {
 
 // Helper function to create grid items array
 function createGridItems(
-  products: GridProduct[],
+  products: CardProduct[],
   editorialImages: EditorialImage[],
   productsPerImage: number,
   hasMore: boolean,
@@ -92,7 +90,7 @@ function ProductItem({
   product,
   idx,
 }: {
-  product: GridProduct;
+  product: CardProduct;
   idx: number;
 }) {
   return (
@@ -100,7 +98,10 @@ function ProductItem({
       key={`${product._id}-${product.handle}-${idx}`}
       href={`/products/${product.handle}`}
     >
-      <ProductCard product={product} />
+      <ProductCard
+        product={product}
+        availableSizes={product.sizes}
+      />
     </Link>
   );
 }
@@ -220,18 +221,10 @@ export default function ProductGridWithImages({
   // If no images, fallback to simple grid
   if (!editorialImages || editorialImages.length === 0) {
     return (
-      <div
+      <ProductGrid
+        products={products}
         className={`grid grid-cols-2 ${xlGridCols} gap-2 px-2 my-8 md:my-12 xl:my-16`}
-      >
-        {products?.map((product) => (
-          <Link
-            key={`${product._id}-${product.handle}`}
-            href={`/products/${product.handle}`}
-          >
-            <ProductCard product={product} />
-          </Link>
-        ))}
-      </div>
+      />
     );
   }
 

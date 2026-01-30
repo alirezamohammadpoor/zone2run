@@ -9,7 +9,7 @@ import RecentlyViewedSection from "./RecentlyViewedSection";
 import { Backdrop } from "@/components/ui/Backdrop";
 import { NavLink } from "@/components/ui/NavLink";
 import type { SanitySearchResult } from "@/lib/actions/search";
-import type { SanityProduct } from "@/types/sanityProduct";
+import type { CardProduct } from "@/types/cardProduct";
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -196,7 +196,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                     onClick={handleClose}
                   >
                     <ProductCard
-                      product={product as SanityProduct}
+                      product={product as CardProduct}
                       sizes="(max-width: 768px) 50vw, 25vw"
                       disableGallery
                     />
