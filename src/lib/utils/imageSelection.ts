@@ -39,3 +39,21 @@ export function getSelectedImage(
     alt: mainImage?.alt || product.title || "Product",
   };
 }
+
+/**
+ * Reorder product images based on imageSelection config.
+ * Selected image moves to front; rest follow (deduped).
+ */
+export function reorderProductImages(
+  product: CardProduct,
+  imageSelection: string = "main"
+): CardProduct {
+  const selectedImage = getSelectedImage(product, imageSelection);
+  const remaining = (product.images || [])
+    .filter((img) => img.url !== selectedImage.url);
+
+  return {
+    ...product,
+    images: [selectedImage, ...remaining],
+  };
+}

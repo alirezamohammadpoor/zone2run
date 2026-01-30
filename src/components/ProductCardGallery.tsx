@@ -76,7 +76,7 @@ const ProductCardGallery = memo(function ProductCardGallery({
             alt=""
             fill
             sizes={sizes}
-            className={`object-cover ${hoverImage?.url ? "transition-opacity duration-300 group-hover:opacity-0" : ""}`}
+            className={`object-cover ${hoverImage?.url ? "transition-opacity duration-300 xl:group-hover:opacity-0" : ""}`}
             priority={priority}
             loading={priority ? "eager" : "lazy"}
             fetchPriority={priority ? "high" : "auto"}
@@ -90,7 +90,7 @@ const ProductCardGallery = memo(function ProductCardGallery({
             alt=""
             fill
             sizes={sizes}
-            className="object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+            className="object-cover opacity-0 transition-opacity duration-300 xl:group-hover:opacity-100"
             draggable={false}
           />
         )}

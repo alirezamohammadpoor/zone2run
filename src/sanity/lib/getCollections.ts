@@ -20,8 +20,39 @@ function deduplicateSizes(products: RawCollectionProduct[]): PLPProduct[] {
   }));
 }
 
-// Type for curated product references
-type CuratedProductRef = { _id: string; handle?: string };
+/** Sort products: curated order first, then by _createdAt desc */
+function sortByCuratedOrder(
+  products: PLPProduct[],
+  curatedProducts?: Array<{ _id: string }>
+): PLPProduct[] {
+  if (curatedProducts && curatedProducts.length > 0) {
+    const curatedIds = new Map(
+      curatedProducts.map((p, idx) => [p._id, idx])
+    );
+
+    products.sort((a, b) => {
+      const aInCurated = curatedIds.has(a._id);
+      const bInCurated = curatedIds.has(b._id);
+
+      if (aInCurated && bInCurated) {
+        return (curatedIds.get(a._id) ?? 0) - (curatedIds.get(b._id) ?? 0);
+      }
+      if (aInCurated) return -1;
+      if (bInCurated) return 1;
+
+      const aDate = a._createdAt ? new Date(a._createdAt).getTime() : 0;
+      const bDate = b._createdAt ? new Date(b._createdAt).getTime() : 0;
+      return bDate - aDate;
+    });
+  } else {
+    products.sort((a, b) => {
+      const aDate = a._createdAt ? new Date(a._createdAt).getTime() : 0;
+      const bDate = b._createdAt ? new Date(b._createdAt).getTime() : 0;
+      return bDate - aDate;
+    });
+  }
+  return products;
+}
 
 interface EditorialImage {
   _key: string;
@@ -102,46 +133,13 @@ export async function getCollectionProducts(
 
   const baseFilter = `*[_type == "product" && (references($collectionId) || (defined(shopifyCollectionIds) && $shopifyIdStr in shopifyCollectionIds))]`;
 
-  // Helper to sort products - curated order first, then by _createdAt
-  const sortProducts = (products: PLPProduct[]): PLPProduct[] => {
-    if (curatedProducts && curatedProducts.length > 0) {
-      const curatedIds = new Map(
-        curatedProducts.map((p: { _id: string }, idx: number) => [p._id, idx])
-      );
-
-      products.sort((a, b) => {
-        const aInCurated = curatedIds.has(a._id);
-        const bInCurated = curatedIds.has(b._id);
-
-        if (aInCurated && bInCurated) {
-          const aIdx = curatedIds.get(a._id) ?? 0;
-          const bIdx = curatedIds.get(b._id) ?? 0;
-          return Number(aIdx) - Number(bIdx);
-        }
-        if (aInCurated) return -1;
-        if (bInCurated) return 1;
-
-        const aDate = a._createdAt ? new Date(a._createdAt).getTime() : 0;
-        const bDate = b._createdAt ? new Date(b._createdAt).getTime() : 0;
-        return Number(bDate) - Number(aDate);
-      });
-    } else {
-      products.sort((a, b) => {
-        const aDate = a._createdAt ? new Date(a._createdAt).getTime() : 0;
-        const bDate = b._createdAt ? new Date(b._createdAt).getTime() : 0;
-        return Number(bDate) - Number(aDate);
-      });
-    }
-    return products;
-  };
-
   const params: Record<string, unknown> = { collectionId, shopifyIdStr };
   const productsQuery = `${baseFilter}${COLLECTION_PRODUCT_PROJECTION}`;
 
   try {
     const raw = await sanityFetch<RawCollectionProduct[]>(productsQuery, params);
     const products = deduplicateSizes(raw);
-    return sortProducts(products) || [];
+    return sortByCuratedOrder(products, curatedProducts);
   } catch (error) {
     console.error(`Error fetching products for collection ${collectionId}:`, error);
     return [];
@@ -177,38 +175,7 @@ export async function getProductsByCollectionId(
     });
 
     const products = deduplicateSizes(raw);
-
-    // Sort by curated order if available, otherwise by _createdAt
-    if (collection.curatedProducts && collection.curatedProducts.length > 0) {
-      const curatedIds = new Map(
-        collection.curatedProducts.map((p: CuratedProductRef, idx: number) => [p._id, idx])
-      );
-
-      products.sort((a, b) => {
-        const aInCurated = curatedIds.has(a._id);
-        const bInCurated = curatedIds.has(b._id);
-
-        if (aInCurated && bInCurated) {
-          const aIdx = curatedIds.get(a._id) ?? 0;
-          const bIdx = curatedIds.get(b._id) ?? 0;
-          return Number(aIdx) - Number(bIdx);
-        }
-        if (aInCurated) return -1;
-        if (bInCurated) return 1;
-
-        const aDate = a._createdAt ? new Date(a._createdAt).getTime() : 0;
-        const bDate = b._createdAt ? new Date(b._createdAt).getTime() : 0;
-        return Number(bDate) - Number(aDate);
-      });
-    } else {
-      products.sort((a, b) => {
-        const aDate = a._createdAt ? new Date(a._createdAt).getTime() : 0;
-        const bDate = b._createdAt ? new Date(b._createdAt).getTime() : 0;
-        return Number(bDate) - Number(aDate);
-      });
-    }
-
-    return products || [];
+    return sortByCuratedOrder(products, collection.curatedProducts);
   } catch (error) {
     console.error(
       `Error fetching products for collection ${collectionId}:`,

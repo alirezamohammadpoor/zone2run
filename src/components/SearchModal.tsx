@@ -109,37 +109,6 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             <p className="text-xs text-gray-500 mt-4">Searching...</p>
           )}
 
-          {/* Suggested pages - commented out for now
-          {(!query || query.length < 2) && (
-            <div className="mt-12">
-              <span className="text-gray-500 text-xs block mb-3">
-                Suggested pages
-              </span>
-              <Link
-                href="/blog"
-                onClick={handleClose}
-                className="text-xs block mt-2 hover:text-gray-500"
-              >
-                Blog
-              </Link>
-              <Link
-                href="/brands"
-                onClick={handleClose}
-                className="text-xs block mt-2 hover:text-gray-500"
-              >
-                Brands
-              </Link>
-              <Link
-                href="/collections"
-                onClick={handleClose}
-                className="text-xs block mt-2 hover:text-gray-500"
-              >
-                Collections
-              </Link>
-            </div>
-          )}
-          */}
-
           {/* Brands */}
           {results?.brands && results.brands.length > 0 && (
             <div className="mt-8">

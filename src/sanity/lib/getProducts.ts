@@ -89,15 +89,7 @@ export async function getProductsByBrand(
   limit?: number,
   gender?: string,
 ): Promise<PLPProduct[]> {
-  const genderMap: { [key: string]: string } = {
-    men: "mens",
-    women: "womens",
-    mens: "mens",
-    womens: "womens",
-    unisex: "unisex",
-  };
-
-  const dbGender = gender ? genderMap[gender] || gender : null;
+  const dbGender = gender ? mapGenderValue(gender) : null;
 
   const genderFilter = dbGender
     ? `&& (gender == $dbGender || gender == "unisex")`
