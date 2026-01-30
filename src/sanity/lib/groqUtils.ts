@@ -32,16 +32,6 @@ export function mapGenderValue(gender: string): string {
 }
 
 /**
- * Builds a gender filter clause for GROQ queries
- * Includes unisex products when a specific gender is provided
- */
-export function buildGenderFilter(gender?: string | null): string {
-  if (!gender) return "";
-  const dbGender = mapGenderValue(gender);
-  return `&& (gender == $dbGender || gender == "unisex")`;
-}
-
-/**
  * Builds a limit clause for GROQ queries
  */
 export function buildLimitClause(limit?: number): string {
@@ -205,23 +195,6 @@ brand-> {
 "sizes": store.variants[]->store.option1`;
 
 /**
- * Gallery projection fragment (with LQIP)
- */
-export const GALLERY_PROJECTION = `gallery[] {
-  "url": asset->url,
-  alt,
-  "lqip": asset->metadata.lqip
-} | order(_key asc)`;
-
-/**
- * Gallery projection fragment (without LQIP - for lighter queries)
- */
-export const GALLERY_PROJECTION_SIMPLE = `gallery[] {
-  "url": asset->url,
-  alt
-} | order(_key asc)`;
-
-/**
  * Hero image projection fragment (single image for LCP)
  */
 export const HERO_IMAGE_PROJECTION = `heroImage {
@@ -263,30 +236,6 @@ export const MENU_IMAGE_PROJECTION = `menuImage {
     metadata { lqip }
   },
   alt
-}`;
-
-/**
- * Simple brand reference projection (without logo)
- */
-export const BRAND_REFERENCE_SIMPLE = `brand-> {
-  _id,
-  name,
-  "slug": slug.current
-}`;
-
-/**
- * Simple category reference projection (2 levels only)
- */
-export const CATEGORY_REFERENCE_SIMPLE = `category-> {
-  _id,
-  title,
-  "slug": slug.current,
-  categoryType,
-  parentCategory-> {
-    _id,
-    title,
-    "slug": slug.current
-  }
 }`;
 
 /**

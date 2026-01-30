@@ -2,7 +2,7 @@
 
 import { memo, useMemo } from "react";
 import ProductCarousel from "@/components/ProductCarousel";
-import { getSelectedImage } from "@/lib/utils/imageSelection";
+import { reorderProductImages } from "@/lib/utils/imageSelection";
 import type { CardProduct } from "@/types/cardProduct";
 
 interface BlogProductCarouselProps {
@@ -24,16 +24,7 @@ const BlogProductCarousel = memo(function BlogProductCarousel({
       .filter((item): item is { product: CardProduct; imageSelection?: string } =>
         item?.product != null
       )
-      .map((item) => {
-        const selected = getSelectedImage(item.product, item.imageSelection || "main");
-        // Reorder: selected image first, then remaining
-        const remaining = (item.product.images || [])
-          .filter((img) => img.url !== selected.url);
-        return {
-          ...item.product,
-          images: [selected, ...remaining],
-        };
-      });
+      .map((item) => reorderProductImages(item.product, item.imageSelection || "main"));
   }, [products]);
 
   if (productsWithImages.length === 0) {

@@ -29,12 +29,6 @@ export const useRecentlyViewedStore = create<RecentlyViewedStore>()(
 
         set({ products: updated });
       },
-
-      getLatest: (count) => {
-        return get().products.slice(0, count);
-      },
-
-      clearAll: () => set({ products: [] }),
     }),
     { name: "recently-viewed-storage" }
   )

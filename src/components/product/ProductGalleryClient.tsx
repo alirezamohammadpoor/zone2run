@@ -12,7 +12,6 @@ export default function ProductGalleryClient({
   images,
 }: ProductGalleryClientProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
-    loop: true,
     align: "start",
   });
   const [selectedIndex, setSelectedIndex] = useState(0);

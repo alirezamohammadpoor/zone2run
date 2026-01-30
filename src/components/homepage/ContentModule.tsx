@@ -122,7 +122,7 @@ const ContentModuleComponent = memo(function ContentModuleComponent({
 
     const mobileDisplayType = contentModule.displayType || "horizontal";
     const desktopDisplayType =
-      (contentModule as any).displayTypeDesktop || mobileDisplayType;
+      contentModule.displayTypeDesktop || mobileDisplayType;
     const hasDifferentLayouts = mobileDisplayType !== desktopDisplayType;
 
     // For split media-with-products: products fill remaining space with flex-1

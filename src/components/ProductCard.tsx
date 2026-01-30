@@ -1,6 +1,6 @@
 "use client";
 
-import React, { memo, useCallback, useState } from "react";
+import { memo, useState } from "react";
 import { formatPrice } from "@/lib/utils/formatPrice";
 import ProductCardGallery from "./ProductCardGallery";
 
@@ -10,7 +10,6 @@ interface ProductCardProps {
   product: CardProduct;
   sizes?: string;
   className?: string;
-  onBrandClick?: (slug: string) => void;
   priority?: boolean;
   disableGallery?: boolean;
   availableSizes?: string[];
@@ -20,25 +19,16 @@ const ProductCard = memo(function ProductCard({
   product,
   sizes = "(max-width: 1279px) calc(50vw - 12px), calc(25vw - 10px)",
   className = "",
-  onBrandClick,
   priority = false,
   disableGallery = false,
   availableSizes,
 }: ProductCardProps) {
   const [isHovered, setIsHovered] = useState(false);
-  const handleBrandClick = useCallback((e: React.MouseEvent, slug?: string) => {
-    if (onBrandClick && slug) {
-      e.stopPropagation();
-      onBrandClick(slug);
-    }
-  }, [onBrandClick]);
 
   // images[0] = main image, rest = gallery (combined at GROQ level)
   const allImages = (product.images || []).filter((img) => Boolean(img?.url));
 
-  // Support both nested brand (brand.name) and flattened (brandName)
-  const brandName = product.brand?.name || product.brandName || product.vendor || "";
-  const brandSlug = product.brand?.slug || product.brandSlug || undefined;
+  const brandName = product.brand?.name || product.vendor || "";
   const price = formatPrice(product.priceRange.minVariantPrice);
 
   const showSizes = isHovered && availableSizes && availableSizes.length > 0;
@@ -71,19 +61,9 @@ const ProductCard = memo(function ProductCard({
           </>
         ) : (
           <>
-            {onBrandClick ? (
-              <button
-                type="button"
-                className="text-xs font-medium hover:underline text-left"
-                onClick={(e) => handleBrandClick(e, brandSlug)}
-              >
-                {brandName}
-              </button>
-            ) : (
-              <p className="text-xs font-medium">
-                {brandName}
-              </p>
-            )}
+            <p className="text-xs font-medium">
+              {brandName}
+            </p>
             <p className="text-xs line-clamp-1">
               {product.title}
             </p>

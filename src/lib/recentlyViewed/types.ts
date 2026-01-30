@@ -6,8 +6,6 @@ export interface RecentlyViewedState {
 
 export interface RecentlyViewedActions {
   addProduct: (product: CardProduct) => void;
-  getLatest: (count: number) => CardProduct[];
-  clearAll: () => void;
 }
 
 export type RecentlyViewedStore = RecentlyViewedState & RecentlyViewedActions;
