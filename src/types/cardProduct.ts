@@ -7,7 +7,7 @@ export interface CardProduct {
   handle: string;
   title: string;
   vendor: string;
-  priceRange: { minVariantPrice: number };
+  priceRange: { minVariantPrice: number; currencyCode?: string };
   images?: Array<{ url: string; alt?: string; lqip?: string }>;
   brand?: { name?: string; slug?: string };
   sizes?: string[];
