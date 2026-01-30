@@ -2,8 +2,13 @@
 
 import Image from "next/image";
 import { memo } from "react";
+import dynamic from "next/dynamic";
 import { getBlurProps } from "@/lib/utils/imageProps";
-import MobileCarousel from "./MobileCarousel";
+
+// Defer mobile carousel — keeps initial DOM small for LCP
+const MobileCarousel = dynamic(() => import("./MobileCarousel"), {
+  ssr: false,
+});
 
 interface ProductCardGalleryProps {
   images: Array<{ url: string; alt?: string; lqip?: string }>;
