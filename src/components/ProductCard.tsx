@@ -1,35 +1,19 @@
 "use client";
 
-import React, { memo, useCallback } from "react";
+import React, { memo, useCallback, useState } from "react";
 import { formatPrice } from "@/lib/utils/formatPrice";
 import ProductCardGallery from "./ProductCardGallery";
 
-/**
- * Flexible product shape that works with both:
- * - Full SanityProduct (from product grids, search results)
- * - Minimal HomepageProduct (from homepage modules)
- */
-interface ProductCardProduct {
-  _id: string;
-  handle: string;
-  title: string;
-  vendor: string;
-  priceRange: { minVariantPrice: number };
-  images?: Array<{ url: string; alt?: string }>;
-  // Full SanityProduct shape (brand as object)
-  brand?: { name?: string; slug?: string };
-  // Minimal HomepageProduct shape (brand as primitives)
-  brandName?: string | null;
-  brandSlug?: string | null;
-}
+import type { CardProduct } from "@/types/cardProduct";
 
 interface ProductCardProps {
-  product: ProductCardProduct;
+  product: CardProduct;
   sizes?: string;
   className?: string;
   onBrandClick?: (slug: string) => void;
   priority?: boolean;
   disableGallery?: boolean;
+  availableSizes?: string[];
 }
 
 const ProductCard = memo(function ProductCard({
@@ -39,7 +23,9 @@ const ProductCard = memo(function ProductCard({
   onBrandClick,
   priority = false,
   disableGallery = false,
+  availableSizes,
 }: ProductCardProps) {
+  const [isHovered, setIsHovered] = useState(false);
   const handleBrandClick = useCallback((e: React.MouseEvent, slug?: string) => {
     if (onBrandClick && slug) {
       e.stopPropagation();
@@ -50,13 +36,19 @@ const ProductCard = memo(function ProductCard({
   // images[0] = main image, rest = gallery (combined at GROQ level)
   const allImages = (product.images || []).filter((img) => Boolean(img?.url));
 
-  // Support both SanityProduct (brand.name) and HomepageProduct (brandName)
+  // Support both nested brand (brand.name) and flattened (brandName)
   const brandName = product.brand?.name || product.brandName || product.vendor || "";
   const brandSlug = product.brand?.slug || product.brandSlug || undefined;
   const price = formatPrice(product.priceRange.minVariantPrice);
 
+  const showSizes = isHovered && availableSizes && availableSizes.length > 0;
+
   return (
-    <article className={`aspect-[4/5] flex flex-col ${className}`}>
+    <article
+      className={`aspect-[4/5] flex flex-col ${className}`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <div className="w-full h-full relative bg-gray-100 block">
         <ProductCardGallery
           images={allImages}
@@ -66,22 +58,37 @@ const ProductCard = memo(function ProductCard({
         />
       </div>
       <div className="pt-2 pb-4">
-        {onBrandClick ? (
-          <button
-            type="button"
-            className="text-xs font-medium hover:underline text-left"
-            onClick={(e) => handleBrandClick(e, brandSlug)}
-          >
-            {brandName}
-          </button>
+        {/* Desktop hover: swap brand → "Available in", title → sizes */}
+        {showSizes ? (
+          <>
+            <p className="hidden xl:block text-xs font-medium">Available in</p>
+            <p className="hidden xl:flex xl:flex-wrap xl:gap-x-2 text-xs line-clamp-1">
+              {availableSizes.join("  ")}
+            </p>
+            {/* Mobile: always show default */}
+            <p className="xl:hidden text-xs font-medium">{brandName}</p>
+            <p className="xl:hidden text-xs line-clamp-1">{product.title}</p>
+          </>
         ) : (
-          <p className="text-xs font-medium">
-            {brandName}
-          </p>
+          <>
+            {onBrandClick ? (
+              <button
+                type="button"
+                className="text-xs font-medium hover:underline text-left"
+                onClick={(e) => handleBrandClick(e, brandSlug)}
+              >
+                {brandName}
+              </button>
+            ) : (
+              <p className="text-xs font-medium">
+                {brandName}
+              </p>
+            )}
+            <p className="text-xs line-clamp-1">
+              {product.title}
+            </p>
+          </>
         )}
-        <p className="text-xs line-clamp-1">
-          {product.title}
-        </p>
         <p className="text-xs pt-2">
           {price} SEK
         </p>

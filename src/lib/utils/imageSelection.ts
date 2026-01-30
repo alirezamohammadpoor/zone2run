@@ -1,11 +1,11 @@
-import type { SanityProduct } from "@/types/sanityProduct";
+import type { CardProduct } from "@/types/cardProduct";
 
 /**
  * Get the selected image for a product based on imageSelection string.
  * Supports "main" for main image (images[0]), or "gallery_N" for gallery index N (images[N+1]).
  */
 export function getSelectedImage(
-  product: SanityProduct | undefined,
+  product: CardProduct | undefined,
   imageSelection: string = "main"
 ): { url: string; alt: string } {
   if (!product) {

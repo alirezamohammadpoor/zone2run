@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { getProductsBySubcategoryIncludingSubSubcategories } from "@/sanity/lib/getData";
-import { mapToMinimalProducts } from "@/lib/mapToMinimalProduct";
 import { notFound } from "next/navigation";
 import { ProductListing } from "@/components/plp/ProductListing";
 import { buildCategoryBreadcrumbs } from "@/lib/utils/breadcrumbs";
@@ -48,7 +47,7 @@ export default async function WomensSpecificCategoryPage({
   return (
     <div>
       <ProductListing
-        products={mapToMinimalProducts(products)}
+        products={products}
         breadcrumbs={buildCategoryBreadcrumbs("womens", [mainCategory, subcategory, specificCategory])}
         initialFilters={{ category: [specificCategory] }}
       />

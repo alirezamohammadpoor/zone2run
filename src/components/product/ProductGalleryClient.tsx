@@ -48,7 +48,7 @@ export default function ProductGalleryClient({
 
   return (
     <div
-      className="relative aspect-[4/5] xl:aspect-auto xl:w-full xl:h-[92.5vh]"
+      className="relative aspect-[4/5] xl:w-full xl:h-[92.5vh]"
       role="group"
       aria-label="Product image gallery"
     >

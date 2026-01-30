@@ -38,10 +38,12 @@ export function useFilteredProducts(
       );
     }
 
-    // Filter by gender
+    // Filter by gender (always include unisex — mirrors GROQ server-side logic)
     if (filters.gender.length > 0) {
       filtered = filtered.filter(
-        (product) => product.gender && filters.gender.includes(product.gender)
+        (product) =>
+          product.gender &&
+          (filters.gender.includes(product.gender) || product.gender === "unisex")
       );
     }
 

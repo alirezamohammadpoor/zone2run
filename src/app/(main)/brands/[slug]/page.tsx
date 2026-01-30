@@ -5,7 +5,6 @@ import { notFound } from "next/navigation";
 import { decodeBrandSlug } from "@/lib/utils/brandUrls";
 import Image from "next/image";
 import { ProductListing } from "@/components/plp/ProductListing";
-import { mapToMinimalProducts } from "@/lib/mapToMinimalProduct";
 import { BreadcrumbJsonLd } from "@/components/schemas";
 
 // ISR: Revalidate every 10 minutes, on-demand via Sanity webhook
@@ -64,12 +63,9 @@ async function BrandProductGrid({
     );
   }
 
-  // Convert to minimal PLPProduct for filtering
-  const plpProducts = mapToMinimalProducts(products);
-
   return (
     <ProductListing
-      products={plpProducts}
+      products={products}
       editorialImages={editorialImages}
     />
   );

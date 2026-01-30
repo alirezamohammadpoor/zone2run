@@ -5,24 +5,10 @@ import useEmblaCarousel from "embla-carousel-react";
 import Link from "next/link";
 import ProductCard from "./ProductCard";
 
-/**
- * Minimal product shape for carousel.
- * Accepts both full SanityProduct and minimal HomepageProduct.
- */
-interface CarouselProduct {
-  _id: string;
-  handle: string;
-  title: string;
-  vendor: string;
-  priceRange: { minVariantPrice: number };
-  images?: Array<{ url: string; alt?: string }>;
-  brand?: { name?: string; slug?: string };
-  brandName?: string | null;
-  brandSlug?: string | null;
-}
+import type { CardProduct } from "@/types/cardProduct";
 
 interface ProductCarouselProps {
-  products: Array<CarouselProduct>;
+  products: Array<CardProduct>;
   className?: string;
   cardClassName?: string;
   sizes?: string;
@@ -85,6 +71,7 @@ const ProductCarousel = memo(function ProductCarousel({
               className={cardClassName}
               sizes={sizes}
               disableGallery
+              availableSizes={product.sizes}
             />
           </Link>
         ))}
