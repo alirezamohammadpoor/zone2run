@@ -2,13 +2,8 @@
 
 import Image from "next/image";
 import { memo } from "react";
-import dynamic from "next/dynamic";
 import { getBlurProps } from "@/lib/utils/imageProps";
-
-// Lazy-load Embla carousel — only downloaded when showCarousel is true
-const MobileCarousel = dynamic(() => import("./MobileCarousel"), {
-  ssr: false,
-});
+import MobileCarousel from "./MobileCarousel";
 
 interface ProductCardGalleryProps {
   images: Array<{ url: string; alt?: string; lqip?: string }>;
@@ -96,7 +91,7 @@ const ProductCardGallery = memo(function ProductCardGallery({
         )}
       </div>
 
-      {/* Mobile: lazy-loaded Embla carousel (hidden on desktop) */}
+      {/* Mobile: CSS scroll-snap carousel (hidden on desktop) */}
       <div className="xl:hidden w-full h-full">
         <MobileCarousel
           images={images}
