@@ -39,3 +39,8 @@ next-env.d.ts
 .sanity
 # next-agents-md
 .next-docs/
+
+# AI agents
+.agents/
+AGENTS.md
+.claude/skills/
