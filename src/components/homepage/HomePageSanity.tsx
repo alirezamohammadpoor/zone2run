@@ -9,14 +9,12 @@ import {
 import HeroModule from "./HeroModule";
 import EditorialModuleServer from "./EditorialModuleServer";
 import ImageModuleComponent from "./ImageModule";
-import ContentModuleComponent, {
-  type HomepageProduct,
-} from "./ContentModule";
+import ContentModuleComponent from "./ContentModule";
 import {
   getProductsByIds,
   getProductsByCollectionId,
 } from "@/sanity/lib/getData";
-import type { SanityProduct } from "@/types/sanityProduct";
+import type { CardProduct } from "@/types/cardProduct";
 import { getSelectedImage } from "@/lib/utils/imageSelection";
 
 // Union type for all homepage modules
@@ -27,29 +25,19 @@ type HomepageModule =
   | ({ _key: string } & PortableTextModule);
 
 /**
- * Extract minimal product data for client serialization.
- * Computes selected image on server, then builds images array with it first.
+ * Reorder product images based on imageSelection config.
+ * Selected image moves to front; rest follow (deduped).
  */
-function extractHomepageProduct(
-  product: SanityProduct,
+function reorderProductImages(
+  product: CardProduct,
   imageSelection: string = "main"
-): HomepageProduct {
+): CardProduct {
   const selectedImage = getSelectedImage(product, imageSelection);
-  // Build images: selected image first, then remaining (deduped)
   const remaining = (product.images || [])
-    .filter((img) => img.url !== selectedImage.url)
-    .map((img) => ({ url: img.url, alt: img.alt || product.title }));
+    .filter((img) => img.url !== selectedImage.url);
 
   return {
-    _id: product._id,
-    handle: product.handle,
-    title: product.title,
-    brandName: product.brand?.name || null,
-    brandSlug: product.brand?.slug || null,
-    vendor: product.vendor,
-    priceRange: {
-      minVariantPrice: product.priceRange.minVariantPrice,
-    },
+    ...product,
     images: [selectedImage, ...remaining],
   };
 }
@@ -82,8 +70,8 @@ async function HomePageSanity({ homepage }: { homepage: Home }) {
           module.collection._ref
         );
         // Extract minimal data on server - collection products use main image
-        const products: HomepageProduct[] = fullProducts.map(
-          (p: SanityProduct) => extractHomepageProduct(p, "main")
+        const products: CardProduct[] = fullProducts.map(
+          (p) => reorderProductImages(p, "main")
         );
         return { module, products };
       }
@@ -98,21 +86,21 @@ async function HomePageSanity({ homepage }: { homepage: Home }) {
       const fullProducts = await getProductsByIds(productRefs);
 
       // Extract minimal data on server with per-product imageSelection
-      const products: HomepageProduct[] =
+      const products: CardProduct[] =
         module.featuredProducts
           ?.map((item) => {
             if (!item.product?._ref) return null;
             const product = fullProducts.find(
-              (p: SanityProduct) => p?._id === item.product?._ref
+              (p) => p?._id === item.product?._ref
             );
             if (!product) return null;
             // Use imageSelection from the featured product config
-            return extractHomepageProduct(
+            return reorderProductImages(
               product,
               item.imageSelection || "main"
             );
           })
-          .filter((p): p is HomepageProduct => p !== null) || [];
+          .filter((p): p is CardProduct => p !== null) || [];
 
       return { module, products };
     })

@@ -1,5 +1,5 @@
 import { sanityFetch } from "@/sanity/lib/client";
-import type { SanityProduct } from "@/types/sanityProduct";
+import type { PLPProduct } from "@/types/plpProduct";
 import {
   COLLECTION_PRODUCT_PROJECTION,
   HERO_IMAGE_PROJECTION,
@@ -7,8 +7,18 @@ import {
   MENU_IMAGE_PROJECTION,
 } from "./groqUtils";
 
-// Extended product type for collection queries that include createdAt
-type CollectionProduct = SanityProduct & { createdAt?: string };
+/** Raw shape before sizes deduplication (matches collection projection) */
+interface RawCollectionProduct extends Omit<PLPProduct, "sizes"> {
+  sizes?: (string | null)[];
+}
+
+/** Deduplicate sizes from raw GROQ option1 values */
+function deduplicateSizes(products: RawCollectionProduct[]): PLPProduct[] {
+  return products.map((p) => ({
+    ...p,
+    sizes: [...new Set((p.sizes ?? []).filter(Boolean))] as string[],
+  }));
+}
 
 // Type for curated product references
 type CuratedProductRef = { _id: string; handle?: string };
@@ -35,7 +45,7 @@ interface Collection {
   heroImage?: EditorialImage;
   editorialImages?: EditorialImage[];
   curatedProducts?: Array<{ _id: string; handle?: string }>;
-  products?: SanityProduct[];
+  products?: PLPProduct[];
 }
 
 export async function getAllCollections() {
@@ -87,19 +97,19 @@ export async function getCollectionProducts(
   collectionId: string,
   shopifyId?: number,
   curatedProducts?: Array<{ _id: string }>
-): Promise<SanityProduct[]> {
+): Promise<PLPProduct[]> {
   const shopifyIdStr = shopifyId ? shopifyId.toString() : "";
 
   const baseFilter = `*[_type == "product" && (references($collectionId) || (defined(shopifyCollectionIds) && $shopifyIdStr in shopifyCollectionIds))]`;
 
-  // Helper to sort products - curated order first, then by createdAt
-  const sortProducts = (products: CollectionProduct[]): CollectionProduct[] => {
+  // Helper to sort products - curated order first, then by _createdAt
+  const sortProducts = (products: PLPProduct[]): PLPProduct[] => {
     if (curatedProducts && curatedProducts.length > 0) {
       const curatedIds = new Map(
         curatedProducts.map((p: { _id: string }, idx: number) => [p._id, idx])
       );
 
-      products.sort((a: CollectionProduct, b: CollectionProduct) => {
+      products.sort((a, b) => {
         const aInCurated = curatedIds.has(a._id);
         const bInCurated = curatedIds.has(b._id);
 
@@ -111,14 +121,14 @@ export async function getCollectionProducts(
         if (aInCurated) return -1;
         if (bInCurated) return 1;
 
-        const aDate = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-        const bDate = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        const aDate = a._createdAt ? new Date(a._createdAt).getTime() : 0;
+        const bDate = b._createdAt ? new Date(b._createdAt).getTime() : 0;
         return Number(bDate) - Number(aDate);
       });
     } else {
-      products.sort((a: CollectionProduct, b: CollectionProduct) => {
-        const aDate = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-        const bDate = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      products.sort((a, b) => {
+        const aDate = a._createdAt ? new Date(a._createdAt).getTime() : 0;
+        const bDate = b._createdAt ? new Date(b._createdAt).getTime() : 0;
         return Number(bDate) - Number(aDate);
       });
     }
@@ -129,7 +139,8 @@ export async function getCollectionProducts(
   const productsQuery = `${baseFilter}${COLLECTION_PRODUCT_PROJECTION}`;
 
   try {
-    const products = await sanityFetch<CollectionProduct[]>(productsQuery, params);
+    const raw = await sanityFetch<RawCollectionProduct[]>(productsQuery, params);
+    const products = deduplicateSizes(raw);
     return sortProducts(products) || [];
   } catch (error) {
     console.error(`Error fetching products for collection ${collectionId}:`, error);
@@ -140,7 +151,7 @@ export async function getCollectionProducts(
 // Get products by collection ID (for homepage modules)
 export async function getProductsByCollectionId(
   collectionId: string
-): Promise<SanityProduct[]> {
+): Promise<PLPProduct[]> {
   // First get the collection to access shopifyId and curatedProducts
   const collectionQuery = `*[_type == "collection" && _id == $collectionId][0]{
     _id,
@@ -160,18 +171,20 @@ export async function getProductsByCollectionId(
       ? collection.shopifyId.toString()
       : "";
 
-    const products = await sanityFetch<CollectionProduct[]>(productsQuery, {
+    const raw = await sanityFetch<RawCollectionProduct[]>(productsQuery, {
       collectionId: collection._id,
       shopifyIdStr: shopifyIdStr,
     });
 
-    // Sort by curated order if available, otherwise by createdAt
+    const products = deduplicateSizes(raw);
+
+    // Sort by curated order if available, otherwise by _createdAt
     if (collection.curatedProducts && collection.curatedProducts.length > 0) {
       const curatedIds = new Map(
         collection.curatedProducts.map((p: CuratedProductRef, idx: number) => [p._id, idx])
       );
 
-      products.sort((a: CollectionProduct, b: CollectionProduct) => {
+      products.sort((a, b) => {
         const aInCurated = curatedIds.has(a._id);
         const bInCurated = curatedIds.has(b._id);
 
@@ -183,14 +196,14 @@ export async function getProductsByCollectionId(
         if (aInCurated) return -1;
         if (bInCurated) return 1;
 
-        const aDate = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-        const bDate = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        const aDate = a._createdAt ? new Date(a._createdAt).getTime() : 0;
+        const bDate = b._createdAt ? new Date(b._createdAt).getTime() : 0;
         return Number(bDate) - Number(aDate);
       });
     } else {
-      products.sort((a: CollectionProduct, b: CollectionProduct) => {
-        const aDate = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-        const bDate = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      products.sort((a, b) => {
+        const aDate = a._createdAt ? new Date(a._createdAt).getTime() : 0;
+        const bDate = b._createdAt ? new Date(b._createdAt).getTime() : 0;
         return Number(bDate) - Number(aDate);
       });
     }

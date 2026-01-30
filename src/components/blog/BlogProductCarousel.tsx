@@ -3,11 +3,11 @@
 import { memo, useMemo } from "react";
 import ProductCarousel from "@/components/ProductCarousel";
 import { getSelectedImage } from "@/lib/utils/imageSelection";
-import type { SanityProduct } from "@/types/sanityProduct";
+import type { CardProduct } from "@/types/cardProduct";
 
 interface BlogProductCarouselProps {
   products: Array<{
-    product: SanityProduct | undefined;
+    product: CardProduct | undefined;
     imageSelection?: string;
   }>;
 }
@@ -21,7 +21,7 @@ const BlogProductCarousel = memo(function BlogProductCarousel({
 }: BlogProductCarouselProps) {
   const productsWithImages = useMemo(() => {
     return products
-      .filter((item): item is { product: SanityProduct; imageSelection?: string } =>
+      .filter((item): item is { product: CardProduct; imageSelection?: string } =>
         item?.product != null
       )
       .map((item) => {

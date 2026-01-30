@@ -1,28 +1,12 @@
-export interface RecentlyViewedProduct {
-  _id: string;
-  handle: string;
-  title: string;
-  images: Array<{
-    url: string;
-    alt?: string;
-  }>;
-  priceRange: {
-    minVariantPrice: number;
-  };
-  brand?: {
-    name: string;
-    slug?: string;
-  };
-  vendor?: string;
-}
+import type { CardProduct } from "@/types/cardProduct";
 
 export interface RecentlyViewedState {
-  products: RecentlyViewedProduct[];
+  products: CardProduct[];
 }
 
 export interface RecentlyViewedActions {
-  addProduct: (product: RecentlyViewedProduct) => void;
-  getLatest: (count: number) => RecentlyViewedProduct[];
+  addProduct: (product: CardProduct) => void;
+  getLatest: (count: number) => CardProduct[];
   clearAll: () => void;
 }
 

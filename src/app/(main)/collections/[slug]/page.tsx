@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { getCollectionInfo, getCollectionProducts } from "@/sanity/lib/getData";
 import Image from "next/image";
 import { ProductListing } from "@/components/plp/ProductListing";
-import { mapToMinimalProducts } from "@/lib/mapToMinimalProduct";
 import { BreadcrumbJsonLd } from "@/components/schemas";
 
 // ISR: Revalidate every hour, on-demand via Sanity webhook
@@ -73,12 +72,9 @@ async function CollectionProductGrid({
     );
   }
 
-  // Convert to minimal PLPProduct for filtering
-  const plpProducts = mapToMinimalProducts(products);
-
   return (
     <ProductListing
-      products={plpProducts}
+      products={products}
       editorialImages={editorialImages}
       productsPerImage={productsPerImage || 4}
       productsPerImageXL={productsPerImage || 4}

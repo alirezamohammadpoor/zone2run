@@ -3,7 +3,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type {
-  RecentlyViewedProduct,
   RecentlyViewedStore,
   RecentlyViewedState,
 } from "./types";

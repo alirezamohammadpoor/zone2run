@@ -3,7 +3,6 @@
 import { useRecentlyViewedStore } from "@/lib/recentlyViewed/store";
 import { useHasMounted } from "@/hooks/useHasMounted";
 import ProductCarousel from "./ProductCarousel";
-import type { SanityProduct } from "@/types/sanityProduct";
 
 interface RecentlyViewedSectionProps {
   /** Maximum number of products to display */
@@ -43,7 +42,7 @@ export default function RecentlyViewedSection({
         </span>
       </div>
       <ProductCarousel
-        products={displayProducts as unknown as SanityProduct[]}
+        products={displayProducts}
         onProductClick={onProductClick}
         className="overflow-hidden"
         cardClassName="flex-shrink-0 w-[60vw] md:w-[30vw] lg:w-[22vw] xl:w-[18vw] min-w-0"
