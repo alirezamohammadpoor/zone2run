@@ -129,7 +129,6 @@ export default async function BrandPage({
                 fetchPriority="high"
                 placeholder={blurDataURL ? "blur" : "empty"}
                 blurDataURL={blurDataURL}
-                unoptimized
               />
             </div>
           </div>

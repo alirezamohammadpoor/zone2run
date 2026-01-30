@@ -41,7 +41,7 @@ const RelatedProducts = memo(function RelatedProducts({
         <ProductCarousel
           products={products}
           cardClassName="flex-shrink-0 w-[70vw] xl:w-[30vw] aspect-[4/5]"
-          sizes="(min-width: 1280px) 25vw, 70vw"
+          sizes="(min-width: 1280px) 30vw, 70vw"
         />
       )}
     </div>

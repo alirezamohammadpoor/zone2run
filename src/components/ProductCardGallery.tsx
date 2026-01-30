@@ -1,25 +1,14 @@
 "use client";
 
-import useEmblaCarousel from "embla-carousel-react";
 import Image from "next/image";
-import { useCallback, useEffect, useState, memo } from "react";
+import { memo } from "react";
+import dynamic from "next/dynamic";
 import { getBlurProps } from "@/lib/utils/imageProps";
 
-const ArrowIcon = ({ className = "" }: { className?: string }) => (
-  <svg
-    aria-hidden="true"
-    viewBox="0 0 5 8"
-    className={`w-3 h-3 text-black ${className}`}
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      fillRule="evenodd"
-      clipRule="evenodd"
-      d="M0.707107 7.70711L0 7L3.14645 3.85355L0 0.707107L0.707107 0L4.56066 3.85355L0.707107 7.70711Z"
-      fill="currentColor"
-    />
-  </svg>
-);
+// Lazy-load Embla carousel — only downloaded when showCarousel is true
+const MobileCarousel = dynamic(() => import("./MobileCarousel"), {
+  ssr: false,
+});
 
 interface ProductCardGalleryProps {
   images: Array<{ url: string; alt?: string; lqip?: string }>;
@@ -34,42 +23,13 @@ const ProductCardGallery = memo(function ProductCardGallery({
   priority = false,
   disableGallery = false,
 }: ProductCardGalleryProps) {
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start" });
-  const [selectedIndex, setSelectedIndex] = useState(0);
-
-  const onSelect = useCallback(() => {
-    if (!emblaApi) return;
-    setSelectedIndex(emblaApi.selectedScrollSnap());
-  }, [emblaApi]);
-
-  useEffect(() => {
-    if (!emblaApi || disableGallery) return;
-    onSelect();
-    emblaApi.on("select", onSelect);
-    return () => {
-      emblaApi.off("select", onSelect);
-    };
-  }, [emblaApi, onSelect, disableGallery]);
-
-  const scrollPrev = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (emblaApi) emblaApi.scrollPrev();
-  }, [emblaApi]);
-
-  const scrollNext = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (emblaApi) emblaApi.scrollNext();
-  }, [emblaApi]);
-
   const mainImage = images[0];
   const hoverImage = images[1];
   const hasMultipleImages = images.length > 1;
   const showCarousel = !disableGallery && hasMultipleImages;
 
-  // Desktop: always show hover crossfade (main → 2nd image)
-  // Mobile: show Embla carousel when gallery enabled + 2+ images, otherwise static
+  // Static + desktop hover crossfade only
   if (!showCarousel) {
-    // Static + desktop hover crossfade only
     return (
       <div
         className="w-full h-full relative group"
@@ -102,8 +62,6 @@ const ProductCardGallery = memo(function ProductCardGallery({
       </div>
     );
   }
-
-  const progressPercentage = ((selectedIndex + 1) / images.length) * 100;
 
   return (
     <div
@@ -138,39 +96,13 @@ const ProductCardGallery = memo(function ProductCardGallery({
         )}
       </div>
 
-      {/* Mobile: Embla carousel (hidden on desktop) */}
+      {/* Mobile: lazy-loaded Embla carousel (hidden on desktop) */}
       <div className="xl:hidden w-full h-full">
-        <div className="overflow-hidden h-full" ref={emblaRef}>
-          <div className="flex h-full">
-            {images.map((image, index) => (
-              <div
-                key={`${image.url}-${index}`}
-                className="relative flex-[0_0_100%] h-full"
-              >
-                <Image
-                  src={image.url}
-                  alt=""
-                  fill
-                  sizes={sizes}
-                  className="object-cover"
-                  priority={priority && index === 0}
-                  loading={priority && index === 0 ? "eager" : "lazy"}
-                  fetchPriority={priority && index === 0 ? "high" : "auto"}
-                  draggable={false}
-                  {...getBlurProps(image)}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Progress bar — mobile only */}
-        <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gray-300">
-          <div
-            className="h-full bg-black transition-all duration-300"
-            style={{ width: `${progressPercentage}%` }}
-          />
-        </div>
+        <MobileCarousel
+          images={images}
+          sizes={sizes}
+          priority={priority}
+        />
       </div>
     </div>
   );

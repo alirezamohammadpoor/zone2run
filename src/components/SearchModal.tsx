@@ -197,7 +197,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   >
                     <ProductCard
                       product={product as CardProduct}
-                      sizes="(max-width: 768px) 50vw, 25vw"
+                      sizes="(max-width: 1279px) calc(50vw - 12px), calc(25vw - 10px)"
                       disableGallery
                     />
                   </Link>

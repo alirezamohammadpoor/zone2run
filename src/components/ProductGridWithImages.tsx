@@ -89,9 +89,11 @@ function createGridItems(
 function ProductItem({
   product,
   idx,
+  sizes,
 }: {
   product: CardProduct;
   idx: number;
+  sizes?: string;
 }) {
   return (
     <Link
@@ -100,6 +102,7 @@ function ProductItem({
     >
       <ProductCard
         product={product}
+        sizes={sizes}
         availableSizes={product.sizes}
       />
     </Link>
@@ -169,10 +172,12 @@ function GridContent({
   gridItems,
   isMobile,
   gridLayout = "4col",
+  sizes,
 }: {
   gridItems: GridItem[];
   isMobile: boolean;
   gridLayout?: "4col" | "3col";
+  sizes?: string;
 }) {
   return (
     <>
@@ -183,6 +188,7 @@ function GridContent({
               key={`${item.product._id}-${idx}`}
               product={item.product}
               idx={idx}
+              sizes={sizes}
             />
           );
         }
@@ -218,12 +224,18 @@ export default function ProductGridWithImages({
   const xlGridCols =
     gridLayout === "3col" ? "xl:grid-cols-3" : "xl:grid-cols-4";
 
+  // Compute sizes based on grid layout: 2-col mobile, 3 or 4-col xl
+  const productSizes = gridLayout === "3col"
+    ? "(max-width: 1279px) calc(50vw - 12px), calc(33.33vw - 11px)"
+    : "(max-width: 1279px) calc(50vw - 12px), calc(25vw - 10px)";
+
   // If no images, fallback to simple grid
   if (!editorialImages || editorialImages.length === 0) {
     return (
       <ProductGrid
         products={products}
         className={`grid grid-cols-2 ${xlGridCols} gap-2 px-2 my-8 md:my-12 xl:my-16`}
+        sizes={productSizes}
       />
     );
   }
@@ -254,6 +266,7 @@ export default function ProductGridWithImages({
           gridItems={mobileGridItems}
           isMobile={true}
           gridLayout={gridLayout}
+          sizes={productSizes}
         />
       </div>
 
@@ -263,6 +276,7 @@ export default function ProductGridWithImages({
           gridItems={xlGridItems}
           isMobile={false}
           gridLayout={gridLayout}
+          sizes={productSizes}
         />
       </div>
     </div>
