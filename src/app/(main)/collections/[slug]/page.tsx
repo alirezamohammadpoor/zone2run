@@ -132,7 +132,6 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
                 fetchPriority="high"
                 placeholder={blurDataURL ? "blur" : "empty"}
                 blurDataURL={blurDataURL}
-                unoptimized
               />
             </div>
           </div>

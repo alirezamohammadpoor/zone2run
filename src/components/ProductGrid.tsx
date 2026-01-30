@@ -11,6 +11,8 @@ interface ProductGridProps {
   priorityCount?: number;
   /** Responsive column layout. When provided, overrides className. */
   columns?: "2" | "2-lg" | "3-lg" | "4" | "4-lg" | "auto";
+  /** Image sizes hint for responsive loading */
+  sizes?: string;
 }
 
 const COLUMN_CLASSES: Record<string, string> = {
@@ -28,6 +30,7 @@ const ProductGrid = memo(function ProductGrid({
   className,
   priorityCount = 0,
   columns,
+  sizes,
 }: ProductGridProps) {
   const displayProducts = count ? products.slice(0, count) : products;
 
@@ -44,7 +47,7 @@ const ProductGrid = memo(function ProductGrid({
         >
           <ProductCard
             product={product}
-            sizes="(max-width: 1280px) 50vw, 25vw"
+            sizes={sizes ?? "(max-width: 1279px) calc(50vw - 12px), calc(25vw - 10px)"}
             priority={index < priorityCount}
             availableSizes={product.sizes}
           />

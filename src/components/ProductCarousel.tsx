@@ -20,7 +20,7 @@ const ProductCarousel = memo(function ProductCarousel({
   products,
   className,
   cardClassName = "flex-shrink-0 w-[70vw] min-w-0 xl:w-[30vw]",
-  sizes = "(max-width: 768px) 70vw, 33vw",
+  sizes = "(max-width: 1279px) 70vw, 30vw",
   onProductClick,
 }: ProductCarouselProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({

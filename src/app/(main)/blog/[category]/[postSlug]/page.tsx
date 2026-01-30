@@ -114,6 +114,8 @@ export default async function PostPage({
             alt={post.featuredImage.alt || ""}
             fill
             className="object-cover"
+            sizes="100vw"
+            priority
             style={{
               objectPosition: post.featuredImage.hotspot
                 ? `${post.featuredImage.hotspot.x * 100}% ${
