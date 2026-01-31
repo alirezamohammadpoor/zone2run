@@ -1,16 +1,13 @@
-"use client";
-
 import { type PortableTextModule } from "../../../sanity.types";
 import PortableTextRenderer from "@/components/PortableTextRenderer";
 import Link from "next/link";
 import Image from "next/image";
-import React, { memo } from "react";
 import ProductGrid from "@/components/ProductGrid";
 import ProductCarousel from "@/components/ProductCarousel";
 import { getBlurProps } from "@/lib/utils/imageProps";
 import type { CardProduct } from "@/types/cardProduct";
 
-const ContentModuleComponent = memo(function ContentModuleComponent({
+function ContentModuleComponent({
   contentModule,
   products,
 }: {
@@ -356,6 +353,6 @@ const ContentModuleComponent = memo(function ContentModuleComponent({
   return (
     <div className={`w-full px-2 ${sectionSpacing}`}>{renderContent()}</div>
   );
-});
+}
 
 export default ContentModuleComponent;

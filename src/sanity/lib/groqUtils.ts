@@ -177,7 +177,8 @@ _id,
 "handle": coalesce(shopifyHandle, store.slug.current),
 "vendor": store.vendor,
 "priceRange": {
-  "minVariantPrice": store.priceRange.minVariantPrice
+  "minVariantPrice": store.priceRange.minVariantPrice,
+  "currencyCode": store.priceRange.currencyCode
 },
 "images": [{
   "url": coalesce(mainImage.asset->url, store.previewImageUrl),

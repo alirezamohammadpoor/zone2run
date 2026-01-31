@@ -56,7 +56,7 @@ export default function ProductCard({
           </>
         )}
         <p className="text-xs pt-2">
-          {price} SEK
+          {price} {product.priceRange.currencyCode || "SEK"}
         </p>
       </div>
     </article>
