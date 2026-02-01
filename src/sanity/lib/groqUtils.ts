@@ -45,6 +45,7 @@ export const PRODUCT_VARIANTS_PROJECTION = `store.variants[]-> {
   "id": store.gid,
   "title": store.title,
   "sku": store.sku,
+  "barcode": store.barcode,
   "price": store.price,
   "compareAtPrice": store.compareAtPrice,
   "available": store.inventory.isAvailable,

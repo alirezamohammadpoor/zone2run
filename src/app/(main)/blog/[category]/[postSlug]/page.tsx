@@ -27,14 +27,18 @@ export async function generateMetadata({
 
   const baseUrl =
     process.env.NEXT_PUBLIC_SITE_URL || "https://zone2run-build.vercel.app";
+  const url = `${baseUrl}/blog/${category}/${postSlug}`;
 
   return {
     title: `${post.title} | Zone2Run Blog`,
     description: post.excerpt || `Read ${post.title} on Zone2Run`,
+    alternates: {
+      canonical: url,
+    },
     openGraph: {
       title: post.title,
       description: post.excerpt,
-      url: `${baseUrl}/blog/${category}/${postSlug}`,
+      url,
       siteName: "Zone2Run",
       type: "article",
       publishedTime: post.publishedAt,
@@ -153,9 +157,9 @@ export default async function PostPage({
                   <p className="mb-6 leading-relaxed text-xs">{children}</p>
                 ),
                 h1: ({ children }) => (
-                  <h1 className="text-sm mb-8 mt-4 first:mt-0 font-normal [&_strong]:font-normal [&_b]:font-normal">
+                  <h2 className="text-sm mb-8 mt-4 first:mt-0 font-normal [&_strong]:font-normal [&_b]:font-normal">
                     {children}
-                  </h1>
+                  </h2>
                 ),
                 h2: ({ children }) => (
                   <h2 className="text-sm mb-6 mt-4 font-normal [&_strong]:font-normal [&_b]:font-normal">

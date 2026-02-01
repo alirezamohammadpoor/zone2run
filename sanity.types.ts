@@ -73,6 +73,10 @@ export type SiteSettings = {
     _weak?: boolean;
     [internalGroqTypeReferenceTo]?: "homepageVersion";
   };
+  productTabs?: {
+    shippingAndReturns?: string;
+    payments?: string;
+  };
 };
 
 export type HomepageVersion = {

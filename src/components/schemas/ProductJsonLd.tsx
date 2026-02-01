@@ -48,6 +48,7 @@ export default function ProductJsonLd({ product }: ProductJsonLdProps) {
     description: cleanDescription,
     image: images.length > 0 ? images : undefined,
     sku: product.variants?.[0]?.sku,
+    gtin: product.variants?.[0]?.barcode || product.variants?.[0]?.sku,
     offers,
   };
 

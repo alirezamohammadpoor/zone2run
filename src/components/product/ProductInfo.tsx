@@ -9,11 +9,17 @@ import { useTrackRecentlyViewed } from "@/hooks/useTrackRecentlyViewed";
 
 interface ProductInfoProps {
   product: SanityProduct;
+  siteSettings?: {
+    productTabs?: {
+      shippingAndReturns?: string;
+      payments?: string;
+    };
+  } | null;
   priceSlot?: ReactNode;
   children?: ReactNode;
 }
 
-function ProductInfo({ product, priceSlot, children }: ProductInfoProps) {
+function ProductInfo({ product, siteSettings, priceSlot, children }: ProductInfoProps) {
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
   // Track product view for recently viewed feature
@@ -47,7 +53,7 @@ function ProductInfo({ product, priceSlot, children }: ProductInfoProps) {
           )}
         </div>
         <div className="flex justify-between items-center xl:block">
-          <p className="w-[70%] xl:w-full text-xs">{displayTitle}</p>
+          <h1 className="w-[70%] xl:w-full text-sm font-normal">{displayTitle}</h1>
           {priceSlot}
         </div>
 
@@ -73,7 +79,11 @@ function ProductInfo({ product, priceSlot, children }: ProductInfoProps) {
 
         {/* Children slot for Shopify data (variants, add-to-cart) */}
         {children}
-        <ProductTabs />
+        <ProductTabs
+          productDetails={cleanDescription}
+          shippingAndReturns={siteSettings?.productTabs?.shippingAndReturns}
+          payments={siteSettings?.productTabs?.payments}
+        />
       </div>
     </div>
   );
