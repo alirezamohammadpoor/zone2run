@@ -43,14 +43,24 @@ export function buildCategoryMetadata(
     .filter(Boolean)
     .join("/");
 
+  const url = `${BASE_URL}/${path}`;
+  const description = `Shop ${title.toLowerCase()} at Zone2Run. Premium running apparel from Scandinavian brands.`;
   return {
     title,
-    description: `Shop ${title.toLowerCase()} at Zone2Run. Premium running apparel from Scandinavian brands.`,
+    description,
+    alternates: {
+      canonical: url,
+    },
     openGraph: {
       title,
-      url: `${BASE_URL}/${path}`,
+      url,
       siteName: "Zone2Run",
       type: "website",
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
     },
   };
 }
@@ -63,6 +73,9 @@ export const homeMetadata: Metadata = {
   title: "Zone2Run - Premium Running Apparel",
   description:
     "Shop premium running gear from top Scandinavian brands. High-performance apparel for dedicated runners.",
+  alternates: {
+    canonical: BASE_URL,
+  },
   openGraph: {
     title: "Zone2Run - Premium Running Apparel",
     description:
@@ -71,23 +84,55 @@ export const homeMetadata: Metadata = {
     siteName: "Zone2Run",
     type: "website",
   },
+  twitter: {
+    card: "summary",
+    title: "Zone2Run - Premium Running Apparel",
+    description:
+      "Shop premium running gear from top Scandinavian brands. High-performance apparel for dedicated runners.",
+  },
 };
 
 export const blogMetadata: Metadata = {
-  title: "Blog",
+  title: "Running Blog - Tips & Gear Guides",
   description:
     "Running tips, gear guides, and training insights from Zone2Run.",
+  alternates: {
+    canonical: `${BASE_URL}/blog`,
+  },
+  twitter: {
+    card: "summary",
+    title: "Running Blog - Tips & Gear Guides",
+    description:
+      "Running tips, gear guides, and training insights from Zone2Run.",
+  },
 };
 
 export const brandsMetadata: Metadata = {
   title: "Brands",
   description:
     "Explore our curated selection of premium running brands at Zone2Run.",
+  alternates: {
+    canonical: `${BASE_URL}/brands`,
+  },
+  twitter: {
+    card: "summary",
+    title: "Brands",
+    description:
+      "Explore our curated selection of premium running brands at Zone2Run.",
+  },
 };
 
 export const collectionsMetadata: Metadata = {
   title: "Collections",
   description: "Shop our curated collections of running apparel at Zone2Run.",
+  alternates: {
+    canonical: `${BASE_URL}/collections`,
+  },
+  twitter: {
+    card: "summary",
+    title: "Collections",
+    description: "Shop our curated collections of running apparel at Zone2Run.",
+  },
 };
 
 export const orderConfirmationMetadata: Metadata = {

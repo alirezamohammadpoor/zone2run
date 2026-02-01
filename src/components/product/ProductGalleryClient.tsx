@@ -61,7 +61,7 @@ export default function ProductGalleryClient({
             >
               <Image
                 src={image.url}
-                alt=""
+                alt={image.alt || "Product image"}
                 fill
                 className="object-cover"
                 priority={index === 0}

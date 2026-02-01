@@ -36,3 +36,5 @@ export { getBlogPosts, getBlogPost } from "./getBlog";
 export { getHomepage } from "./getHomepage";
 
 export { getMenu } from "./getMenu";
+
+export { getSiteSettings } from "./getSiteSettings";

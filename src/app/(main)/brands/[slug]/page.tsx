@@ -26,18 +26,27 @@ export async function generateMetadata({
 
   const baseUrl =
     process.env.NEXT_PUBLIC_SITE_URL || "https://zone2run-build.vercel.app";
+  const url = `${baseUrl}/brands/${slug}`;
   const description =
     brand.description || `Shop ${brand.name} running gear at Zone2Run`;
 
   return {
     title: `${brand.name} | Zone2Run`,
     description,
+    alternates: {
+      canonical: url,
+    },
     openGraph: {
       title: brand.name,
       description,
-      url: `${baseUrl}/brands/${slug}`,
+      url,
       siteName: "Zone2Run",
       type: "website",
+    },
+    twitter: {
+      card: "summary",
+      title: brand.name,
+      description,
     },
   };
 }

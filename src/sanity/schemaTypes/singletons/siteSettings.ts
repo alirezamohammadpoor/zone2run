@@ -15,6 +15,28 @@ export const siteSettingsType = defineType({
       description: "Select which homepage version to display on the site",
       validation: (Rule) => Rule.required(),
     }),
+    defineField({
+      name: "productTabs",
+      title: "Product Page Tabs",
+      type: "object",
+      description: "Content for product detail page tabs",
+      fields: [
+        defineField({
+          name: "shippingAndReturns",
+          title: "Shipping and Returns",
+          type: "text",
+          rows: 5,
+          description: "Information about shipping and returns policy",
+        }),
+        defineField({
+          name: "payments",
+          title: "Payments",
+          type: "text",
+          rows: 3,
+          description: "Information about payment methods",
+        }),
+      ],
+    }),
   ],
   preview: {
     prepare() {
