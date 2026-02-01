@@ -4,6 +4,7 @@ import ProductInfo from "@/components/product/ProductInfo";
 import ProductForm, { ProductPrice } from "@/components/product/ProductForm";
 import { getProductByHandle } from "@/lib/product/getProductByHandle";
 import { getShopifyProductByHandle } from "@/lib/shopify/products";
+import { getSiteSettings } from "@/sanity/lib/getData";
 import { notFound } from "next/navigation";
 import RelatedProductsServer from "@/components/product/RelatedProductsServer";
 import ColorVariants from "@/components/product/ColorVariants";
@@ -40,6 +41,7 @@ export async function generateMetadata({
 
   const baseUrl =
     process.env.NEXT_PUBLIC_SITE_URL || "https://zone2run-build.vercel.app";
+  const url = `${baseUrl}/products/${handle}`;
   const description =
     product.description?.replace(/<[^>]*>/g, "").slice(0, 160) ||
     `Shop ${product.title} at Zone2Run`;
@@ -47,10 +49,13 @@ export async function generateMetadata({
   return {
     title: `${product.title} | Zone2Run`,
     description,
+    alternates: {
+      canonical: url,
+    },
     openGraph: {
       title: product.title,
       description,
-      url: `${baseUrl}/products/${handle}`,
+      url,
       siteName: "Zone2Run",
       images: product.images?.[0]?.url
         ? [
@@ -78,10 +83,11 @@ export default async function ProductPage({
 }) {
   const handle = (await params).handle;
 
-  // Parallel fetch: Sanity (ISR cached) + Shopify at the same time
-  const [product, shopifyProduct] = await Promise.all([
+  // Parallel fetch: Sanity (ISR cached) + Shopify + site settings at the same time
+  const [product, shopifyProduct, siteSettings] = await Promise.all([
     getProductByHandle(handle),
     getShopifyProductByHandle(handle),
+    getSiteSettings(),
   ]);
 
   if (!product) {
@@ -110,6 +116,7 @@ export default async function ProductPage({
           </div>
           <ProductInfo
             product={product}
+            siteSettings={siteSettings}
             priceSlot={
               <ProductPrice
                 shopifyProduct={shopifyProduct}

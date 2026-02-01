@@ -33,6 +33,7 @@ export interface SanityProduct {
     id: string;
     title: string;
     sku: string;
+    barcode?: string;
     price: number;
     compareAtPrice?: number;
     available: boolean;
