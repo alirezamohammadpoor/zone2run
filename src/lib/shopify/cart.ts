@@ -283,21 +283,26 @@ function extractLineIds(cart: ShopifyCart): Record<string, string> {
 
 // Main cart functions
 export async function createCart(
-  lines?: { variantId: string; quantity: number }[]
+  lines?: { variantId: string; quantity: number }[],
+  country?: string,
 ): Promise<{
   cartId: string;
   checkoutUrl: string;
   lineIds: Record<string, string>;
 } | null> {
   try {
-    const input = lines?.length
-      ? {
-          lines: lines.map((l) => ({
-            merchandiseId: l.variantId,
-            quantity: l.quantity,
-          })),
-        }
-      : {};
+    const input: Record<string, unknown> = {};
+
+    if (lines?.length) {
+      input.lines = lines.map((l) => ({
+        merchandiseId: l.variantId,
+        quantity: l.quantity,
+      }));
+    }
+
+    if (country) {
+      input.buyerIdentity = { countryCode: country };
+    }
 
     const response = await shopifyClient.request(CART_CREATE, {
       input,

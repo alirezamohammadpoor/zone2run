@@ -3,6 +3,7 @@ import { memo, useState, useTransition, useCallback } from "react";
 import { useCartStore } from "@/lib/cart/store";
 import { useUIStore } from "@/lib/cart/uiStore";
 import { useProductStore } from "@/store/variantStore";
+import { DEFAULT_CURRENCY } from "@/lib/locale/countries";
 import type { ShopifyProduct } from "@/types/shopify";
 
 type ShopifyVariant = ShopifyProduct["variants"][number];
@@ -44,6 +45,7 @@ const AddToCart = memo(function AddToCart({
   // Use Shopify availability status
   const isAvailable = shopifyVariant?.availableForSale ?? false;
   const price = shopifyVariant?.price.amount ?? selectedVariant?.price ?? 0;
+  const currencyCode = shopifyVariant?.price.currencyCode || DEFAULT_CURRENCY;
 
   const handleClick = useCallback(() => {
     if (!selectedVariant || !shopifyVariant || isAdded || !isAvailable) return;
@@ -60,7 +62,7 @@ const AddToCart = memo(function AddToCart({
         title: productMeta.title,
         price: {
           amount: price,
-          currencyCode: "SEK",
+          currencyCode,
         },
         image: productMeta.imageUrl,
         color: selectedVariant.color ?? "",
@@ -75,7 +77,7 @@ const AddToCart = memo(function AddToCart({
         size: selectedVariant.size,
         color: selectedVariant.color ?? "",
         price: price,
-        currencyCode: "SEK",
+        currencyCode,
       });
     });
 
@@ -88,6 +90,7 @@ const AddToCart = memo(function AddToCart({
     isAdded,
     isAvailable,
     price,
+    currencyCode,
     productMeta,
     addItem,
     showAddedToCart,

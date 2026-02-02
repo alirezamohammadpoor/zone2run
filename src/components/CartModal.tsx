@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import LocaleLink from "@/components/LocaleLink";
 import dynamic from "next/dynamic";
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
 
@@ -10,8 +10,9 @@ const FocusLock = dynamic(() => import("react-focus-lock"), { ssr: false });
 import { useHasMounted } from "@/hooks/useHasMounted";
 import Image from "next/image";
 import { useCartStore } from "@/lib/cart/store";
-import { formatPrice } from "@/lib/utils/formatPrice";
+import { formatCurrency } from "@/lib/utils/formatPrice";
 import { createCart } from "@/lib/shopify/cart";
+import { useLocale } from "@/lib/locale/LocaleContext";
 import { checkCartAvailability } from "@/lib/actions/cart";
 import { Backdrop } from "@/components/ui/Backdrop";
 import { ModalHeader } from "@/components/ui/ModalHeader";
@@ -34,6 +35,7 @@ function CartModal({
   );
   const { unlockScroll } = useModalScrollRestoration();
   const hasMounted = useHasMounted();
+  const { country } = useLocale();
 
   const handleClose = () => {
     setIsCartOpen(false);
@@ -90,7 +92,7 @@ function CartModal({
                         key={item.id}
                         className={`flex w-full overflow-hidden pb-8 ${isOos ? "opacity-50" : ""}`}
                       >
-                        <Link
+                        <LocaleLink
                           href={`/products/${item.productHandle}`}
                           onClick={handleClose}
                           className="flex-shrink-0"
@@ -104,9 +106,9 @@ function CartModal({
                               className="h-[120px] w-[80px] object-cover"
                             />
                           )}
-                        </Link>
+                        </LocaleLink>
                         <div className="ml-4 flex flex-1 gap-1 flex-col overflow-hidden text-xs">
-                          <Link
+                          <LocaleLink
                             href={`/products/${item.productHandle}`}
                             onClick={handleClose}
                             className="hover:underline"
@@ -115,11 +117,10 @@ function CartModal({
                               <p className="font-medium">{item.brand}</p>
                             )}
                             <p>{item.title}</p>
-                          </Link>
+                          </LocaleLink>
                           <p>Size: {item.size}</p>
                           <p>
-                            {formatPrice(item.price?.amount)}{" "}
-                            {item.price?.currencyCode}
+                            {formatCurrency(item.price?.amount, item.price?.currencyCode)}
                           </p>
                           {isOos && (
                             <p className="text-red-500">Out of Stock</p>
@@ -168,13 +169,13 @@ function CartModal({
               ) : (
                 <div className="flex w-full overflow-hidden justify-center items-center h-full flex-col">
                   <p className="text-xs">Your cart is currently empty</p>
-                  <Link
+                  <LocaleLink
                     href="/"
                     className="text-xs font-bold mt-4"
                     onClick={handleClose}
                   >
                     Explore our products
-                  </Link>
+                  </LocaleLink>
                 </div>
               )
             ) : null}
@@ -188,32 +189,22 @@ function CartModal({
             <div className="px-2 py-4 h-full flex flex-col justify-between">
               <div className="flex items-center justify-between text-xs">
                 <div className="flex flex-col gap-2">
-                  <p>Shipping</p>
-                  <p>Subtotal (excl. VAT)</p>
-                  <p className="text-gray-500">VAT (25%)</p>
-                  <p className="font-semibold">Total (incl. VAT)</p>
+                  <p>Subtotal</p>
+                  <p className="text-gray-500">Tax</p>
+                  <p className="text-gray-500">Shipping</p>
+                  <p className="font-semibold">Total</p>
                 </div>
                 <div className="flex flex-col gap-2 items-end">
-                  <p className="text-gray-500">Calculated at checkout</p>
                   <p>
                     {hasMounted && totalPrice
-                      ? `${formatPrice(totalPrice / 1.25)} ${
-                          items[0]?.price?.currencyCode || "SEK"
-                        }`
+                      ? formatCurrency(totalPrice, items[0]?.price?.currencyCode)
                       : ""}
                   </p>
-                  <p className="text-gray-500">
-                    {hasMounted && totalPrice
-                      ? `${formatPrice(totalPrice * 0.2)} ${
-                          items[0]?.price?.currencyCode || "SEK"
-                        }`
-                      : ""}
-                  </p>
+                  <p className="text-gray-500">Calculated at checkout</p>
+                  <p className="text-gray-500">Calculated at checkout</p>
                   <p className="font-semibold">
                     {hasMounted && totalPrice
-                      ? `${formatPrice(totalPrice)} ${
-                          items[0]?.price?.currencyCode || "SEK"
-                        }`
+                      ? formatCurrency(totalPrice, items[0]?.price?.currencyCode)
                       : ""}
                   </p>
                 </div>
@@ -267,6 +258,7 @@ function CartModal({
                         variantId: i.variantId,
                         quantity: i.quantity,
                       })),
+                      country,
                     );
 
                     if (cartResult) {

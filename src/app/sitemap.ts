@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { client } from "@/sanity/lib/client";
+import { DEFAULT_LOCALE } from "@/lib/locale/localeUtils";
 
 interface ProductSitemapEntry {
   handle: string;
@@ -67,46 +68,48 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ),
     ]);
 
+  const localeBase = `${baseUrl}/${DEFAULT_LOCALE}`;
+
   // Static pages
   const staticPages: MetadataRoute.Sitemap = [
     {
-      url: baseUrl,
+      url: localeBase,
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 1,
     },
     {
-      url: `${baseUrl}/mens`,
+      url: `${localeBase}/mens`,
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/womens`,
+      url: `${localeBase}/womens`,
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/unisex`,
+      url: `${localeBase}/unisex`,
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/collections`,
+      url: `${localeBase}/collections`,
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/brands`,
+      url: `${localeBase}/brands`,
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/blog`,
+      url: `${localeBase}/blog`,
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.7,
@@ -117,7 +120,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const productPages: MetadataRoute.Sitemap = products
     .filter((p) => p.handle)
     .map((p) => ({
-      url: `${baseUrl}/products/${p.handle}`,
+      url: `${localeBase}/products/${p.handle}`,
       lastModified: p.updatedAt ? new Date(p.updatedAt) : new Date(),
       changeFrequency: "daily" as const,
       priority: 0.8,
@@ -127,7 +130,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const collectionPages: MetadataRoute.Sitemap = collections
     .filter((c) => c.slug)
     .map((c) => ({
-      url: `${baseUrl}/collections/${c.slug}`,
+      url: `${localeBase}/collections/${c.slug}`,
       lastModified: c.updatedAt ? new Date(c.updatedAt) : new Date(),
       changeFrequency: "weekly" as const,
       priority: 0.7,
@@ -137,7 +140,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const brandPages: MetadataRoute.Sitemap = brands
     .filter((b) => b.slug)
     .map((b) => ({
-      url: `${baseUrl}/brands/${b.slug}`,
+      url: `${localeBase}/brands/${b.slug}`,
       lastModified: b._updatedAt ? new Date(b._updatedAt) : new Date(),
       changeFrequency: "weekly" as const,
       priority: 0.6,
@@ -147,7 +150,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const blogPages: MetadataRoute.Sitemap = blogPosts
     .filter((post) => post.slug && post.category)
     .map((post) => ({
-      url: `${baseUrl}/blog/${post.category}/${post.slug}`,
+      url: `${localeBase}/blog/${post.category}/${post.slug}`,
       lastModified: post.publishedAt ? new Date(post.publishedAt) : new Date(),
       changeFrequency: "monthly" as const,
       priority: 0.5,
@@ -173,7 +176,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const categoryPages: MetadataRoute.Sitemap = Array.from(categoryUrlsSet).map(
     (path) => ({
-      url: `${baseUrl}${path}`,
+      url: `${localeBase}${path}`,
       lastModified: new Date(),
       changeFrequency: "daily" as const,
       priority: 0.7,

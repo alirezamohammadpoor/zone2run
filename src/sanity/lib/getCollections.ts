@@ -6,19 +6,8 @@ import {
   EDITORIAL_IMAGES_PROJECTION,
   MENU_IMAGE_PROJECTION,
 } from "./groqUtils";
-
-/** Raw shape before sizes deduplication (matches collection projection) */
-interface RawCollectionProduct extends Omit<PLPProduct, "sizes"> {
-  sizes?: (string | null)[];
-}
-
-/** Deduplicate sizes from raw GROQ option1 values */
-function deduplicateSizes(products: RawCollectionProduct[]): PLPProduct[] {
-  return products.map((p) => ({
-    ...p,
-    sizes: [...new Set((p.sizes ?? []).filter(Boolean))] as string[],
-  }));
-}
+import { enrichWithLocalePrices } from "@/lib/locale/enrichPrices";
+import { deduplicateSizes, type RawProductWithSizes } from "./deduplicateSizes";
 
 /** Sort products: curated order first, then by _createdAt desc */
 function sortByCuratedOrder(
@@ -127,7 +116,8 @@ export async function getCollectionInfo(slug: string): Promise<Omit<Collection, 
 export async function getCollectionProducts(
   collectionId: string,
   shopifyId?: number,
-  curatedProducts?: Array<{ _id: string }>
+  curatedProducts?: Array<{ _id: string }>,
+  country?: string,
 ): Promise<PLPProduct[]> {
   const shopifyIdStr = shopifyId ? shopifyId.toString() : "";
 
@@ -137,9 +127,10 @@ export async function getCollectionProducts(
   const productsQuery = `${baseFilter}${COLLECTION_PRODUCT_PROJECTION}`;
 
   try {
-    const raw = await sanityFetch<RawCollectionProduct[]>(productsQuery, params);
-    const products = deduplicateSizes(raw);
-    return sortByCuratedOrder(products, curatedProducts);
+    const raw = await sanityFetch<RawProductWithSizes[]>(productsQuery, params);
+    let products = deduplicateSizes(raw);
+    products = sortByCuratedOrder(products, curatedProducts);
+    return country ? enrichWithLocalePrices(products, country) : products;
   } catch (error) {
     console.error(`Error fetching products for collection ${collectionId}:`, error);
     return [];
@@ -148,7 +139,8 @@ export async function getCollectionProducts(
 
 // Get products by collection ID (for homepage modules)
 export async function getProductsByCollectionId(
-  collectionId: string
+  collectionId: string,
+  country?: string,
 ): Promise<PLPProduct[]> {
   // First get the collection to access shopifyId and curatedProducts
   const collectionQuery = `*[_type == "collection" && _id == $collectionId][0]{
@@ -169,13 +161,14 @@ export async function getProductsByCollectionId(
       ? collection.shopifyId.toString()
       : "";
 
-    const raw = await sanityFetch<RawCollectionProduct[]>(productsQuery, {
+    const raw = await sanityFetch<RawProductWithSizes[]>(productsQuery, {
       collectionId: collection._id,
       shopifyIdStr: shopifyIdStr,
     });
 
-    const products = deduplicateSizes(raw);
-    return sortByCuratedOrder(products, collection.curatedProducts);
+    let products = deduplicateSizes(raw);
+    products = sortByCuratedOrder(products, collection.curatedProducts);
+    return country ? enrichWithLocalePrices(products, country) : products;
   } catch (error) {
     console.error(
       `Error fetching products for collection ${collectionId}:`,

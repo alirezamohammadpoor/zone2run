@@ -19,7 +19,21 @@
       "Bash(git show:*)",
       "Bash(grep:*)",
       "Bash(cat:*)",
-      "Bash(xargs ls:*)"
+      "Bash(xargs ls:*)",
+      "Bash(head:*)",
+      "Bash(git diff:*)",
+      "Bash(gh api:*)",
+      "Bash(for pr in 120 119 118 117 116 115)",
+      "Bash(do echo \"=== PR #$pr ===\")",
+      "Bash(done)",
+      "Bash(xargs:*)",
+      "Bash(gh repo view:*)",
+      "Bash(git -C /Users/alirezamohammadpoor/Desktop/repos/zone2run diff 47347ce..HEAD)",
+      "Bash(bun typegen:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr list:*)",
+      "Bash(ln:*)",
+      "WebFetch(domain:www.asket.com)"
     ],
     "deny": [],
     "ask": []

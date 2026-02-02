@@ -1,6 +1,7 @@
 import VariantSelector from "./VariantSelector";
 import AddToCart, { type ProductMeta } from "./AddToCart";
-import { formatPrice } from "@/lib/utils/formatPrice";
+import { formatCurrency } from "@/lib/utils/formatPrice";
+import { DEFAULT_CURRENCY } from "@/lib/locale/countries";
 import type { SanityProduct } from "@/types/sanityProduct";
 import type { ShopifyProduct } from "@/types/shopify";
 
@@ -64,7 +65,7 @@ export function ProductPrice({
   if (!shopifyProduct) {
     return (
       <p className="xl:mt-1 text-xs">
-        {formatPrice(fallbackPrice)} SEK
+        {formatCurrency(fallbackPrice)}
       </p>
     );
   }
@@ -76,11 +77,11 @@ export function ProductPrice({
   return (
     <div className="flex items-center gap-2 xl:mt-1">
       <p className="text-xs">
-        {formatPrice(price.amount)} {price.currencyCode}
+        {formatCurrency(price.amount, price.currencyCode)}
       </p>
       {hasDiscount && (
         <p className="text-xs text-gray-400 line-through">
-          {formatPrice(compareAtPrice.amount)} {compareAtPrice.currencyCode}
+          {formatCurrency(compareAtPrice.amount, compareAtPrice.currencyCode)}
         </p>
       )}
     </div>
@@ -96,9 +97,9 @@ function ProductFormFallback({ product }: { product: SanityProduct }) {
     id: v.id,
     title: v.title,
     sku: v.sku || "",
-    price: { amount: v.price, currencyCode: "SEK" },
+    price: { amount: v.price, currencyCode: DEFAULT_CURRENCY },
     compareAtPrice: v.compareAtPrice
-      ? { amount: v.compareAtPrice, currencyCode: "SEK" }
+      ? { amount: v.compareAtPrice, currencyCode: DEFAULT_CURRENCY }
       : undefined,
     availableForSale: v.available,
     selectedOptions: v.selectedOptions,

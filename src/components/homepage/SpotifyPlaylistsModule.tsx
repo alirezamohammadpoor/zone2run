@@ -2,7 +2,7 @@
 
 import { type SpotifyPlaylistsModule } from "../../../sanity.types";
 import React from "react";
-import Link from "next/link";
+import LocaleLink from "@/components/LocaleLink";
 
 function SpotifyPlaylistsModuleComponent({
   spotifyPlaylistsModule,
@@ -15,12 +15,12 @@ function SpotifyPlaylistsModuleComponent({
         <h2 className="text-black text-sm">
           {spotifyPlaylistsModule.title}
         </h2>
-        <Link
+        <LocaleLink
           href={spotifyPlaylistsModule.buttonLink || "/playlists"}
           className="text-black text-xs hover:underline cursor-pointer"
         >
           {spotifyPlaylistsModule.buttonText || "View All Playlists"}
-        </Link>
+        </LocaleLink>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">

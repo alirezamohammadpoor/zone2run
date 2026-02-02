@@ -4,7 +4,7 @@ import { type EditorialModule } from "../../../sanity.types";
 import React, { useEffect, useState, useMemo, useCallback, memo } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Image from "next/image";
-import Link from "next/link";
+import LocaleLink from "@/components/LocaleLink";
 
 // Type for editorial blog posts (from getLatestBlogPosts query)
 interface EditorialBlogPost {
@@ -111,13 +111,13 @@ const EditorialModuleComponent = memo(function EditorialModuleComponent({
         <h2 className="text-black text-sm">
           {editorialModule.title}
         </h2>
-        <Link
+        <LocaleLink
           href={editorialModule.buttonLink || "/blog/editorials"}
           prefetch={true}
           className="text-black text-xs hover:underline py-3 -my-3 md:py-1 md:-my-1"
         >
           {editorialModule.buttonText || "View All Editorials"}
-        </Link>
+        </LocaleLink>
       </div>
 
       <div className="overflow-hidden" ref={emblaRef}>
@@ -126,7 +126,7 @@ const EditorialModuleComponent = memo(function EditorialModuleComponent({
             const selectedImage = getSelectedImage(post, imageSelection);
             const postUrl = `/blog/${post.category?.slug?.current}/${post.slug?.current}`;
             return (
-              <Link
+              <LocaleLink
                 key={post._id}
                 href={postUrl}
                 className={`flex-shrink-0 w-[60vw] md:w-[40vw] lg:w-[30vw] xl:w-[25vw] min-w-0 ${isDragging ? "pointer-events-none" : ""}`}
@@ -159,7 +159,7 @@ const EditorialModuleComponent = memo(function EditorialModuleComponent({
                     )}
                   </div>
                 </article>
-              </Link>
+              </LocaleLink>
             );
           })}
         </div>

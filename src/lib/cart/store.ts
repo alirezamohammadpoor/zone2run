@@ -10,14 +10,16 @@ import {
   removeFromCart,
 } from "@/lib/shopify/cart";
 
+import { DEFAULT_COUNTRY } from "@/lib/locale/countries";
+
 const initialState: CartState = {
   items: [],
   isLoading: false,
-  isAdded: {},
   error: null,
   shopifyCartId: null,
   shopifyCheckoutUrl: null,
   shopifyLineIds: {},
+  country: DEFAULT_COUNTRY,
 };
 
 export const useCartStore = create<CartStore>()(
@@ -42,9 +44,9 @@ export const useCartStore = create<CartStore>()(
         // Sync with Shopify in background (non-blocking for INP)
         queueMicrotask(async () => {
           try {
-            let { shopifyCartId } = get();
+            let { shopifyCartId, country } = get();
             if (!shopifyCartId) {
-              const cartResult = await createCart();
+              const cartResult = await createCart(undefined, country);
               if (cartResult) {
                 set({
                   shopifyCartId: cartResult.cartId,
@@ -150,12 +152,6 @@ export const useCartStore = create<CartStore>()(
 
       setLoading: (loading) => set({ isLoading: loading }),
 
-      setIsAdded: (variantId: string, isAdded: boolean) => {
-        set((state) => ({
-          isAdded: { ...state.isAdded, [variantId]: isAdded },
-        }));
-      },
-
       setError: (error) => set({ error }),
 
       getTotalItems: () => get().items.reduce((sum, i) => sum + i.quantity, 0),
@@ -183,7 +179,7 @@ export const useCartStore = create<CartStore>()(
 
         // If no Shopify cart exists, create one
         if (!state.shopifyCartId) {
-          const cartResult = await createCart();
+          const cartResult = await createCart(undefined, state.country);
           if (cartResult) {
             set({
               shopifyCartId: cartResult.cartId,
@@ -192,6 +188,19 @@ export const useCartStore = create<CartStore>()(
             });
           }
         }
+      },
+
+      setCountry: (country: string) => {
+        const prev = get().country;
+        if (prev === country) return;
+
+        // Invalidate Shopify cart — currency changed, need fresh cart
+        set({
+          country,
+          shopifyCartId: null,
+          shopifyCheckoutUrl: null,
+          shopifyLineIds: {},
+        });
       },
     }),
     { name: "cart-storage" }

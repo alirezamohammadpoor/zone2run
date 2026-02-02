@@ -7,8 +7,13 @@ import type { SanityProduct } from "@/types/sanityProduct";
 /**
  * Tracks a product view in the recently viewed store.
  * Extracts CardProduct-compatible fields from the full SanityProduct.
+ * Stores shopifyId (GID) for render-time price enrichment via Shopify @inContext.
+ * Prices are NOT cached — RecentlyViewedSection fetches fresh locale prices.
  */
-export function useTrackRecentlyViewed(product: SanityProduct) {
+export function useTrackRecentlyViewed(
+  product: SanityProduct,
+  shopifyId?: string,
+) {
   const addProduct = useRecentlyViewedStore((state) => state.addProduct);
 
   useEffect(() => {
@@ -16,11 +21,12 @@ export function useTrackRecentlyViewed(product: SanityProduct) {
 
     addProduct({
       _id: product._id,
+      shopifyId,
       handle: product.handle,
       title: product.title,
       vendor: product.vendor,
       priceRange: {
-        minVariantPrice: product.priceRange?.minVariantPrice || 0,
+        minVariantPrice: product.priceRange?.minVariantPrice ?? 0,
       },
       images: (product.images || []).map((img) => ({
         url: img.url,
@@ -30,5 +36,5 @@ export function useTrackRecentlyViewed(product: SanityProduct) {
         ? { name: product.brand.name, slug: product.brand.slug }
         : undefined,
     });
-  }, [product.handle, addProduct]);
+  }, [product.handle, shopifyId, addProduct]);
 }

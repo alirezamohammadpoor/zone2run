@@ -10,7 +10,7 @@ import type { CardProduct } from "./cardProduct";
 export interface PLPProduct extends CardProduct {
   /** Stricter than CardProduct — PLP always has images with alt text */
   images: Array<{ url: string; alt: string; lqip?: string }>;
-  priceRange: { minVariantPrice: number; maxVariantPrice?: number };
+  priceRange: { minVariantPrice: number; maxVariantPrice?: number; currencyCode?: string };
   /** Flattened array of available sizes (computed from variant option1) */
   sizes: string[];
   /** Required for PLP — brand always resolved */

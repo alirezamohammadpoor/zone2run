@@ -6,6 +6,7 @@ interface RelatedProductsServerProps {
   currentProductId?: string;
   displayType?: "grid" | "carousel";
   limit?: number;
+  country?: string;
 }
 
 export default async function RelatedProductsServer({
@@ -13,11 +14,13 @@ export default async function RelatedProductsServer({
   currentProductId,
   displayType = "carousel",
   limit,
+  country,
 }: RelatedProductsServerProps) {
   const products = await getRelatedProducts(
     brandSlug,
     currentProductId ?? "",
     limit,
+    country,
   );
 
   if (!products || products.length === 0) {

@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import LocaleLink from "@/components/LocaleLink";
 import { getBrandUrl } from "@/lib/utils/brandUrls";
 import { urlFor } from "@/sanity/lib/image";
 import { useSetToggle } from "@/hooks/useSetToggle";
@@ -231,7 +231,7 @@ function GenderMenuContent({
                 {featuredCollections.map((collection: CollectionMenuItem) => {
                   if (!collection?.slug?.current) return null;
                   return (
-                    <Link
+                    <LocaleLink
                       key={collection._id || collection.slug.current}
                       href={`/collections/${collection.slug.current}`}
                       onClick={handleLinkClick}
@@ -267,7 +267,7 @@ function GenderMenuContent({
                           {collection.title}
                         </p>
                       </div>
-                    </Link>
+                    </LocaleLink>
                   );
                 })}
               </div>

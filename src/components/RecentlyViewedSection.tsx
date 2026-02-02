@@ -1,10 +1,9 @@
-"use client";
-
-import { useRecentlyViewedStore } from "@/lib/recentlyViewed/store";
-import { useHasMounted } from "@/hooks/useHasMounted";
 import ProductCarousel from "./ProductCarousel";
+import type { CardProduct } from "@/types/cardProduct";
 
 interface RecentlyViewedSectionProps {
+  /** Already-enriched products with locale prices (fetched by parent) */
+  products: CardProduct[];
   /** Maximum number of products to display */
   maxProducts?: number;
   /** Handle to exclude (e.g., current product on PDP) */
@@ -14,22 +13,15 @@ interface RecentlyViewedSectionProps {
 }
 
 export default function RecentlyViewedSection({
+  products,
   maxProducts = 10,
   excludeHandle,
   onProductClick,
 }: RecentlyViewedSectionProps) {
-  const products = useRecentlyViewedStore((state) => state.products);
-  const hasMounted = useHasMounted();
-
-  // Don't render until client-side hydration completes
-  if (!hasMounted) return null;
-
-  // Filter out excluded product and limit count
   const displayProducts = products
     .filter((p) => p.handle !== excludeHandle)
     .slice(0, maxProducts);
 
-  // Don't render section if no products
   if (displayProducts.length === 0) return null;
 
   return (
