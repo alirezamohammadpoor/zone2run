@@ -1,6 +1,6 @@
 "use client";
 import { useState, type ReactNode } from "react";
-import Link from "next/link";
+import LocaleLink from "@/components/LocaleLink";
 import ProductTabs from "./ProductTabs";
 import Breadcrumbs from "./Breadcrumbs";
 import type { SanityProduct } from "@/types/sanityProduct";
@@ -17,13 +17,15 @@ interface ProductInfoProps {
   } | null;
   priceSlot?: ReactNode;
   children?: ReactNode;
+  /** Shopify GID for recently viewed tracking (enables render-time price enrichment) */
+  shopifyId?: string;
 }
 
-function ProductInfo({ product, siteSettings, priceSlot, children }: ProductInfoProps) {
+function ProductInfo({ product, siteSettings, priceSlot, children, shopifyId }: ProductInfoProps) {
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
-  // Track product view for recently viewed feature
-  useTrackRecentlyViewed(product);
+  // Track product view for recently viewed (prices fetched fresh at render time)
+  useTrackRecentlyViewed(product, shopifyId);
 
   const brandName = product.brand?.name || product.vendor;
   const displayTitle = product.title;
@@ -42,12 +44,12 @@ function ProductInfo({ product, siteSettings, priceSlot, children }: ProductInfo
         <Breadcrumbs product={product} />
         <div className="flex justify-between items-center mt-2 xl:mt-2">
           {product.brand?.slug ? (
-            <Link
+            <LocaleLink
               href={getBrandUrl(product.brand.slug)}
               className="text-xs font-semibold hover:underline cursor-pointer"
             >
               {brandName}
-            </Link>
+            </LocaleLink>
           ) : (
             <p className="text-xs font-semibold">{brandName}</p>
           )}

@@ -24,7 +24,7 @@ type HomepageModule =
   | ({ _key: string } & ImageModuleType)
   | ({ _key: string } & PortableTextModule);
 
-async function HomePageSanity({ homepage }: { homepage: Home }) {
+async function HomePageSanity({ homepage, country }: { homepage: Home; country?: string }) {
   if (!homepage) {
     return <div>No homepage data available</div>;
   }
@@ -49,7 +49,8 @@ async function HomePageSanity({ homepage }: { homepage: Home }) {
       // If using collection source, fetch products from the collection
       if (productSource === "collection" && module.collection?._ref) {
         const fullProducts = await getProductsByCollectionId(
-          module.collection._ref
+          module.collection._ref,
+          country,
         );
         // Extract minimal data on server - collection products use main image
         const products: CardProduct[] = fullProducts.map(
@@ -65,7 +66,7 @@ async function HomePageSanity({ homepage }: { homepage: Home }) {
           .filter(Boolean) as string[]) || [];
 
       // Fetch specific products by their IDs
-      const fullProducts = await getProductsByIds(productRefs);
+      const fullProducts = await getProductsByIds(productRefs, country);
 
       // Extract minimal data on server with per-product imageSelection
       const products: CardProduct[] =

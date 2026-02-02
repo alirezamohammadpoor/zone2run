@@ -1,4 +1,5 @@
-import { formatPrice } from "@/lib/utils/formatPrice";
+import { formatCurrency } from "@/lib/utils/formatPrice";
+import { DEFAULT_CURRENCY } from "@/lib/locale/countries";
 import ProductCardGallery from "./ProductCardGallery";
 import type { CardProduct } from "@/types/cardProduct";
 
@@ -23,7 +24,10 @@ export default function ProductCard({
   const allImages = (product.images || []).filter((img) => Boolean(img?.url));
 
   const brandName = product.brand?.name || product.vendor || "";
-  const price = formatPrice(product.priceRange.minVariantPrice);
+  const price = formatCurrency(
+    product.priceRange.minVariantPrice,
+    product.priceRange.currencyCode || DEFAULT_CURRENCY,
+  );
   const hasSizes = availableSizes && availableSizes.length > 0;
 
   return (
@@ -56,7 +60,7 @@ export default function ProductCard({
           </>
         )}
         <p className="text-xs pt-2">
-          {price} {product.priceRange.currencyCode || "SEK"}
+          {price}
         </p>
       </div>
     </article>

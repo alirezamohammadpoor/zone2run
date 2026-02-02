@@ -2,7 +2,7 @@
 
 import { memo, useCallback, useEffect, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
-import Link from "next/link";
+import LocaleLink from "@/components/LocaleLink";
 import ProductCard from "./ProductCard";
 
 import type { CardProduct } from "@/types/cardProduct";
@@ -59,7 +59,7 @@ const ProductCarousel = memo(function ProductCarousel({
     <div className={className ?? "overflow-hidden -mx-2 px-2"} ref={emblaRef}>
       <div className="flex gap-2">
         {products.map((product) => (
-          <Link
+          <LocaleLink
             key={product._id || product.handle}
             href={`/products/${product.handle}`}
             onClick={handleProductClick}
@@ -73,7 +73,7 @@ const ProductCarousel = memo(function ProductCarousel({
               disableGallery
               availableSizes={product.sizes}
             />
-          </Link>
+          </LocaleLink>
         ))}
       </div>
     </div>

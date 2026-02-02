@@ -1,5 +1,5 @@
 import { memo } from "react";
-import Link from "next/link";
+import LocaleLink from "@/components/LocaleLink";
 import ProductCard from "./ProductCard";
 import type { CardProduct } from "@/types/cardProduct";
 
@@ -41,7 +41,7 @@ const ProductGrid = memo(function ProductGrid({
   return (
     <div className={gridClass}>
       {displayProducts?.map((product, index) => (
-        <Link
+        <LocaleLink
           key={`${product._id}-${product.handle}`}
           href={`/products/${product.handle}`}
         >
@@ -51,7 +51,7 @@ const ProductGrid = memo(function ProductGrid({
             priority={index < priorityCount}
             availableSizes={product.sizes}
           />
-        </Link>
+        </LocaleLink>
       ))}
     </div>
   );

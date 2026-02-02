@@ -16,12 +16,13 @@ export interface CartItem {
 export interface CartState {
   items: CartItem[];
   isLoading: boolean;
-  isAdded: { [variantId: string]: boolean };
   error: string | null;
   shopifyCartId: string | null;
   shopifyCheckoutUrl: string | null;
   /** Maps variantId → Shopify cart line ID (needed for update/remove operations) */
   shopifyLineIds: { [variantId: string]: string };
+  /** Current country code for multi-currency cart */
+  country: string;
 }
 
 export interface CartActions {
@@ -31,13 +32,14 @@ export interface CartActions {
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
   setLoading: (loading: boolean) => void;
-  setIsAdded: (variantId: string, isAdded: boolean) => void;
   setError: (error: string | null) => void;
   getTotalItems: () => number;
   getTotalPrice: () => number;
   // Shopify cart management
   setShopifyCart: (cartId: string, checkoutUrl: string, lineIds?: Record<string, string>) => void;
   syncWithShopify: () => Promise<void>;
+  /** Update country — invalidates Shopify cart if currency changed */
+  setCountry: (country: string) => void;
 }
 
 export type CartStore = CartState & CartActions;

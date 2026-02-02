@@ -2,7 +2,7 @@
 import { useUIStore } from "@/lib/cart/uiStore";
 import { memo, useEffect, useState } from "react";
 import Image from "next/image";
-import { formatPrice } from "@/lib/utils/formatPrice";
+import { formatCurrency } from "@/lib/utils/formatPrice";
 
 const AddedToCartModal = memo(function AddedToCartModal({
   isCartOpen,
@@ -72,8 +72,7 @@ const AddedToCartModal = memo(function AddedToCartModal({
             <p className="text-xs font-semibold">{lastAddedProduct.brand}</p>
             <p className="text-xs">{lastAddedProduct.title}</p>
             <p className="text-xs">
-              {formatPrice(lastAddedProduct.price)}{" "}
-              {lastAddedProduct.currencyCode}
+              {formatCurrency(lastAddedProduct.price, lastAddedProduct.currencyCode)}
             </p>
             <p className="text-xs">Size: {lastAddedProduct.size}</p>
             <div className="flex justify-end mt-auto">

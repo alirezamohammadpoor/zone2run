@@ -1,8 +1,11 @@
 "use client";
 
 import { useState, useTransition, useRef, useEffect } from "react";
-import Link from "next/link";
+import LocaleLink from "@/components/LocaleLink";
 import { searchProducts } from "@/lib/actions/search";
+import { enrichRecentlyViewedPrices } from "@/lib/actions/recentlyViewed";
+import { useLocale } from "@/lib/locale/LocaleContext";
+import { useRecentlyViewedStore } from "@/lib/recentlyViewed/store";
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
 import ProductCard from "./ProductCard";
 import RecentlyViewedSection from "./RecentlyViewedSection";
@@ -19,11 +22,14 @@ interface SearchModalProps {
 export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SanitySearchResult | null>(null);
+  const [recentlyViewed, setRecentlyViewed] = useState<CardProduct[]>([]);
   const [isPending, startTransition] = useTransition();
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
   const hasLoadedDefault = useRef(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const { unlockScroll } = useModalScrollRestoration();
+  const storedProducts = useRecentlyViewedStore((state) => state.products);
+  const { country } = useLocale();
 
   // Focus input when modal opens (autoFocus only works on mount)
   useEffect(() => {
@@ -39,7 +45,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
     debounceRef.current = setTimeout(() => {
       startTransition(async () => {
-        const data = await searchProducts(value);
+        const data = await searchProducts(value, country);
         setResults(data);
       });
     }, 300);
@@ -49,8 +55,15 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     if (!hasLoadedDefault.current) {
       hasLoadedDefault.current = true;
       startTransition(async () => {
-        const data = await searchProducts("");
+        // Fetch new arrivals + enrich recently viewed prices in parallel
+        const [data, enriched] = await Promise.all([
+          searchProducts("", country),
+          storedProducts.length > 0
+            ? enrichRecentlyViewedPrices(storedProducts, country)
+            : Promise.resolve([]),
+        ]);
         setResults(data);
+        setRecentlyViewed(enriched);
       });
     }
   };
@@ -58,6 +71,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const handleClose = () => {
     setQuery("");
     setResults(null);
+    setRecentlyViewed([]);
     hasLoadedDefault.current = false;
     onClose();
     setTimeout(() => {
@@ -105,7 +119,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             />
           </div>
 
-          {isPending && (
+          {isPending && query && (
             <p className="text-xs text-gray-500 mt-4">Searching...</p>
           )}
 
@@ -147,7 +161,10 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
           {/* Recently Viewed - shown in default state (no search query) */}
           {results?.isDefault && (
-            <RecentlyViewedSection onProductClick={handleClose} />
+            <RecentlyViewedSection
+              products={recentlyViewed}
+              onProductClick={handleClose}
+            />
           )}
 
           {/* Products */}
@@ -159,7 +176,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
               </div>
               <div className="grid grid-cols-2 xl:grid-cols-4 gap-2">
                 {results.products.map((product) => (
-                  <Link
+                  <LocaleLink
                     key={product._id}
                     href={`/products/${product.handle}`}
                     onClick={handleClose}
@@ -169,7 +186,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                       sizes="(max-width: 1279px) calc(50vw - 12px), calc(25vw - 10px)"
                       disableGallery
                     />
-                  </Link>
+                  </LocaleLink>
                 ))}
               </div>
             </div>
@@ -192,13 +209,13 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           results.products.length > 0 &&
           !results.isDefault && (
             <div className="bg-white border-t border-gray-300 p-4 xl:px-16 flex-shrink-0">
-              <Link
+              <LocaleLink
                 href={`/search?q=${encodeURIComponent(query)}`}
                 onClick={handleClose}
                 className="block w-full bg-black text-white text-center py-3 text-xs hover:bg-gray-800"
               >
                 See results ({results.totalCount})
-              </Link>
+              </LocaleLink>
             </div>
           )}
       </div>
