@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { client } from "@/sanity/lib/client";
-import { DEFAULT_LOCALE } from "@/lib/locale/localeUtils";
+import { SUPPORTED_LOCALES, DEFAULT_LOCALE } from "@/lib/locale/localeUtils";
 
 interface ProductSitemapEntry {
   handle: string;
@@ -68,127 +68,104 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ),
     ]);
 
-  const localeBase = `${baseUrl}/${DEFAULT_LOCALE}`;
+  // Build locale-agnostic path lists, then expand across all locales
+  const now = new Date();
 
-  // Static pages
-  const staticPages: MetadataRoute.Sitemap = [
-    {
-      url: localeBase,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 1,
-    },
-    {
-      url: `${localeBase}/mens`,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 0.9,
-    },
-    {
-      url: `${localeBase}/womens`,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 0.9,
-    },
-    {
-      url: `${localeBase}/unisex`,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 0.8,
-    },
-    {
-      url: `${localeBase}/collections`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
-    {
-      url: `${localeBase}/brands`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
-    {
-      url: `${localeBase}/blog`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.7,
-    },
+  // Static paths with their priorities/frequencies
+  const staticPaths: { path: string; changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"]; priority: number }[] = [
+    { path: "", changeFrequency: "daily", priority: 1 },
+    { path: "/mens", changeFrequency: "daily", priority: 0.9 },
+    { path: "/womens", changeFrequency: "daily", priority: 0.9 },
+    { path: "/unisex", changeFrequency: "daily", priority: 0.8 },
+    { path: "/collections", changeFrequency: "weekly", priority: 0.8 },
+    { path: "/brands", changeFrequency: "weekly", priority: 0.8 },
+    { path: "/blog", changeFrequency: "weekly", priority: 0.7 },
   ];
 
-  // Product pages
-  const productPages: MetadataRoute.Sitemap = products
-    .filter((p) => p.handle)
-    .map((p) => ({
-      url: `${localeBase}/products/${p.handle}`,
-      lastModified: p.updatedAt ? new Date(p.updatedAt) : new Date(),
-      changeFrequency: "daily" as const,
-      priority: 0.8,
-    }));
-
-  // Collection pages
-  const collectionPages: MetadataRoute.Sitemap = collections
-    .filter((c) => c.slug)
-    .map((c) => ({
-      url: `${localeBase}/collections/${c.slug}`,
-      lastModified: c.updatedAt ? new Date(c.updatedAt) : new Date(),
-      changeFrequency: "weekly" as const,
-      priority: 0.7,
-    }));
-
-  // Brand pages
-  const brandPages: MetadataRoute.Sitemap = brands
-    .filter((b) => b.slug)
-    .map((b) => ({
-      url: `${localeBase}/brands/${b.slug}`,
-      lastModified: b._updatedAt ? new Date(b._updatedAt) : new Date(),
-      changeFrequency: "weekly" as const,
-      priority: 0.6,
-    }));
-
-  // Blog pages
-  const blogPages: MetadataRoute.Sitemap = blogPosts
-    .filter((post) => post.slug && post.category)
-    .map((post) => ({
-      url: `${localeBase}/blog/${post.category}/${post.slug}`,
-      lastModified: post.publishedAt ? new Date(post.publishedAt) : new Date(),
-      changeFrequency: "monthly" as const,
-      priority: 0.5,
-    }));
-
-  // Category pages - extract unique paths from products
-  const categoryUrlsSet = new Set<string>();
-
+  // Category paths - extract unique from products
+  const categoryPathsSet = new Set<string>();
   for (const item of categoryPaths) {
-    // Build URLs based on available category levels
     if (item.gender && item.mainCategory && item.subcategory && item.specific) {
-      categoryUrlsSet.add(
+      categoryPathsSet.add(
         `/${item.gender}/${item.mainCategory}/${item.subcategory}/${item.specific}`
       );
     }
     if (item.gender && item.mainCategory && item.subcategory) {
-      categoryUrlsSet.add(`/${item.gender}/${item.mainCategory}/${item.subcategory}`);
+      categoryPathsSet.add(`/${item.gender}/${item.mainCategory}/${item.subcategory}`);
     }
     if (item.gender && item.mainCategory) {
-      categoryUrlsSet.add(`/${item.gender}/${item.mainCategory}`);
+      categoryPathsSet.add(`/${item.gender}/${item.mainCategory}`);
     }
   }
 
-  const categoryPages: MetadataRoute.Sitemap = Array.from(categoryUrlsSet).map(
-    (path) => ({
-      url: `${localeBase}${path}`,
-      lastModified: new Date(),
-      changeFrequency: "daily" as const,
-      priority: 0.7,
-    })
-  );
+  // Helper: expand a single path across all locales
+  const forAllLocales = (
+    path: string,
+    opts: { lastModified: Date; changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"]; priority: number; isDefault?: boolean }
+  ): MetadataRoute.Sitemap =>
+    SUPPORTED_LOCALES.map((locale) => ({
+      url: `${baseUrl}/${locale}${path}`,
+      lastModified: opts.lastModified,
+      changeFrequency: opts.changeFrequency,
+      // Default locale gets full priority, alternates slightly lower
+      priority: locale === DEFAULT_LOCALE ? opts.priority : Math.max(0.1, opts.priority - 0.1),
+    }));
 
-  return [
-    ...staticPages,
-    ...productPages,
-    ...collectionPages,
-    ...brandPages,
-    ...blogPages,
-    ...categoryPages,
-  ];
+  const entries: MetadataRoute.Sitemap = [];
+
+  // Static pages × all locales
+  for (const sp of staticPaths) {
+    entries.push(...forAllLocales(sp.path, { lastModified: now, changeFrequency: sp.changeFrequency, priority: sp.priority }));
+  }
+
+  // Product pages × all locales
+  for (const p of products) {
+    if (!p.handle) continue;
+    entries.push(...forAllLocales(`/products/${p.handle}`, {
+      lastModified: p.updatedAt ? new Date(p.updatedAt) : now,
+      changeFrequency: "daily",
+      priority: 0.8,
+    }));
+  }
+
+  // Collection pages × all locales
+  for (const c of collections) {
+    if (!c.slug) continue;
+    entries.push(...forAllLocales(`/collections/${c.slug}`, {
+      lastModified: c.updatedAt ? new Date(c.updatedAt) : now,
+      changeFrequency: "weekly",
+      priority: 0.7,
+    }));
+  }
+
+  // Brand pages × all locales
+  for (const b of brands) {
+    if (!b.slug) continue;
+    entries.push(...forAllLocales(`/brands/${b.slug}`, {
+      lastModified: b._updatedAt ? new Date(b._updatedAt) : now,
+      changeFrequency: "weekly",
+      priority: 0.6,
+    }));
+  }
+
+  // Blog pages × all locales
+  for (const post of blogPosts) {
+    if (!post.slug || !post.category) continue;
+    entries.push(...forAllLocales(`/blog/${post.category}/${post.slug}`, {
+      lastModified: post.publishedAt ? new Date(post.publishedAt) : now,
+      changeFrequency: "monthly",
+      priority: 0.5,
+    }));
+  }
+
+  // Category pages × all locales
+  for (const path of categoryPathsSet) {
+    entries.push(...forAllLocales(path, {
+      lastModified: now,
+      changeFrequency: "daily",
+      priority: 0.7,
+    }));
+  }
+
+  return entries;
 }
