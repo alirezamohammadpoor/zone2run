@@ -1,5 +1,8 @@
 // Shared GROQ utilities and common query patterns
 
+// PLP page size — initial server-side batch for listing pages
+export const PLP_PAGE_SIZE = 60;
+
 // Search page size — used for server-side GROQ slicing in search queries
 export const SEARCH_PAGE_SIZE = 28;
 

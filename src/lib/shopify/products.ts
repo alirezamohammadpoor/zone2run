@@ -287,9 +287,11 @@ export async function getShopifyProductByHandle(
 ): Promise<ShopifyProduct | null> {
   const start = performance.now();
   try {
+    // no-store: PDP variant availability must be fresh (no OOS items in cart)
     const { productByHandle } = (await shopifyClient.request(
       GET_PRODUCT_BY_HANDLE,
-      { handle, country: country || undefined }
+      { handle, country: country || undefined },
+      { cache: "no-store" },
     )) as ProductByHandleResponse;
     const duration = performance.now() - start;
     console.log(`⚡ Shopify fetch [${handle}]: ${duration.toFixed(0)}ms`);
@@ -304,7 +306,9 @@ export async function getShopifyProductByHandle(
 export async function getAllShopifyHandles(): Promise<string[]> {
   try {
     const response = (await shopifyClient.request(
-      GET_ALL_PRODUCT_HANDLES
+      GET_ALL_PRODUCT_HANDLES,
+      undefined,
+      { next: { revalidate: 3600 } },
     )) as AllProductHandlesResponse;
     const handles = response.products.edges.map(({ node }) => node.handle);
     console.log("🛍️ Available Shopify handles:", handles);

@@ -37,7 +37,8 @@ export interface CartActions {
   getTotalPrice: () => number;
   // Shopify cart management
   setShopifyCart: (cartId: string, checkoutUrl: string, lineIds?: Record<string, string>) => void;
-  syncWithShopify: () => Promise<void>;
+  /** Verify stored Shopify cart is still valid; clear stale state if expired */
+  hydrateCart: () => Promise<void>;
   /** Update country — invalidates Shopify cart if currency changed */
   setCountry: (country: string) => void;
 }

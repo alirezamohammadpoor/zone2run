@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 import {
-  getProductsByGender,
-  getProductsByPath,
-  getProductsBySubcategoryIncludingSubSubcategories,
+  getProductsByGenderPaginated,
+  getProductsByPathPaginated,
+  getProductsBySubcategoryPaginated,
 } from "@/sanity/lib/getData";
 import { ProductListing } from "@/components/plp/ProductListing";
 import { buildCategoryBreadcrumbs } from "@/lib/utils/breadcrumbs";
@@ -20,7 +20,8 @@ export const genderMetadata = (locale: string, g: GenderUrl) =>
   buildCategoryMetadata(locale, g);
 
 export async function GenderPage({ gender, country }: { gender: GenderUrl; country: string }) {
-  const products = await getProductsByGender(apiGender(gender), undefined, country);
+  const g = apiGender(gender);
+  const { products, totalCount } = await getProductsByGenderPaginated(g, undefined, country);
   if (!products?.length) notFound();
 
   return (
@@ -28,6 +29,9 @@ export async function GenderPage({ gender, country }: { gender: GenderUrl; count
       <ProductListing
         products={products}
         breadcrumbs={buildCategoryBreadcrumbs(gender)}
+        totalCount={totalCount}
+        queryType={{ type: "gender", gender: g }}
+        country={country}
       />
     </div>
   );
@@ -50,18 +54,23 @@ export async function MainCategoryPage({
   const g = apiGender(gender);
 
   // Fetch both in parallel — main category first, fallback to subcategory
-  const [mainProducts, subProducts] = await Promise.all([
-    getProductsByPath(g, "main", mainCategory, undefined, country),
-    getProductsByPath(g, "subcategory", mainCategory, undefined, country),
+  const [mainResult, subResult] = await Promise.all([
+    getProductsByPathPaginated(g, "main", mainCategory, undefined, country),
+    getProductsByPathPaginated(g, "subcategory", mainCategory, undefined, country),
   ]);
-  const products = mainProducts?.length ? mainProducts : subProducts;
-  if (!products?.length) notFound();
+
+  const result = mainResult.products.length ? mainResult : subResult;
+  const categoryType = mainResult.products.length ? "main" : "subcategory";
+  if (!result.products.length) notFound();
 
   return (
     <div>
       <ProductListing
-        products={products}
+        products={result.products}
         breadcrumbs={buildCategoryBreadcrumbs(gender, [mainCategory])}
+        totalCount={result.totalCount}
+        queryType={{ type: "category", gender: g, categoryType, categorySlug: mainCategory }}
+        country={country}
       />
     </div>
   );
@@ -87,8 +96,9 @@ export async function SubcategoryPage({
   subcategory: string;
   country: string;
 }) {
-  const products = await getProductsBySubcategoryIncludingSubSubcategories(
-    apiGender(gender),
+  const g = apiGender(gender);
+  const { products, totalCount } = await getProductsBySubcategoryPaginated(
+    g,
     mainCategory,
     subcategory,
     undefined,
@@ -104,6 +114,9 @@ export async function SubcategoryPage({
           mainCategory,
           subcategory,
         ])}
+        totalCount={totalCount}
+        queryType={{ type: "subcategory", gender: g, mainCategorySlug: mainCategory, subcategorySlug: subcategory }}
+        country={country}
       />
     </div>
   );
@@ -132,9 +145,10 @@ export async function SpecificCategoryPage({
   specificCategory: string;
   country: string;
 }) {
+  const g = apiGender(gender);
   // Fetch parent subcategory so sibling categories appear in filter modal
-  const products = await getProductsBySubcategoryIncludingSubSubcategories(
-    apiGender(gender),
+  const { products, totalCount } = await getProductsBySubcategoryPaginated(
+    g,
     mainCategory,
     subcategory,
     undefined,
@@ -152,6 +166,9 @@ export async function SpecificCategoryPage({
           specificCategory,
         ])}
         initialFilters={{ category: [specificCategory] }}
+        totalCount={totalCount}
+        queryType={{ type: "subcategory", gender: g, mainCategorySlug: mainCategory, subcategorySlug: subcategory }}
+        country={country}
       />
     </div>
   );

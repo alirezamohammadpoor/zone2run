@@ -1,5 +1,6 @@
 import { sanityFetch } from "@/sanity/lib/client";
 import { buildLimitClause } from "./groqUtils";
+import type { BlogPostMenuItem } from "@/types/menu";
 
 // BlogPost type for listing queries (getBlogPosts)
 export interface BlogPostListing {
@@ -107,6 +108,33 @@ export async function getBlogPosts(limit?: number) {
     return await sanityFetch<BlogPostListing[]>(query);
   } catch (error) {
     console.error("Error fetching blog posts:", error);
+    return [];
+  }
+}
+
+/**
+ * Lean blog query for header/menu — only fetches fields rendered in the dropdown.
+ * Drops productsModule, featuredProductsModule, productShowcaseModule, editorialImage,
+ * excerpt, author, readingTime which are never used in the header UI.
+ */
+export async function getBlogPostsForMenu(
+  limit: number = 10,
+): Promise<BlogPostMenuItem[]> {
+  const query = `*[_type == "blogPost"] | order(publishedAt desc) {
+    _id,
+    title,
+    slug { current },
+    category-> { title, slug { current } },
+    featuredImage {
+      asset-> { url, "lqip": metadata.lqip },
+      alt
+    }
+  }[0...${limit}]`;
+
+  try {
+    return await sanityFetch<BlogPostMenuItem[]>(query);
+  } catch (error) {
+    console.error("Error fetching blog posts for menu:", error);
     return [];
   }
 }

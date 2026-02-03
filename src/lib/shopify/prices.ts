@@ -67,12 +67,14 @@ export async function getLocalizedPrices(
   }
 
   try {
+    // 15-min cache: PLP prices can be slightly stale (real price on PDP is fresh)
     const results = await Promise.all(
       chunks.map((ids) =>
-        shopifyClient.request<ShopifyNodesResponse>(GET_LOCALIZED_PRICES, {
-          ids,
-          country,
-        }),
+        shopifyClient.request<ShopifyNodesResponse>(
+          GET_LOCALIZED_PRICES,
+          { ids, country },
+          { next: { revalidate: 900 } },
+        ),
       ),
     );
 

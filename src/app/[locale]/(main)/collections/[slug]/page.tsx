@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import { getCollectionInfo, getCollectionProducts } from "@/sanity/lib/getData";
+import { getCollectionInfo, getCollectionProductsPaginated } from "@/sanity/lib/getData";
 import Image from "next/image";
 import { ProductListing } from "@/components/plp/ProductListing";
 import { BreadcrumbJsonLd } from "@/components/schemas";
@@ -72,8 +72,13 @@ async function CollectionProductGrid({
   gridLayout?: "4col" | "3col";
   country?: string;
 }) {
-  // Fetch all products (no pagination — Load More handles display)
-  const products = await getCollectionProducts(collectionId, shopifyId, curatedProducts, country);
+  const { products, totalCount } = await getCollectionProductsPaginated(
+    collectionId,
+    shopifyId,
+    curatedProducts,
+    undefined,
+    country,
+  );
 
   if (!Array.isArray(products) || products.length === 0) {
     return (
@@ -83,6 +88,8 @@ async function CollectionProductGrid({
     );
   }
 
+  const curatedProductIds = curatedProducts?.map((p) => p._id);
+
   return (
     <ProductListing
       products={products}
@@ -90,6 +97,9 @@ async function CollectionProductGrid({
       productsPerImage={productsPerImage || 4}
       productsPerImageXL={productsPerImage || 4}
       gridLayout={gridLayout || "4col"}
+      totalCount={totalCount}
+      queryType={{ type: "collection", collectionId, shopifyId, curatedProductIds }}
+      country={country}
     />
   );
 }

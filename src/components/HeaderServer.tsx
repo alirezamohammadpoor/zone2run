@@ -1,6 +1,6 @@
 import { getAllBrands, getMenu } from "@/sanity/lib/getData";
 import { getFullMenuData } from "@/sanity/lib/getCategories";
-import { getBlogPosts } from "@/sanity/lib/getBlog";
+import { getBlogPostsForMenu } from "@/sanity/lib/getBlog";
 import Header from "./Header";
 
 export default async function HeaderServer() {
@@ -9,7 +9,7 @@ export default async function HeaderServer() {
     getFullMenuData(), // 2 queries: one per gender, fetches full category hierarchy
     getAllBrands(),
     getMenu(),
-    getBlogPosts(10),
+    getBlogPostsForMenu(10),
   ]);
 
   if (!menuConfig) {

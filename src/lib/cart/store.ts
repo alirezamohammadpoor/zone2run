@@ -8,6 +8,7 @@ import {
   addToCart,
   updateCartQuantity,
   removeFromCart,
+  getCart,
 } from "@/lib/shopify/cart";
 
 import { DEFAULT_COUNTRY } from "@/lib/locale/countries";
@@ -174,20 +175,28 @@ export const useCartStore = create<CartStore>()(
           ...(lineIds && { shopifyLineIds: lineIds }),
         }),
 
-      syncWithShopify: async () => {
-        const state = get();
+      hydrateCart: async () => {
+        const { shopifyCartId } = get();
+        if (!shopifyCartId) return;
 
-        // If no Shopify cart exists, create one
-        if (!state.shopifyCartId) {
-          const cartResult = await createCart(undefined, state.country);
-          if (cartResult) {
-            set({
-              shopifyCartId: cartResult.cartId,
-              shopifyCheckoutUrl: cartResult.checkoutUrl,
-              shopifyLineIds: cartResult.lineIds,
-            });
-          }
+        // Verify the stored cart still exists in Shopify (carts expire after ~7 days)
+        const cart = await getCart(shopifyCartId);
+
+        if (!cart) {
+          // Cart expired or invalid — clear stale state
+          set({
+            shopifyCartId: null,
+            shopifyCheckoutUrl: null,
+            shopifyLineIds: {},
+          });
+          return;
         }
+
+        // Cart still valid — refresh checkout URL and line ID mappings
+        set({
+          shopifyCheckoutUrl: cart.checkoutUrl,
+          shopifyLineIds: cart.lineIds,
+        });
       },
 
       setCountry: (country: string) => {
@@ -203,6 +212,17 @@ export const useCartStore = create<CartStore>()(
         });
       },
     }),
-    { name: "cart-storage" }
+    {
+      name: "cart-storage",
+      onRehydrateStorage: () => {
+        // Called after localStorage state is restored into the store.
+        // Validate the stored Shopify cart ID — if it expired, clear stale state.
+        return (state) => {
+          if (state?.shopifyCartId) {
+            state.hydrateCart();
+          }
+        };
+      },
+    }
   )
 );

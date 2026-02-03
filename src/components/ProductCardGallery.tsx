@@ -38,7 +38,7 @@ const ProductCardGallery = memo(function ProductCardGallery({
         {mainImage?.url && (
           <Image
             src={mainImage.url}
-            alt=""
+            alt={mainImage.alt || ""}
             fill
             sizes={sizes}
             className={`object-cover ${hoverImage?.url ? "transition-opacity duration-300 xl:group-hover:opacity-0" : ""}`}
@@ -52,7 +52,7 @@ const ProductCardGallery = memo(function ProductCardGallery({
         {hoverImage?.url && (
           <Image
             src={hoverImage.url}
-            alt=""
+            alt={hoverImage.alt || ""}
             fill
             sizes={sizes}
             className="object-cover opacity-0 transition-opacity duration-300 xl:group-hover:opacity-100"
@@ -73,7 +73,7 @@ const ProductCardGallery = memo(function ProductCardGallery({
         {mainImage?.url && (
           <Image
             src={mainImage.url}
-            alt=""
+            alt={mainImage.alt || ""}
             fill
             sizes={sizes}
             className={`object-cover ${hoverImage?.url ? "transition-opacity duration-300 xl:group-hover:opacity-0" : ""}`}
@@ -87,7 +87,7 @@ const ProductCardGallery = memo(function ProductCardGallery({
         {hoverImage?.url && (
           <Image
             src={hoverImage.url}
-            alt=""
+            alt={hoverImage.alt || ""}
             fill
             sizes={sizes}
             className="object-cover opacity-0 transition-opacity duration-300 xl:group-hover:opacity-100"

@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, Suspense, useCallback } from "react";
+import { useState, Suspense, useCallback, useTransition } from "react";
 import dynamic from "next/dynamic";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import ProductGrid from "@/components/ProductGrid";
 import ProductGridWithImages from "@/components/ProductGridWithImages";
 import LoadMoreButton from "@/components/LoadMoreButton";
@@ -16,6 +15,7 @@ import {
   countActiveFilters,
 } from "@/hooks/useFilteredProducts";
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
+import { loadMoreProducts, type PLPQueryType } from "@/lib/actions/loadMore";
 import type { PLPProduct } from "@/types/plpProduct";
 import type { BreadcrumbItem } from "@/lib/utils/breadcrumbs";
 import type { EditorialImage } from "@/components/ProductGridWithImages";
@@ -50,49 +50,73 @@ interface ProductListingProps {
   productsPerImageXL?: number;
   /** Grid layout variant (default: "4col") */
   gridLayout?: "4col" | "3col";
+  /** Total products matching this query (enables server-side pagination) */
+  totalCount?: number;
+  /** Query descriptor for server-side "Load More" */
+  queryType?: PLPQueryType;
+  /** Country code for locale-aware price enrichment in server action */
+  country?: string;
 }
 
 function ProductListingInner({
-  products,
+  products: initialProducts,
   breadcrumbs,
   initialFilters,
   editorialImages,
   productsPerImage,
   productsPerImageXL,
   gridLayout,
+  totalCount,
+  queryType,
+  country,
 }: ProductListingProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { lockScroll } = useModalScrollRestoration();
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
+
+  // Server-side pagination state: accumulate loaded products
+  const [allProducts, setAllProducts] = useState(initialProducts);
+
+  // Whether server-side pagination is enabled
+  const hasServerPagination = queryType != null && totalCount != null;
 
   // URL-based filter & sort state
   const { filters, updateFilters } = useUrlFilters(initialFilters);
   const { sort, updateSort } = useUrlSort();
 
-  // Read visible limit from URL (?limit=56) — shareable & survives back/forward
-  const urlLimit = searchParams.get("limit");
-  const visibleCount = urlLimit ? Math.max(PRODUCTS_PER_LOAD, parseInt(urlLimit, 10) || PRODUCTS_PER_LOAD) : PRODUCTS_PER_LOAD;
-
   // Extract available filter options with cascading behavior
   const { availableSizes, availableBrands, availableCategories, availableGenders } =
-    usePLPFilters(products, filters);
+    usePLPFilters(allProducts, filters);
 
   // Apply filters & sort client-side
-  const filteredProducts = useFilteredProducts(products, filters, sort);
+  const filteredProducts = useFilteredProducts(allProducts, filters, sort);
   const activeFilterCount = countActiveFilters(filters);
 
-  // Load More: show first N products, grow on click
-  const visibleProducts = filteredProducts.slice(0, visibleCount);
-  const remainingCount = Math.max(0, filteredProducts.length - visibleCount);
+  // Client-side visible slice for non-server-paginated mode
+  const visibleProducts = hasServerPagination
+    ? filteredProducts
+    : filteredProducts.slice(0, PRODUCTS_PER_LOAD + (allProducts.length - initialProducts.length));
+
+  // Remaining: server-side = totalCount - loaded; client-side = filtered - visible
+  const remainingCount = hasServerPagination
+    ? Math.max(0, totalCount - allProducts.length)
+    : Math.max(0, filteredProducts.length - visibleProducts.length);
 
   const handleLoadMore = useCallback(() => {
-    const newLimit = visibleCount + PRODUCTS_PER_LOAD;
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("limit", newLimit.toString());
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-  }, [visibleCount, searchParams, router, pathname]);
+    if (hasServerPagination) {
+      // Server-side: fetch next batch via server action
+      startTransition(async () => {
+        const newProducts = await loadMoreProducts(
+          queryType,
+          allProducts.length,
+          country,
+        );
+        if (newProducts.length > 0) {
+          setAllProducts((prev) => [...prev, ...newProducts]);
+        }
+      });
+    }
+  }, [hasServerPagination, queryType, allProducts.length, country]);
 
   const handleOpenModal = () => {
     lockScroll();
@@ -131,6 +155,9 @@ function ProductListingInner({
   // Choose grid component based on whether editorial images are provided
   const hasEditorialImages = editorialImages && editorialImages.length > 0;
 
+  // Display count: use server totalCount if available, otherwise filtered count
+  const displayTotalCount = hasServerPagination ? totalCount : filteredProducts.length;
+
   return (
     <>
       {/* Breadcrumbs Header */}
@@ -140,13 +167,13 @@ function ProductListingInner({
       <FilterSortButton
         onClick={handleOpenModal}
         activeCount={activeFilterCount}
-        totalCount={filteredProducts.length}
+        totalCount={displayTotalCount}
       />
 
       {/* Product Grid */}
       {hasEditorialImages ? (
         <ProductGridWithImages
-          products={visibleProducts}
+          products={hasServerPagination ? filteredProducts : visibleProducts}
           editorialImages={editorialImages}
           productsPerImage={productsPerImage}
           productsPerImageXL={productsPerImageXL}
@@ -155,7 +182,7 @@ function ProductListingInner({
         />
       ) : (
         <ProductGrid
-          products={visibleProducts}
+          products={hasServerPagination ? filteredProducts : visibleProducts}
           priorityCount={4}
         />
       )}
@@ -164,6 +191,7 @@ function ProductListingInner({
       <LoadMoreButton
         onLoadMore={handleLoadMore}
         remainingCount={remainingCount}
+        isLoading={isPending}
       />
 
       {/* Filter/Sort Modal */}
@@ -186,6 +214,7 @@ function ProductListingInner({
 
 /**
  * Main PLP component with client-side filtering and sorting.
+ * When totalCount + queryType are provided, uses server-side pagination.
  * Wraps inner component in Suspense for useSearchParams compatibility.
  */
 export function ProductListing(props: ProductListingProps) {

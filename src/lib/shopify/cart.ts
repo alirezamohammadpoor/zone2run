@@ -272,6 +272,56 @@ export const CART_LINES_REMOVE = `
   }
 `;
 
+// Query to fetch an existing cart (used for hydration on page load)
+const CART_QUERY = `
+  query cart($cartId: ID!) {
+    cart(id: $cartId) {
+      id
+      checkoutUrl
+      lines(first: 100) {
+        edges {
+          node {
+            id
+            quantity
+            merchandise {
+              ... on ProductVariant {
+                id
+                title
+                price {
+                  amount
+                  currencyCode
+                }
+                product {
+                  title
+                  handle
+                  featuredImage {
+                    url
+                    altText
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      cost {
+        subtotalAmount {
+          amount
+          currencyCode
+        }
+        totalAmount {
+          amount
+          currencyCode
+        }
+      }
+    }
+  }
+`;
+
+interface CartQueryResponse {
+  cart: ShopifyCart | null;
+}
+
 /** Extract variantId → Shopify lineId mapping from cart response */
 function extractLineIds(cart: ShopifyCart): Record<string, string> {
   const map: Record<string, string> = {};
@@ -304,9 +354,11 @@ export async function createCart(
       input.buyerIdentity = { countryCode: country };
     }
 
-    const response = await shopifyClient.request(CART_CREATE, {
-      input,
-    });
+    const response = await shopifyClient.request(
+      CART_CREATE,
+      { input },
+      { cache: "no-store" },
+    );
 
     const { cartCreate } = response as CartCreateResponse;
 
@@ -335,15 +387,14 @@ export async function addToCart(
       return { success: false };
     }
 
-    const response = await shopifyClient.request(CART_LINES_ADD, {
-      cartId,
-      lines: [
-        {
-          merchandiseId: variantId,
-          quantity,
-        },
-      ],
-    });
+    const response = await shopifyClient.request(
+      CART_LINES_ADD,
+      {
+        cartId,
+        lines: [{ merchandiseId: variantId, quantity }],
+      },
+      { cache: "no-store" },
+    );
 
     const { cartLinesAdd } = response as CartLinesAddResponse;
 
@@ -365,15 +416,11 @@ export async function updateCartQuantity(
   quantity: number
 ): Promise<boolean> {
   try {
-    const response = await shopifyClient.request(CART_LINES_UPDATE, {
-      cartId,
-      lines: [
-        {
-          id: lineId,
-          quantity,
-        },
-      ],
-    });
+    const response = await shopifyClient.request(
+      CART_LINES_UPDATE,
+      { cartId, lines: [{ id: lineId, quantity }] },
+      { cache: "no-store" },
+    );
 
     const { cartLinesUpdate } = response as CartLinesUpdateResponse;
 
@@ -392,10 +439,11 @@ export async function removeFromCart(
   lineId: string
 ): Promise<boolean> {
   try {
-    const response = await shopifyClient.request(CART_LINES_REMOVE, {
-      cartId,
-      lineIds: [lineId],
-    });
+    const response = await shopifyClient.request(
+      CART_LINES_REMOVE,
+      { cartId, lineIds: [lineId] },
+      { cache: "no-store" },
+    );
 
     const { cartLinesRemove } = response as CartLinesRemoveResponse;
 
@@ -406,5 +454,37 @@ export async function removeFromCart(
     return true;
   } catch (error) {
     return false;
+  }
+}
+
+/**
+ * Fetch an existing cart by ID.
+ * Returns null if the cart has expired or doesn't exist (Shopify carts expire after ~7 days).
+ */
+export async function getCart(
+  cartId: string,
+): Promise<{
+  id: string;
+  checkoutUrl: string;
+  lineIds: Record<string, string>;
+} | null> {
+  try {
+    const response = await shopifyClient.request(
+      CART_QUERY,
+      { cartId },
+      { cache: "no-store" },
+    );
+
+    const { cart } = response as CartQueryResponse;
+
+    if (!cart) return null;
+
+    return {
+      id: cart.id,
+      checkoutUrl: cart.checkoutUrl,
+      lineIds: extractLineIds(cart),
+    };
+  } catch {
+    return null;
   }
 }

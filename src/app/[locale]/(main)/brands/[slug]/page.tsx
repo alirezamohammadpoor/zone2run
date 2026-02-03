@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { getProductsByBrand, getBrandBySlug } from "@/sanity/lib/getData";
+import { getProductsByBrandPaginated, getBrandBySlug } from "@/sanity/lib/getData";
 import { notFound } from "next/navigation";
 import { decodeBrandSlug } from "@/lib/utils/brandUrls";
 import Image from "next/image";
@@ -63,8 +63,12 @@ async function BrandProductGrid({
   >["editorialImages"];
   country?: string;
 }) {
-  // Fetch all products for this brand (gender filtering is client-side)
-  const products = await getProductsByBrand(decodedSlug, undefined, undefined, country);
+  const { products, totalCount } = await getProductsByBrandPaginated(
+    decodedSlug,
+    undefined,
+    undefined,
+    country,
+  );
 
   if (!Array.isArray(products) || products.length === 0) {
     return (
@@ -78,6 +82,9 @@ async function BrandProductGrid({
     <ProductListing
       products={products}
       editorialImages={editorialImages}
+      totalCount={totalCount}
+      queryType={{ type: "brand", brandSlug: decodedSlug }}
+      country={country}
     />
   );
 }

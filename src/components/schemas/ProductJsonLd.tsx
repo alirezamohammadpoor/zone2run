@@ -1,16 +1,19 @@
 import type { SanityProduct } from "@/types/sanityProduct";
+import type { ShopifyProduct } from "@/types/shopify";
 import type { ProductSchema, AggregateOfferSchema, AvailabilityType } from "./types";
 
 interface ProductJsonLdProps {
   product: SanityProduct;
+  shopifyProduct?: ShopifyProduct | null;
   locale: string;
 }
 
 /**
  * Generates JSON-LD structured data for product pages.
- * This helps Google display rich snippets with price, availability, and ratings.
+ * When shopifyProduct is provided, uses Shopify's locale-aware prices
+ * (fetched via @inContext) so structured data matches the displayed currency.
  */
-export default function ProductJsonLd({ product, locale }: ProductJsonLdProps) {
+export default function ProductJsonLd({ product, shopifyProduct, locale }: ProductJsonLdProps) {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://zone2run-build.vercel.app";
 
   // Strip HTML tags from description
@@ -24,20 +27,32 @@ export default function ProductJsonLd({ product, locale }: ProductJsonLdProps) {
     ?.map((img) => img.url)
     .filter(Boolean) || [];
 
-  // Check if any variant is available
-  const anyVariantAvailable = product.variants?.some((v) => v.available) ?? false;
+  // Use Shopify locale-aware availability when available, fall back to Sanity
+  const anyVariantAvailable = shopifyProduct
+    ? shopifyProduct.availableForSale
+    : (product.variants?.some((v) => v.available) ?? false);
   const availability: AvailabilityType = anyVariantAvailable
     ? "https://schema.org/InStock"
     : "https://schema.org/OutOfStock";
 
+  // Use Shopify locale prices when available (matches displayed currency),
+  // fall back to Sanity prices (SEK)
+  const lowPrice = shopifyProduct?.priceRange.minVariantPrice.amount
+    ?? product.priceRange.minVariantPrice;
+  const highPrice = shopifyProduct?.priceRange.maxVariantPrice.amount
+    ?? product.priceRange.maxVariantPrice;
+  const priceCurrency = shopifyProduct?.priceRange.minVariantPrice.currencyCode
+    ?? product.priceRange.currencyCode
+    ?? "SEK";
+
   // Build offers - use AggregateOffer for price range
   const offers: AggregateOfferSchema = {
     "@type": "AggregateOffer",
-    lowPrice: product.priceRange.minVariantPrice,
-    highPrice: product.priceRange.maxVariantPrice,
-    priceCurrency: product.priceRange.currencyCode || "SEK",
+    lowPrice,
+    highPrice,
+    priceCurrency,
     availability,
-    offerCount: product.variants?.length || 1,
+    offerCount: shopifyProduct?.variants.length ?? product.variants?.length ?? 1,
     url: `${baseUrl}/${locale}/products/${product.handle}`,
   };
 

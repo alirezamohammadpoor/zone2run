@@ -5,9 +5,11 @@ import {
   HERO_IMAGE_PROJECTION,
   EDITORIAL_IMAGES_PROJECTION,
   MENU_IMAGE_PROJECTION,
+  PLP_PAGE_SIZE,
 } from "./groqUtils";
 import { enrichWithLocalePrices } from "@/lib/locale/enrichPrices";
 import { deduplicateSizes, type RawProductWithSizes } from "./deduplicateSizes";
+import type { PLPPagination, PaginatedPLPResult } from "./getProducts";
 
 /** Sort products: curated order first, then by _createdAt desc */
 function sortByCuratedOrder(
@@ -175,5 +177,40 @@ export async function getProductsByCollectionId(
       error
     );
     return [];
+  }
+}
+
+/** Collection products with server-side pagination */
+export async function getCollectionProductsPaginated(
+  collectionId: string,
+  shopifyId?: number,
+  curatedProducts?: Array<{ _id: string }>,
+  pagination: PLPPagination = { offset: 0, limit: PLP_PAGE_SIZE },
+  country?: string,
+): Promise<PaginatedPLPResult> {
+  const shopifyIdStr = shopifyId ? shopifyId.toString() : "";
+  const filter = `*[_type == "product" && (references($collectionId) || (defined(shopifyCollectionIds) && $shopifyIdStr in shopifyCollectionIds))]`;
+  const offset = pagination.offset ?? 0;
+  const limit = pagination.limit ?? PLP_PAGE_SIZE;
+
+  const productsQuery = `${filter}${COLLECTION_PRODUCT_PROJECTION} | order(_createdAt desc)[${offset}...${offset + limit}]`;
+  const countQuery = `count(${filter})`;
+
+  const params: Record<string, unknown> = { collectionId, shopifyIdStr };
+
+  try {
+    const [raw, totalCount] = await Promise.all([
+      sanityFetch<RawProductWithSizes[]>(productsQuery, params),
+      sanityFetch<number>(countQuery, params),
+    ]);
+    let products = deduplicateSizes(raw);
+    products = sortByCuratedOrder(products, curatedProducts);
+    return {
+      products: country ? await enrichWithLocalePrices(products, country) : products,
+      totalCount,
+    };
+  } catch (error) {
+    console.error(`Error fetching paginated products for collection ${collectionId}:`, error);
+    return { products: [], totalCount: 0 };
   }
 }

@@ -91,7 +91,7 @@ export default async function ProductPage({
   return (
     <>
       {/* JSON-LD Structured Data for SEO */}
-      <ProductJsonLd product={product} locale={locale} />
+      <ProductJsonLd product={product} shopifyProduct={shopifyProduct} locale={locale} />
       <BreadcrumbJsonLd items={breadcrumbs} locale={locale} />
 
       <div>

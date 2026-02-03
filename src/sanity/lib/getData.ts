@@ -11,6 +11,14 @@ export {
   getProductsByPath3Level,
   getProductsByIds,
   getRelatedProducts,
+  // Paginated variants for PLP
+  getProductsByGenderPaginated,
+  getProductsByBrandPaginated,
+  getProductsByPathPaginated,
+  getProductsBySubcategoryPaginated,
+  getProductsByPath3LevelPaginated,
+  type PLPPagination,
+  type PaginatedPLPResult,
 } from "./getProducts";
 
 export {
@@ -28,10 +36,11 @@ export {
   getAllCollections,
   getCollectionInfo,
   getCollectionProducts,
+  getCollectionProductsPaginated,
   getProductsByCollectionId,
 } from "./getCollections";
 
-export { getBlogPosts, getBlogPost } from "./getBlog";
+export { getBlogPosts, getBlogPostsForMenu, getBlogPost } from "./getBlog";
 
 export { getHomepage } from "./getHomepage";
 
