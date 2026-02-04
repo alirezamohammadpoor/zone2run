@@ -98,6 +98,25 @@ const ProductCardGallery = memo(function ProductCardGallery({
 
       {/* Mobile: CSS scroll-snap carousel (hidden on desktop) */}
       <div className="xl:hidden w-full h-full">
+        {/* SSR placeholder for priority cards — lets browser discover LCP image in initial HTML.
+            Decorative (alt="") for parity with desktop path; aria-hidden avoids
+            duplicate SR announcement once MobileCarousel hydrates on top.
+            pointer-events-none so it doesn't block swipe before hydration. */}
+        {priority && mainImage?.url && (
+          <Image
+            src={mainImage.url}
+            alt=""
+            fill
+            sizes={sizes}
+            className="object-cover pointer-events-none"
+            priority
+            loading="eager"
+            fetchPriority="high"
+            draggable={false}
+            aria-hidden="true"
+            {...getBlurProps(mainImage)}
+          />
+        )}
         <MobileCarousel
           images={images}
           sizes={sizes}
