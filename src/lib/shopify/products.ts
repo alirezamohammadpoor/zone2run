@@ -66,19 +66,14 @@ interface ProductByHandleResponse {
   productByHandle: ShopifyProductNode | null;
 }
 
-interface ProductsByCollectionResponse {
-  collectionByHandle: {
-    products: { edges: Array<{ node: ShopifyProductNode }> };
-  } | null;
-}
-
 interface AllProductHandlesResponse {
   products: { edges: Array<{ node: { handle: string; title: string } }> };
 }
 
 // GraphQL queries
 export const GET_PRODUCT_BY_HANDLE = `
-  query getProductByHandle($handle: String!) {
+  query getProductByHandle($handle: String!, $country: CountryCode)
+  @inContext(country: $country) {
     productByHandle(handle: $handle) {
       id
       title
@@ -168,34 +163,6 @@ export const GET_PRODUCT_BY_HANDLE = `
       createdAt
       updatedAt
       publishedAt
-    }
-  }
-`;
-
-export const GET_PRODUCTS_BY_COLLECTION = `
-  query getProductsByCollection($handle: String!, $first: Int!) {
-    collectionByHandle(handle: $handle) {
-      products(first: $first) {
-        edges {
-          node {
-            id
-            title
-            handle
-            availableForSale
-            priceRange {
-              minVariantPrice {
-                amount
-                currencyCode
-              }
-            }
-            featuredImage {
-              url
-              altText
-            }
-            tags
-          }
-        }
-      }
     }
   }
 `;
@@ -315,13 +282,14 @@ const transformShopifyProduct = (product: ShopifyProductNode): ShopifyProduct =>
 
 // Main functions
 export async function getShopifyProductByHandle(
-  handle: string
+  handle: string,
+  country?: string,
 ): Promise<ShopifyProduct | null> {
   const start = performance.now();
   try {
     const { productByHandle } = (await shopifyClient.request(
       GET_PRODUCT_BY_HANDLE,
-      { handle }
+      { handle, country: country || undefined }
     )) as ProductByHandleResponse;
     const duration = performance.now() - start;
     console.log(`⚡ Shopify fetch [${handle}]: ${duration.toFixed(0)}ms`);
@@ -330,24 +298,6 @@ export async function getShopifyProductByHandle(
     const duration = performance.now() - start;
     console.error(`❌ Shopify fetch failed [${handle}]: ${duration.toFixed(0)}ms`, error);
     return null;
-  }
-}
-
-export async function getShopifyProductsByCollection(
-  collectionHandle: string,
-  first: number = 20
-): Promise<ShopifyProduct[]> {
-  try {
-    const response = (await shopifyClient.request(GET_PRODUCTS_BY_COLLECTION, {
-      handle: collectionHandle,
-      first,
-    })) as ProductsByCollectionResponse;
-
-    const products = response.collectionByHandle?.products?.edges || [];
-    return products.map(({ node }) => transformShopifyProduct(node));
-  } catch (error) {
-    console.error("Error fetching Shopify products by collection:", error);
-    return [];
   }
 }
 

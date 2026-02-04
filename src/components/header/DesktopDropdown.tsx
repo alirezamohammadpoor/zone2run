@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import LocaleLink from "@/components/LocaleLink";
 import DropdownContent from "./DropdownContent";
 import type {
   BrandMenuItem,
@@ -63,14 +63,14 @@ export default function DesktopDropdown({
                 {link.label}
               </a>
             ) : (
-              <Link
+              <LocaleLink
                 key={link._key || index}
                 href={link.url}
                 onClick={onClose}
                 className="block text-xs hover:text-gray-500"
               >
                 {link.label}
-              </Link>
+              </LocaleLink>
             )
           )}
         </div>
@@ -85,25 +85,25 @@ export default function DesktopDropdown({
         <div>
           <h3 className="text-xs mb-4">Editorials</h3>
           <div className="space-y-2">
-            <Link
+            <LocaleLink
               href="/blog"
               onClick={onClose}
               className="block text-xs hover:text-gray-500 py-1 text-left"
             >
               View All Editorials
-            </Link>
+            </LocaleLink>
             {blogPosts?.map((post) => {
               if (!post?.slug?.current) return null;
               const postUrl = `/blog/${post.category?.slug?.current || "editorial"}/${post.slug.current}`;
               return (
-                <Link
+                <LocaleLink
                   key={post._id}
                   href={postUrl}
                   onClick={onClose}
                   className="block text-xs hover:text-gray-500 py-1 text-left"
                 >
                   {post.title}
-                </Link>
+                </LocaleLink>
               );
             })}
           </div>
@@ -117,7 +117,7 @@ export default function DesktopDropdown({
               if (!post?.slug?.current) return null;
               const postUrl = `/blog/${post.category?.slug?.current || "editorial"}/${post.slug.current}`;
               return (
-                <Link
+                <LocaleLink
                   key={post._id}
                   href={postUrl}
                   className="group"
@@ -147,7 +147,7 @@ export default function DesktopDropdown({
                   <p className="text-xs mt-2 group-hover:underline">
                     {post.title}
                   </p>
-                </Link>
+                </LocaleLink>
               );
             })}
           </div>

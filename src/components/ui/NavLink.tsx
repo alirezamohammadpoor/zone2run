@@ -1,4 +1,4 @@
-import Link from "next/link";
+import LocaleLink from "@/components/LocaleLink";
 
 interface NavLinkProps {
   href: string;
@@ -41,13 +41,13 @@ export function NavLink({
 
   // Internal link
   return (
-    <Link
+    <LocaleLink
       href={href}
       onClick={onClick}
       prefetch={prefetch}
       className={combinedStyles}
     >
       {children}
-    </Link>
+    </LocaleLink>
   );
 }

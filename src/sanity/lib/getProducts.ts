@@ -9,23 +9,8 @@ import {
   buildLimitClause,
   mapGenderValue,
 } from "./groqUtils";
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-/** Raw PLP shape before sizes deduplication */
-interface RawPLPProduct extends Omit<PLPProduct, "sizes"> {
-  sizes?: (string | null)[];
-}
-
-/** Deduplicate sizes from raw GROQ option1 values */
-function deduplicateSizes(products: RawPLPProduct[]): PLPProduct[] {
-  return products.map((p) => ({
-    ...p,
-    sizes: [...new Set((p.sizes ?? []).filter(Boolean))] as string[],
-  }));
-}
+import { enrichWithLocalePrices } from "@/lib/locale/enrichPrices";
+import { deduplicateSizes, type RawProductWithSizes } from "./deduplicateSizes";
 
 // ---------------------------------------------------------------------------
 // PDP — Full product detail
@@ -70,14 +55,17 @@ export async function getSanityProductByHandle(
 // PLP — Lean listing data (for category, gender, brand pages)
 // ---------------------------------------------------------------------------
 
-export async function getAllProducts(): Promise<PLPProduct[]> {
+export async function getAllProducts(
+  country?: string,
+): Promise<PLPProduct[]> {
   const query = `*[_type == "product"] {
     ${PLP_PRODUCT_PROJECTION}
   }`;
 
   try {
-    const raw = await sanityFetch<RawPLPProduct[]>(query);
-    return deduplicateSizes(raw);
+    const raw = await sanityFetch<RawProductWithSizes[]>(query);
+    const products = deduplicateSizes(raw);
+    return country ? enrichWithLocalePrices(products, country) : products;
   } catch (error) {
     console.error("Error fetching all products:", error);
     return [];
@@ -88,6 +76,7 @@ export async function getProductsByBrand(
   brandSlug: string,
   limit?: number,
   gender?: string,
+  country?: string,
 ): Promise<PLPProduct[]> {
   const dbGender = gender ? mapGenderValue(gender) : null;
 
@@ -103,8 +92,9 @@ export async function getProductsByBrand(
 
   try {
     const params = dbGender ? { brandSlug, dbGender } : { brandSlug };
-    const raw = await sanityFetch<RawPLPProduct[]>(query, params);
-    return deduplicateSizes(raw);
+    const raw = await sanityFetch<RawProductWithSizes[]>(query, params);
+    const products = deduplicateSizes(raw);
+    return country ? enrichWithLocalePrices(products, country) : products;
   } catch (error) {
     console.error(`Error fetching products for brand ${brandSlug}:`, error);
     return [];
@@ -114,6 +104,7 @@ export async function getProductsByBrand(
 export async function getProductsByGender(
   gender: string,
   limit?: number,
+  country?: string,
 ): Promise<PLPProduct[]> {
   const dbGender = mapGenderValue(gender);
 
@@ -122,10 +113,11 @@ export async function getProductsByGender(
   } | order(_createdAt desc)${buildLimitClause(limit)}`;
 
   try {
-    const raw = await sanityFetch<RawPLPProduct[]>(query, {
+    const raw = await sanityFetch<RawProductWithSizes[]>(query, {
       gender: dbGender,
     });
-    return deduplicateSizes(raw);
+    const products = deduplicateSizes(raw);
+    return country ? enrichWithLocalePrices(products, country) : products;
   } catch (error) {
     console.error(`Error fetching products for gender ${gender}:`, error);
     return [];
@@ -137,6 +129,7 @@ export async function getProductsByPath(
   categoryType: string,
   categorySlug: string,
   limit?: number,
+  country?: string,
 ): Promise<PLPProduct[]> {
   const dbGender = mapGenderValue(gender);
 
@@ -166,12 +159,13 @@ export async function getProductsByPath(
   } | order(_createdAt desc)${buildLimitClause(limit)}`;
 
   try {
-    const raw = await sanityFetch<RawPLPProduct[]>(query, {
+    const raw = await sanityFetch<RawProductWithSizes[]>(query, {
       gender: dbGender,
       categoryType,
       categorySlug,
     });
-    return deduplicateSizes(raw);
+    const products = deduplicateSizes(raw);
+    return country ? enrichWithLocalePrices(products, country) : products;
   } catch (error) {
     console.error(
       `Error fetching products for path ${gender}/${categoryType}/${categorySlug}:`,
@@ -186,6 +180,7 @@ export async function getProductsBySubcategoryIncludingSubSubcategories(
   mainCategorySlug: string,
   subcategorySlug: string,
   limit?: number,
+  country?: string,
 ): Promise<PLPProduct[]> {
   const dbGender = mapGenderValue(gender);
 
@@ -205,12 +200,13 @@ export async function getProductsBySubcategoryIncludingSubSubcategories(
   } | order(_createdAt desc)${buildLimitClause(limit)}`;
 
   try {
-    const raw = await sanityFetch<RawPLPProduct[]>(query, {
+    const raw = await sanityFetch<RawProductWithSizes[]>(query, {
       gender: dbGender,
       mainCategorySlug,
       subcategorySlug,
     });
-    return deduplicateSizes(raw);
+    const products = deduplicateSizes(raw);
+    return country ? enrichWithLocalePrices(products, country) : products;
   } catch (error) {
     console.error(
       `Error fetching products for subcategory ${subcategorySlug}:`,
@@ -226,6 +222,7 @@ export async function getProductsByPath3Level(
   subcategorySlug: string,
   subsubcategorySlug: string,
   limit?: number,
+  country?: string,
 ): Promise<PLPProduct[]> {
   const dbGender = mapGenderValue(gender);
 
@@ -240,13 +237,14 @@ export async function getProductsByPath3Level(
   } | order(_createdAt desc)${buildLimitClause(limit)}`;
 
   try {
-    const raw = await sanityFetch<RawPLPProduct[]>(query, {
+    const raw = await sanityFetch<RawProductWithSizes[]>(query, {
       gender: dbGender,
       mainCategorySlug,
       subcategorySlug,
       subsubcategorySlug,
     });
-    return deduplicateSizes(raw);
+    const products = deduplicateSizes(raw);
+    return country ? enrichWithLocalePrices(products, country) : products;
   } catch (error) {
     console.error(
       `Error fetching products for 3-level path ${gender}/${mainCategorySlug}/${subcategorySlug}/${subsubcategorySlug}:`,
@@ -262,6 +260,7 @@ export async function getProductsByPath3Level(
 
 export async function getProductsByIds(
   productIds: string[],
+  country?: string,
 ): Promise<CardProduct[]> {
   if (productIds.length === 0) return [];
 
@@ -270,7 +269,8 @@ export async function getProductsByIds(
   }`;
 
   try {
-    return await sanityFetch<CardProduct[]>(query, { productIds });
+    const products = await sanityFetch<CardProduct[]>(query, { productIds });
+    return country ? enrichWithLocalePrices(products, country) : products;
   } catch (error) {
     console.error("Error fetching products by IDs:", error);
     return [];
@@ -285,13 +285,15 @@ export async function getRelatedProducts(
   brandSlug: string,
   excludeId: string,
   limit: number = 12,
+  country?: string,
 ): Promise<CardProduct[]> {
   const query = `*[_type == "product" && brand->slug.current == $brandSlug && _id != $excludeId] {
     ${CARD_PRODUCT_PROJECTION}
   } | order(_createdAt desc)[0...${limit}]`;
 
   try {
-    return await sanityFetch<CardProduct[]>(query, { brandSlug, excludeId });
+    const products = await sanityFetch<CardProduct[]>(query, { brandSlug, excludeId });
+    return country ? enrichWithLocalePrices(products, country) : products;
   } catch (error) {
     console.error(`Error fetching related products for brand ${brandSlug}:`, error);
     return [];

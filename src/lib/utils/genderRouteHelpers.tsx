@@ -16,10 +16,11 @@ const apiGender = (g: GenderUrl): GenderApi =>
 
 // ─── Gender landing (/mens, /womens) ────────────────────────────────────────
 
-export const genderMetadata = (g: GenderUrl) => buildCategoryMetadata(g);
+export const genderMetadata = (locale: string, g: GenderUrl) =>
+  buildCategoryMetadata(locale, g);
 
-export async function GenderPage({ gender }: { gender: GenderUrl }) {
-  const products = await getProductsByGender(apiGender(gender));
+export async function GenderPage({ gender, country }: { gender: GenderUrl; country: string }) {
+  const products = await getProductsByGender(apiGender(gender), undefined, country);
   if (!products?.length) notFound();
 
   return (
@@ -34,22 +35,24 @@ export async function GenderPage({ gender }: { gender: GenderUrl }) {
 
 // ─── Main category (/mens/clothing, /womens/footwear) ───────────────────────
 
-export const mainCategoryMetadata = (g: GenderUrl, main: string) =>
-  buildCategoryMetadata(g, main);
+export const mainCategoryMetadata = (locale: string, g: GenderUrl, main: string) =>
+  buildCategoryMetadata(locale, g, main);
 
 export async function MainCategoryPage({
   gender,
   mainCategory,
+  country,
 }: {
   gender: GenderUrl;
   mainCategory: string;
+  country: string;
 }) {
   const g = apiGender(gender);
 
   // Fetch both in parallel — main category first, fallback to subcategory
   const [mainProducts, subProducts] = await Promise.all([
-    getProductsByPath(g, "main", mainCategory),
-    getProductsByPath(g, "subcategory", mainCategory),
+    getProductsByPath(g, "main", mainCategory, undefined, country),
+    getProductsByPath(g, "subcategory", mainCategory, undefined, country),
   ]);
   const products = mainProducts?.length ? mainProducts : subProducts;
   if (!products?.length) notFound();
@@ -67,24 +70,29 @@ export async function MainCategoryPage({
 // ─── Subcategory (/mens/clothing/tops) ──────────────────────────────────────
 
 export const subcategoryMetadata = (
+  locale: string,
   g: GenderUrl,
   main: string,
   sub: string,
-) => buildCategoryMetadata(g, main, sub);
+) => buildCategoryMetadata(locale, g, main, sub);
 
 export async function SubcategoryPage({
   gender,
   mainCategory,
   subcategory,
+  country,
 }: {
   gender: GenderUrl;
   mainCategory: string;
   subcategory: string;
+  country: string;
 }) {
   const products = await getProductsBySubcategoryIncludingSubSubcategories(
     apiGender(gender),
     mainCategory,
     subcategory,
+    undefined,
+    country,
   );
   if (!products?.length) notFound();
 
@@ -104,28 +112,33 @@ export async function SubcategoryPage({
 // ─── Specific category (/mens/clothing/tops/t-shirts) ───────────────────────
 
 export const specificCategoryMetadata = (
+  locale: string,
   g: GenderUrl,
   main: string,
   sub: string,
   spec: string,
-) => buildCategoryMetadata(g, main, sub, spec);
+) => buildCategoryMetadata(locale, g, main, sub, spec);
 
 export async function SpecificCategoryPage({
   gender,
   mainCategory,
   subcategory,
   specificCategory,
+  country,
 }: {
   gender: GenderUrl;
   mainCategory: string;
   subcategory: string;
   specificCategory: string;
+  country: string;
 }) {
   // Fetch parent subcategory so sibling categories appear in filter modal
   const products = await getProductsBySubcategoryIncludingSubSubcategories(
     apiGender(gender),
     mainCategory,
     subcategory,
+    undefined,
+    country,
   );
   if (!products?.length) notFound();
 

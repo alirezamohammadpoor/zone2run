@@ -1,6 +1,6 @@
 import { type HeroModule } from "../../../sanity.types";
 import Image from "next/image";
-import Link from "next/link";
+import LocaleLink from "@/components/LocaleLink";
 import { urlFor } from "@/sanity/lib/image";
 import { getBlurProps } from "@/lib/utils/imageProps";
 
@@ -86,7 +86,7 @@ function HeroModule({ heroModule }: { heroModule: HeroModule }) {
             {heroModule.heroSubparagraph}
           </p>
           <div className="flex items-center">
-            <Link
+            <LocaleLink
               href={heroModule.buttonLink || "/"}
               prefetch={true}
               className={`${
@@ -109,7 +109,7 @@ function HeroModule({ heroModule }: { heroModule: HeroModule }) {
                   fill="currentColor"
                 />
               </svg>
-            </Link>
+            </LocaleLink>
           </div>
         </div>
       </div>

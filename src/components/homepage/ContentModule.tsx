@@ -1,6 +1,6 @@
 import { type PortableTextModule } from "../../../sanity.types";
 import PortableTextRenderer from "@/components/PortableTextRenderer";
-import Link from "next/link";
+import LocaleLink from "@/components/LocaleLink";
 import Image from "next/image";
 import ProductGrid from "@/components/ProductGrid";
 import ProductCarousel from "@/components/ProductCarousel";
@@ -145,12 +145,12 @@ function ContentModuleComponent({
             </h2>
           )}
           {contentModule.featuredButtonText && (
-            <Link
+            <LocaleLink
               href={contentModule.featuredButtonLink || "/products"}
               className="text-black text-xs hover:underline cursor-pointer"
             >
               {contentModule.featuredButtonText}
-            </Link>
+            </LocaleLink>
           )}
         </div>
       );
@@ -228,7 +228,7 @@ function ContentModuleComponent({
           />
         )}
         {contentModule.link && (
-          <Link
+          <LocaleLink
             href={contentModule.link}
             className="text-xs mt-2 flex items-center cursor-pointer underline"
             rel="noopener noreferrer"
@@ -247,7 +247,7 @@ function ContentModuleComponent({
                 fill="currentColor"
               />
             </svg>
-          </Link>
+          </LocaleLink>
         )}
         {contentModule.source && (
           <p className="text-xs text-gray-500 mt-2">{contentModule.source}</p>

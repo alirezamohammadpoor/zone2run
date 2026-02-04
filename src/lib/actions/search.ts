@@ -3,6 +3,7 @@
 import { sanityFetch } from "@/sanity/lib/client";
 import { buildPaginationSlice, SEARCH_PAGE_SIZE } from "@/sanity/lib/groqUtils";
 import type { SanityProduct } from "@/types/sanityProduct";
+import { enrichWithLocalePrices } from "@/lib/locale/enrichPrices";
 
 export interface SearchBrand {
   _id: string;
@@ -28,11 +29,12 @@ export interface SanitySearchResult {
 export type SearchProduct = Pick<
   SanityProduct,
   "_id" | "title" | "handle" | "images" | "priceRange" | "brand" | "vendor"
->;
+> & { shopifyId?: string };
 
 // Shared projection for search results - combined images array for ProductCard
 const SEARCH_PROJECTION = `{
   _id,
+  "shopifyId": store.gid,
   "title": coalesce(title, store.title),
   "handle": coalesce(shopifyHandle, store.slug.current),
   "vendor": store.vendor,
@@ -47,7 +49,8 @@ const SEARCH_PROJECTION = `{
   }, []),
   "priceRange": {
     "minVariantPrice": store.priceRange.minVariantPrice,
-    "maxVariantPrice": store.priceRange.maxVariantPrice
+    "maxVariantPrice": store.priceRange.maxVariantPrice,
+    "currencyCode": store.priceRange.currencyCode
   },
   "brand": brand-> { _id, name, "slug": slug.current }
 }`;
@@ -103,11 +106,13 @@ count(*[_type == "product" && (
  * Initial search — fetches page 1 products, brands, collections, and total count.
  */
 export async function searchProducts(
-  query: string
+  query: string,
+  country?: string,
 ): Promise<SanitySearchResult> {
   // Empty query → return new arrivals only
   if (!query || query.length < 2) {
-    const products = await sanityFetch<SearchProduct[]>(NEW_ARRIVALS);
+    let products = await sanityFetch<SearchProduct[]>(NEW_ARRIVALS);
+    if (country) products = await enrichWithLocalePrices(products, country);
     return {
       products,
       brands: [],
@@ -121,7 +126,7 @@ export async function searchProducts(
   const searchPattern = `${query}*`;
 
   // Parallel fetch for performance (includes count query)
-  const [products, brands, collections, totalCount] = await Promise.all([
+  let [products, brands, collections, totalCount] = await Promise.all([
     sanityFetch<SearchProduct[]>(buildSearchProductsQuery(1), {
       searchTerm: query,
       searchPattern,
@@ -133,6 +138,8 @@ export async function searchProducts(
       searchPattern,
     }),
   ]);
+
+  if (country) products = await enrichWithLocalePrices(products, country);
 
   return {
     products,
@@ -149,14 +156,17 @@ export async function searchProducts(
  */
 export async function searchProductsPage(
   query: string,
-  page: number
+  page: number,
+  country?: string,
 ): Promise<SearchProduct[]> {
   if (!query || query.length < 2 || page < 1) return [];
 
   const searchPattern = `${query}*`;
 
-  return sanityFetch<SearchProduct[]>(buildSearchProductsQuery(page), {
+  const products = await sanityFetch<SearchProduct[]>(buildSearchProductsQuery(page), {
     searchTerm: query,
     searchPattern,
   });
+
+  return country ? enrichWithLocalePrices(products, country) : products;
 }

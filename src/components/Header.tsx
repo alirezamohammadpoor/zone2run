@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import LocaleLink from "@/components/LocaleLink";
+import CountrySwitcher from "@/components/CountrySwitcher";
 import dynamic from "next/dynamic";
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
 import { useCartStore } from "@/lib/cart/store";
@@ -115,12 +116,13 @@ function Header({
         </div>
 
         <div className="absolute left-1/2 transform -translate-x-1/2">
-          <Link href="/" prefetch={true} className="text-sm cursor-pointer">
+          <LocaleLink href="/" prefetch={true} className="text-sm cursor-pointer">
             Zone 2
-          </Link>
+          </LocaleLink>
         </div>
 
         <div className="flex items-center gap-2 px-2">
+          <CountrySwitcher />
           <button
             onClick={() => {
               lockScroll();

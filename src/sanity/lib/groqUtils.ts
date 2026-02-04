@@ -139,12 +139,14 @@ featured,
  */
 export const PLP_PRODUCT_PROJECTION = `
 _id,
+"shopifyId": store.gid,
 "title": coalesce(title, store.title),
 "handle": coalesce(shopifyHandle, store.slug.current),
 "vendor": store.vendor,
 "priceRange": {
   "minVariantPrice": store.priceRange.minVariantPrice,
-  "maxVariantPrice": store.priceRange.maxVariantPrice
+  "maxVariantPrice": store.priceRange.maxVariantPrice,
+  "currencyCode": store.priceRange.currencyCode
 },
 "images": [{
   "url": coalesce(mainImage.asset->url, store.previewImageUrl),
@@ -174,11 +176,13 @@ gender,
  */
 export const CARD_PRODUCT_PROJECTION = `
 _id,
+"shopifyId": store.gid,
 "title": coalesce(title, store.title),
 "handle": coalesce(shopifyHandle, store.slug.current),
 "vendor": store.vendor,
 "priceRange": {
   "minVariantPrice": store.priceRange.minVariantPrice,
+  "maxVariantPrice": store.priceRange.maxVariantPrice,
   "currencyCode": store.priceRange.currencyCode
 },
 "images": [{
@@ -247,12 +251,14 @@ export const MENU_IMAGE_PROJECTION = `menuImage {
  */
 export const COLLECTION_PRODUCT_PROJECTION = `{
   _id,
+  "shopifyId": store.gid,
   "title": coalesce(title, store.title),
   "handle": coalesce(shopifyHandle, store.slug.current),
   "vendor": store.vendor,
   "priceRange": {
     "minVariantPrice": store.priceRange.minVariantPrice,
-    "maxVariantPrice": store.priceRange.maxVariantPrice
+    "maxVariantPrice": store.priceRange.maxVariantPrice,
+    "currencyCode": store.priceRange.currencyCode
   },
   "images": [{
     "url": store.previewImageUrl,

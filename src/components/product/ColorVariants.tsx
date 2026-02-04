@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import Link from "next/link";
+import LocaleLink from "@/components/LocaleLink";
 import Image from "next/image";
 import type { SanityProduct } from "@/types/sanityProduct";
 
@@ -39,7 +39,7 @@ export default function ColorVariants({
       <h3 className="mb-2 text-sm font-medium">Available Colors</h3>
       <div className="flex gap-2 flex-wrap">
         {otherVariants.map((variant) => (
-          <Link
+          <LocaleLink
             key={variant._id}
             href={`/products/${variant.handle}`}
             className="relative w-16 h-16 border border-gray-300 hover:border-black transition-colors"
@@ -51,7 +51,7 @@ export default function ColorVariants({
               className="object-cover"
               sizes="64px"
             />
-          </Link>
+          </LocaleLink>
         ))}
       </div>
     </div>

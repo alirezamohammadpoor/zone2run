@@ -1,7 +1,17 @@
 import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
+import { SUPPORTED_LOCALES } from "@/lib/locale/localeUtils";
 
 const REVALIDATE_SECRET = process.env.SANITY_REVALIDATE_SECRET;
+
+/** Revalidate a path for ALL supported locales (e.g. "/mens" → "/en-se/mens", "/en-dk/mens", ...) */
+function revalidateForAllLocales(path: string, revalidated: string[]) {
+  for (const locale of SUPPORTED_LOCALES) {
+    const localePath = `/${locale}${path}`;
+    revalidatePath(localePath);
+    revalidated.push(localePath);
+  }
+}
 
 export async function POST(request: NextRequest) {
   const secret = request.nextUrl.searchParams.get("secret");
@@ -18,19 +28,16 @@ export async function POST(request: NextRequest) {
     if (body._type === "product") {
       const handle = body.handle;
       if (handle) {
-        revalidatePath(`/products/${handle}`);
-        revalidated.push(`/products/${handle}`);
+        revalidateForAllLocales(`/products/${handle}`, revalidated);
       }
       // Revalidate listing pages (product added/removed affects these)
       if (body.gender) {
-        revalidatePath(`/${body.gender}`);
-        revalidated.push(`/${body.gender}`);
+        revalidateForAllLocales(`/${body.gender}`, revalidated);
       }
       // Handle both {slug: "value"} and {slug: {current: "value"}} formats
       const brandSlug = body.brand?.slug?.current || body.brand?.slug;
       if (brandSlug && typeof brandSlug === "string") {
-        revalidatePath(`/brands/${brandSlug}`);
-        revalidated.push(`/brands/${brandSlug}`);
+        revalidateForAllLocales(`/brands/${brandSlug}`, revalidated);
       }
     }
 
@@ -38,8 +45,7 @@ export async function POST(request: NextRequest) {
     if (body._type === "collection") {
       const slug = body.slug;
       if (slug) {
-        revalidatePath(`/collections/${slug}`);
-        revalidated.push(`/collections/${slug}`);
+        revalidateForAllLocales(`/collections/${slug}`, revalidated);
       }
     }
 
@@ -48,24 +54,21 @@ export async function POST(request: NextRequest) {
       const slug = body.slug;
       const category = body.category?.slug;
       if (slug && category) {
-        revalidatePath(`/blog/${category}/${slug}`);
-        revalidatePath(`/blog`);
-        revalidated.push(`/blog/${category}/${slug}`, `/blog`);
+        revalidateForAllLocales(`/blog/${category}/${slug}`, revalidated);
+        revalidateForAllLocales(`/blog`, revalidated);
       }
     }
 
     // Homepage changes
     if (body._type === "homepageVersion" || body._type === "siteSettings") {
-      revalidatePath(`/`);
-      revalidated.push(`/`);
+      revalidateForAllLocales(``, revalidated);
     }
 
     // Brand changes
     if (body._type === "brand") {
       const slug = body.slug;
       if (slug) {
-        revalidatePath(`/brands/${slug}`);
-        revalidated.push(`/brands/${slug}`);
+        revalidateForAllLocales(`/brands/${slug}`, revalidated);
       }
     }
 

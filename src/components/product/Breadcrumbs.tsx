@@ -1,4 +1,4 @@
-import Link from "next/link";
+import LocaleLink from "@/components/LocaleLink";
 import type { SanityProduct } from "@/types/sanityProduct";
 
 interface BreadcrumbItem {
@@ -99,12 +99,12 @@ export default function Breadcrumbs({ product }: BreadcrumbsProps) {
                   {crumb.label}
                 </span>
               ) : (
-                <Link
+                <LocaleLink
                   href={crumb.href}
                   className="hover:text-gray-700 hover:underline py-3 md:py-1"
                 >
                   {crumb.label}
-                </Link>
+                </LocaleLink>
               )}
             </li>
           );
@@ -134,9 +134,9 @@ export function PLPBreadcrumbs({ segments }: PLPBreadcrumbsProps) {
             {index === segments.length - 1 ? (
               segment.label
             ) : (
-              <Link href={segment.href} className="hover:underline">
+              <LocaleLink href={segment.href} className="hover:underline">
                 {segment.label}
-              </Link>
+              </LocaleLink>
             )}
           </span>
         ))}

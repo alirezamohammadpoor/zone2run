@@ -2,7 +2,7 @@
 
 import { useState, useCallback, memo } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import LocaleLink from "@/components/LocaleLink";
 import { getBrandUrl } from "@/lib/utils/brandUrls";
 import type {
   BrandMenuItem,
@@ -62,7 +62,7 @@ const DropdownContent = memo(function DropdownContent({
         {/* Main Categories as separate columns */}
         {sortedCategories.map(([category, subcategories]) => (
           <div key={category}>
-            <Link
+            <LocaleLink
               href={`/${genderPath}/${category}`}
               onClick={onClose}
               prefetch={true}
@@ -70,7 +70,7 @@ const DropdownContent = memo(function DropdownContent({
               aria-label={`View all ${category}`}
             >
               {category}
-            </Link>
+            </LocaleLink>
             <div className="space-y-1">
               {(subcategories as SubcategoryMenuItem[]).map((subcategory) => {
                 const subSubcats = subcategory.subSubcategories || [];
@@ -121,26 +121,26 @@ const DropdownContent = memo(function DropdownContent({
                         >
                           {subSubcats.map(
                             (subSubcat: SubSubcategoryMenuItem) => (
-                              <Link
+                              <LocaleLink
                                 key={subSubcat._id}
                                 href={`/${genderPath}/${category}/${subcategory.slug.current}/${subSubcat.slug.current}`}
                                 onClick={onClose}
                                 className="block text-xs text-black hover:text-gray-500 py-0.5"
                               >
                                 {subSubcat.title}
-                              </Link>
+                              </LocaleLink>
                             )
                           )}
                         </div>
                       </>
                     ) : (
-                      <Link
+                      <LocaleLink
                         href={`/${genderPath}/${category}/${subcategory.slug.current}`}
                         onClick={onClose}
                         className="block text-xs text-black hover:text-gray-500 py-0.5"
                       >
                         {subcategory.title}
-                      </Link>
+                      </LocaleLink>
                     )}
                   </div>
                 );
@@ -156,14 +156,14 @@ const DropdownContent = memo(function DropdownContent({
             {brands?.map((brand) => {
               if (!brand?.slug?.current) return null;
               return (
-                <Link
+                <LocaleLink
                   key={brand._id || brand.slug.current}
                   href={`${getBrandUrl(brand.slug.current)}?gender=${genderPath}`}
                   onClick={onClose}
                   className="block text-xs text-black hover:text-gray-500 py-0.5"
                 >
                   {brand.name}
-                </Link>
+                </LocaleLink>
               );
             })}
           </div>
@@ -177,7 +177,7 @@ const DropdownContent = memo(function DropdownContent({
           {featuredCollections?.slice(0, 4).map((collection) => {
             if (!collection?.slug?.current) return null;
             return (
-              <Link
+              <LocaleLink
                 key={collection._id || collection.slug.current}
                 href={`/collections/${collection.slug.current}`}
                 className="group"
@@ -207,7 +207,7 @@ const DropdownContent = memo(function DropdownContent({
                 <p className="text-xs mt-2 group-hover:underline">
                   {collection.title}
                 </p>
-              </Link>
+              </LocaleLink>
             );
           })}
         </div>

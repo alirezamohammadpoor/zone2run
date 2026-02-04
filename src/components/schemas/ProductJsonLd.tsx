@@ -3,13 +3,14 @@ import type { ProductSchema, AggregateOfferSchema, AvailabilityType } from "./ty
 
 interface ProductJsonLdProps {
   product: SanityProduct;
+  locale: string;
 }
 
 /**
  * Generates JSON-LD structured data for product pages.
  * This helps Google display rich snippets with price, availability, and ratings.
  */
-export default function ProductJsonLd({ product }: ProductJsonLdProps) {
+export default function ProductJsonLd({ product, locale }: ProductJsonLdProps) {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://zone2run-build.vercel.app";
 
   // Strip HTML tags from description
@@ -37,7 +38,7 @@ export default function ProductJsonLd({ product }: ProductJsonLdProps) {
     priceCurrency: product.priceRange.currencyCode || "SEK",
     availability,
     offerCount: product.variants?.length || 1,
-    url: `${baseUrl}/products/${product.handle}`,
+    url: `${baseUrl}/${locale}/products/${product.handle}`,
   };
 
   // Build the complete schema

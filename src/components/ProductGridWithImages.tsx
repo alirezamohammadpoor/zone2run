@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import LocaleLink from "@/components/LocaleLink";
 import ProductCard from "./ProductCard";
 import ProductGrid from "./ProductGrid";
 import { urlFor } from "@/sanity/lib/image";
@@ -96,7 +96,7 @@ function ProductItem({
   sizes?: string;
 }) {
   return (
-    <Link
+    <LocaleLink
       key={`${product._id}-${product.handle}-${idx}`}
       href={`/products/${product.handle}`}
     >
@@ -105,7 +105,7 @@ function ProductItem({
         sizes={sizes}
         availableSizes={product.sizes}
       />
-    </Link>
+    </LocaleLink>
   );
 }
 

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import LocaleLink from "@/components/LocaleLink";
 import {
   getFooterSettings,
   type FooterColumn,
@@ -33,9 +33,9 @@ function FooterLink({ link }: { link: FooterLink }) {
   }
 
   return (
-    <Link href={link.url} prefetch={true} className="hover:text-gray-500">
+    <LocaleLink href={link.url} prefetch={true} className="hover:text-gray-500">
       {link.label}
-    </Link>
+    </LocaleLink>
   );
 }
 

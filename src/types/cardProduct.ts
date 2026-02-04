@@ -4,10 +4,11 @@
  */
 export interface CardProduct {
   _id: string;
+  shopifyId?: string;
   handle: string;
   title: string;
   vendor: string;
-  priceRange: { minVariantPrice: number; currencyCode?: string };
+  priceRange: { minVariantPrice: number; maxVariantPrice?: number; currencyCode?: string };
   images?: Array<{ url: string; alt?: string; lqip?: string }>;
   brand?: { name?: string; slug?: string };
   sizes?: string[];
