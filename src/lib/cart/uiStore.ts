@@ -1,5 +1,11 @@
 import { create } from "zustand";
 
+interface CountrySwitchData {
+  newCountry: string;
+  newCurrency: string;
+  prevCountry: string;
+}
+
 interface UIState {
   showAddedToCartModal: boolean;
   lastAddedProduct: {
@@ -11,6 +17,8 @@ interface UIState {
     brand: string;
     currencyCode: string;
   } | null;
+  showCountrySwitchToast: boolean;
+  countrySwitchData: CountrySwitchData | null;
 }
 
 interface UIActions {
@@ -26,6 +34,8 @@ interface UIActions {
     currencyCode: string;
   }) => void;
   hideAddedToCart: () => void;
+  showCountrySwitch: (data: CountrySwitchData) => void;
+  hideCountrySwitch: () => void;
 }
 
 export type UIStore = UIState & UIActions;
@@ -34,6 +44,8 @@ export const useUIStore = create<UIStore>((set) => ({
   // State
   showAddedToCartModal: false,
   lastAddedProduct: null,
+  showCountrySwitchToast: false,
+  countrySwitchData: null,
 
   // Actions
   setShowAddedToCartModal: (show) => set({ showAddedToCartModal: show }),
@@ -51,4 +63,10 @@ export const useUIStore = create<UIStore>((set) => ({
       showAddedToCartModal: false,
       // Don't clear lastAddedProduct immediately - let animation finish
     }),
+
+  showCountrySwitch: (data) =>
+    set({ showCountrySwitchToast: true, countrySwitchData: data }),
+
+  hideCountrySwitch: () =>
+    set({ showCountrySwitchToast: false }),
 }));
