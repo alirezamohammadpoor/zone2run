@@ -33,7 +33,11 @@
       "Bash(gh pr view:*)",
       "Bash(gh pr list:*)",
       "Bash(ln:*)",
-      "WebFetch(domain:www.asket.com)"
+      "WebFetch(domain:www.asket.com)",
+      "Bash(lsof:*)",
+      "Bash(curl:*)",
+      "Bash(tree:*)",
+      "Read(//Users/alirezamohammadpoor/Desktop/repos/zone2run/**)"
     ],
     "deny": [],
     "ask": []
