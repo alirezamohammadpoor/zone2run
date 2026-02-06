@@ -4,6 +4,18 @@
 export const SEARCH_PAGE_SIZE = 28;
 
 /**
+ * Editorial image interface — used by brands, collections, and editorial modules
+ */
+export interface EditorialImage {
+  _key: string;
+  image: {
+    asset: { _id: string; url: string; metadata?: { lqip?: string } };
+    alt?: string;
+  };
+  caption?: string;
+}
+
+/**
  * Builds a pagination slice for GROQ queries (used by search)
  * @param page - 1-indexed page number
  * @param perPage - Number of items per page (default: SEARCH_PAGE_SIZE)
@@ -199,6 +211,41 @@ brand-> {
   "slug": slug.current
 },
 "sizes": store.variants[]->store.option1`;
+
+/**
+ * Blog product projection — used in blog post modules (detail page)
+ * Includes price range and brand slug for linking
+ */
+export const BLOG_PRODUCT_PROJECTION = `product-> {
+  _id,
+  "title": coalesce(title, store.title),
+  "handle": coalesce(shopifyHandle, store.slug.current),
+  brand-> { _id, name, "slug": slug.current },
+  "priceRange": {
+    "minVariantPrice": store.priceRange.minVariantPrice,
+    "maxVariantPrice": store.priceRange.maxVariantPrice
+  },
+  "images": [{
+    "url": coalesce(mainImage.asset->url, store.previewImageUrl),
+    "alt": coalesce(mainImage.alt, store.title),
+    "lqip": mainImage.asset->metadata.lqip
+  }] + coalesce(gallery[] { "url": asset->url, "alt": coalesce(alt, ^.title), "lqip": asset->metadata.lqip }, [])
+}`;
+
+/**
+ * Blog product projection for listings (lighter, no brand slug)
+ */
+export const BLOG_PRODUCT_LISTING_PROJECTION = `product-> {
+  _id,
+  "title": coalesce(title, store.title),
+  "handle": coalesce(shopifyHandle, store.slug.current),
+  brand-> { _id, name },
+  "images": [{
+    "url": coalesce(mainImage.asset->url, store.previewImageUrl),
+    "alt": coalesce(mainImage.alt, store.title),
+    "lqip": mainImage.asset->metadata.lqip
+  }] + coalesce(gallery[] { "url": asset->url, "alt": coalesce(alt, ^.title), "lqip": asset->metadata.lqip }, [])
+}`;
 
 /**
  * Hero image projection fragment (single image for LCP)

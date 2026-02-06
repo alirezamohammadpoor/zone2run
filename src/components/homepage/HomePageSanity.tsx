@@ -34,12 +34,17 @@ async function HomePageSanity({ homepage, country }: { homepage: Home; country?:
   }
 
   // Fetch products for portable text modules that include products
+  // Supports both new values (products-text, products-only) and legacy values in existing Sanity documents
+  const hasProducts = (contentType: string | undefined) =>
+    contentType === "products-text" ||
+    contentType === "products-only" ||
+    // Legacy support for existing Sanity documents
+    contentType === "text-with-products" ||
+    contentType === "media-with-products";
+
   const portableTextModulesWithProducts = homepage.modules?.filter(
     (module): module is { _key: string } & PortableTextModule =>
-      module._type === "portableTextModule" &&
-      (module.contentType === "text-with-products" ||
-        module.contentType === "media-with-products" ||
-        module.contentType === "products-only")
+      module._type === "portableTextModule" && hasProducts(module.contentType)
   ) || [];
 
   const portableTextModulesWithProductsData = await Promise.all(

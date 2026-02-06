@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { formatCurrency } from "@/lib/utils/formatPrice";
 import { DEFAULT_CURRENCY } from "@/lib/locale/countries";
 import ProductCardGallery from "./ProductCardGallery";
@@ -12,7 +13,7 @@ interface ProductCardProps {
   availableSizes?: string[];
 }
 
-export default function ProductCard({
+const ProductCard = memo(function ProductCard({
   product,
   sizes = "(max-width: 1279px) calc(50vw - 12px), calc(25vw - 10px)",
   className = "",
@@ -65,4 +66,6 @@ export default function ProductCard({
       </div>
     </article>
   );
-}
+});
+
+export default ProductCard;
