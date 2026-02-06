@@ -4,20 +4,19 @@ export const portableTextModule = defineType({
   name: "portableTextModule",
   title: "Content Module",
   description:
-    "Unified module for text, media (image/video), and featured products with responsive split layouts",
+    "Unified module for text, media (image/video), and products. Media/products on left, text on right.",
   type: "object",
   fields: [
     defineField({
       name: "contentType",
       title: "Content Type",
-      description: "Choose what to display alongside the text content",
+      description: "Choose what to display",
       type: "string",
       options: {
         list: [
           { title: "Text Only", value: "text-only" },
-          { title: "Text with Media (Image/Video)", value: "text-with-media" },
-          { title: "Text with Products", value: "text-with-products" },
-          { title: "Media with Products", value: "media-with-products" },
+          { title: "Media + Text", value: "media-text" },
+          { title: "Products + Text", value: "products-text" },
           { title: "Products Only", value: "products-only" },
         ],
       },
@@ -29,11 +28,11 @@ export const portableTextModule = defineType({
       title: "Title",
       type: "string",
     }),
+    // Text content (shared across layouts with text)
     defineField({
       name: "content",
       title: "Text Content",
-      description:
-        "Rich text content that can include headings, paragraphs, lists, and links",
+      description: "Rich text content",
       type: "array",
       of: [
         {
@@ -62,11 +61,7 @@ export const portableTextModule = defineType({
                 type: "object",
                 title: "Link",
                 fields: [
-                  {
-                    name: "href",
-                    type: "url",
-                    title: "URL",
-                  },
+                  { name: "href", type: "url", title: "URL" },
                   {
                     name: "target",
                     type: "string",
@@ -87,13 +82,7 @@ export const portableTextModule = defineType({
         {
           type: "image",
           options: { hotspot: true },
-          fields: [
-            {
-              name: "alt",
-              type: "string",
-              title: "Alt Text",
-            },
-          ],
+          fields: [{ name: "alt", type: "string", title: "Alt Text" }],
         },
       ],
       hidden: ({ parent }) => parent?.contentType === "products-only",
@@ -106,26 +95,7 @@ export const portableTextModule = defineType({
           return true;
         }),
     }),
-    // Layout options
-    defineField({
-      name: "layout",
-      title: "Layout",
-      description:
-        "Single column stacks on mobile, split layout creates side-by-side on larger screens",
-      type: "string",
-      options: {
-        list: [
-          { title: "Single Column", value: "single" },
-          { title: "Split Layout", value: "split" },
-          { title: "Full Width Media", value: "full-width" },
-        ],
-      },
-      initialValue: "single",
-      hidden: ({ parent }) =>
-        parent?.contentType === "text-only" ||
-        parent?.contentType === "products-only",
-    }),
-    // Media fields (for text-with-media)
+    // Media fields (for media-text)
     defineField({
       name: "mediaType",
       title: "Media Type",
@@ -137,63 +107,28 @@ export const portableTextModule = defineType({
         ],
       },
       initialValue: "image",
-      hidden: ({ parent }) =>
-        parent?.contentType !== "text-with-media" &&
-        parent?.contentType !== "media-with-products",
+      hidden: ({ parent }) => parent?.contentType !== "media-text",
     }),
     defineField({
       name: "image",
       title: "Image",
       type: "image",
-      options: {
-        hotspot: true,
-      },
-      fields: [
-        {
-          name: "alt",
-          type: "string",
-          title: "Alt Text",
-        },
-      ],
+      options: { hotspot: true },
+      fields: [{ name: "alt", type: "string", title: "Alt Text" }],
       hidden: ({ parent }) =>
-        (parent?.contentType !== "text-with-media" &&
-          parent?.contentType !== "media-with-products") ||
-        parent?.mediaType !== "image",
+        parent?.contentType !== "media-text" || parent?.mediaType !== "image",
     }),
     defineField({
       name: "video",
       title: "Video",
       type: "file",
-      options: {
-        accept: "video/*",
-      },
+      options: { accept: "video/*" },
       hidden: ({ parent }) =>
-        (parent?.contentType !== "text-with-media" &&
-          parent?.contentType !== "media-with-products") ||
-        parent?.mediaType !== "video",
-    }),
-    defineField({
-      name: "mediaPosition",
-      title: "Media Position",
-      description:
-        "Position of media relative to text (only applies to split layout)",
-      type: "string",
-      options: {
-        list: [
-          { title: "Left", value: "left" },
-          { title: "Right", value: "right" },
-        ],
-      },
-      initialValue: "left",
-      hidden: ({ parent }) =>
-        (parent?.contentType !== "text-with-media" &&
-          parent?.contentType !== "media-with-products") ||
-        parent?.layout !== "split",
+        parent?.contentType !== "media-text" || parent?.mediaType !== "video",
     }),
     defineField({
       name: "mediaHeight",
       title: "Media Height",
-      description: "Height of the media element",
       type: "string",
       options: {
         list: [
@@ -206,16 +141,12 @@ export const portableTextModule = defineType({
         ],
       },
       initialValue: "70vh",
-      hidden: ({ parent }) =>
-        parent?.contentType !== "text-with-media" &&
-        parent?.contentType !== "media-with-products",
+      hidden: ({ parent }) => parent?.contentType !== "media-text",
     }),
-    // Products fields (for text-with-products, media-with-products, or products-only)
+    // Products fields (for products-text and products-only)
     defineField({
       name: "productSource",
       title: "Product Source",
-      description:
-        "Choose how to select products - manually or from a collection",
       type: "string",
       options: {
         list: [
@@ -225,70 +156,40 @@ export const portableTextModule = defineType({
       },
       initialValue: "manual",
       hidden: ({ parent }) =>
-        parent?.contentType !== "text-with-products" &&
-        parent?.contentType !== "media-with-products" &&
+        parent?.contentType !== "products-text" &&
         parent?.contentType !== "products-only",
     }),
     defineField({
       name: "collection",
       title: "Collection",
-      description: "Select a collection to display all its products",
       type: "reference",
       to: [{ type: "collection" }],
       hidden: ({ parent }) => {
-        const contentType = parent?.contentType;
-        const productSource = parent?.productSource;
-        // Show only when contentType includes products AND productSource is collection
-        return !(
-          (contentType === "text-with-products" ||
-            contentType === "media-with-products" ||
-            contentType === "products-only") &&
-          productSource === "collection"
-        );
+        const hasProducts =
+          parent?.contentType === "products-text" ||
+          parent?.contentType === "products-only";
+        return !(hasProducts && parent?.productSource === "collection");
       },
       validation: (Rule) =>
         Rule.custom((value, context) => {
           const { parent } = context as {
             parent?: { productSource?: string; contentType?: string };
           };
-          if (
-            (parent?.contentType === "text-with-products" ||
-              parent?.contentType === "media-with-products" ||
-              parent?.contentType === "products-only") &&
-            parent?.productSource === "collection" &&
-            !value
-          ) {
+          const hasProducts =
+            parent?.contentType === "products-text" ||
+            parent?.contentType === "products-only";
+          if (hasProducts && parent?.productSource === "collection" && !value) {
             return "Collection is required when product source is 'From Collection'";
           }
           return true;
         }),
     }),
     defineField({
-      name: "productPosition",
-      title: "Product Position",
-      description:
-        "Position of products relative to text (only applies to split layout)",
-      type: "string",
-      options: {
-        list: [
-          { title: "Left", value: "left" },
-          { title: "Right", value: "right" },
-        ],
-      },
-      initialValue: "right",
-      hidden: ({ parent }) =>
-        (parent?.contentType !== "text-with-products" &&
-          parent?.contentType !== "media-with-products") ||
-        parent?.layout !== "split",
-    }),
-    defineField({
       name: "featuredHeading",
       title: "Products Heading",
-      description: "Heading text for the products section",
       type: "string",
       hidden: ({ parent }) =>
-        parent?.contentType !== "text-with-products" &&
-        parent?.contentType !== "media-with-products" &&
+        parent?.contentType !== "products-text" &&
         parent?.contentType !== "products-only",
     }),
     defineField({
@@ -296,14 +197,12 @@ export const portableTextModule = defineType({
       title: "Products Subheading",
       type: "string",
       hidden: ({ parent }) =>
-        parent?.contentType !== "text-with-products" &&
-        parent?.contentType !== "media-with-products" &&
+        parent?.contentType !== "products-text" &&
         parent?.contentType !== "products-only",
     }),
     defineField({
       name: "displayType",
-      title: "Products Display Type (Mobile)",
-      description: "How to display products on mobile screens",
+      title: "Products Display (Mobile)",
       type: "string",
       options: {
         list: [
@@ -313,15 +212,12 @@ export const portableTextModule = defineType({
       },
       initialValue: "horizontal",
       hidden: ({ parent }) =>
-        parent?.contentType !== "text-with-products" &&
-        parent?.contentType !== "media-with-products" &&
+        parent?.contentType !== "products-text" &&
         parent?.contentType !== "products-only",
     }),
     defineField({
       name: "displayTypeDesktop",
-      title: "Products Display Type (Desktop)",
-      description:
-        "How to display products on larger screens (leave empty to use same as mobile)",
+      title: "Products Display (Desktop)",
       type: "string",
       options: {
         list: [
@@ -332,21 +228,18 @@ export const portableTextModule = defineType({
       },
       initialValue: "",
       hidden: ({ parent }) =>
-        parent?.contentType !== "text-with-products" &&
-        parent?.contentType !== "media-with-products" &&
+        parent?.contentType !== "products-text" &&
         parent?.contentType !== "products-only",
     }),
     defineField({
       name: "productCount",
-      title: "Number of Products to Show",
-      description:
-        "How many products to display (0 = show all). Only applies to grid layout.",
+      title: "Number of Products",
+      description: "How many products to display (0 = show all). Grid only.",
       type: "number",
       initialValue: 4,
       validation: (Rule) => Rule.min(0).max(50),
       hidden: ({ parent }) =>
-        (parent?.contentType !== "text-with-products" &&
-          parent?.contentType !== "media-with-products" &&
+        (parent?.contentType !== "products-text" &&
           parent?.contentType !== "products-only") ||
         parent?.displayType !== "grid",
     }),
@@ -382,23 +275,17 @@ export const portableTextModule = defineType({
                 ],
               },
               initialValue: "main",
-              description: "Choose which image from the product to display",
             },
           ],
           preview: {
-            select: {
-              title: "product.title",
-              imageSelection: "imageSelection",
-            },
+            select: { title: "product.title", imageSelection: "imageSelection" },
             prepare(selection) {
               return {
                 title: selection.title || "Product",
                 subtitle:
                   selection.imageSelection === "main"
                     ? "Main Image"
-                    : `Gallery Image ${
-                        selection.imageSelection?.split("_")[1] || ""
-                      }`,
+                    : `Gallery Image ${selection.imageSelection?.split("_")[1] || ""}`,
               };
             },
           },
@@ -406,15 +293,10 @@ export const portableTextModule = defineType({
       ],
       validation: (Rule) => Rule.max(20),
       hidden: ({ parent }) => {
-        const contentType = parent?.contentType;
-        const productSource = parent?.productSource;
-        // Hide if not a products content type, or if using collection source
-        return (
-          (contentType !== "text-with-products" &&
-            contentType !== "media-with-products" &&
-            contentType !== "products-only") ||
-          productSource === "collection"
-        );
+        const hasProducts =
+          parent?.contentType === "products-text" ||
+          parent?.contentType === "products-only";
+        return !hasProducts || parent?.productSource === "collection";
       },
     }),
     defineField({
@@ -422,8 +304,7 @@ export const portableTextModule = defineType({
       title: "Products Button Link",
       type: "string",
       hidden: ({ parent }) =>
-        parent?.contentType !== "text-with-products" &&
-        parent?.contentType !== "media-with-products" &&
+        parent?.contentType !== "products-text" &&
         parent?.contentType !== "products-only",
     }),
     defineField({
@@ -431,15 +312,13 @@ export const portableTextModule = defineType({
       title: "Products Button Text",
       type: "string",
       hidden: ({ parent }) =>
-        parent?.contentType !== "text-with-products" &&
-        parent?.contentType !== "media-with-products" &&
+        parent?.contentType !== "products-text" &&
         parent?.contentType !== "products-only",
     }),
-    // Text styling options
+    // Text styling
     defineField({
       name: "maxWidth",
       title: "Text Max Width",
-      description: "Maximum width of the text content",
       type: "string",
       options: {
         list: [
@@ -470,14 +349,12 @@ export const portableTextModule = defineType({
     defineField({
       name: "linkText",
       title: "Link Text",
-      description: "Text to display for the link",
       type: "string",
       hidden: ({ parent }) => parent?.contentType === "products-only",
     }),
     defineField({
       name: "link",
       title: "Link URL",
-      description: "Link URL",
       type: "string",
       hidden: ({ parent }) => parent?.contentType === "products-only",
     }),
@@ -490,24 +367,18 @@ export const portableTextModule = defineType({
     }),
   ],
   preview: {
-    select: {
-      title: "title",
-      contentType: "contentType",
-    },
+    select: { title: "title", contentType: "contentType" },
     prepare(selection) {
       const { title, contentType } = selection;
       const typeLabels: Record<string, string> = {
         "text-only": "Text Only",
-        "text-with-media": "Text + Media",
-        "text-with-products": "Text + Products",
-        "media-with-products": "Media + Products",
+        "media-text": "Media + Text",
+        "products-text": "Products + Text",
         "products-only": "Products Only",
       };
       return {
         title: "Content Module",
-        subtitle: `${typeLabels[contentType] || "Content"}${
-          title ? ` - ${title}` : ""
-        }`,
+        subtitle: `${typeLabels[contentType] || "Content"}${title ? ` - ${title}` : ""}`,
       };
     },
   },

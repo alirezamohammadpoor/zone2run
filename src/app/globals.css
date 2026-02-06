@@ -62,6 +62,13 @@ body.modal-open {
   left: 0;
 }
 
+@layer components {
+  /* Consistent vertical spacing between homepage/page sections */
+  .section-spacing {
+    @apply my-8 md:my-12 xl:my-16;
+  }
+}
+
 @layer utilities {
   .scrollbar-hide::-webkit-scrollbar {
     display: none;

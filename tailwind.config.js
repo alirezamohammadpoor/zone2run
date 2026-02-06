@@ -15,6 +15,17 @@ module.exports = {
           "sans-serif",
         ],
       },
+      // Design tokens
+      spacing: {
+        "touch-target": "44px", // WCAG minimum touch target
+      },
+      aspectRatio: {
+        product: "4 / 5", // Standard product card ratio
+      },
+      gridTemplateColumns: {
+        plp: "repeat(2, 1fr)", // Mobile PLP grid
+        "plp-xl": "repeat(4, 1fr)", // Desktop PLP grid
+      },
     },
   },
   plugins: [],

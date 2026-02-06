@@ -268,7 +268,7 @@ export type BlogProductsModule = {
 
 export type PortableTextModule = {
   _type: "portableTextModule";
-  contentType?: "text-only" | "text-with-media" | "text-with-products" | "media-with-products" | "products-only";
+  contentType?: "text-only" | "media-text" | "products-text" | "products-only";
   title?: string;
   content?: Array<{
     children?: Array<{
@@ -302,7 +302,6 @@ export type PortableTextModule = {
     _type: "image";
     _key: string;
   }>;
-  layout?: "single" | "split" | "full-width";
   mediaType?: "image" | "video";
   image?: {
     asset?: {
@@ -327,7 +326,6 @@ export type PortableTextModule = {
     media?: unknown;
     _type: "file";
   };
-  mediaPosition?: "left" | "right";
   mediaHeight?: "50vh" | "60vh" | "70vh" | "80vh" | "90vh" | "100vh";
   productSource?: "manual" | "collection";
   collection?: {
@@ -336,7 +334,6 @@ export type PortableTextModule = {
     _weak?: boolean;
     [internalGroqTypeReferenceTo]?: "collection";
   };
-  productPosition?: "left" | "right";
   featuredHeading?: string;
   featuredSubheading?: string;
   displayType?: "horizontal" | "grid";
