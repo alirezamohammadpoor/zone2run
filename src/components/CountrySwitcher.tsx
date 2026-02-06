@@ -49,12 +49,13 @@ export default function CountrySwitcher({ isOpen, onClose }: CountrySwitcherProp
   const handleSelect = useCallback(
     (newCountry: string) => {
       setDropdownOpen(false);
+      localStorage.setItem("z2r-country-switch", JSON.stringify({ prevCountry: country }));
       const newLocale = countryToLocale(newCountry);
       const newPath = pathname.replace(`/${locale}`, `/${newLocale}`);
       router.push(newPath);
       handleClose();
     },
-    [locale, pathname, router, handleClose],
+    [locale, pathname, router, handleClose, country],
   );
 
   // Close dropdown when clicking outside
