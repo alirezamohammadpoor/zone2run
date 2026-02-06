@@ -1,4 +1,5 @@
 import LocaleLink from "@/components/LocaleLink";
+import CountrySwitcherFooterTrigger from "@/components/footer/CountrySwitcherFooterTrigger";
 import {
   getFooterSettings,
   type FooterColumn,
@@ -88,6 +89,9 @@ export async function FooterContent() {
           {footer.copyrightText}
         </div>
       )}
+      <div className="px-2 pb-4">
+        <CountrySwitcherFooterTrigger />
+      </div>
       <div className="h-32" />
     </footer>
   );
