@@ -18,7 +18,9 @@ const SECTION_SPACING = "my-8 md:my-12 xl:my-16";
 // Shared text content renderer
 function TextContent({ module }: { module: PortableTextModule }) {
   return (
-    <div className={`${module.maxWidth || "max-w-4xl"} ${module.textAlign || "text-left"}`}>
+    <div
+      className={`${module.maxWidth || "max-w-4xl"} ${module.textAlign || "text-left"}`}
+    >
       {module.title && <h2 className="text-sm mb-4">{module.title}</h2>}
       {module.content && (
         <PortableTextRenderer
@@ -195,9 +197,11 @@ function TwoColumnLayout({
 }) {
   return (
     <div className={`w-full ${SECTION_SPACING}`}>
-      <div className="flex flex-col xl:flex-row xl:justify-between xl:items-center gap-8">
-        <div className="px-2 order-2 xl:order-1">{left}</div>
-        <div className="px-2 xl:px-0 xl:pr-2 order-1 xl:order-2">{right}</div>
+      <div className="flex flex-col xl:flex-row xl:items-center gap-8">
+        <div className="px-2 order-2 xl:order-1 xl:mr-16">{left}</div>
+        <div className="px-2 xl:px-0 xl:pr-2 order-1 xl:order-2 flex items-center">
+          {right}
+        </div>
       </div>
     </div>
   );
