@@ -62,7 +62,7 @@ function Header({
   return (
     <>
       <header className="fixed top-0 left-0 right-0 z-40 bg-white shadow-sm">
-        <nav className="text-sm flex justify-between items-center h-12 xl:h-16 relative bg-white xl:px-4 text-xs">
+        <nav className="text-sm flex justify-between items-center h-12 px-2 xl:h-16 relative bg-white xl:px-4 text-xs">
           <div className="flex items-center gap-2">
             {/* Mobile: Hamburger menu */}
             <button
