@@ -198,7 +198,7 @@ function TwoColumnLayout({
   return (
     <div className={`w-full ${SECTION_SPACING}`}>
       <div className="flex flex-col xl:flex-row xl:items-center gap-8">
-        <div className="px-2 order-2 xl:order-1 xl:mr-16">{left}</div>
+        <div className="order-2 xl:order-1 xl:mr-16">{left}</div>
         <div className="px-2 xl:px-0 xl:pr-2 order-1 xl:order-2 flex items-center">
           {right}
         </div>
