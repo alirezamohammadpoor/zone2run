@@ -1,7 +1,6 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useModalScroll } from "@/hooks/useModalScroll";
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
 import { FilterContent } from "./FilterContent";
 import { SortContent } from "./SortContent";
@@ -46,7 +45,6 @@ export function FilterSortModal({
   availableGenders,
   activeFilterCount,
 }: FilterSortModalProps) {
-  useModalScroll(isOpen);
   const { unlockScroll } = useModalScrollRestoration();
 
   const handleClose = () => {

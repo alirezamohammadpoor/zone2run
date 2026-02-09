@@ -5,6 +5,7 @@ import {
   HERO_IMAGE_PROJECTION,
   EDITORIAL_IMAGES_PROJECTION,
   MENU_IMAGE_PROJECTION,
+  type EditorialImage,
 } from "./groqUtils";
 import { enrichWithLocalePrices } from "@/lib/locale/enrichPrices";
 import { deduplicateSizes, type RawProductWithSizes } from "./deduplicateSizes";
@@ -41,15 +42,6 @@ function sortByCuratedOrder(
     });
   }
   return products;
-}
-
-interface EditorialImage {
-  _key: string;
-  image: {
-    asset: { _id: string; url: string; metadata?: { lqip?: string } };
-    alt?: string;
-  };
-  caption?: string;
 }
 
 interface Collection {

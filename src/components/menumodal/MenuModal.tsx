@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import { useModalScroll } from "@/hooks/useModalScroll";
 
 // Lazy load FocusLock - only needed when modal is visible
 const FocusLock = dynamic(() => import("react-focus-lock"), { ssr: false });
@@ -40,9 +39,6 @@ function MenuModal({
       unlockScroll();
     }, 300);
   };
-
-  // Prevent body scroll when modal is open
-  useModalScroll(isMenuOpen);
 
   // Handle client-side mounting
   useEffect(() => {

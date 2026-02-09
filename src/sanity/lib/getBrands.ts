@@ -1,10 +1,5 @@
 import { sanityFetch } from "@/sanity/lib/client";
-
-interface EditorialImage {
-  _key: string;
-  image: { asset: { _id: string; url: string; metadata?: { lqip?: string } }; alt?: string };
-  caption?: string;
-}
+import type { EditorialImage } from "./groqUtils";
 
 interface Brand {
   _id: string;

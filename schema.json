@@ -1734,15 +1734,11 @@
               },
               {
                 "type": "string",
-                "value": "text-with-media"
+                "value": "media-text"
               },
               {
                 "type": "string",
-                "value": "text-with-products"
-              },
-              {
-                "type": "string",
-                "value": "media-with-products"
+                "value": "products-text"
               },
               {
                 "type": "string",
@@ -2035,27 +2031,6 @@
           },
           "optional": true
         },
-        "layout": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "union",
-            "of": [
-              {
-                "type": "string",
-                "value": "single"
-              },
-              {
-                "type": "string",
-                "value": "split"
-              },
-              {
-                "type": "string",
-                "value": "full-width"
-              }
-            ]
-          },
-          "optional": true
-        },
         "mediaType": {
           "type": "objectAttribute",
           "value": {
@@ -2202,23 +2177,6 @@
           },
           "optional": true
         },
-        "mediaPosition": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "union",
-            "of": [
-              {
-                "type": "string",
-                "value": "left"
-              },
-              {
-                "type": "string",
-                "value": "right"
-              }
-            ]
-          },
-          "optional": true
-        },
         "mediaHeight": {
           "type": "objectAttribute",
           "value": {
@@ -2296,23 +2254,6 @@
               }
             },
             "dereferencesTo": "collection"
-          },
-          "optional": true
-        },
-        "productPosition": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "union",
-            "of": [
-              {
-                "type": "string",
-                "value": "left"
-              },
-              {
-                "type": "string",
-                "value": "right"
-              }
-            ]
           },
           "optional": true
         },

@@ -1,5 +1,9 @@
 import { sanityFetch } from "@/sanity/lib/client";
-import { buildLimitClause } from "./groqUtils";
+import {
+  buildLimitClause,
+  BLOG_PRODUCT_PROJECTION,
+  BLOG_PRODUCT_LISTING_PROJECTION,
+} from "./groqUtils";
 
 // BlogPost type for listing queries (getBlogPosts)
 export interface BlogPostListing {
@@ -23,83 +27,25 @@ export async function getBlogPosts(limit?: number) {
   const query = `*[_type == "blogPost"] | order(publishedAt desc) {
     _id,
     title,
-    slug {
-      current
-    },
+    slug { current },
     productsModule {
       ...,
-      featuredProducts[] {
-        ...,
-        product-> {
-          _id,
-          "title": coalesce(title, store.title),
-          "handle": coalesce(shopifyHandle, store.slug.current),
-          brand-> { _id, name },
-          "images": [{
-            "url": coalesce(mainImage.asset->url, store.previewImageUrl),
-            "alt": coalesce(mainImage.alt, store.title),
-            "lqip": mainImage.asset->metadata.lqip
-          }] + coalesce(gallery[] { "url": asset->url, "alt": coalesce(alt, ^.title), "lqip": asset->metadata.lqip }, [])
-        }
-      }
+      featuredProducts[] { ..., ${BLOG_PRODUCT_LISTING_PROJECTION} }
     },
     featuredProductsModule {
       ...,
-      featuredProducts[] {
-        ...,
-        product-> {
-          _id,
-          "title": coalesce(title, store.title),
-          "handle": coalesce(shopifyHandle, store.slug.current),
-          brand-> { _id, name },
-          "images": [{
-            "url": coalesce(mainImage.asset->url, store.previewImageUrl),
-            "alt": coalesce(mainImage.alt, store.title),
-            "lqip": mainImage.asset->metadata.lqip
-          }] + coalesce(gallery[] { "url": asset->url, "alt": coalesce(alt, ^.title), "lqip": asset->metadata.lqip }, [])
-        }
-      }
+      featuredProducts[] { ..., ${BLOG_PRODUCT_LISTING_PROJECTION} }
     },
     productShowcaseModule {
       ...,
-      featuredProducts[] {
-        ...,
-        product-> {
-          _id,
-          "title": coalesce(title, store.title),
-          "handle": coalesce(shopifyHandle, store.slug.current),
-          brand-> { _id, name },
-          "images": [{
-            "url": coalesce(mainImage.asset->url, store.previewImageUrl),
-            "alt": coalesce(mainImage.alt, store.title),
-            "lqip": mainImage.asset->metadata.lqip
-          }] + coalesce(gallery[] { "url": asset->url, "alt": coalesce(alt, ^.title), "lqip": asset->metadata.lqip }, [])
-        }
-      }
+      featuredProducts[] { ..., ${BLOG_PRODUCT_LISTING_PROJECTION} }
     },
     excerpt,
     publishedAt,
     author,
-    category-> {
-      title,
-      slug {
-        current
-      }
-    },
-    featuredImage {
-      asset-> {
-        url,
-        "lqip": metadata.lqip
-      },
-      alt
-    },
-    editorialImage {
-      asset-> {
-        url,
-        "lqip": metadata.lqip
-      },
-      alt
-    },
+    category-> { title, slug { current } },
+    featuredImage { asset-> { url, "lqip": metadata.lqip }, alt },
+    editorialImage { asset-> { url, "lqip": metadata.lqip }, alt },
     readingTime
   }${buildLimitClause(limit)}`;
 
@@ -119,29 +65,10 @@ export async function getBlogPost(slug: string) {
     slug { current },
     content[] {
       ...,
-      _type == "image" => {
-        ...,
-        asset-> { url, metadata }
-      },
+      _type == "image" => { ..., asset-> { url, metadata } },
       _type == "blogProductsModule" => {
         ...,
-        featuredProducts[] {
-          ...,
-          product-> {
-            _id,
-            "title": coalesce(title, store.title),
-            "handle": coalesce(shopifyHandle, store.slug.current),
-            brand-> { _id, name, "slug": slug.current },
-            "priceRange": {
-              "minVariantPrice": store.priceRange.minVariantPrice,
-              "maxVariantPrice": store.priceRange.maxVariantPrice
-            },
-            "images": [{
-              "url": coalesce(mainImage.asset->url, store.previewImageUrl),
-              "alt": coalesce(mainImage.alt, store.title)
-            }] + coalesce(gallery[] { "url": asset->url, "alt": coalesce(alt, ^.title) }, [])
-          }
-        }
+        featuredProducts[] { ..., ${BLOG_PRODUCT_PROJECTION} }
       }
     },
     excerpt,
@@ -155,36 +82,13 @@ export async function getBlogPost(slug: string) {
     heroHeight,
     productsModule {
       ...,
-      featuredProducts[] {
-        ...,
-        product-> {
-          _id,
-          "title": coalesce(title, store.title),
-          "handle": coalesce(shopifyHandle, store.slug.current),
-          brand-> { _id, name, "slug": slug.current },
-          "priceRange": {
-            "minVariantPrice": store.priceRange.minVariantPrice,
-            "maxVariantPrice": store.priceRange.maxVariantPrice
-          },
-          "images": [{
-            "url": coalesce(mainImage.asset->url, store.previewImageUrl),
-            "alt": coalesce(mainImage.alt, store.title),
-            "lqip": mainImage.asset->metadata.lqip
-          }] + coalesce(gallery[] { "url": asset->url, "alt": coalesce(alt, ^.title), "lqip": asset->metadata.lqip }, [])
-        }
-      }
+      featuredProducts[] { ..., ${BLOG_PRODUCT_PROJECTION} }
     },
     featuredCollection-> {
       _id,
       title,
       "slug": slug.current,
-      store {
-        gid,
-        title,
-        slug {
-          current
-        }
-      }
+      store { gid, title, slug { current } }
     },
     featuredCollectionLimit,
     featuredCollectionDisplayType
@@ -199,4 +103,3 @@ export async function getBlogPost(slug: string) {
     return null;
   }
 }
-
