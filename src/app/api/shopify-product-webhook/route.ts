@@ -11,6 +11,7 @@ import {
   logger,
   isWebhookDuplicate,
   markWebhookProcessed,
+  verifyShopifyHmac,
   processProductWebhook,
   processCollectionWebhook,
   type ShopifyProductPayload,
@@ -86,6 +87,17 @@ export async function POST(request: Request): Promise<Response> {
       return jsonResponse(
         { success: false, message: "Empty body", timestamp },
         400
+      );
+    }
+
+    // Verify Shopify HMAC signature
+    if (!verifyShopifyHmac(text, headers.hmac)) {
+      logger.warn("HMAC verification failed", {
+        webhookId: headers.webhookId,
+      });
+      return jsonResponse(
+        { success: false, message: "Invalid signature", timestamp },
+        401
       );
     }
 

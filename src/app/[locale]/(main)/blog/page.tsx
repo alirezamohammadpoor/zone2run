@@ -12,8 +12,8 @@ export async function generateMetadata({
   return blogMetadata(locale);
 }
 
-// ISR: Revalidate every 10 minutes, on-demand via Sanity webhook
-export const revalidate = 600;
+// Fallback only — primary revalidation is on-demand via Sanity webhook
+export const revalidate = 3600;
 
 // Helper function to format dates consistently for SSR
 function formatDate(dateString: string) {

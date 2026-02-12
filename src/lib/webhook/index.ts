@@ -33,6 +33,9 @@ export {
   getCacheSize,
 } from "./deduplication";
 
+// Signature Verification
+export { verifyShopifyHmac } from "./verifySignature";
+
 // Brand Matching
 export {
   normalizeForMatching,
