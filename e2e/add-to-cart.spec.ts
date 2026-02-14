@@ -57,7 +57,7 @@ test.describe("Add to cart flow", () => {
     const cartModal = page.getByRole("dialog", { name: "Cart" });
     await expect(cartModal).toBeVisible({ timeout: 5000 });
 
-    // CartModal.tsx: item price rendered via formatCurrency (SEK code)
-    await expect(cartModal.getByText(/SEK/).first()).toBeVisible();
+    // CartModal.tsx: each cart item renders "Size: {item.size}"
+    await expect(cartModal.getByText(/Size:/)).toBeVisible({ timeout: 5000 });
   });
 });
