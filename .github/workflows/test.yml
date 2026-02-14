@@ -1,7 +1,7 @@
 name: Tests
 on:
   push:
-    branches: [staging]
+    branches: [staging, main]
   pull_request:
     branches: [staging]
 
@@ -24,6 +24,13 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
       - run: bunx playwright install chromium --with-deps
-      - run: bun run test:e2e
+      - name: E2E against staging
+        if: github.ref == 'refs/heads/staging' || github.event_name == 'pull_request'
+        run: bun run test:e2e
+        env:
+          PLAYWRIGHT_BASE_URL: https://zone2run-build-git-staging-alirezamohammadpoors-projects.vercel.app
+      - name: E2E against production
+        if: github.ref == 'refs/heads/main'
+        run: bun run test:e2e
         env:
           PLAYWRIGHT_BASE_URL: https://zone2run-build.vercel.app
