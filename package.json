@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "test": "vitest",
+    "test:e2e": "playwright test",
     "typegen": "sanity schema extract && sanity typegen generate"
   },
   "dependencies": {
@@ -44,6 +45,7 @@
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^16.1.6",
+    "@playwright/test": "^1.58.2",
     "@types/node": "^20.19.30",
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",
