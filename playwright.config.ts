@@ -2,6 +2,7 @@ import { defineConfig } from "@playwright/test";
 
 const baseURL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000";
 const isCI = !!process.env.CI;
+const bypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
 
 export default defineConfig({
   testDir: "./e2e",
@@ -14,6 +15,12 @@ export default defineConfig({
     headless: true,
     viewport: { width: 1280, height: 720 },
     actionTimeout: 10000,
+    // Bypass Vercel Deployment Protection for staging E2E in CI
+    ...(bypassSecret && {
+      extraHTTPHeaders: {
+        "x-vercel-protection-bypass": bypassSecret,
+      },
+    }),
   },
   projects: [
     {
