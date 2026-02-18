@@ -26,3 +26,23 @@ export const SUPPORTED_LOCALES: LocaleSegment[] =
 export function isValidLocale(s: string): s is LocaleSegment {
   return SUPPORTED_LOCALES.includes(s as LocaleSegment);
 }
+
+/** Market regions group countries into editorial segments for localized content. */
+export const MARKET_REGIONS: Record<string, string[]> = {
+  nordic: ["SE", "NO", "DK", "FI"],
+  uk: ["GB"],
+  eu: [
+    "DE", "FR", "NL", "BE", "AT", "LU", "IE",
+    "IT", "ES", "PT", "EE", "LV", "LT",
+    "GR", "SK", "SI", "MT", "CY", "HR",
+  ],
+};
+
+/** Map a country code to its market region. Returns undefined for unknown countries. */
+export function getMarketRegion(country: string): string | undefined {
+  const upper = country.toUpperCase();
+  for (const [region, countries] of Object.entries(MARKET_REGIONS)) {
+    if (countries.includes(upper)) return region;
+  }
+  return undefined;
+}
