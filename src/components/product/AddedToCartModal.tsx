@@ -63,6 +63,7 @@ const AddedToCartModal = memo(function AddedToCartModal({
               alt={lastAddedProduct.title}
               fill
               className="object-contain"
+              sizes="(min-width: 1280px) 6vw, 20vw"
             />
           </div>
         )}
