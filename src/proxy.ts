@@ -10,13 +10,13 @@ import {
 } from "@/lib/locale/localeUtils";
 
 /**
- * Locale middleware — single gate for URL-based locale routing.
+ * Locale proxy — single gate for URL-based locale routing.
  *
  * Valid locale in URL  → pass through, set cookie
  * Invalid locale       → 404
  * No locale in URL     → 308 redirect to geo-detected locale
  */
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Extract first path segment to check for locale

@@ -73,6 +73,17 @@ export type SiteSettings = {
     _weak?: boolean;
     [internalGroqTypeReferenceTo]?: "homepageVersion";
   };
+  marketHomepages?: Array<{
+    region?: "nordic" | "uk" | "eu";
+    homepage?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "homepageVersion";
+    };
+    _type: "marketHomepage";
+    _key: string;
+  }>;
   productTabs?: {
     shippingAndReturns?: string;
     payments?: string;

@@ -124,47 +124,46 @@ const modulesProjection = `modules[] {
   })
 }`;
 
-export async function getHomepage(preview = false) {
-  // First try to get homepage via siteSettings (new system)
-  // Use _id == "siteSettings" to target the singleton specifically
-  const siteSettingsQuery = `*[_id == "siteSettings"][0] {
-    activeHomepage-> {
-      _id,
-      title,
-      ${modulesProjection},
-      seo {
-        ...
-      }
-    }
+// Shared projection for homepage version documents
+const homepageProjection = `{
+  _id,
+  title,
+  ${modulesProjection},
+  seo {
+    ...
+  }
+}`;
+
+export async function getHomepage(region?: string, preview = false) {
+  // Market-specific: try region override first, fall back to default
+  const marketQuery = `*[_id == "siteSettings"][0] {
+    "homepage": coalesce(
+      marketHomepages[region == $region][0].homepage->${homepageProjection},
+      activeHomepage->${homepageProjection}
+    )
+  }.homepage`;
+
+  // Default: no region, use activeHomepage directly
+  const defaultQuery = `*[_id == "siteSettings"][0] {
+    activeHomepage->${homepageProjection}
   }.activeHomepage`;
 
+  const query = region ? marketQuery : defaultQuery;
+  const params = region ? { region } : {};
+
   // Fallback to old home singleton if siteSettings doesn't exist
-  const fallbackQuery = `*[_type == "home"][0] {
-    _id,
-    title,
-    ${modulesProjection},
-    seo {
-      ...
-    }
-  }`;
+  const fallbackQuery = `*[_type == "home"][0] ${homepageProjection}`;
 
   try {
-    // Preview mode uses previewClient (uncached, drafts)
-    // Production uses sanityFetch (cached for ISR)
     if (preview) {
-      const homepage = await previewClient.fetch(siteSettingsQuery);
+      const homepage = await previewClient.fetch(query, params);
       if (homepage) return homepage;
       return await previewClient.fetch(fallbackQuery);
     }
 
-    // Try new system first (cached)
-    const homepage = await sanityFetch<unknown>(siteSettingsQuery);
+    const homepage = await sanityFetch<unknown>(query, params);
+    if (homepage) return homepage;
 
-    if (homepage) {
-      return homepage;
-    }
-
-    // Fallback to old system during migration (cached)
     return await sanityFetch<unknown>(fallbackQuery);
   } catch (error) {
     console.error("Error fetching homepage:", error);
