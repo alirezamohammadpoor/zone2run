@@ -1,4 +1,4 @@
-import { sanityFetch } from "@/sanity/lib/client";
+import { sanityFetch } from "@/sanity/lib/live";
 import { mapGenderValue } from "./groqUtils";
 import type { MenuData, SubcategoryMenuItem } from "@/types/menu";
 
@@ -35,7 +35,8 @@ export async function getAllMainCategories() {
   } | order(sortOrder asc, title asc)`;
 
   try {
-    return await sanityFetch<Category[]>(query);
+    const { data } = await sanityFetch({ query });
+    return data as Category[];
   } catch (error) {
     console.error("Error fetching all main categories:", error);
     return [];
@@ -70,7 +71,8 @@ export async function getSubSubcategoriesByParentAndGender(
   } | order(sortOrder asc, title asc)`;
 
   try {
-    return await sanityFetch<Category[]>(query, { parentSlug, gender: dbGender });
+    const { data } = await sanityFetch({ query, params: { parentSlug, gender: dbGender } });
+    return data as Category[];
   } catch (error) {
     console.error(
       `Error fetching sub-subcategories for parent ${parentSlug} and gender ${gender}:`,
@@ -105,8 +107,8 @@ export async function getSubcategoriesByParentAndGender(
   } | order(title asc)`;
 
   try {
-    const result = await sanityFetch<Category[]>(query, { parentSlug, gender: dbGender });
-    return result;
+    const { data } = await sanityFetch({ query, params: { parentSlug, gender: dbGender } });
+    return data as Category[];
   } catch (error) {
     console.error(
       `Error fetching subcategories for ${parentSlug} and ${gender}:`,
@@ -158,14 +160,13 @@ export async function getCategoryHierarchyForGender(
   }`;
 
   try {
-    const categories = await sanityFetch<
-      Array<{
-        _id: string;
-        title: string;
-        slug: { current: string };
-        subcategories: SubcategoryMenuItem[];
-      }>
-    >(query, { gender: dbGender });
+    const { data } = await sanityFetch({ query, params: { gender: dbGender } });
+    const categories = data as Array<{
+      _id: string;
+      title: string;
+      slug: { current: string };
+      subcategories: SubcategoryMenuItem[];
+    }>;
 
     // Transform to { [mainCategorySlug]: subcategories[] } format
     const result: { [mainCategorySlug: string]: SubcategoryMenuItem[] } = {};

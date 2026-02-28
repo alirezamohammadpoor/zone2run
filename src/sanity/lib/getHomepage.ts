@@ -1,4 +1,4 @@
-import { previewClient, sanityFetch } from "./client";
+import { sanityFetch } from "./live";
 
 // Shared modules projection for both queries
 const modulesProjection = `modules[] {
@@ -124,47 +124,41 @@ const modulesProjection = `modules[] {
   })
 }`;
 
-// Shared projection for homepage version documents
-const homepageProjection = `{
-  _id,
-  title,
-  ${modulesProjection},
-  seo {
-    ...
-  }
-}`;
-
-export async function getHomepage(region?: string, preview = false) {
-  // Market-specific: try region override first, fall back to default
-  const marketQuery = `*[_id == "siteSettings"][0] {
-    "homepage": coalesce(
-      marketHomepages[region == $region][0].homepage->${homepageProjection},
-      activeHomepage->${homepageProjection}
-    )
-  }.homepage`;
-
-  // Default: no region, use activeHomepage directly
-  const defaultQuery = `*[_id == "siteSettings"][0] {
-    activeHomepage->${homepageProjection}
+export async function getHomepage() {
+  // First try to get homepage via siteSettings (new system)
+  // Use _id == "siteSettings" to target the singleton specifically
+  const siteSettingsQuery = `*[_id == "siteSettings"][0] {
+    activeHomepage-> {
+      _id,
+      title,
+      ${modulesProjection},
+      seo {
+        ...
+      }
+    }
   }.activeHomepage`;
 
-  const query = region ? marketQuery : defaultQuery;
-  const params = region ? { region } : {};
-
   // Fallback to old home singleton if siteSettings doesn't exist
-  const fallbackQuery = `*[_type == "home"][0] ${homepageProjection}`;
+  const fallbackQuery = `*[_type == "home"][0] {
+    _id,
+    title,
+    ${modulesProjection},
+    seo {
+      ...
+    }
+  }`;
 
   try {
-    if (preview) {
-      const homepage = await previewClient.fetch(query, params);
-      if (homepage) return homepage;
-      return await previewClient.fetch(fallbackQuery);
+    // sanityFetch auto-detects draftMode() — serves draft or published content
+    const { data: homepage } = await sanityFetch({ query: siteSettingsQuery });
+
+    if (homepage) {
+      return homepage;
     }
 
-    const homepage = await sanityFetch<unknown>(query, params);
-    if (homepage) return homepage;
-
-    return await sanityFetch<unknown>(fallbackQuery);
+    // Fallback to old system during migration
+    const { data: fallback } = await sanityFetch({ query: fallbackQuery });
+    return fallback;
   } catch (error) {
     console.error("Error fetching homepage:", error);
     return null;

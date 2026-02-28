@@ -1,4 +1,4 @@
-import { sanityFetch } from "@/sanity/lib/client";
+import { sanityFetch } from "@/sanity/lib/live";
 
 export async function getSiteSettings() {
   const query = `*[_type == "siteSettings"][0] {
@@ -9,12 +9,13 @@ export async function getSiteSettings() {
   }`;
 
   try {
-    return await sanityFetch<{
+    const { data } = await sanityFetch({ query });
+    return data as {
       productTabs?: {
         shippingAndReturns?: string;
         payments?: string;
       };
-    } | null>(query);
+    } | null;
   } catch (error) {
     console.error("Error fetching site settings:", error);
     return null;

@@ -1,4 +1,4 @@
-import { sanityFetch } from "@/sanity/lib/client";
+import { sanityFetch } from "@/sanity/lib/live";
 import type { MenuConfig } from "@/types/menu";
 
 export async function getMenu(): Promise<MenuConfig | undefined> {
@@ -52,8 +52,8 @@ export async function getMenu(): Promise<MenuConfig | undefined> {
   }`;
 
   try {
-    const menu = await sanityFetch<MenuConfig | undefined>(query);
-    return menu || undefined;
+    const { data } = await sanityFetch({ query });
+    return (data as MenuConfig | undefined) || undefined;
   } catch (error) {
     console.error("Error fetching menu:", error);
     return undefined;
