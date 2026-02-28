@@ -1,4 +1,4 @@
-import { sanityFetch } from "@/sanity/lib/client";
+import { sanityFetch } from "@/sanity/lib/live";
 import type { EditorialImage } from "./groqUtils";
 
 interface Brand {
@@ -30,7 +30,8 @@ export async function getAllBrands() {
   } | order(name asc)`;
 
   try {
-    return await sanityFetch<Brand[]>(query);
+    const { data } = await sanityFetch({ query });
+    return data as Brand[];
   } catch (error) {
     console.error("Error fetching all brands:", error);
     return [];
@@ -73,7 +74,8 @@ export async function getBrandBySlug(slug: string) {
   }`;
 
   try {
-    return await sanityFetch<Brand | null>(query, { slug });
+    const { data } = await sanityFetch({ query, params: { slug } });
+    return data as Brand | null;
   } catch (error) {
     console.error(`Error fetching brand ${slug}:`, error);
     return null;

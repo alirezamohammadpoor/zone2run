@@ -1,4 +1,4 @@
-import { sanityFetch } from "./client";
+import { sanityFetch } from "./live";
 
 interface NotFoundPage {
   title?: string;
@@ -27,7 +27,8 @@ export async function getNotFoundPage(): Promise<NotFoundPage | null> {
   }`;
 
   try {
-    return await sanityFetch<NotFoundPage | null>(query);
+    const { data } = await sanityFetch({ query });
+    return data as NotFoundPage | null;
   } catch (error) {
     console.error("Error fetching 404 page settings:", error);
     return null;
@@ -96,7 +97,8 @@ export async function getFooterSettings(): Promise<FooterSettings | null> {
   }`;
 
   try {
-    return await sanityFetch<FooterSettings | null>(query);
+    const { data } = await sanityFetch({ query });
+    return data as FooterSettings | null;
   } catch (error) {
     console.error("Error fetching footer settings:", error);
     return null;

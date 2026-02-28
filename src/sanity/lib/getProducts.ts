@@ -1,4 +1,4 @@
-import { sanityFetch } from "@/sanity/lib/client";
+import { sanityFetch } from "@/sanity/lib/live";
 import type { SanityProduct } from "@/types/sanityProduct";
 import type { PLPProduct } from "@/types/plpProduct";
 import type { CardProduct } from "@/types/cardProduct";
@@ -44,7 +44,8 @@ export async function getSanityProductByHandle(
   }`;
 
   try {
-    return await sanityFetch<SanityProduct | null>(query, { handle });
+    const { data } = await sanityFetch({ query, params: { handle } });
+    return data as SanityProduct | null;
   } catch (error) {
     console.error("Error fetching Sanity product by handle:", error);
     return null;
@@ -63,7 +64,8 @@ export async function getAllProducts(
   }`;
 
   try {
-    const raw = await sanityFetch<RawProductWithSizes[]>(query);
+    const { data } = await sanityFetch({ query });
+    const raw = data as RawProductWithSizes[];
     const products = deduplicateSizes(raw);
     return country ? enrichWithLocalePrices(products, country) : products;
   } catch (error) {
@@ -92,7 +94,8 @@ export async function getProductsByBrand(
 
   try {
     const params = dbGender ? { brandSlug, dbGender } : { brandSlug };
-    const raw = await sanityFetch<RawProductWithSizes[]>(query, params);
+    const { data } = await sanityFetch({ query, params });
+    const raw = data as RawProductWithSizes[];
     const products = deduplicateSizes(raw);
     return country ? enrichWithLocalePrices(products, country) : products;
   } catch (error) {
@@ -113,9 +116,8 @@ export async function getProductsByGender(
   } | order(_createdAt desc)${buildLimitClause(limit)}`;
 
   try {
-    const raw = await sanityFetch<RawProductWithSizes[]>(query, {
-      gender: dbGender,
-    });
+    const { data } = await sanityFetch({ query, params: { gender: dbGender } });
+    const raw = data as RawProductWithSizes[];
     const products = deduplicateSizes(raw);
     return country ? enrichWithLocalePrices(products, country) : products;
   } catch (error) {
@@ -159,11 +161,12 @@ export async function getProductsByPath(
   } | order(_createdAt desc)${buildLimitClause(limit)}`;
 
   try {
-    const raw = await sanityFetch<RawProductWithSizes[]>(query, {
+    const { data } = await sanityFetch({ query, params: {
       gender: dbGender,
       categoryType,
       categorySlug,
-    });
+    } });
+    const raw = data as RawProductWithSizes[];
     const products = deduplicateSizes(raw);
     return country ? enrichWithLocalePrices(products, country) : products;
   } catch (error) {
@@ -200,11 +203,12 @@ export async function getProductsBySubcategoryIncludingSubSubcategories(
   } | order(_createdAt desc)${buildLimitClause(limit)}`;
 
   try {
-    const raw = await sanityFetch<RawProductWithSizes[]>(query, {
+    const { data } = await sanityFetch({ query, params: {
       gender: dbGender,
       mainCategorySlug,
       subcategorySlug,
-    });
+    } });
+    const raw = data as RawProductWithSizes[];
     const products = deduplicateSizes(raw);
     return country ? enrichWithLocalePrices(products, country) : products;
   } catch (error) {
@@ -237,12 +241,13 @@ export async function getProductsByPath3Level(
   } | order(_createdAt desc)${buildLimitClause(limit)}`;
 
   try {
-    const raw = await sanityFetch<RawProductWithSizes[]>(query, {
+    const { data } = await sanityFetch({ query, params: {
       gender: dbGender,
       mainCategorySlug,
       subcategorySlug,
       subsubcategorySlug,
-    });
+    } });
+    const raw = data as RawProductWithSizes[];
     const products = deduplicateSizes(raw);
     return country ? enrichWithLocalePrices(products, country) : products;
   } catch (error) {
@@ -269,7 +274,8 @@ export async function getProductsByIds(
   }`;
 
   try {
-    const products = await sanityFetch<CardProduct[]>(query, { productIds });
+    const { data } = await sanityFetch({ query, params: { productIds } });
+    const products = data as CardProduct[];
     return country ? enrichWithLocalePrices(products, country) : products;
   } catch (error) {
     console.error("Error fetching products by IDs:", error);
@@ -292,7 +298,8 @@ export async function getRelatedProducts(
   } | order(_createdAt desc)[0...${limit}]`;
 
   try {
-    const products = await sanityFetch<CardProduct[]>(query, { brandSlug, excludeId });
+    const { data } = await sanityFetch({ query, params: { brandSlug, excludeId } });
+    const products = data as CardProduct[];
     return country ? enrichWithLocalePrices(products, country) : products;
   } catch (error) {
     console.error(`Error fetching related products for brand ${brandSlug}:`, error);

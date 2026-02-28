@@ -2,7 +2,7 @@ import { getHomepage } from "@/sanity/lib/getData";
 import HomePageSanity from "@/components/homepage/HomePageSanity";
 import { notFound, unstable_rethrow } from "next/navigation";
 import { homeMetadata } from "@/lib/metadata";
-import { localeToCountry, getMarketRegion } from "@/lib/locale/localeUtils";
+import { localeToCountry } from "@/lib/locale/localeUtils";
 
 export async function generateMetadata({
   params,
@@ -24,8 +24,7 @@ export default async function Home({
   try {
     const { locale } = await params;
     const country = localeToCountry(locale);
-    const region = getMarketRegion(country);
-    const homepage = await getHomepage(region);
+    const homepage = await getHomepage();
 
     if (!homepage) {
       console.error("No homepage data found");
