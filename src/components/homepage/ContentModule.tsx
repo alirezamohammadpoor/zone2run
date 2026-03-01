@@ -66,12 +66,12 @@ function MediaContent({ module }: { module: PortableTextModule }) {
 
     return (
       <div
-        className="flex relative overflow-hidden w-full xl:w-[50vw] xl:justify-end"
+        className="relative overflow-hidden w-full xl:w-[50vw] flex-shrink-0"
         style={{ height: mediaHeight, minHeight: mediaHeight }}
       >
         <video
           src={video.asset.url}
-          className="w-[30vw] h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover"
           autoPlay
           muted
           loop
@@ -161,13 +161,7 @@ function ProductsContent({
     />
   );
 
-  const renderHorizontal = () => (
-    <ProductCarousel
-      products={products}
-      cardClassName="flex-shrink-0 w-[70vw] min-w-0 xl:w-[calc(25vw-0.5rem)]"
-      sizes="(max-width: 1279px) 70vw, 25vw"
-    />
-  );
+  const renderHorizontal = () => <ProductCarousel products={products} />;
 
   // Same layout for both breakpoints
   if (!hasDifferentLayouts) {
@@ -204,7 +198,7 @@ function TwoColumnLayout({
   return (
     <div className={`w-full ${SECTION_SPACING}`}>
       <div className="flex flex-col xl:flex-row xl:items-center gap-8">
-        <div className="px-2 order-2 xl:order-1 xl:mr-16">{left}</div>
+        <div className="order-2 xl:order-1 xl:mr-16">{left}</div>
         <div className="px-2 xl:px-0 xl:pr-2 order-1 xl:order-2 flex items-center">
           {right}
         </div>
