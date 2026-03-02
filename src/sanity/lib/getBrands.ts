@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { sanityFetch } from "@/sanity/lib/live";
 import type { EditorialImage } from "./groqUtils";
 
@@ -38,7 +39,7 @@ export async function getAllBrands() {
   }
 }
 
-export async function getBrandBySlug(slug: string) {
+export const getBrandBySlug = cache(async (slug: string) => {
   const query = `*[_type == "brand" && slug.current == $slug][0] {
     _id,
     name,
@@ -80,5 +81,5 @@ export async function getBrandBySlug(slug: string) {
     console.error(`Error fetching brand ${slug}:`, error);
     return null;
   }
-}
+});
 

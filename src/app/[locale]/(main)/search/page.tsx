@@ -5,10 +5,39 @@ import SearchResults from "./SearchResults";
 import type { SanityProduct } from "@/types/sanityProduct";
 import type { Metadata } from "next";
 import { localeToCountry } from "@/lib/locale/localeUtils";
+import { buildHreflangAlternates } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: "Search | Zone2Run",
-};
+const BASE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://zone2run-build.vercel.app";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const url = `${BASE_URL}/${locale}/search`;
+  return {
+    title: "Search | Zone2Run",
+    description:
+      "Search premium running apparel from top Scandinavian brands.",
+    alternates: buildHreflangAlternates("/search", locale),
+    openGraph: {
+      title: "Search | Zone2Run",
+      description:
+        "Search premium running apparel from top Scandinavian brands.",
+      url,
+      siteName: "Zone2Run",
+      type: "website",
+    },
+    twitter: {
+      card: "summary",
+      title: "Search | Zone2Run",
+      description:
+        "Search premium running apparel from top Scandinavian brands.",
+    },
+  };
+}
 
 export default async function SearchPage({
   params,

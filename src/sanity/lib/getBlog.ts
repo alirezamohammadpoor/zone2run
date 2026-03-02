@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { sanityFetch } from "@/sanity/lib/live";
 import {
   buildLimitClause,
@@ -58,7 +59,7 @@ export async function getBlogPosts(limit?: number) {
   }
 }
 
-export async function getBlogPost(slug: string) {
+export const getBlogPost = cache(async (slug: string) => {
   const query = `*[_type == "blogPost" && slug.current == $slug][0] {
     ...,
     _id,
@@ -103,4 +104,4 @@ export async function getBlogPost(slug: string) {
     console.error(`Error fetching blog post ${slug}:`, error);
     return null;
   }
-}
+});
