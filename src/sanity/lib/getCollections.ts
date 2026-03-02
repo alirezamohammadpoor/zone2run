@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { sanityFetch } from "@/sanity/lib/live";
 import type { PLPProduct } from "@/types/plpProduct";
 import {
@@ -81,7 +82,7 @@ export async function getAllCollections() {
 }
 
 // Get collection info only (no products) - for hero/LCP optimization
-export async function getCollectionInfo(slug: string): Promise<Omit<Collection, 'products'> | null> {
+export const getCollectionInfo = cache(async (slug: string): Promise<Omit<Collection, 'products'> | null> => {
   const query = `*[_type == "collection" && (store.slug.current == $slug || lower(store.slug.current) == lower($slug))][0]{
     _id,
     "title": store.title,
@@ -104,7 +105,7 @@ export async function getCollectionInfo(slug: string): Promise<Omit<Collection, 
     console.error(`Error fetching collection info for ${slug}:`, error);
     return null;
   }
-}
+});
 
 // Get products for a collection - returns all products (Load More handles display)
 export async function getCollectionProducts(

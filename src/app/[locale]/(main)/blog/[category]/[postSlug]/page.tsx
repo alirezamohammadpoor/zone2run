@@ -115,7 +115,7 @@ export default async function PostPage({
         ) : post.featuredImage?.asset?.url ? (
           <Image
             src={post.featuredImage.asset.url}
-            alt={post.featuredImage.alt || ""}
+            alt={post.featuredImage.alt || post.title || "Blog post"}
             fill
             className="object-cover"
             sizes="100vw"
@@ -195,9 +195,10 @@ export default async function PostPage({
                       <div className="relative w-full h-[50vh] xl:h-[70vh] overflow-hidden">
                         <Image
                           src={value.asset.url}
-                          alt={value.alt || ""}
+                          alt={value.alt || "Blog content image"}
                           fill
                           className="object-cover"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
                         />
                       </div>
                       {value.caption && (

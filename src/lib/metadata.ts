@@ -113,11 +113,20 @@ export function homeMetadata(locale: string): Metadata {
 }
 
 export function blogMetadata(locale: string): Metadata {
+  const url = `${BASE_URL}/${locale}/blog`;
   return {
     title: "Running Blog - Tips & Gear Guides",
     description:
       "Running tips, gear guides, and training insights from Zone2Run.",
     alternates: buildHreflangAlternates("/blog", locale),
+    openGraph: {
+      title: "Running Blog - Tips & Gear Guides",
+      description:
+        "Running tips, gear guides, and training insights from Zone2Run.",
+      url,
+      siteName: "Zone2Run",
+      type: "website",
+    },
     twitter: {
       card: "summary",
       title: "Running Blog - Tips & Gear Guides",
@@ -128,11 +137,20 @@ export function blogMetadata(locale: string): Metadata {
 }
 
 export function brandsMetadata(locale: string): Metadata {
+  const url = `${BASE_URL}/${locale}/brands`;
   return {
     title: "Brands",
     description:
       "Explore our curated selection of premium running brands at Zone2Run.",
     alternates: buildHreflangAlternates("/brands", locale),
+    openGraph: {
+      title: "Brands",
+      description:
+        "Explore our curated selection of premium running brands at Zone2Run.",
+      url,
+      siteName: "Zone2Run",
+      type: "website",
+    },
     twitter: {
       card: "summary",
       title: "Brands",
@@ -143,10 +161,18 @@ export function brandsMetadata(locale: string): Metadata {
 }
 
 export function collectionsMetadata(locale: string): Metadata {
+  const url = `${BASE_URL}/${locale}/collections`;
   return {
     title: "Collections",
     description: "Shop our curated collections of running apparel at Zone2Run.",
     alternates: buildHreflangAlternates("/collections", locale),
+    openGraph: {
+      title: "Collections",
+      description: "Shop our curated collections of running apparel at Zone2Run.",
+      url,
+      siteName: "Zone2Run",
+      type: "website",
+    },
     twitter: {
       card: "summary",
       title: "Collections",

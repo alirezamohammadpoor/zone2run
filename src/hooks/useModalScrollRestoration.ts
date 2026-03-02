@@ -1,3 +1,5 @@
+"use client";
+
 import { useScrollStore } from "@/store/scroll";
 
 export function useModalScrollRestoration() {

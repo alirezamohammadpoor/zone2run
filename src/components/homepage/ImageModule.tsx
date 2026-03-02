@@ -29,7 +29,7 @@ function ImageModuleComponent({ imageModule }: { imageModule: ImageModule }) {
         ) : imageModule.mediaType === "image" && imageModule.image ? (
           <Image
             src={urlFor(imageModule.image).url()}
-            alt={imageModule.image.alt || ""}
+            alt={imageModule.image.alt || "Image"}
             fill
             className="object-cover"
             sizes="100vw"

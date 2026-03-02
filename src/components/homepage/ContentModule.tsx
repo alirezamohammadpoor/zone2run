@@ -100,7 +100,7 @@ function MediaContent({ module }: { module: PortableTextModule }) {
       >
         <Image
           src={imageWithLqip.asset?.url || ""}
-          alt={module.image.alt || ""}
+          alt={module.image.alt || module.title || "Content image"}
           fill
           className="object-cover"
           style={{ objectPosition }}
