@@ -25,12 +25,6 @@ export const pageType = defineField({
       validation: validateSlug,
     }),
     defineField({
-      name: "colorTheme",
-      type: "reference",
-      to: [{ type: "colorTheme" }],
-      group: "theme",
-    }),
-    defineField({
       name: "showHero",
       type: "boolean",
       description: "If disabled, page title will be displayed instead",

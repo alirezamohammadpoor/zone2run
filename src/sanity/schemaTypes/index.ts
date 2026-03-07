@@ -96,7 +96,6 @@ const blocks = [portableTextType, portableTextSimpleType];
 import brandType from "./brand";
 import categoryType from "./category";
 import { collectionType } from "./documents/collection";
-import { colorThemeType } from "./documents/colorTheme";
 import { pageType } from "./documents/page";
 import { productType } from "./documents/product";
 import { productVariantType } from "./documents/productVariant";
@@ -106,7 +105,6 @@ const documents = [
   brandType,
   categoryType,
   collectionType,
-  colorThemeType,
   pageType,
   productType,
   productVariantType,
