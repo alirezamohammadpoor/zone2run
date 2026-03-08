@@ -12,7 +12,7 @@ export const metadata: Metadata = {
  * This layout is completely separate from the main app layout.
  * It does NOT include:
  * - Header/Footer (not needed in Studio)
- * - PreviewProvider (Studio has its own preview system)
+ * - VisualEditing/SanityLive (Studio has its own preview system)
  * - ScrollRestoration (Studio manages its own scroll)
  * - Analytics/SpeedInsights (optional for admin area)
  *

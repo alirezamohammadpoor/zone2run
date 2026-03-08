@@ -15,8 +15,8 @@ import { Suspense } from "react";
 import { localeToCountry } from "@/lib/locale/localeUtils";
 import { buildHreflangAlternates } from "@/lib/metadata";
 
-// ISR: Revalidate every 30 minutes, on-demand via Sanity webhook
-export const revalidate = 1800;
+// Fallback only — primary revalidation is on-demand via Sanity webhook. Pricing/stock fetched live from Shopify.
+export const revalidate = 21600;
 
 // Generate dynamic metadata for SEO
 export async function generateMetadata({

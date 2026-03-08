@@ -73,6 +73,17 @@ export type SiteSettings = {
     _weak?: boolean;
     [internalGroqTypeReferenceTo]?: "homepageVersion";
   };
+  marketHomepages?: Array<{
+    region?: "nordic" | "uk" | "eu";
+    homepage?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "homepageVersion";
+    };
+    _type: "marketHomepage";
+    _key: string;
+  }>;
   productTabs?: {
     shippingAndReturns?: string;
     payments?: string;
@@ -794,12 +805,6 @@ export type Page = {
   _rev: string;
   title?: string;
   slug?: Slug;
-  colorTheme?: {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "colorTheme";
-  };
   showHero?: boolean;
   hero?: Hero;
   body?: PortableText;
@@ -984,12 +989,6 @@ export type Product = {
   hidden?: string;
   titleProxy?: ProxyString;
   slugProxy?: ProxyString;
-  colorTheme?: {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "colorTheme";
-  };
   body?: PortableText;
   store?: ShopifyProduct;
   seo?: Seo;
@@ -1182,12 +1181,6 @@ export type Collection = {
   titleProxy?: ProxyString;
   slugProxy?: ProxyString;
   description?: string;
-  colorTheme?: {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "colorTheme";
-  };
   vector?: {
     asset?: {
       _ref: string;
@@ -1275,17 +1268,6 @@ export type Collection = {
   }>;
   store?: ShopifyCollection;
   seo?: Seo;
-};
-
-export type ColorTheme = {
-  _id: string;
-  _type: "colorTheme";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  title?: string;
-  text?: Color;
-  background?: Color;
 };
 
 export type LinkExternal = {
@@ -1428,5 +1410,5 @@ export type Geopoint = {
   alt?: number;
 };
 
-export type AllSanitySchemaTypes = PortableTextSimple | PortableText | SiteSettings | HomepageVersion | Seo | Settings | NotFoundPage | FooterSettings | Menu | NavigationMenu | BlogProductsModule | PortableTextModule | ImageModule | SpotifyPlaylistsModule | EditorialModule | HeroModule | Spot | ShopifyProductVariant | ShopifyProduct | ShopifyCollection | ProxyString | ProductWithVariant | ProductVariant | Inventory | ProductReference | ProductHotspots | PriceRange | PlaceholderString | Option | SanityImageCrop | SanityImageHotspot | MenuLinks | ImageWithProductHotspots | Hero | CustomProductOptionSize | CustomProductOptionSizeObject | CustomProductOptionColor | CustomProductOptionColorObject | Color | CollectionRule | CollectionReference | CollectionLinks | CollectionGroup | LinkProduct | LinkInternal | Page | Slug | Home | BlogPost | BlogCategory | Product | Brand | Category | Collection | ColorTheme | LinkExternal | LinkEmail | MediaTag | RgbaColor | HsvaColor | HslaColor | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageMetadata | SanityFileAsset | SanityAssetSourceData | SanityImageAsset | Geopoint;
+export type AllSanitySchemaTypes = PortableTextSimple | PortableText | SiteSettings | HomepageVersion | Seo | Settings | NotFoundPage | FooterSettings | Menu | NavigationMenu | BlogProductsModule | PortableTextModule | ImageModule | SpotifyPlaylistsModule | EditorialModule | HeroModule | Spot | ShopifyProductVariant | ShopifyProduct | ShopifyCollection | ProxyString | ProductWithVariant | ProductVariant | Inventory | ProductReference | ProductHotspots | PriceRange | PlaceholderString | Option | SanityImageCrop | SanityImageHotspot | MenuLinks | ImageWithProductHotspots | Hero | CustomProductOptionSize | CustomProductOptionSizeObject | CustomProductOptionColor | CustomProductOptionColorObject | Color | CollectionRule | CollectionReference | CollectionLinks | CollectionGroup | LinkProduct | LinkInternal | Page | Slug | Home | BlogPost | BlogCategory | Product | Brand | Category | Collection | LinkExternal | LinkEmail | MediaTag | RgbaColor | HsvaColor | HslaColor | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageMetadata | SanityFileAsset | SanityAssetSourceData | SanityImageAsset | Geopoint;
 export declare const internalGroqTypeReferenceTo: unique symbol;

@@ -42,9 +42,9 @@ export default async function NotFound() {
         {/* Buttons */}
         <div className="flex gap-4">
           {buttons.map(
-            (button: { text: string; link: string }, index: number) => (
+            (button: { text: string; link: string }) => (
               <LocaleLink
-                key={index}
+                key={button.link}
                 href={button.link}
                 className="px-6 py-3 bg-white text-black text-xs hover:bg-gray-100 transition-colors"
               >

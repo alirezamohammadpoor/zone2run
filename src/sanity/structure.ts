@@ -5,7 +5,6 @@ import menuStructure from "./menuStructure";
 import collectionStructure from "./collectionStructure";
 import productStructure from "./productStructure";
 import pageStructure from "./pageStructure";
-import colorThemeStructure from "./colorThemeStructure";
 import settingStructure from "./settingStructure";
 import siteSettingsStructure from "./siteSettingsStructure";
 import { brandStructure } from "./brandStructure";
@@ -29,6 +28,5 @@ export const structure: StructureResolver = (S, context) =>
       categoryStructure(S),
       blogStructure(S),
       pageStructure(S, context),
-      colorThemeStructure(S, context),
       settingStructure(S, context),
     ]);

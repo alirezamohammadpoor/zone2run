@@ -24,12 +24,13 @@ function SpotifyPlaylistsModuleComponent({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-        {spotifyPlaylistsModule.playlists?.map((playlist, index) => (
-          <div key={index} className="group">
+        {spotifyPlaylistsModule.playlists?.map((playlist) => (
+          <div key={playlist._key} className="group">
             <div className="w-full mb-4">
               <iframe
                 style={{ borderRadius: "12px" }}
                 src={`https://open.spotify.com/embed/playlist/${playlist.playlistId}?utm_source=generator`}
+                title={playlist.title || "Spotify playlist"}
                 width="100%"
                 height={playlist.height || 352}
                 frameBorder="0"

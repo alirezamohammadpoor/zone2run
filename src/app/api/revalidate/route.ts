@@ -72,12 +72,29 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Structured log for Vercel Functions monitoring
+    console.log(
+      JSON.stringify({
+        event: "revalidation_complete",
+        type: body._type,
+        paths: revalidated.length,
+        timestamp: new Date().toISOString(),
+      })
+    );
+
     return NextResponse.json({
       revalidated,
       count: revalidated.length,
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
+    console.error(
+      JSON.stringify({
+        event: "revalidation_failed",
+        error: String(error),
+        timestamp: new Date().toISOString(),
+      })
+    );
     return NextResponse.json(
       { message: "Error revalidating", error: String(error) },
       { status: 500 }

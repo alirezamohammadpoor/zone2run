@@ -9,11 +9,78 @@ export const siteSettingsType = defineType({
   fields: [
     defineField({
       name: "activeHomepage",
-      title: "Active Homepage",
+      title: "Default Homepage",
       type: "reference",
       to: [{ type: "homepageVersion" }],
-      description: "Select which homepage version to display on the site",
+      description:
+        "Fallback homepage for markets without a region-specific version",
       validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: "marketHomepages",
+      title: "Market-Specific Homepages",
+      description:
+        "Override the default homepage for specific market regions. Leave empty to show the default homepage everywhere.",
+      type: "array",
+      of: [
+        {
+          type: "object",
+          name: "marketHomepage",
+          fields: [
+            defineField({
+              name: "region",
+              title: "Market Region",
+              type: "string",
+              options: {
+                list: [
+                  { title: "Nordic (SE, NO, DK, FI)", value: "nordic" },
+                  { title: "United Kingdom (GB)", value: "uk" },
+                  {
+                    title: "EU (DE, FR, NL, BE, AT, IE, IT, ES, PT + more)",
+                    value: "eu",
+                  },
+                ],
+              },
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: "homepage",
+              title: "Homepage Version",
+              type: "reference",
+              to: [{ type: "homepageVersion" }],
+              validation: (Rule) => Rule.required(),
+            }),
+          ],
+          preview: {
+            select: { region: "region", title: "homepage.title" },
+            prepare({ region, title }) {
+              const labels: Record<string, string> = {
+                nordic: "Nordic",
+                uk: "United Kingdom",
+                eu: "EU",
+              };
+              return {
+                title: labels[region ?? ""] ?? region ?? "Unknown",
+                subtitle: title || "No homepage selected",
+              };
+            },
+          },
+        },
+      ],
+      validation: (Rule) =>
+        Rule.custom((items) => {
+          if (!items || !Array.isArray(items)) return true;
+          const regions = items.map((item) => {
+            const obj = item as Record<string, unknown>;
+            return obj.region as string | undefined;
+          });
+          const dupes = regions.filter(
+            (r, i) => r && regions.indexOf(r) !== i,
+          );
+          return dupes.length > 0
+            ? `Duplicate regions: ${[...new Set(dupes)].join(", ")}`
+            : true;
+        }),
     }),
     defineField({
       name: "productTabs",

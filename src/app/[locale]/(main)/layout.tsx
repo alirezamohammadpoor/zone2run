@@ -1,11 +1,14 @@
 import type { Metadata, Viewport } from "next";
 import "../../globals.css";
+import { draftMode } from "next/headers";
+import { VisualEditing } from "next-sanity/visual-editing";
+import { SanityLive } from "@/sanity/lib/live";
 import HeaderServer from "@/components/HeaderServer";
 import { ScrollRestoration } from "@/components/ScrollRestoration";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { FooterContent } from "@/components/Footer";
-import PreviewProvider from "@/components/PreviewProvider";
+import PreviewBanner from "@/components/PreviewBanner";
 import { OrganizationJsonLd } from "@/components/schemas";
 import { LocaleProvider } from "@/lib/locale/LocaleContext";
 import { localeToCountry } from "@/lib/locale/localeUtils";
@@ -37,6 +40,7 @@ export default async function MainLayout({
 }) {
   const { locale } = await params;
   const country = localeToCountry(locale);
+  const { isEnabled: isDraft } = await draftMode();
 
   return (
     <html lang="en">
@@ -60,7 +64,13 @@ export default async function MainLayout({
           Skip to main content
         </a>
         <LocaleProvider locale={locale} country={country}>
-          <PreviewProvider />
+          {isDraft && (
+            <>
+              <PreviewBanner />
+              <VisualEditing />
+            </>
+          )}
+          <SanityLive />
           <ScrollRestoration />
           <HeaderServer />
           <main id="main-content" className="relative" tabIndex={-1}>

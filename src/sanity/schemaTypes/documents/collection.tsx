@@ -45,12 +45,6 @@ export const collectionType = defineType({
       group: "editorial",
     }),
     defineField({
-      name: "colorTheme",
-      type: "reference",
-      to: [{ type: "colorTheme" }],
-      group: "theme",
-    }),
-    defineField({
       name: "vector",
       title: "Vector artwork",
       type: "image",

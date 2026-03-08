@@ -9,8 +9,8 @@ import { BreadcrumbJsonLd } from "@/components/schemas";
 import { localeToCountry } from "@/lib/locale/localeUtils";
 import { buildHreflangAlternates } from "@/lib/metadata";
 
-// ISR: Revalidate every 10 minutes, on-demand via Sanity webhook
-export const revalidate = 600;
+// Fallback only — primary revalidation is on-demand via Sanity webhook
+export const revalidate = 3600;
 
 // Generate dynamic metadata for SEO
 export async function generateMetadata({

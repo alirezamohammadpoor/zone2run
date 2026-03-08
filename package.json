@@ -8,6 +8,8 @@
     "build:analyze": "ANALYZE=true next build --webpack",
     "start": "next start",
     "lint": "next lint",
+    "test": "vitest",
+    "test:e2e": "playwright test",
     "typegen": "sanity schema extract && sanity typegen generate"
   },
   "dependencies": {
@@ -43,6 +45,7 @@
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^16.1.6",
+    "@playwright/test": "^1.58.2",
     "@types/node": "^20.19.30",
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",
@@ -52,7 +55,8 @@
     "eslint-config-next": "16.0.1",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.19",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
   },
   "overrides": {
     "@types/react": "19.2.2",

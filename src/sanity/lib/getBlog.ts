@@ -1,4 +1,5 @@
-import { sanityFetch } from "@/sanity/lib/client";
+import { cache } from "react";
+import { sanityFetch } from "@/sanity/lib/live";
 import {
   buildLimitClause,
   BLOG_PRODUCT_PROJECTION,
@@ -50,14 +51,15 @@ export async function getBlogPosts(limit?: number) {
   }${buildLimitClause(limit)}`;
 
   try {
-    return await sanityFetch<BlogPostListing[]>(query);
+    const { data } = await sanityFetch({ query });
+    return data as BlogPostListing[];
   } catch (error) {
     console.error("Error fetching blog posts:", error);
     return [];
   }
 }
 
-export async function getBlogPost(slug: string) {
+export const getBlogPost = cache(async (slug: string) => {
   const query = `*[_type == "blogPost" && slug.current == $slug][0] {
     ...,
     _id,
@@ -96,10 +98,10 @@ export async function getBlogPost(slug: string) {
 
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const post = await sanityFetch<any>(query, { slug });
-    return post;
+    const { data } = await sanityFetch({ query, params: { slug } });
+    return data;
   } catch (error) {
     console.error(`Error fetching blog post ${slug}:`, error);
     return null;
   }
-}
+});

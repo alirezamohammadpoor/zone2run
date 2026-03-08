@@ -1,6 +1,6 @@
 "use server";
 
-import { sanityFetch } from "@/sanity/lib/client";
+import { sanityFetch } from "@/sanity/lib/live";
 import { buildPaginationSlice, SEARCH_PAGE_SIZE } from "@/sanity/lib/groqUtils";
 import type { SanityProduct } from "@/types/sanityProduct";
 import { enrichWithLocalePrices } from "@/lib/locale/enrichPrices";
@@ -111,7 +111,8 @@ export async function searchProducts(
 ): Promise<SanitySearchResult> {
   // Empty query → return new arrivals only
   if (!query || query.length < 2) {
-    let products = await sanityFetch<SearchProduct[]>(NEW_ARRIVALS);
+    const { data } = await sanityFetch({ query: NEW_ARRIVALS });
+    let products = data as SearchProduct[];
     if (country) products = await enrichWithLocalePrices(products, country);
     return {
       products,
@@ -126,18 +127,23 @@ export async function searchProducts(
   const searchPattern = `${query}*`;
 
   // Parallel fetch for performance (includes count query)
-  let [products, brands, collections, totalCount] = await Promise.all([
-    sanityFetch<SearchProduct[]>(buildSearchProductsQuery(1), {
+  const [productsRes, brandsRes, collectionsRes, countRes] = await Promise.all([
+    sanityFetch({ query: buildSearchProductsQuery(1), params: {
       searchTerm: query,
       searchPattern,
-    }),
-    sanityFetch<SearchBrand[]>(SEARCH_BRANDS, { searchPattern }),
-    sanityFetch<SearchCollection[]>(SEARCH_COLLECTIONS, { searchPattern }),
-    sanityFetch<number>(COUNT_PRODUCTS, {
+    } }),
+    sanityFetch({ query: SEARCH_BRANDS, params: { searchPattern } }),
+    sanityFetch({ query: SEARCH_COLLECTIONS, params: { searchPattern } }),
+    sanityFetch({ query: COUNT_PRODUCTS, params: {
       searchTerm: query,
       searchPattern,
-    }),
+    } }),
   ]);
+
+  let products = productsRes.data as SearchProduct[];
+  const brands = brandsRes.data as SearchBrand[];
+  const collections = collectionsRes.data as SearchCollection[];
+  const totalCount = countRes.data as number;
 
   if (country) products = await enrichWithLocalePrices(products, country);
 
@@ -163,10 +169,11 @@ export async function searchProductsPage(
 
   const searchPattern = `${query}*`;
 
-  const products = await sanityFetch<SearchProduct[]>(buildSearchProductsQuery(page), {
+  const { data } = await sanityFetch({ query: buildSearchProductsQuery(page), params: {
     searchTerm: query,
     searchPattern,
-  });
+  } });
+  const products = data as SearchProduct[];
 
   return country ? enrichWithLocalePrices(products, country) : products;
 }

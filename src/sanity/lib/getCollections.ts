@@ -1,4 +1,5 @@
-import { sanityFetch } from "@/sanity/lib/client";
+import { cache } from "react";
+import { sanityFetch } from "@/sanity/lib/live";
 import type { PLPProduct } from "@/types/plpProduct";
 import {
   COLLECTION_PRODUCT_PROJECTION,
@@ -72,7 +73,8 @@ export async function getAllCollections() {
   }`;
 
   try {
-    return await sanityFetch<Collection[]>(query);
+    const { data } = await sanityFetch({ query });
+    return data as Collection[];
   } catch (error) {
     console.error("Error fetching collections:", error);
     return [];
@@ -80,7 +82,7 @@ export async function getAllCollections() {
 }
 
 // Get collection info only (no products) - for hero/LCP optimization
-export async function getCollectionInfo(slug: string): Promise<Omit<Collection, 'products'> | null> {
+export const getCollectionInfo = cache(async (slug: string): Promise<Omit<Collection, 'products'> | null> => {
   const query = `*[_type == "collection" && (store.slug.current == $slug || lower(store.slug.current) == lower($slug))][0]{
     _id,
     "title": store.title,
@@ -97,12 +99,13 @@ export async function getCollectionInfo(slug: string): Promise<Omit<Collection, 
   }`;
 
   try {
-    return await sanityFetch<Omit<Collection, 'products'> | null>(query, { slug });
+    const { data } = await sanityFetch({ query, params: { slug } });
+    return data as Omit<Collection, 'products'> | null;
   } catch (error) {
     console.error(`Error fetching collection info for ${slug}:`, error);
     return null;
   }
-}
+});
 
 // Get products for a collection - returns all products (Load More handles display)
 export async function getCollectionProducts(
@@ -119,7 +122,8 @@ export async function getCollectionProducts(
   const productsQuery = `${baseFilter}${COLLECTION_PRODUCT_PROJECTION}`;
 
   try {
-    const raw = await sanityFetch<RawProductWithSizes[]>(productsQuery, params);
+    const { data } = await sanityFetch({ query: productsQuery, params });
+    const raw = data as RawProductWithSizes[];
     let products = deduplicateSizes(raw);
     products = sortByCuratedOrder(products, curatedProducts);
     return country ? enrichWithLocalePrices(products, country) : products;
@@ -146,17 +150,19 @@ export async function getProductsByCollectionId(
   const productsQuery = `*[_type == "product" && (references($collectionId) || (defined(shopifyCollectionIds) && $shopifyIdStr in shopifyCollectionIds))]${COLLECTION_PRODUCT_PROJECTION}`;
 
   try {
-    const collection = await sanityFetch<Collection | null>(collectionQuery, { collectionId });
+    const { data: collectionData } = await sanityFetch({ query: collectionQuery, params: { collectionId } });
+    const collection = collectionData as Collection | null;
     if (!collection) return [];
 
     const shopifyIdStr = collection.shopifyId
       ? collection.shopifyId.toString()
       : "";
 
-    const raw = await sanityFetch<RawProductWithSizes[]>(productsQuery, {
+    const { data: productsData } = await sanityFetch({ query: productsQuery, params: {
       collectionId: collection._id,
       shopifyIdStr: shopifyIdStr,
-    });
+    } });
+    const raw = productsData as RawProductWithSizes[];
 
     let products = deduplicateSizes(raw);
     products = sortByCuratedOrder(products, collection.curatedProducts);

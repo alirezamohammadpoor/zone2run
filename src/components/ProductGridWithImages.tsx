@@ -17,6 +17,8 @@ export type EditorialImage = {
   caption?: string;
 };
 
+const EMPTY_EDITORIAL_IMAGES: EditorialImage[] = [];
+
 interface ProductGridWithImagesProps {
   products: CardProduct[];
   editorialImages?: EditorialImage[];
@@ -214,7 +216,7 @@ function GridContent({
 
 export default function ProductGridWithImages({
   products,
-  editorialImages = [],
+  editorialImages = EMPTY_EDITORIAL_IMAGES,
   productsPerImage = 4,
   productsPerImageXL = 8,
   gridLayout = "4col",
