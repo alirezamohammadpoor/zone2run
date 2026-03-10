@@ -1,4 +1,4 @@
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 import { SUPPORTED_LOCALES } from "@/lib/locale/localeUtils";
 
@@ -70,6 +70,13 @@ export async function POST(request: NextRequest) {
       if (slug) {
         revalidateForAllLocales(`/brands/${slug}`, revalidated);
       }
+    }
+
+    // Bust cached header data when relevant content types change
+    const HEADER_CONTENT_TYPES = ["brand", "navigationMenu", "category", "blogPost", "collection"];
+    if (HEADER_CONTENT_TYPES.includes(body._type)) {
+      revalidateTag("header-data", "max");
+      revalidated.push("tag:header-data");
     }
 
     // Structured log for Vercel Functions monitoring
