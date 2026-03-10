@@ -37,4 +37,6 @@ export { getHomepage } from "./getHomepage";
 
 export { getMenu } from "./getMenu";
 
+export { getCachedHeaderData } from "./getHeaderData";
+
 export { getSiteSettings } from "./getSiteSettings";
