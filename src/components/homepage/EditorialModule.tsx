@@ -129,7 +129,7 @@ const EditorialModuleComponent = memo(function EditorialModuleComponent({
               <LocaleLink
                 key={post._id}
                 href={postUrl}
-                className={`flex-shrink-0 w-[60vw] md:w-[40vw] lg:w-[30vw] xl:w-[25vw] min-w-0 ${isDragging ? "pointer-events-none" : ""}`}
+                className={`flex-shrink-0 w-[70vw] min-w-0 xl:w-[calc(25vw-0.5rem)] ${isDragging ? "pointer-events-none" : ""}`}
                 onClick={handleLinkClick}
                 draggable={false}
               >
@@ -141,7 +141,7 @@ const EditorialModuleComponent = memo(function EditorialModuleComponent({
                         alt={selectedImage.alt}
                         className="w-full h-full object-cover"
                         fill
-                        sizes="(max-width: 768px) 60vw, (max-width: 1024px) 40vw, 25vw"
+                        sizes="(max-width: 1279px) 70vw, 25vw"
                         draggable={false}
                       />
                     )}

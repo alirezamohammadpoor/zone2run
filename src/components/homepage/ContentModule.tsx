@@ -58,20 +58,15 @@ function TextContent({ module }: { module: PortableTextModule }) {
 
 // Shared media renderer (image or video)
 function MediaContent({ module }: { module: PortableTextModule }) {
-  const mediaHeight = module.mediaHeight || "70vh";
-
   if (module.mediaType === "video" && module.video) {
     const video = module.video as { asset?: { url?: string } };
     if (!video.asset?.url) return null;
 
     return (
-      <div
-        className="flex relative overflow-hidden w-full xl:w-[50vw] xl:justify-end"
-        style={{ height: mediaHeight, minHeight: mediaHeight }}
-      >
+      <div className="flex justify-center relative overflow-hidden w-full">
         <video
           src={video.asset.url}
-          className="w-[30vw] h-full object-cover"
+          className="w-full xl:w-[30vw] object-cover"
           autoPlay
           muted
           loop
@@ -94,17 +89,15 @@ function MediaContent({ module }: { module: PortableTextModule }) {
     };
 
     return (
-      <div
-        className="relative overflow-hidden w-full xl:w-[50vw] flex-shrink-0"
-        style={{ height: mediaHeight, minHeight: mediaHeight }}
-      >
+      <div className="flex justify-center relative overflow-hidden w-full">
         <Image
           src={imageWithLqip.asset?.url || ""}
           alt={module.image.alt || module.title || "Content image"}
-          fill
-          className="object-cover"
+          width={800}
+          height={1000}
+          className="w-full xl:w-[30vw] h-auto object-cover"
           style={{ objectPosition }}
-          sizes="(max-width: 768px) 100vw, 50vw"
+          sizes="30vw"
           {...getBlurProps(imageWithLqip)}
         />
       </div>
@@ -202,12 +195,10 @@ function TwoColumnLayout({
   right: React.ReactNode;
 }) {
   return (
-    <div className={`w-full ${SECTION_SPACING}`}>
+    <div className={`w-full px-2 ${SECTION_SPACING}`}>
       <div className="flex flex-col xl:flex-row xl:items-center gap-8">
-        <div className="px-2 order-2 xl:order-1 xl:mr-16">{left}</div>
-        <div className="px-2 xl:px-0 xl:pr-2 order-1 xl:order-2 flex items-center">
-          {right}
-        </div>
+        <div className="xl:w-1/2">{left}</div>
+        <div className="xl:w-1/2 flex items-center">{right}</div>
       </div>
     </div>
   );
@@ -238,13 +229,15 @@ export default function ContentModuleComponent({
     );
   }
 
-  // Layout 3: Media + Text (media left, text right)
+  // Layout 3: Media + Text (centered media, text underneath)
   if (contentType === "media-text") {
     return (
-      <TwoColumnLayout
-        left={<MediaContent module={contentModule} />}
-        right={<TextContent module={contentModule} />}
-      />
+      <div className={`w-full px-2 ${SECTION_SPACING} flex flex-col items-center`}>
+        <MediaContent module={contentModule} />
+        <div className="mt-4">
+          <TextContent module={contentModule} />
+        </div>
+      </div>
     );
   }
 
@@ -252,14 +245,14 @@ export default function ContentModuleComponent({
   if (contentType === "products-text") {
     return (
       <TwoColumnLayout
-        left={
+        left={<TextContent module={contentModule} />}
+        right={
           <ProductsContent
             module={contentModule}
             products={productsWithImages}
             isSplit
           />
         }
-        right={<TextContent module={contentModule} />}
       />
     );
   }
@@ -268,24 +261,26 @@ export default function ContentModuleComponent({
   // Maps old values to new layouts
   if (contentType === "text-with-media") {
     return (
-      <TwoColumnLayout
-        left={<MediaContent module={contentModule} />}
-        right={<TextContent module={contentModule} />}
-      />
+      <div className={`w-full px-2 ${SECTION_SPACING} flex flex-col items-center`}>
+        <MediaContent module={contentModule} />
+        <div className="mt-4">
+          <TextContent module={contentModule} />
+        </div>
+      </div>
     );
   }
 
   if (contentType === "text-with-products") {
     return (
       <TwoColumnLayout
-        left={
+        left={<TextContent module={contentModule} />}
+        right={
           <ProductsContent
             module={contentModule}
             products={productsWithImages}
             isSplit
           />
         }
-        right={<TextContent module={contentModule} />}
       />
     );
   }
@@ -293,10 +288,12 @@ export default function ContentModuleComponent({
   if (contentType === "media-with-products") {
     // Legacy: render as media + text (no products)
     return (
-      <TwoColumnLayout
-        left={<MediaContent module={contentModule} />}
-        right={<TextContent module={contentModule} />}
-      />
+      <div className={`w-full px-2 ${SECTION_SPACING} flex flex-col items-center`}>
+        <MediaContent module={contentModule} />
+        <div className="mt-4">
+          <TextContent module={contentModule} />
+        </div>
+      </div>
     );
   }
 
