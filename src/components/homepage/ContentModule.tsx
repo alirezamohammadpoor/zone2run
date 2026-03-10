@@ -64,14 +64,16 @@ function MediaContent({ module }: { module: PortableTextModule }) {
 
     return (
       <div className="flex justify-center relative overflow-hidden w-full">
-        <video
-          src={video.asset.url}
-          className="w-full xl:w-[30vw] object-cover"
-          autoPlay
-          muted
-          loop
-          playsInline
-        />
+        <div className="w-full xl:w-[30vw] aspect-[4/5] relative bg-gray-100">
+          <video
+            src={video.asset.url}
+            className="absolute inset-0 w-full h-full object-cover"
+            autoPlay
+            muted
+            loop
+            playsInline
+          />
+        </div>
       </div>
     );
   }
@@ -90,16 +92,17 @@ function MediaContent({ module }: { module: PortableTextModule }) {
 
     return (
       <div className="flex justify-center relative overflow-hidden w-full">
-        <Image
-          src={imageWithLqip.asset?.url || ""}
-          alt={module.image.alt || module.title || "Content image"}
-          width={800}
-          height={1000}
-          className="w-full xl:w-[30vw] h-auto object-cover"
-          style={{ objectPosition }}
-          sizes="30vw"
-          {...getBlurProps(imageWithLqip)}
-        />
+        <div className="w-full xl:w-[30vw] aspect-[4/5] relative">
+          <Image
+            src={imageWithLqip.asset?.url || ""}
+            alt={module.image.alt || module.title || "Content image"}
+            fill
+            className="object-cover"
+            style={{ objectPosition }}
+            sizes="(min-width: 1280px) 30vw, 100vw"
+            {...getBlurProps(imageWithLqip)}
+          />
+        </div>
       </div>
     );
   }
