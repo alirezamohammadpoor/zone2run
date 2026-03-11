@@ -52,15 +52,6 @@ body {
   }
 }
 
-/* Prevent body scroll when modal is open */
-body.modal-open {
-  overflow: hidden !important;
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-}
 
 @layer components {
   /* Consistent vertical spacing between homepage/page sections */
