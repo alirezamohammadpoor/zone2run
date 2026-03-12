@@ -152,6 +152,7 @@ function ProductListingInner({
           productsPerImageXL={productsPerImageXL}
           gridLayout={gridLayout}
           hasMore={remainingCount > 0}
+          activeGender={filters.gender.length === 1 ? filters.gender[0] : undefined}
         />
       ) : (
         <ProductGrid

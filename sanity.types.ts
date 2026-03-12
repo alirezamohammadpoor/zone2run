@@ -1066,7 +1066,13 @@ export type Collection = {
       _type: "image";
     };
     caption?: string;
-    linkedProduct?: {
+    linkedProductMens?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "product";
+    };
+    linkedProductWomens?: {
       _ref: string;
       _type: "reference";
       _weak?: boolean;
@@ -1224,7 +1230,13 @@ export type Brand = {
       _type: "image";
     };
     caption?: string;
-    linkedProduct?: {
+    linkedProductMens?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "product";
+    };
+    linkedProductWomens?: {
       _ref: string;
       _type: "reference";
       _weak?: boolean;

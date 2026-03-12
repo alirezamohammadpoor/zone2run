@@ -71,7 +71,8 @@ export const getBrandBySlug = cache(async (slug: string) => {
         alt
       },
       caption,
-      "linkedProductHandle": linkedProduct->shopifyHandle
+      "linkedProductHandleMens": coalesce(linkedProductMens->shopifyHandle, linkedProductMens->store.slug.current),
+      "linkedProductHandleWomens": coalesce(linkedProductWomens->shopifyHandle, linkedProductWomens->store.slug.current)
     }
   }`;
 
