@@ -15,6 +15,8 @@ export type EditorialImage = {
     alt?: string;
   };
   caption?: string;
+  linkedProductHandleMens?: string;
+  linkedProductHandleWomens?: string;
 };
 
 const EMPTY_EDITORIAL_IMAGES: EditorialImage[] = [];
@@ -27,6 +29,8 @@ interface ProductGridWithImagesProps {
   gridLayout?: "4col" | "3col";
   /** Whether more products exist beyond what's shown (guards editorial image boundary) */
   hasMore?: boolean;
+  /** Active gender filter — determines which product link to use on editorial images */
+  activeGender?: string;
 }
 
 type GridItem = {
@@ -111,19 +115,30 @@ function ProductItem({
   );
 }
 
+// Resolve editorial image product link based on active gender filter
+function getEditorialProductHandle(
+  image: EditorialImage,
+  activeGender?: string
+): string | undefined {
+  if (activeGender === "mens") return image.linkedProductHandleMens;
+  if (activeGender === "womens") return image.linkedProductHandleWomens;
+  // No gender filter: prefer mens, fallback to womens
+  return image.linkedProductHandleMens || image.linkedProductHandleWomens;
+}
+
 // Render an editorial image
 function EditorialImageBlock({
   image,
-  idx,
   isMobile,
   gridLayout = "4col",
   imageIndex = 0,
+  activeGender,
 }: {
   image: EditorialImage;
-  idx: number;
   isMobile: boolean;
   gridLayout?: "4col" | "3col";
   imageIndex?: number;
+  activeGender?: string;
 }) {
   const imageUrl = image.image?.asset?.url;
   if (!imageUrl) return null;
@@ -148,11 +163,8 @@ function EditorialImageBlock({
     return isRightAligned ? `${baseClass} col-start-3` : baseClass;
   };
 
-  return (
-    <div
-      key={`${image._key || idx}-${isMobile ? "mobile" : "xl"}`}
-      className={getClassName()}
-    >
+  const content = (
+    <>
       <Image
         src={urlFor(image.image).url()}
         alt={image.image.alt || image.caption || "Editorial image"}
@@ -165,6 +177,25 @@ function EditorialImageBlock({
           {image.caption}
         </div>
       )}
+    </>
+  );
+
+  const linkedHandle = getEditorialProductHandle(image, activeGender);
+
+  if (linkedHandle) {
+    return (
+      <LocaleLink
+        href={`/products/${linkedHandle}`}
+        className={getClassName()}
+      >
+        {content}
+      </LocaleLink>
+    );
+  }
+
+  return (
+    <div className={getClassName()}>
+      {content}
     </div>
   );
 }
@@ -175,11 +206,13 @@ function GridContent({
   isMobile,
   gridLayout = "4col",
   sizes,
+  activeGender,
 }: {
   gridItems: GridItem[];
   isMobile: boolean;
   gridLayout?: "4col" | "3col";
   sizes?: string;
+  activeGender?: string;
 }) {
   return (
     <>
@@ -200,10 +233,10 @@ function GridContent({
             <EditorialImageBlock
               key={`${item.image._key || idx}`}
               image={item.image}
-              idx={idx}
               isMobile={isMobile}
               gridLayout={gridLayout}
               imageIndex={item.imageIndex}
+              activeGender={activeGender}
             />
           );
         }
@@ -221,6 +254,7 @@ export default function ProductGridWithImages({
   productsPerImageXL = 8,
   gridLayout = "4col",
   hasMore = false,
+  activeGender,
 }: ProductGridWithImagesProps) {
   // Determine XL grid columns based on layout
   const xlGridCols =
@@ -269,6 +303,7 @@ export default function ProductGridWithImages({
           isMobile={true}
           gridLayout={gridLayout}
           sizes={productSizes}
+          activeGender={activeGender}
         />
       </div>
 
@@ -279,6 +314,7 @@ export default function ProductGridWithImages({
           isMobile={false}
           gridLayout={gridLayout}
           sizes={productSizes}
+          activeGender={activeGender}
         />
       </div>
     </div>
