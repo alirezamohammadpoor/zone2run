@@ -276,7 +276,9 @@ export const EDITORIAL_IMAGES_PROJECTION = `editorialImages[] {
     },
     alt
   },
-  caption
+  caption,
+  "linkedProductHandleMens": coalesce(linkedProductMens->shopifyHandle, linkedProductMens->store.slug.current),
+  "linkedProductHandleWomens": coalesce(linkedProductWomens->shopifyHandle, linkedProductWomens->store.slug.current)
 }`;
 
 /**

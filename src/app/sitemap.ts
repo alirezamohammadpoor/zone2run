@@ -50,7 +50,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         `*[_type == "blogPost"]{ "slug": slug.current, "category": category->slug.current, publishedAt }`
       ),
       client.fetch<CategoryPathEntry[]>(
-        `*[_type == "product" && !store.isDeleted && defined(gender) && defined(category)]{
+        `*[_type == "product" && !store.isDeleted && defined(gender) && defined(category) && gender in ["mens", "womens"]]{
           gender,
           "mainCategory": select(
             category->categoryType == "main" => category->slug.current,
@@ -76,7 +76,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: "", changeFrequency: "daily", priority: 1 },
     { path: "/mens", changeFrequency: "daily", priority: 0.9 },
     { path: "/womens", changeFrequency: "daily", priority: 0.9 },
-    { path: "/unisex", changeFrequency: "daily", priority: 0.8 },
     { path: "/collections", changeFrequency: "weekly", priority: 0.8 },
     { path: "/brands", changeFrequency: "weekly", priority: 0.8 },
     { path: "/blog", changeFrequency: "weekly", priority: 0.7 },
@@ -85,6 +84,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Category paths - extract unique from products
   const categoryPathsSet = new Set<string>();
   for (const item of categoryPaths) {
+    // Only generate paths for genders that have routes (mens, womens)
+    if (item.gender !== "mens" && item.gender !== "womens") continue;
     if (item.gender && item.mainCategory && item.subcategory && item.specific) {
       categoryPathsSet.add(
         `/${item.gender}/${item.mainCategory}/${item.subcategory}/${item.specific}`

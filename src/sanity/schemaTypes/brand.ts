@@ -131,17 +131,40 @@ export default defineType({
               type: "string",
               description: "Optional caption text for the image",
             }),
+            defineField({
+              name: "linkedProductMens",
+              title: "Link to Product (Men's)",
+              type: "reference",
+              to: [{ type: "product" }],
+              description:
+                "Optional: links to this product when viewing men's products",
+            }),
+            defineField({
+              name: "linkedProductWomens",
+              title: "Link to Product (Women's)",
+              type: "reference",
+              to: [{ type: "product" }],
+              description:
+                "Optional: links to this product when viewing women's products",
+            }),
           ],
           preview: {
             select: {
               title: "caption",
               media: "image",
-              position: "position",
+              mensTitle: "linkedProductMens.store.title",
+              womensTitle: "linkedProductWomens.store.title",
             },
-            prepare({ title, media }) {
+            prepare({ title, media, mensTitle, womensTitle }) {
+              const links = [
+                mensTitle && `M: ${mensTitle}`,
+                womensTitle && `W: ${womensTitle}`,
+              ]
+                .filter(Boolean)
+                .join(" | ");
               return {
                 title: title || "Editorial Image",
-                subtitle: "Appears after every 6 products",
+                subtitle: links || "No links",
                 media,
               };
             },

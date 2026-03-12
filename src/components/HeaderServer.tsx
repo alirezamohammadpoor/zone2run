@@ -1,16 +1,9 @@
-import { getAllBrands, getMenu } from "@/sanity/lib/getData";
-import { getFullMenuData } from "@/sanity/lib/getCategories";
-import { getBlogPosts } from "@/sanity/lib/getBlog";
+import { getCachedHeaderData } from "@/sanity/lib/getHeaderData";
 import Header from "./Header";
 
 export default async function HeaderServer() {
-  // Fetch all header data in parallel (4 queries total instead of 20+)
-  const [menuData, brands, menuConfig, blogPosts] = await Promise.all([
-    getFullMenuData(), // 2 queries: one per gender, fetches full category hierarchy
-    getAllBrands(),
-    getMenu(),
-    getBlogPosts(10),
-  ]);
+  const { menuData, brands, menuConfig, blogPosts } =
+    await getCachedHeaderData();
 
   if (!menuConfig) {
     console.warn("No menu configuration found");

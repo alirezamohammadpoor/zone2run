@@ -222,12 +222,12 @@ function GenderMenuContent({
       {/* Collections Section */}
       {featuredCollections && featuredCollections.length > 0 && (
         <div>
-          <div className="px-2 mt-4">
-            <span className="text-xs">Featured Collections</span>
+          <div className="mt-4">
+            <span className="text-xs px-2">Featured Collections</span>
 
             {/* Collection carousel */}
-            <div className="mt-2 overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-2 px-2">
-              <div className="flex gap-2">
+            <div className="mt-2 overflow-x-auto snap-x snap-mandatory scrollbar-hide scroll-px-2">
+              <div className="flex gap-2 px-2">
                 {featuredCollections.map((collection: CollectionMenuItem) => {
                   if (!collection?.slug?.current) return null;
                   return (

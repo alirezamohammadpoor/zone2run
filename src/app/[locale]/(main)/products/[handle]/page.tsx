@@ -127,9 +127,7 @@ export default async function ProductPage({
           colorVariants={product.colorVariants}
           currentProductId={product._id}
         />
-        <Suspense fallback={null}>
-          <ProductEditorialImages editorialImages={product.editorialImages} />
-        </Suspense>
+        <ProductEditorialImages editorialImages={product.editorialImages} />
       </div>
       {product.brand?.slug && (
         <Suspense fallback={null}>

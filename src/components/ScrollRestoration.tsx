@@ -13,7 +13,7 @@ export function ScrollRestoration() {
     document.body.style.width = "";
     document.body.style.left = "";
     document.body.style.right = "";
-    document.body.classList.remove("modal-open");
+
   }, []);
 
   // Scroll to top on route change
