@@ -131,17 +131,27 @@ export default defineType({
               type: "string",
               description: "Optional caption text for the image",
             }),
+            defineField({
+              name: "linkedProduct",
+              title: "Link to Product",
+              type: "reference",
+              to: [{ type: "product" }],
+              description:
+                "Optional: clicking this image navigates to the product page",
+            }),
           ],
           preview: {
             select: {
               title: "caption",
               media: "image",
-              position: "position",
+              productTitle: "linkedProduct.title",
             },
-            prepare({ title, media }) {
+            prepare({ title, media, productTitle }) {
               return {
                 title: title || "Editorial Image",
-                subtitle: "Appears after every 6 products",
+                subtitle: productTitle
+                  ? `→ ${productTitle}`
+                  : "No link",
                 media,
               };
             },

@@ -15,6 +15,7 @@ export type EditorialImage = {
     alt?: string;
   };
   caption?: string;
+  linkedProductHandle?: string;
 };
 
 const EMPTY_EDITORIAL_IMAGES: EditorialImage[] = [];
@@ -114,13 +115,11 @@ function ProductItem({
 // Render an editorial image
 function EditorialImageBlock({
   image,
-  idx,
   isMobile,
   gridLayout = "4col",
   imageIndex = 0,
 }: {
   image: EditorialImage;
-  idx: number;
   isMobile: boolean;
   gridLayout?: "4col" | "3col";
   imageIndex?: number;
@@ -148,11 +147,8 @@ function EditorialImageBlock({
     return isRightAligned ? `${baseClass} col-start-3` : baseClass;
   };
 
-  return (
-    <div
-      key={`${image._key || idx}-${isMobile ? "mobile" : "xl"}`}
-      className={getClassName()}
-    >
+  const content = (
+    <>
       <Image
         src={urlFor(image.image).url()}
         alt={image.image.alt || image.caption || "Editorial image"}
@@ -165,6 +161,23 @@ function EditorialImageBlock({
           {image.caption}
         </div>
       )}
+    </>
+  );
+
+  if (image.linkedProductHandle) {
+    return (
+      <LocaleLink
+        href={`/products/${image.linkedProductHandle}`}
+        className={getClassName()}
+      >
+        {content}
+      </LocaleLink>
+    );
+  }
+
+  return (
+    <div className={getClassName()}>
+      {content}
     </div>
   );
 }
@@ -200,7 +213,6 @@ function GridContent({
             <EditorialImageBlock
               key={`${item.image._key || idx}`}
               image={item.image}
-              idx={idx}
               isMobile={isMobile}
               gridLayout={gridLayout}
               imageIndex={item.imageIndex}

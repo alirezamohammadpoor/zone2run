@@ -276,7 +276,8 @@ export const EDITORIAL_IMAGES_PROJECTION = `editorialImages[] {
     },
     alt
   },
-  caption
+  caption,
+  "linkedProductHandle": linkedProduct->shopifyHandle
 }`;
 
 /**

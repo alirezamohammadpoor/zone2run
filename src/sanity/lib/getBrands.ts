@@ -70,7 +70,8 @@ export const getBrandBySlug = cache(async (slug: string) => {
         },
         alt
       },
-      caption
+      caption,
+      "linkedProductHandle": linkedProduct->shopifyHandle
     }
   }`;
 
