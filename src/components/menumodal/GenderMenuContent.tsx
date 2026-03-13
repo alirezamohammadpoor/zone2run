@@ -67,10 +67,10 @@ function GenderMenuContent({
         const isOpen = hasCategory(category);
         return (
           <div key={category}>
-            <div className="px-2 py-2">
+            <div className="px-2">
               <button
                 onClick={() => toggleCategory(category)}
-                className="w-full text-left flex justify-between items-center"
+                className="w-full text-left flex justify-between items-center min-h-touch-target"
               >
                 <span className="text-xs capitalize">{category}</span>
                 <ChevronRightIcon
@@ -106,7 +106,7 @@ function GenderMenuContent({
                         {subSubcats.length > 0 ? (
                           <>
                             <button
-                              className="text-xs hover:text-gray-500 text-left flex-1"
+                              className="text-xs hover:text-gray-500 text-left flex-1 min-h-touch-target flex items-center"
                               onClick={() =>
                                 toggleSubcategory(subcategory.slug.current)
                               }
@@ -117,7 +117,8 @@ function GenderMenuContent({
                               onClick={() =>
                                 toggleSubcategory(subcategory.slug.current)
                               }
-                              className="ml-2 p-1"
+                              className="ml-2 p-1 min-w-touch-target min-h-touch-target flex items-center justify-center"
+                              aria-label={`${hasSubcategory(subcategory.slug.current) ? "Collapse" : "Expand"} ${subcategory.title}`}
                             >
                               <ChevronRightIcon
                                 className="w-2 h-2 text-black"
@@ -180,10 +181,10 @@ function GenderMenuContent({
       {/* Brands Section */}
       {brands && brands.length > 0 && (
         <div>
-          <div className="px-2 py-2">
+          <div className="px-2">
             <button
               onClick={() => toggleBrand("brands")}
-              className="w-full text-left flex justify-between items-center"
+              className="w-full text-left flex justify-between items-center min-h-touch-target"
             >
               <span className="text-xs">Brands</span>
               <ChevronRightIcon

@@ -82,7 +82,7 @@ const AddedToCartModal = memo(function AddedToCartModal({
                   setIsCartOpen(true);
                   hideAddedToCart();
                 }}
-                className="px-4 py-1 bg-black text-white text-xs cursor-pointer"
+                className="px-4 py-2 bg-black text-white text-xs cursor-pointer min-h-touch-target"
               >
                 View Cart
               </button>
