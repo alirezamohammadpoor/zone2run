@@ -1,18 +1,23 @@
 "use client";
 
 import { useState, useTransition, useRef, useEffect } from "react";
+import dynamic from "next/dynamic";
 import LocaleLink from "@/components/LocaleLink";
 import { searchProducts } from "@/lib/actions/search";
 import { enrichRecentlyViewedPrices } from "@/lib/actions/recentlyViewed";
 import { useLocale } from "@/lib/locale/LocaleContext";
 import { useRecentlyViewedStore } from "@/lib/recentlyViewed/store";
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 import ProductCard from "./ProductCard";
 import RecentlyViewedSection from "./RecentlyViewedSection";
 import { Backdrop } from "@/components/ui/Backdrop";
+import { ModalHeader } from "@/components/ui/ModalHeader";
 import { NavLink } from "@/components/ui/NavLink";
 import type { SanitySearchResult } from "@/lib/actions/search";
 import type { CardProduct } from "@/types/cardProduct";
+
+const FocusLock = dynamic(() => import("react-focus-lock"), { ssr: false });
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -37,6 +42,8 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
       inputRef.current?.focus();
     }
   }, [isOpen]);
+
+  useEscapeKey(isOpen, handleClose);
 
   const handleSearch = (value: string) => {
     setQuery(value);
@@ -68,7 +75,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     }
   };
 
-  const handleClose = () => {
+  function handleClose() {
     setQuery("");
     setResults(null);
     setRecentlyViewed([]);
@@ -77,148 +84,147 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     setTimeout(() => {
       unlockScroll();
     }, 300);
-  };
+  }
 
   return (
     <>
       <Backdrop isOpen={isOpen} onClick={handleClose} blur={false} />
 
-      {/* Modal - Full screen on mobile, 25vw on desktop (matches CartModal) */}
-      <div
-        className={
-          "fixed top-0 right-0 h-[100dvh] w-full xl:w-1/2 bg-white z-50 transform transition-transform duration-300 overflow-hidden flex flex-col" +
-          (isOpen ? " translate-x-0" : " translate-x-full")
-        }
-      >
-        {/* Fixed Header */}
-        <div className="bg-white z-10 flex-shrink-0">
-          <div className="text-xs flex justify-between items-center h-12 xl:h-16 px-4 xl:px-4">
-            <span>Search</span>
-            <button
-              className="text-xs hover:text-gray-500"
-              onClick={handleClose}
-            >
-              Close
-            </button>
-          </div>
-          <div className="border-b border-gray-300 w-full" />
-        </div>
+      {/* Modal - Full screen on mobile, half on desktop */}
+      <FocusLock disabled={!isOpen}>
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="search-title"
+          className={
+            "fixed top-0 right-0 h-[100dvh] w-full xl:w-1/2 bg-white z-50 transform transition-transform duration-300 overflow-hidden flex flex-col" +
+            (isOpen ? " translate-x-0" : " translate-x-full")
+          }
+        >
+          <ModalHeader
+            title="Search"
+            titleId="search-title"
+            onClose={handleClose}
+            bordered
+          />
 
-        {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto px-4 xl:px-4">
-          {/* Search Input */}
-          <div className="mt-6">
-            <input
-              ref={inputRef}
-              type="text"
-              value={query}
-              onChange={(e) => handleSearch(e.target.value)}
-              onFocus={handleInputFocus}
-              placeholder="What are you looking for?"
-              className="w-full py-2 border-b border-gray-300 text-base md:text-sm focus:outline-none focus:border-black"
-            />
-          </div>
-
-          {isPending && query && (
-            <p className="text-xs text-gray-500 mt-4">Searching...</p>
-          )}
-
-          {/* Brands */}
-          {results?.brands && results.brands.length > 0 && (
-            <div className="mt-8">
-              <span className="text-gray-500 text-xs block mb-3">Brands</span>
-              {results.brands.map((brand) => (
-                <NavLink
-                  key={brand._id}
-                  href={`/brands/${brand.slug}`}
-                  onClick={handleClose}
-                  className="mt-2"
-                >
-                  {brand.name}
-                </NavLink>
-              ))}
+          {/* Scrollable Content */}
+          <div className="flex-1 overflow-y-auto px-4 xl:px-4">
+            {/* Search Input */}
+            <div className="mt-6">
+              <input
+                ref={inputRef}
+                type="text"
+                value={query}
+                onChange={(e) => handleSearch(e.target.value)}
+                onFocus={handleInputFocus}
+                placeholder="What are you looking for?"
+                aria-label="Search products"
+                className="w-full py-2 border-b border-gray-300 text-base md:text-sm focus:outline-none focus:border-black"
+              />
             </div>
-          )}
 
-          {/* Collections */}
-          {results?.collections && results.collections.length > 0 && (
-            <div className="mt-8">
-              <span className="text-gray-500 text-xs block mb-3">
-                Collections
-              </span>
-              {results.collections.map((collection) => (
-                <NavLink
-                  key={collection._id}
-                  href={`/collections/${collection.slug}`}
-                  onClick={handleClose}
-                  className="mt-2"
-                >
-                  {collection.title}
-                </NavLink>
-              ))}
-            </div>
-          )}
+            {isPending && query && (
+              <p className="text-xs text-gray-500 mt-4">Searching...</p>
+            )}
 
-          {/* Recently Viewed - shown in default state (no search query) */}
-          {results?.isDefault && (
-            <RecentlyViewedSection
-              products={recentlyViewed}
-              onProductClick={handleClose}
-            />
-          )}
-
-          {/* Products */}
-          {results?.products && results.products.length > 0 && (
-            <div className="mt-12 mb-8">
-              <div className="flex justify-between items-center mb-4 text-xs">
-                <span>{results.isDefault ? "New arrivals" : "Results"}</span>
-                <span>{results.totalCount} products</span>
-              </div>
-              <div className="grid grid-cols-2 xl:grid-cols-4 gap-2">
-                {results.products.map((product) => (
-                  <LocaleLink
-                    key={product._id}
-                    href={`/products/${product.handle}`}
+            {/* Brands */}
+            {results?.brands && results.brands.length > 0 && (
+              <div className="mt-8">
+                <span className="text-gray-500 text-xs block mb-3">Brands</span>
+                {results.brands.map((brand) => (
+                  <NavLink
+                    key={brand._id}
+                    href={`/brands/${brand.slug}`}
                     onClick={handleClose}
+                    className="mt-2"
                   >
-                    <ProductCard
-                      product={product as CardProduct}
-                      sizes="(max-width: 1279px) calc(50vw - 12px), calc(25vw - 10px)"
-                      disableGallery
-                    />
-                  </LocaleLink>
+                    {brand.name}
+                  </NavLink>
                 ))}
               </div>
-            </div>
-          )}
+            )}
 
-          {/* No results */}
-          {results &&
-            !results.isDefault &&
-            results.products?.length === 0 &&
-            results.brands?.length === 0 &&
-            results.collections?.length === 0 && (
-              <p className="text-xs text-gray-500 mt-12">
-                No results found for &quot;{query}&quot;
-              </p>
+            {/* Collections */}
+            {results?.collections && results.collections.length > 0 && (
+              <div className="mt-8">
+                <span className="text-gray-500 text-xs block mb-3">
+                  Collections
+                </span>
+                {results.collections.map((collection) => (
+                  <NavLink
+                    key={collection._id}
+                    href={`/collections/${collection.slug}`}
+                    onClick={handleClose}
+                    className="mt-2"
+                  >
+                    {collection.title}
+                  </NavLink>
+                ))}
+              </div>
+            )}
+
+            {/* Recently Viewed - shown in default state (no search query) */}
+            {results?.isDefault && (
+              <RecentlyViewedSection
+                products={recentlyViewed}
+                onProductClick={handleClose}
+              />
+            )}
+
+            {/* Products */}
+            {results?.products && results.products.length > 0 && (
+              <div className="mt-12 mb-8">
+                <div className="flex justify-between items-center mb-4 text-xs">
+                  <span>{results.isDefault ? "New arrivals" : "Results"}</span>
+                  <span>{results.totalCount} products</span>
+                </div>
+                <div className="grid grid-cols-2 xl:grid-cols-4 gap-2">
+                  {results.products.map((product) => (
+                    <LocaleLink
+                      key={product._id}
+                      href={`/products/${product.handle}`}
+                      onClick={handleClose}
+                    >
+                      <ProductCard
+                        product={product as CardProduct}
+                        sizes="(max-width: 1279px) calc(50vw - 12px), calc(25vw - 10px)"
+                        disableGallery
+                      />
+                    </LocaleLink>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* No results */}
+            {results &&
+              !results.isDefault &&
+              results.products?.length === 0 &&
+              results.brands?.length === 0 &&
+              results.collections?.length === 0 && (
+                <p className="text-xs text-gray-500 mt-12">
+                  No results found for &quot;{query}&quot;
+                </p>
+              )}
+          </div>
+
+          {/* See results button - fixed at bottom */}
+          {results?.products &&
+            results.products.length > 0 &&
+            !results.isDefault && (
+              <div className="bg-white border-t border-gray-300 p-4 xl:px-16 flex-shrink-0">
+                <LocaleLink
+                  href={`/search?q=${encodeURIComponent(query)}`}
+                  onClick={handleClose}
+                  className="block w-full bg-black text-white text-center py-3 text-xs hover:bg-gray-800"
+                >
+                  See results ({results.totalCount})
+                </LocaleLink>
+              </div>
             )}
         </div>
-
-        {/* See results button - fixed at bottom */}
-        {results?.products &&
-          results.products.length > 0 &&
-          !results.isDefault && (
-            <div className="bg-white border-t border-gray-300 p-4 xl:px-16 flex-shrink-0">
-              <LocaleLink
-                href={`/search?q=${encodeURIComponent(query)}`}
-                onClick={handleClose}
-                className="block w-full bg-black text-white text-center py-3 text-xs hover:bg-gray-800"
-              >
-                See results ({results.totalCount})
-              </LocaleLink>
-            </div>
-          )}
-      </div>
+      </FocusLock>
     </>
   );
 }
