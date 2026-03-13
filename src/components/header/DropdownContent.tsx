@@ -151,7 +151,7 @@ const DropdownContent = memo(function DropdownContent({
 
         {/* Brands Column */}
         <div>
-          <h3 className="text-xs mb-3 mt-2">Brands</h3>
+          <p className="text-xs mb-3 mt-2">Brands</p>
           <div className="space-y-1">
             {brands?.map((brand) => {
               if (!brand?.slug?.current) return null;
@@ -172,7 +172,7 @@ const DropdownContent = memo(function DropdownContent({
 
       {/* Featured Collections Column - Right side */}
       <div className="w-[50vw]">
-        <h3 className="text-xs mb-3 mt-2">Featured Collections</h3>
+        <p className="text-xs mb-3 mt-2">Featured Collections</p>
         <div className="grid grid-cols-4 gap-1">
           {featuredCollections?.slice(0, 4).map((collection) => {
             if (!collection?.slug?.current) return null;

@@ -67,7 +67,7 @@ export default async function SearchPage({
     <div className="px-2 py-8">
       <div className="flex justify-between items-center mb-4 px-2">
         <h1 className="text-xs">Results for &quot;{q}&quot;</h1>
-        <span className="text-xs text-gray-500">
+        <span className="text-xs text-gray-500" aria-live="polite" aria-atomic="true">
           {results.totalCount} products
         </span>
       </div>

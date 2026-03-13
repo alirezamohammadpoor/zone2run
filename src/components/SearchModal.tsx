@@ -179,7 +179,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
               <div className="mt-12 mb-8">
                 <div className="flex justify-between items-center mb-4 text-xs">
                   <span>{results.isDefault ? "New arrivals" : "Results"}</span>
-                  <span>{results.totalCount} products</span>
+                  <span aria-live="polite" aria-atomic="true">{results.totalCount} products</span>
                 </div>
                 <div className="grid grid-cols-2 xl:grid-cols-4 gap-2">
                   {results.products.map((product) => (

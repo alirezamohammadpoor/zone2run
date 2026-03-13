@@ -43,7 +43,7 @@ export default async function MainLayout({
   const { isEnabled: isDraft } = await draftMode();
 
   return (
-    <html lang="en">
+    <html lang={locale}>
       <head>
         {/* DNS Prefetch - resolve domain names early */}
         <link rel="dns-prefetch" href="//cdn.sanity.io" />

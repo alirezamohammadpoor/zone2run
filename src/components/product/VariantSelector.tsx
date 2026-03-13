@@ -86,7 +86,7 @@ const VariantSelector = memo(function VariantSelector({
                 isOneSize ? "w-full" : ""
               } ${
                 !isAvailable
-                  ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+                  ? "bg-gray-100 text-gray-500 border-gray-200 cursor-not-allowed"
                   : isSelected
                   ? "bg-black text-white border-black"
                   : "border-gray-300 hover:bg-black hover:text-white hover:border-black"

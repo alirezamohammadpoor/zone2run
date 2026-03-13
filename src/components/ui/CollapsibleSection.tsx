@@ -26,6 +26,7 @@ export function CollapsibleSection({
       className={`overflow-hidden transition-all ease-in-out ${
         isOpen ? "opacity-100" : "opacity-0"
       } ${className}`}
+      aria-hidden={!isOpen}
       style={{
         maxHeight: isOpen ? `${maxHeight}px` : "0",
         transitionDuration: `${duration}ms`,
