@@ -53,6 +53,17 @@ body {
 }
 
 
+@layer base {
+  a:focus-visible,
+  button:focus-visible,
+  [role="button"]:focus-visible,
+  select:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2px solid black;
+    outline-offset: 2px;
+  }
+}
+
 @layer components {
   /* Consistent vertical spacing between homepage/page sections */
   .section-spacing {
