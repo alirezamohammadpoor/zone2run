@@ -120,7 +120,18 @@ const EditorialModuleComponent = memo(function EditorialModuleComponent({
         </LocaleLink>
       </div>
 
-      <div className="overflow-hidden" ref={emblaRef}>
+      <div
+        className="overflow-hidden"
+        ref={emblaRef}
+        tabIndex={0}
+        role="group"
+        aria-label="Editorial posts carousel"
+        onKeyDown={(e) => {
+          if (!emblaApi) return;
+          if (e.key === "ArrowLeft") { e.preventDefault(); emblaApi.scrollPrev(); }
+          if (e.key === "ArrowRight") { e.preventDefault(); emblaApi.scrollNext(); }
+        }}
+      >
         <div className="flex gap-2">
           {postsWithImages.map(({ post, imageSelection }) => {
             const selectedImage = getSelectedImage(post, imageSelection);

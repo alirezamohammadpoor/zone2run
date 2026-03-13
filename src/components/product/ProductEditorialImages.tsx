@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useRef, useCallback } from "react";
 import Image from "next/image";
 import { urlFor } from "@/sanity/lib/image";
 
@@ -27,9 +27,27 @@ export default function ProductEditorialImages({
     return null;
   }
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollBy = useCallback((direction: 1 | -1) => {
+    const container = scrollRef.current;
+    if (!container) return;
+    const slideWidth = container.firstElementChild?.firstElementChild?.clientWidth ?? container.clientWidth * 0.7;
+    container.scrollBy({ left: direction * (slideWidth + 8), behavior: "smooth" });
+  }, []);
+
   return (
     <div className="ml-2 my-8 md:my-12 xl:my-16 pr-2 w-full">
-      <div className="overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-2 px-2">
+      <div
+        ref={scrollRef}
+        className="overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-2 px-2"
+        tabIndex={0}
+        role="group"
+        aria-label="Editorial images carousel"
+        onKeyDown={(e) => {
+          if (e.key === "ArrowLeft") { e.preventDefault(); scrollBy(-1); }
+          if (e.key === "ArrowRight") { e.preventDefault(); scrollBy(1); }
+        }}
+      >
         <div className="flex gap-2">
           {editorialImages.map((item) => {
             const imageUrl = item.image?.asset?.url;
