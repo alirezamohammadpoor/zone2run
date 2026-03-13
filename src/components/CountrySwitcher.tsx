@@ -10,6 +10,7 @@ import { countryToLocale } from "@/lib/locale/localeUtils";
 import { Backdrop } from "@/components/ui/Backdrop";
 import { ModalHeader } from "@/components/ui/ModalHeader";
 import { useEscapeKey } from "@/hooks/useEscapeKey";
+import { useInertBackground } from "@/hooks/useInertBackground";
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
 
 const FocusLock = dynamic(() => import("react-focus-lock"), { ssr: false });
@@ -48,6 +49,7 @@ export default function CountrySwitcher({ isOpen, onClose }: CountrySwitcherProp
   }, [onClose, unlockScroll]);
 
   useEscapeKey(isOpen, handleClose);
+  useInertBackground(isOpen);
 
   const handleSelect = useCallback(
     (newCountry: string) => {

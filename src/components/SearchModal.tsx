@@ -9,6 +9,7 @@ import { useLocale } from "@/lib/locale/LocaleContext";
 import { useRecentlyViewedStore } from "@/lib/recentlyViewed/store";
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
 import { useEscapeKey } from "@/hooks/useEscapeKey";
+import { useInertBackground } from "@/hooks/useInertBackground";
 import ProductCard from "./ProductCard";
 import RecentlyViewedSection from "./RecentlyViewedSection";
 import { Backdrop } from "@/components/ui/Backdrop";
@@ -44,6 +45,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   }, [isOpen]);
 
   useEscapeKey(isOpen, handleClose);
+  useInertBackground(isOpen);
 
   const handleSearch = (value: string) => {
     setQuery(value);

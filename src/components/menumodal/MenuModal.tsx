@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 // Lazy load FocusLock - only needed when modal is visible
 const FocusLock = dynamic(() => import("react-focus-lock"), { ssr: false });
 import { useEscapeKey } from "@/hooks/useEscapeKey";
+import { useInertBackground } from "@/hooks/useInertBackground";
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
 import GenderMenuContent from "./GenderMenuContent";
 import HelpContent from "./HelpContent";
@@ -42,6 +43,7 @@ function MenuModal({
   };
 
   useEscapeKey(isMenuOpen, handleClose);
+  useInertBackground(isMenuOpen);
 
   // Handle client-side mounting
   useEffect(() => {
