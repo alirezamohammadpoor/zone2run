@@ -64,18 +64,15 @@ function Header({
       <header className="fixed top-0 left-0 right-0 z-40 bg-white shadow-sm">
         <nav className="text-sm flex justify-between items-center h-12 px-2 xl:h-16 relative bg-white xl:px-4 text-xs">
           <div className="flex items-center gap-2">
-            {/* Mobile: Hamburger menu */}
+            {/* Mobile: Menu button */}
             <button
-              aria-label="Open menu"
               onClick={() => {
                 lockScroll();
                 setIsMenuOpen(true);
               }}
-              className="xl:hidden flex flex-col justify-between w-4 h-3 z-50 hover:text-gray-300 cursor-pointer"
+              className="xl:hidden hover:text-gray-500 text-xs cursor-pointer"
             >
-              <span className="w-full h-0.5 bg-current" />
-              <span className="w-full h-0.5 bg-current" />
-              <span className="w-full h-0.5 bg-current" />
+              Menu
             </button>
 
             {/* Desktop: Nav links */}

@@ -101,7 +101,7 @@ export default async function ProductPage({
               <ProductGalleryClient images={product.images} />
             ) : (
               <div className="w-full relative aspect-[4/5] flex items-center justify-center bg-gray-100">
-                <p className="text-gray-400">No images available</p>
+                <p className="text-gray-500">No images available</p>
               </div>
             )}
           </div>

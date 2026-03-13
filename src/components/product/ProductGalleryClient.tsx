@@ -50,6 +50,11 @@ export default function ProductGalleryClient({
       className="relative aspect-[4/5] xl:w-full xl:h-[92.5vh]"
       role="group"
       aria-label="Product image gallery"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "ArrowLeft") { e.preventDefault(); scrollPrev(); }
+        if (e.key === "ArrowRight") { e.preventDefault(); scrollNext(); }
+      }}
     >
       {/* Embla carousel container */}
       <div className="overflow-hidden h-full" ref={emblaRef} aria-hidden="true">

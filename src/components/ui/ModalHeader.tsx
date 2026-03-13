@@ -25,7 +25,7 @@ export function ModalHeader({
       <div className="text-xs flex justify-between items-center h-full px-2">
         <span id={titleId}>{title}</span>
         <button
-          className="text-xs hover:text-gray-500"
+          className="text-xs hover:text-gray-500 min-h-touch-target min-w-touch-target flex items-center justify-end"
           onClick={onClose}
           aria-label={`Close ${title.toLowerCase()}`}
         >

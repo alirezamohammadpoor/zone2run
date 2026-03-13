@@ -82,11 +82,11 @@ const VariantSelector = memo(function VariantSelector({
             <button
               key={size}
               aria-label={`Select size ${size}${!isAvailable ? ", unavailable" : ""}${isSelected ? ", selected" : ""}`}
-              className={`py-1 px-4 border text-center text-xs transition-colors ${
+              className={`py-2 px-4 border text-center text-xs transition-colors min-h-touch-target ${
                 isOneSize ? "w-full" : ""
               } ${
                 !isAvailable
-                  ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+                  ? "bg-gray-100 text-gray-500 border-gray-200 cursor-not-allowed"
                   : isSelected
                   ? "bg-black text-white border-black"
                   : "border-gray-300 hover:bg-black hover:text-white hover:border-black"

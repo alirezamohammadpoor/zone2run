@@ -15,7 +15,7 @@ export function FilterSortButton({
     <div className="flex items-center justify-between px-2 mb-4">
       <button
         type="button"
-        className="text-xs hover:text-gray-500"
+        className="text-xs hover:text-gray-500 min-h-touch-target flex items-center"
         onClick={onClick}
         aria-label={`Open filters${activeCount > 0 ? `, ${activeCount} active` : ""}`}
       >

@@ -7,6 +7,8 @@ import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
 
 // Lazy load FocusLock - only needed when modal is visible
 const FocusLock = dynamic(() => import("react-focus-lock"), { ssr: false });
+import { useEscapeKey } from "@/hooks/useEscapeKey";
+import { useInertBackground } from "@/hooks/useInertBackground";
 import { useHasMounted } from "@/hooks/useHasMounted";
 import Image from "next/image";
 import { useCartStore } from "@/lib/cart/store";
@@ -43,6 +45,9 @@ function CartModal({
       unlockScroll();
     }, 300);
   };
+
+  useEscapeKey(isCartOpen, handleClose);
+  useInertBackground(isCartOpen);
 
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);

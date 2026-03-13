@@ -66,9 +66,9 @@ export default async function BlogPage() {
                   )}
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-sm text-black line-clamp-2">
+                  <h2 className="text-sm text-black line-clamp-2">
                     {post.title}
-                  </h3>
+                  </h2>
 
                   {post.excerpt && <p className="text-xs">{post.excerpt}</p>}
 
