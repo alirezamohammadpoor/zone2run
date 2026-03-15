@@ -1100,7 +1100,6 @@ export type Product = {
   hidden?: string;
   titleProxy?: ProxyString;
   slugProxy?: ProxyString;
-  body?: PortableText;
   store?: ShopifyProduct;
   seo?: Seo;
   category?: {
@@ -1279,11 +1278,6 @@ export type Category = {
     [internalGroqTypeReferenceTo]?: "category";
   };
   categoryType?: "main" | "subcategory" | "specific";
-  level?: number;
-  visibility?: {
-    navigation?: boolean;
-    filters?: boolean;
-  };
   featured?: boolean;
   sortOrder?: number;
   seo?: {
@@ -1291,7 +1285,6 @@ export type Category = {
     description?: string;
     keywords?: Array<string>;
   };
-  productCount?: number;
 };
 
 export type LinkExternal = {

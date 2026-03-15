@@ -8,20 +8,15 @@ export default defineType({
     select: {
       title: "title",
       media: "image",
-      productCount: "productCount",
       categoryType: "categoryType",
       parentCategory: "parentCategory.title",
     },
-    prepare({ title, media, productCount, categoryType, parentCategory }) {
+    prepare({ title, media, categoryType, parentCategory }) {
       const typeLabel = categoryType ? `[${categoryType}]` : "";
       const parentLabel = parentCategory ? ` → ${parentCategory}` : "";
-      const countLabel = productCount
-        ? `${productCount} products`
-        : "No products";
 
       return {
         title: `${title}${typeLabel}${parentLabel}`,
-        subtitle: countLabel,
         media,
       };
     },
@@ -96,37 +91,6 @@ export default defineType({
     }),
 
     defineField({
-      name: "level",
-      title: "Hierarchy Level",
-      type: "number",
-      readOnly: true,
-      description:
-        "Automatically calculated: 1=main, 2=subcategory, 3=specific",
-    }),
-
-    defineField({
-      name: "visibility",
-      title: "Visibility",
-      type: "object",
-      fields: [
-        {
-          name: "navigation",
-          type: "boolean",
-          title: "Show in Navigation",
-          initialValue: true,
-          description: "Show this category in the main menu",
-        },
-        {
-          name: "filters",
-          type: "boolean",
-          title: "Show in Filters",
-          initialValue: true,
-          description: "Show this category in product filters",
-        },
-      ],
-    }),
-
-    defineField({
       name: "featured",
       title: "Featured Category",
       type: "boolean",
@@ -164,13 +128,5 @@ export default defineType({
       ],
     }),
 
-    defineField({
-      name: "productCount",
-      title: "Product Count",
-      type: "number",
-      readOnly: true,
-      description:
-        "Automatically calculated based on products in this category",
-    }),
   ],
 });

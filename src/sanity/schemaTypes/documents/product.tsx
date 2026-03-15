@@ -39,11 +39,6 @@ export const productType = defineType({
       options: { field: "store.slug.current" },
     }),
     defineField({
-      name: "body",
-      type: "portableText",
-      group: "editorial",
-    }),
-    defineField({
       name: "store",
       type: "shopifyProduct",
       description: "Product data from Shopify (read-only)",
