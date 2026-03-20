@@ -59,7 +59,7 @@ const MobileCarousel = memo(function MobileCarousel({
           >
             <Image
               src={image.url}
-              alt=""
+              alt={image.alt || "Product image"}
               fill
               sizes={sizes}
               className="object-cover"

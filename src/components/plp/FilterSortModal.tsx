@@ -1,6 +1,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
+import { useInertBackground } from "@/hooks/useInertBackground";
 import { useModalScrollRestoration } from "@/hooks/useModalScrollRestoration";
 import { FilterContent } from "./FilterContent";
 import { SortContent } from "./SortContent";
@@ -53,6 +55,9 @@ export function FilterSortModal({
       unlockScroll();
     }, 300);
   };
+
+  useEscapeKey(isOpen, handleClose);
+  useInertBackground(isOpen);
 
   const handleClearAll = () => {
     onFiltersChange({

@@ -7263,14 +7263,6 @@
         },
         "optional": true
       },
-      "body": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "inline",
-          "name": "portableText"
-        },
-        "optional": true
-      },
       "store": {
         "type": "objectAttribute",
         "value": {
@@ -8344,36 +8336,6 @@
         },
         "optional": true
       },
-      "level": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "number"
-        },
-        "optional": true
-      },
-      "visibility": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "object",
-          "attributes": {
-            "navigation": {
-              "type": "objectAttribute",
-              "value": {
-                "type": "boolean"
-              },
-              "optional": true
-            },
-            "filters": {
-              "type": "objectAttribute",
-              "value": {
-                "type": "boolean"
-              },
-              "optional": true
-            }
-          }
-        },
-        "optional": true
-      },
       "featured": {
         "type": "objectAttribute",
         "value": {
@@ -8418,13 +8380,6 @@
               "optional": true
             }
           }
-        },
-        "optional": true
-      },
-      "productCount": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "number"
         },
         "optional": true
       }

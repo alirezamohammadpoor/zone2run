@@ -80,7 +80,7 @@ export function ProductPrice({
         {formatCurrency(price.amount, price.currencyCode)}
       </p>
       {hasDiscount && (
-        <p className="text-xs text-gray-400 line-through">
+        <p className="text-xs text-gray-500 line-through">
           {formatCurrency(compareAtPrice.amount, compareAtPrice.currencyCode)}
         </p>
       )}

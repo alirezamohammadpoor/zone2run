@@ -18,7 +18,7 @@ export default function LoadMoreButton({
       <button
         type="button"
         onClick={onLoadMore}
-        className="text-xs hover:underline"
+        className="text-xs hover:underline min-h-touch-target px-4 flex items-center"
       >
         Load More ({remainingCount})
       </button>

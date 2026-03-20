@@ -30,7 +30,7 @@ function FilterPill({
   return (
     <button
       type="button"
-      className={`inline-flex items-center gap-2 px-2 py-1 text-xs transition-colors w-fit ${
+      className={`inline-flex items-center gap-2 px-2 py-2 text-xs transition-colors w-fit min-h-touch-target ${
         isSelected ? "bg-black text-white" : "bg-gray-100 hover:bg-gray-200"
       }`}
       onClick={onToggle}
