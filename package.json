@@ -1,9 +1,9 @@
 {
   "name": "zone2run",
-  "version": "2.14.0",
+  "version": "2.15.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "portless zone2 next dev --turbopack",
     "build": "next build",
     "build:analyze": "ANALYZE=true next build --webpack",
     "start": "next start",
