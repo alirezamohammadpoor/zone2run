@@ -81,36 +81,12 @@ export const CART_CREATE = `
           edges {
             node {
               id
-              quantity
               merchandise {
                 ... on ProductVariant {
                   id
-                  title
-                  price {
-                    amount
-                    currencyCode
-                  }
-                  product {
-                    title
-                    handle
-                    featuredImage {
-                      url
-                      altText
-                    }
-                  }
                 }
               }
             }
-          }
-        }
-        cost {
-          subtotalAmount {
-            amount
-            currencyCode
-          }
-          totalAmount {
-            amount
-            currencyCode
           }
         }
       }
