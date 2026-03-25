@@ -281,6 +281,29 @@ function extractLineIds(cart: ShopifyCart): Record<string, string> {
   return map;
 }
 
+// Cart validation — lightweight check if a cart still exists (carts expire after 30 days)
+const CART_CHECK = `
+  query cartCheck($cartId: ID!) {
+    cart(id: $cartId) {
+      id
+      checkoutUrl
+    }
+  }
+`;
+
+/** Verify a Shopify cart is still valid. Returns fresh checkoutUrl or null if expired. */
+export async function verifyCart(cartId: string): Promise<string | null> {
+  try {
+    const response = await shopifyClient.request<{
+      cart: { id: string; checkoutUrl: string } | null;
+    }>(CART_CHECK, { cartId });
+    return response.cart?.checkoutUrl ?? null;
+  } catch {
+    // Cart with archived variants can throw instead of returning null
+    return null;
+  }
+}
+
 // Main cart functions
 export async function createCart(
   lines?: { variantId: string; quantity: number }[],

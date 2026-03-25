@@ -13,7 +13,7 @@ import { useHasMounted } from "@/hooks/useHasMounted";
 import Image from "next/image";
 import { useCartStore } from "@/lib/cart/store";
 import { formatCurrency } from "@/lib/utils/formatPrice";
-import { createCart } from "@/lib/shopify/cart";
+import { createCart, verifyCart } from "@/lib/shopify/cart";
 import { useLocale } from "@/lib/locale/LocaleContext";
 import { checkCartAvailability } from "@/lib/actions/cart";
 import { Backdrop } from "@/components/ui/Backdrop";
@@ -250,11 +250,18 @@ function CartModal({
                     setIsCheckingAvailability(false);
                     setIsRedirecting(true);
 
-                    // Reuse existing Shopify cart if synced, otherwise create fresh
+                    // Verify existing cart is still valid (Shopify carts expire after 30 days)
                     const state = useCartStore.getState();
-                    if (state.shopifyCartId && state.shopifyCheckoutUrl) {
-                      window.location.href = state.shopifyCheckoutUrl;
-                      return;
+                    if (state.shopifyCartId) {
+                      const freshCheckoutUrl = await verifyCart(
+                        state.shopifyCartId,
+                      );
+                      if (freshCheckoutUrl) {
+                        window.location.href = freshCheckoutUrl;
+                        return;
+                      }
+                      // Cart expired — clear stale data, fall through to create fresh cart
+                      state.setShopifyCart("", "", {});
                     }
 
                     // Fallback: create cart with ALL items in single API call
