@@ -1,3 +1,4 @@
+import { defineQuery } from "next-sanity";
 import { sanityFetch } from "./live";
 
 interface NotFoundPage {
@@ -12,7 +13,7 @@ interface NotFoundPage {
 }
 
 export async function getNotFoundPage(): Promise<NotFoundPage | null> {
-  const query = `*[_type == "settings"][0].notFoundPage {
+  const query = defineQuery(`*[_type == "settings"][0].notFoundPage {
     title,
     body,
     image {
@@ -24,7 +25,7 @@ export async function getNotFoundPage(): Promise<NotFoundPage | null> {
       text,
       link
     }
-  }`;
+  }`);
 
   try {
     const { data } = await sanityFetch({ query });
@@ -62,7 +63,7 @@ export type FooterSettings = {
 };
 
 export async function getFooterSettings(): Promise<FooterSettings | null> {
-  const query = `*[_type == "settings"][0].footer {
+  const query = defineQuery(`*[_type == "settings"][0].footer {
     newsletter {
       heading,
       placeholder,
@@ -94,7 +95,7 @@ export async function getFooterSettings(): Promise<FooterSettings | null> {
       }
     },
     copyrightText
-  }`;
+  }`);
 
   try {
     const { data } = await sanityFetch({ query });

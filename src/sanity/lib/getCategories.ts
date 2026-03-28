@@ -1,3 +1,4 @@
+import { defineQuery } from "next-sanity";
 import { sanityFetch } from "@/sanity/lib/live";
 import { mapGenderValue } from "./groqUtils";
 import type { MenuData, SubcategoryMenuItem } from "@/types/menu";
@@ -19,7 +20,7 @@ export interface Category {
 }
 
 export async function getAllMainCategories() {
-  const query = `*[_type == "category" && categoryType == "main"] {
+  const query = defineQuery(`*[_type == "category" && categoryType == "main"] {
     _id,
     title,
     slug {
@@ -32,7 +33,7 @@ export async function getAllMainCategories() {
     )]),
     featured,
     sortOrder
-  } | order(sortOrder asc, title asc)`;
+  } | order(sortOrder asc, title asc)`);
 
   try {
     const { data } = await sanityFetch({ query });
@@ -49,8 +50,8 @@ export async function getSubSubcategoriesByParentAndGender(
 ) {
   const dbGender = mapGenderValue(gender);
 
-  const query = `*[_type == "category" && 
-    categoryType == "specific" && 
+  const query = defineQuery(`*[_type == "category" &&
+    categoryType == "specific" &&
     parentCategory->slug.current == $parentSlug
   ] {
     _id,
@@ -68,7 +69,7 @@ export async function getSubSubcategoriesByParentAndGender(
         current
       }
     }
-  } | order(sortOrder asc, title asc)`;
+  } | order(sortOrder asc, title asc)`);
 
   try {
     const { data } = await sanityFetch({ query, params: { parentSlug, gender: dbGender } });
@@ -88,7 +89,7 @@ export async function getSubcategoriesByParentAndGender(
 ) {
   const dbGender = mapGenderValue(gender);
 
-  const query = `*[_type == "category" &&
+  const query = defineQuery(`*[_type == "category" &&
     categoryType == "subcategory" &&
     parentCategory->slug.current == $parentSlug
   ] {
@@ -104,7 +105,7 @@ export async function getSubcategoriesByParentAndGender(
         current
       }
     }
-  } | order(title asc)`;
+  } | order(title asc)`);
 
   try {
     const { data } = await sanityFetch({ query, params: { parentSlug, gender: dbGender } });
@@ -130,7 +131,7 @@ export async function getCategoryHierarchyForGender(
   const dbGender = mapGenderValue(gender);
 
   // Single query that fetches: main categories → subcategories → sub-subcategories
-  const query = `*[_type == "category" && categoryType == "main"] | order(sortOrder asc, title asc) {
+  const query = defineQuery(`*[_type == "category" && categoryType == "main"] | order(sortOrder asc, title asc) {
     _id,
     title,
     slug { current },
@@ -157,7 +158,7 @@ export async function getCategoryHierarchyForGender(
         }
       }
     }
-  }`;
+  }`);
 
   try {
     const { data } = await sanityFetch({ query, params: { gender: dbGender } });

@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { defineQuery } from "next-sanity";
 import { sanityFetch } from "@/sanity/lib/live";
 import type { PLPProduct } from "@/types/plpProduct";
 import {
@@ -62,7 +63,7 @@ interface Collection {
 }
 
 export async function getAllCollections() {
-  const query = `*[_type == "collection"] | order(sortOrder asc, store.title asc) {
+  const query = defineQuery(`*[_type == "collection"] | order(sortOrder asc, store.title asc) {
     _id,
     "title": store.title,
     "slug": store.slug {
@@ -70,7 +71,7 @@ export async function getAllCollections() {
     },
     ${MENU_IMAGE_PROJECTION},
     sortOrder
-  }`;
+  }`);
 
   try {
     const { data } = await sanityFetch({ query });
@@ -83,7 +84,7 @@ export async function getAllCollections() {
 
 // Get collection info only (no products) - for hero/LCP optimization
 export const getCollectionInfo = cache(async (slug: string): Promise<Omit<Collection, 'products'> | null> => {
-  const query = `*[_type == "collection" && (store.slug.current == $slug || lower(store.slug.current) == lower($slug))][0]{
+  const query = defineQuery(`*[_type == "collection" && (store.slug.current == $slug || lower(store.slug.current) == lower($slug))][0]{
     _id,
     "title": store.title,
     "shopifyId": store.id,
@@ -96,7 +97,7 @@ export const getCollectionInfo = cache(async (slug: string): Promise<Omit<Collec
       _id,
       "handle": coalesce(shopifyHandle, store.slug.current)
     }
-  }`;
+  }`);
 
   try {
     const { data } = await sanityFetch({ query, params: { slug } });
@@ -119,7 +120,7 @@ export async function getCollectionProducts(
   const baseFilter = `*[_type == "product" && (references($collectionId) || (defined(shopifyCollectionIds) && $shopifyIdStr in shopifyCollectionIds))]`;
 
   const params: Record<string, unknown> = { collectionId, shopifyIdStr };
-  const productsQuery = `${baseFilter}${COLLECTION_PRODUCT_PROJECTION}`;
+  const productsQuery = defineQuery(`${baseFilter}${COLLECTION_PRODUCT_PROJECTION}`);
 
   try {
     const { data } = await sanityFetch({ query: productsQuery, params });
@@ -139,15 +140,15 @@ export async function getProductsByCollectionId(
   country?: string,
 ): Promise<PLPProduct[]> {
   // First get the collection to access shopifyId and curatedProducts
-  const collectionQuery = `*[_type == "collection" && _id == $collectionId][0]{
+  const collectionQuery = defineQuery(`*[_type == "collection" && _id == $collectionId][0]{
     _id,
     "shopifyId": store.id,
     "curatedProducts": curatedProducts[]-> {
       _id
     }
-  }`;
+  }`);
 
-  const productsQuery = `*[_type == "product" && (references($collectionId) || (defined(shopifyCollectionIds) && $shopifyIdStr in shopifyCollectionIds))]${COLLECTION_PRODUCT_PROJECTION}`;
+  const productsQuery = defineQuery(`*[_type == "product" && (references($collectionId) || (defined(shopifyCollectionIds) && $shopifyIdStr in shopifyCollectionIds))]${COLLECTION_PRODUCT_PROJECTION}`);
 
   try {
     const { data: collectionData } = await sanityFetch({ query: collectionQuery, params: { collectionId } });

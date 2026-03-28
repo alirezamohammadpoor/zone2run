@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { defineQuery } from "next-sanity";
 import { sanityFetch } from "@/sanity/lib/live";
 import type { EditorialImage } from "./groqUtils";
 
@@ -15,7 +16,7 @@ interface Brand {
 }
 
 export async function getAllBrands() {
-  const query = `*[_type == "brand"] {
+  const query = defineQuery(`*[_type == "brand"] {
     _id,
     name,
     slug {
@@ -28,7 +29,7 @@ export async function getAllBrands() {
     },
     "productCount": count(*[_type == "product" && references(^._id)]),
     featured
-  } | order(name asc)`;
+  } | order(name asc)`);
 
   try {
     const { data } = await sanityFetch({ query });
@@ -40,7 +41,7 @@ export async function getAllBrands() {
 }
 
 export const getBrandBySlug = cache(async (slug: string) => {
-  const query = `*[_type == "brand" && slug.current == $slug][0] {
+  const query = defineQuery(`*[_type == "brand" && slug.current == $slug][0] {
     _id,
     name,
     description,
@@ -74,7 +75,7 @@ export const getBrandBySlug = cache(async (slug: string) => {
       "linkedProductHandleMens": coalesce(linkedProductMens->shopifyHandle, linkedProductMens->store.slug.current),
       "linkedProductHandleWomens": coalesce(linkedProductWomens->shopifyHandle, linkedProductWomens->store.slug.current)
     }
-  }`;
+  }`);
 
   try {
     const { data } = await sanityFetch({ query, params: { slug } });

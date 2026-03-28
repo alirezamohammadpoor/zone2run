@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { defineQuery } from "next-sanity";
 import { sanityFetch } from "@/sanity/lib/live";
 import {
   buildLimitClause,
@@ -25,7 +26,7 @@ export interface BlogPostListing {
 
 
 export async function getBlogPosts(limit?: number) {
-  const query = `*[_type == "blogPost"] | order(publishedAt desc) {
+  const query = defineQuery(`*[_type == "blogPost"] | order(publishedAt desc) {
     _id,
     title,
     slug { current },
@@ -48,7 +49,7 @@ export async function getBlogPosts(limit?: number) {
     featuredImage { asset-> { url, "lqip": metadata.lqip }, alt },
     editorialImage { asset-> { url, "lqip": metadata.lqip }, alt },
     readingTime
-  }${buildLimitClause(limit)}`;
+  }${buildLimitClause(limit)}`);
 
   try {
     const { data } = await sanityFetch({ query });
@@ -60,7 +61,7 @@ export async function getBlogPosts(limit?: number) {
 }
 
 export const getBlogPost = cache(async (slug: string) => {
-  const query = `*[_type == "blogPost" && slug.current == $slug][0] {
+  const query = defineQuery(`*[_type == "blogPost" && slug.current == $slug][0] {
     ...,
     _id,
     title,
@@ -94,7 +95,7 @@ export const getBlogPost = cache(async (slug: string) => {
     },
     featuredCollectionLimit,
     featuredCollectionDisplayType
-  }`;
+  }`);
 
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

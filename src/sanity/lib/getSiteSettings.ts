@@ -1,12 +1,13 @@
+import { defineQuery } from "next-sanity";
 import { sanityFetch } from "@/sanity/lib/live";
 
 export async function getSiteSettings() {
-  const query = `*[_type == "siteSettings"][0] {
+  const query = defineQuery(`*[_type == "siteSettings"][0] {
     productTabs {
       shippingAndReturns,
       payments
     }
-  }`;
+  }`);
 
   try {
     const { data } = await sanityFetch({ query });
