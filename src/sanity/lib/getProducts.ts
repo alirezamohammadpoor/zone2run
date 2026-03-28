@@ -1,3 +1,4 @@
+import { defineQuery } from "next-sanity";
 import { sanityFetch } from "@/sanity/lib/live";
 import type { SanityProduct } from "@/types/sanityProduct";
 import type { PLPProduct } from "@/types/plpProduct";
@@ -19,7 +20,7 @@ import { deduplicateSizes, type RawProductWithSizes } from "./deduplicateSizes";
 export async function getSanityProductByHandle(
   handle: string,
 ): Promise<SanityProduct | null> {
-  const query = `*[_type == "product" && (shopifyHandle == $handle || store.slug.current == $handle)][0] {
+  const query = defineQuery(`*[_type == "product" && (shopifyHandle == $handle || store.slug.current == $handle)][0] {
     ${PDP_PRODUCT_PROJECTION},
     "colorVariants": colorVariants[]-> {
       _id,
@@ -41,7 +42,7 @@ export async function getSanityProductByHandle(
       },
       caption
     }
-  }`;
+  }`);
 
   try {
     const { data } = await sanityFetch({ query, params: { handle } });
@@ -59,9 +60,9 @@ export async function getSanityProductByHandle(
 export async function getAllProducts(
   country?: string,
 ): Promise<PLPProduct[]> {
-  const query = `*[_type == "product"] {
+  const query = defineQuery(`*[_type == "product"] {
     ${PLP_PRODUCT_PROJECTION}
-  }`;
+  }`);
 
   try {
     const { data } = await sanityFetch({ query });
@@ -88,9 +89,9 @@ export async function getProductsByBrand(
 
   const baseFilter = `*[_type == "product" && (brand->slug.current == $brandSlug || lower(brand->slug.current) == lower($brandSlug))${genderFilter}]`;
 
-  const query = `${baseFilter} {
+  const query = defineQuery(`${baseFilter} {
     ${PLP_PRODUCT_PROJECTION}
-  } | order(_createdAt desc)${buildLimitClause(limit)}`;
+  } | order(_createdAt desc)${buildLimitClause(limit)}`);
 
   try {
     const params = dbGender ? { brandSlug, dbGender } : { brandSlug };
@@ -111,9 +112,9 @@ export async function getProductsByGender(
 ): Promise<PLPProduct[]> {
   const dbGender = mapGenderValue(gender);
 
-  const query = `*[_type == "product" && (gender == $gender || gender == "unisex")] {
+  const query = defineQuery(`*[_type == "product" && (gender == $gender || gender == "unisex")] {
     ${PLP_PRODUCT_PROJECTION}
-  } | order(_createdAt desc)${buildLimitClause(limit)}`;
+  } | order(_createdAt desc)${buildLimitClause(limit)}`);
 
   try {
     const { data } = await sanityFetch({ query, params: { gender: dbGender } });
@@ -137,7 +138,7 @@ export async function getProductsByPath(
 
   const query =
     categoryType === "main"
-      ? `*[_type == "product" &&
+      ? defineQuery(`*[_type == "product" &&
         (gender == $gender || gender == "unisex") &&
         (
           (category->categoryType == "main" &&
@@ -151,14 +152,14 @@ export async function getProductsByPath(
         )
       ] {
     ${PLP_PRODUCT_PROJECTION}
-  } | order(_createdAt desc)${buildLimitClause(limit)}`
-      : `*[_type == "product" &&
+  } | order(_createdAt desc)${buildLimitClause(limit)}`)
+      : defineQuery(`*[_type == "product" &&
         (gender == $gender || gender == "unisex") &&
         category->categoryType == $categoryType &&
         category->slug.current == $categorySlug
       ] {
     ${PLP_PRODUCT_PROJECTION}
-  } | order(_createdAt desc)${buildLimitClause(limit)}`;
+  } | order(_createdAt desc)${buildLimitClause(limit)}`);
 
   try {
     const { data } = await sanityFetch({ query, params: {
@@ -187,7 +188,7 @@ export async function getProductsBySubcategoryIncludingSubSubcategories(
 ): Promise<PLPProduct[]> {
   const dbGender = mapGenderValue(gender);
 
-  const query = `*[_type == "product" &&
+  const query = defineQuery(`*[_type == "product" &&
     (gender == $gender || gender == "unisex") &&
     (
       (category->categoryType == "subcategory" &&
@@ -200,7 +201,7 @@ export async function getProductsBySubcategoryIncludingSubSubcategories(
     )
   ] {
     ${PLP_PRODUCT_PROJECTION}
-  } | order(_createdAt desc)${buildLimitClause(limit)}`;
+  } | order(_createdAt desc)${buildLimitClause(limit)}`);
 
   try {
     const { data } = await sanityFetch({ query, params: {
@@ -230,7 +231,7 @@ export async function getProductsByPath3Level(
 ): Promise<PLPProduct[]> {
   const dbGender = mapGenderValue(gender);
 
-  const query = `*[_type == "product" &&
+  const query = defineQuery(`*[_type == "product" &&
     (gender == $gender || gender == "unisex") &&
     category->categoryType == "specific" &&
     category->slug.current == $subsubcategorySlug &&
@@ -238,7 +239,7 @@ export async function getProductsByPath3Level(
     category->parentCategory->parentCategory->slug.current == $mainCategorySlug
   ] {
     ${PLP_PRODUCT_PROJECTION}
-  } | order(_createdAt desc)${buildLimitClause(limit)}`;
+  } | order(_createdAt desc)${buildLimitClause(limit)}`);
 
   try {
     const { data } = await sanityFetch({ query, params: {
@@ -269,9 +270,9 @@ export async function getProductsByIds(
 ): Promise<CardProduct[]> {
   if (productIds.length === 0) return [];
 
-  const query = `*[_id in $productIds] {
+  const query = defineQuery(`*[_id in $productIds] {
     ${CARD_PRODUCT_PROJECTION}
-  }`;
+  }`);
 
   try {
     const { data } = await sanityFetch({ query, params: { productIds } });
@@ -293,9 +294,9 @@ export async function getRelatedProducts(
   limit: number = 12,
   country?: string,
 ): Promise<CardProduct[]> {
-  const query = `*[_type == "product" && brand->slug.current == $brandSlug && _id != $excludeId] {
+  const query = defineQuery(`*[_type == "product" && brand->slug.current == $brandSlug && _id != $excludeId] {
     ${CARD_PRODUCT_PROJECTION}
-  } | order(_createdAt desc)[0...${limit}]`;
+  } | order(_createdAt desc)[0...${limit}]`);
 
   try {
     const { data } = await sanityFetch({ query, params: { brandSlug, excludeId } });

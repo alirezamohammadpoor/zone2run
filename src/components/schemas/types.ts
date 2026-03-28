@@ -82,6 +82,25 @@ export interface ContactPointSchema {
   telephone?: string;
 }
 
+// BlogPosting Schema - for blog post pages
+export interface BlogPostingSchema {
+  "@context": "https://schema.org";
+  "@type": "BlogPosting";
+  headline: string;
+  description?: string;
+  image?: string;
+  datePublished?: string;
+  author?: PersonSchema;
+  publisher: OrganizationSchema;
+  mainEntityOfPage: string;
+  wordCount?: number;
+}
+
+export interface PersonSchema {
+  "@type": "Person";
+  name: string;
+}
+
 // Helper type for breadcrumb items (matches existing Breadcrumbs.tsx)
 export interface BreadcrumbItem {
   label: string;

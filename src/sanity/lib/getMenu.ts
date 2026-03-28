@@ -1,8 +1,9 @@
+import { defineQuery } from "next-sanity";
 import { sanityFetch } from "@/sanity/lib/live";
 import type { MenuConfig } from "@/types/menu";
 
 export async function getMenu(): Promise<MenuConfig | undefined> {
-  const query = `*[_type == "navigationMenu"][0] {
+  const query = defineQuery(`*[_type == "navigationMenu"][0] {
     men {
       featuredCollections[]-> {
         _id,
@@ -49,7 +50,7 @@ export async function getMenu(): Promise<MenuConfig | undefined> {
         _key
       }
     }
-  }`;
+  }`);
 
   try {
     const { data } = await sanityFetch({ query });
