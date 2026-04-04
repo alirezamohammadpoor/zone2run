@@ -16,7 +16,7 @@ const nextConfig = {
         hostname: "cdn.shopify.com",
       },
     ],
-    formats: ["image/avif", "image/webp"],
+    formats: ["image/webp"],
     minimumCacheTTL: 2678400, // 31 days - reduces Vercel image optimization costs
     deviceSizes: [640, 828, 1200, 1920],
     imageSizes: [64, 128, 256, 384, 512],

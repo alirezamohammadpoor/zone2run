@@ -81,36 +81,12 @@ export const CART_CREATE = `
           edges {
             node {
               id
-              quantity
               merchandise {
                 ... on ProductVariant {
                   id
-                  title
-                  price {
-                    amount
-                    currencyCode
-                  }
-                  product {
-                    title
-                    handle
-                    featuredImage {
-                      url
-                      altText
-                    }
-                  }
                 }
               }
             }
-          }
-        }
-        cost {
-          subtotalAmount {
-            amount
-            currencyCode
-          }
-          totalAmount {
-            amount
-            currencyCode
           }
         }
       }
@@ -279,6 +255,29 @@ function extractLineIds(cart: ShopifyCart): Record<string, string> {
     map[edge.node.merchandise.id] = edge.node.id;
   }
   return map;
+}
+
+// Cart validation — lightweight check if a cart still exists (carts expire after 30 days)
+const CART_CHECK = `
+  query cartCheck($cartId: ID!) {
+    cart(id: $cartId) {
+      id
+      checkoutUrl
+    }
+  }
+`;
+
+/** Verify a Shopify cart is still valid. Returns fresh checkoutUrl or null if expired. */
+export async function verifyCart(cartId: string): Promise<string | null> {
+  try {
+    const response = await shopifyClient.request<{
+      cart: { id: string; checkoutUrl: string } | null;
+    }>(CART_CHECK, { cartId });
+    return response.cart?.checkoutUrl ?? null;
+  } catch {
+    // Cart with archived variants can throw instead of returning null
+    return null;
+  }
 }
 
 // Main cart functions

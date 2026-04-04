@@ -12,6 +12,8 @@ import {
 
 import { DEFAULT_COUNTRY } from "@/lib/locale/countries";
 
+export const CART_STORAGE_KEY = "cart-storage";
+
 const initialState: CartState = {
   items: [],
   isLoading: false,
@@ -203,6 +205,6 @@ export const useCartStore = create<CartStore>()(
         });
       },
     }),
-    { name: "cart-storage" }
+    { name: CART_STORAGE_KEY }
   )
 );

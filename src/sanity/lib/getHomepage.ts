@@ -1,3 +1,4 @@
+import { defineQuery } from "next-sanity";
 import { sanityFetch } from "./live";
 
 // Shared modules projection for both queries
@@ -127,7 +128,7 @@ const modulesProjection = `modules[] {
 export async function getHomepage() {
   // First try to get homepage via siteSettings (new system)
   // Use _id == "siteSettings" to target the singleton specifically
-  const siteSettingsQuery = `*[_id == "siteSettings"][0] {
+  const siteSettingsQuery = defineQuery(`*[_id == "siteSettings"][0] {
     activeHomepage-> {
       _id,
       title,
@@ -136,17 +137,17 @@ export async function getHomepage() {
         ...
       }
     }
-  }.activeHomepage`;
+  }.activeHomepage`);
 
   // Fallback to old home singleton if siteSettings doesn't exist
-  const fallbackQuery = `*[_type == "home"][0] {
+  const fallbackQuery = defineQuery(`*[_type == "home"][0] {
     _id,
     title,
     ${modulesProjection},
     seo {
       ...
     }
-  }`;
+  }`);
 
   try {
     // sanityFetch auto-detects draftMode() — serves draft or published content

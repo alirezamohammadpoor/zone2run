@@ -9,6 +9,7 @@ import BlogProductCarousel from "@/components/blog/BlogProductCarousel";
 import type { CardProduct } from "@/types/cardProduct";
 import type { PLPProduct } from "@/types/plpProduct";
 import { getSelectedImage } from "@/lib/utils/imageSelection";
+import ArticleJsonLd from "@/components/schemas/ArticleJsonLd";
 
 // ISR: Revalidate every 24 hours, on-demand via Sanity webhook
 export const revalidate = 86400;
@@ -78,9 +79,9 @@ interface BlogProductsModuleValue {
 export default async function PostPage({
   params,
 }: {
-  params: Promise<{ category: string; postSlug: string }>;
+  params: Promise<{ locale: string; category: string; postSlug: string }>;
 }) {
-  const { postSlug } = await params;
+  const { locale, category, postSlug } = await params;
   const post = await getBlogPost(postSlug);
 
   if (!post) return notFound();
@@ -290,6 +291,18 @@ export default async function PostPage({
           )}
         </div>
       )}
+
+      <ArticleJsonLd
+        title={post.title}
+        excerpt={post.excerpt}
+        publishedAt={post.publishedAt}
+        author={post.author}
+        image={post.featuredImage?.asset?.url}
+        readingTime={post.readingTime}
+        locale={locale}
+        categorySlug={category}
+        postSlug={postSlug}
+      />
     </div>
   );
 }

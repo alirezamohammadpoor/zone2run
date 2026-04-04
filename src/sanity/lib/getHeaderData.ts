@@ -1,4 +1,5 @@
 import { unstable_cache } from "next/cache";
+import { defineQuery } from "next-sanity";
 import { client } from "./client";
 import type {
   MenuData,
@@ -32,7 +33,7 @@ interface HeaderData {
   blogPosts: BlogPostMenuItem[];
 }
 
-const HEADER_QUERY = `{
+const HEADER_QUERY = defineQuery(`{
   "categories": *[_type == "category" && categoryType == "main"] | order(sortOrder asc, title asc) {
     _id,
     title,
@@ -87,7 +88,7 @@ const HEADER_QUERY = `{
     category-> { title, slug { current } },
     featuredImage { asset-> { url, "lqip": metadata.lqip }, alt }
   }
-}`;
+}`);
 
 function transformCategoryArray(
   categories: RawHeaderQueryResult["categories"]

@@ -9,7 +9,7 @@ if (!process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN) {
 }
 
 const shopifyClient = new GraphQLClient(
-  `https://${process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN}/api/2024-01/graphql.json`,
+  `https://${process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN}/api/2025-10/graphql.json`,
   {
     headers: {
       "X-Shopify-Storefront-Access-Token":
