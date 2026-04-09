@@ -171,7 +171,7 @@ const DropdownContent = memo(function DropdownContent({
       </div>
 
       {/* Featured Collections Column - Right side */}
-      <div className="w-[50vw]">
+      <div className="w-[60vw]">
         <p className="text-xs mb-3 mt-2">Featured Collections</p>
         <div className="grid grid-cols-4 gap-1">
           {featuredCollections?.slice(0, 4).map((collection) => {

@@ -262,7 +262,7 @@ export default async function PostPage({
 
       {/* Featured Collection Products */}
       {collectionProducts.length > 0 && (
-        <div className="w-full px-2 my-8 md:my-12 xl:my-16 xl:max-w-4xl xl:mx-auto xl:px-4">
+        <div className="w-full px-2 my-8 md:my-12 xl:my-16">
           <div className="py-4 flex justify-between items-center">
             <h2 className="text-black text-sm font-medium">
               {post.featuredCollection?.title || "Featured Products"}

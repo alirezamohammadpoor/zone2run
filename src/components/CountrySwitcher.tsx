@@ -97,8 +97,8 @@ export default function CountrySwitcher({ isOpen, onClose }: CountrySwitcherProp
           aria-labelledby="country-modal-title"
           inert={!isOpen ? true : undefined}
           className={
-            "fixed inset-0 bg-white z-50 transform transition-transform duration-300 flex flex-col xl:right-auto xl:w-1/2 overscroll-contain" +
-            (isOpen ? " translate-x-0" : " -translate-x-full")
+            "fixed top-0 right-0 h-[100dvh] w-full xl:w-1/2 bg-white z-50 transform transition-transform duration-300 flex flex-col overscroll-contain" +
+            (isOpen ? " translate-x-0" : " translate-x-full")
           }
         >
           <ModalHeader
