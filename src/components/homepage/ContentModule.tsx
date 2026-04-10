@@ -125,19 +125,19 @@ function ProductsContent({
   const hasDifferentLayouts = mobileDisplayType !== desktopDisplayType;
 
   const containerClass = isSplit
-    ? "w-full xl:w-[50vw] flex-shrink-0"
+    ? "w-full flex-shrink-0"
     : "w-full";
 
   const renderHeader = () =>
     (module.featuredHeading || module.featuredButtonText) && (
       <div className="flex justify-between items-center mb-4">
         {module.featuredHeading && (
-          <h2 className="text-black text-sm">{module.featuredHeading}</h2>
+          <h2 className="text-black text-sm overflow-hidden min-w-0">{module.featuredHeading}</h2>
         )}
         {module.featuredButtonText && (
           <LocaleLink
             href={module.featuredButtonLink || "/products"}
-            className="text-black text-xs hover:underline cursor-pointer"
+            className="text-black text-xs hover:underline cursor-pointer whitespace-nowrap flex-shrink-0"
           >
             {module.featuredButtonText}
           </LocaleLink>
