@@ -50,7 +50,7 @@ export default async function BlogPage() {
               <LocaleLink
                 href={`/blog/${post.category?.slug?.current}/${post.slug?.current}`}
               >
-                <div className="relative w-full h-[50vh] xl:h-[60vh] mb-4 overflow-hidden">
+                <div className="relative w-full aspect-[3/4] mb-4 overflow-hidden">
                   {imageUrl ? (
                     <Image
                       src={imageUrl}

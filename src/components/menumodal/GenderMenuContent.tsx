@@ -239,9 +239,9 @@ function GenderMenuContent({
                       onPointerDown={handlePointerDown}
                       onPointerMove={handlePointerMove}
                       draggable={false}
-                      className="flex-shrink-0 w-[70vw] min-w-0 aspect-[3/4] flex flex-col cursor-pointer snap-start"
+                      className="flex-shrink-0 w-[55vw] min-w-0 flex flex-col cursor-pointer snap-start"
                     >
-                      <div className="w-full h-full relative bg-gray-100">
+                      <div className="w-full aspect-[3/4] relative bg-gray-100">
                         {collection.menuImage?.asset?.url ? (
                           <Image
                             src={urlFor(collection.menuImage).url()}
@@ -252,7 +252,7 @@ function GenderMenuContent({
                             }
                             fill
                             className="object-cover"
-                            sizes="70vw"
+                            sizes="55vw"
                             draggable={false}
                           />
                         ) : (
