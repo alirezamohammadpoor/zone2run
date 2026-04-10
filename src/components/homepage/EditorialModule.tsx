@@ -145,7 +145,7 @@ const EditorialModuleComponent = memo(function EditorialModuleComponent({
                 draggable={false}
               >
                 <article>
-                  <div className="relative h-[40vh] md:h-[45vh] xl:h-[50vh] overflow-hidden">
+                  <div className="relative aspect-[3/4] overflow-hidden">
                     {selectedImage.url && (
                       <Image
                         src={selectedImage.url}

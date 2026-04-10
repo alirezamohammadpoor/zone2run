@@ -110,7 +110,7 @@ export default function DesktopDropdown({
         </div>
 
         {/* Right side - Latest 4 editorials with images */}
-        <div className="w-[70vw]">
+        <div className="w-[60vw]">
           <p className="text-xs mb-2">Latest Editorials</p>
           <div className="grid grid-cols-4 gap-1">
             {blogPosts?.slice(0, 4).map((post) => {
@@ -123,7 +123,7 @@ export default function DesktopDropdown({
                   className="group"
                   onClick={onClose}
                 >
-                  <div className="aspect-[2/3] relative overflow-hidden">
+                  <div className="aspect-[3/4] relative overflow-hidden">
                     {post.featuredImage?.asset?.url ? (
                       <Image
                         src={post.featuredImage.asset.url}
