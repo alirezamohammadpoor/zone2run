@@ -7,7 +7,6 @@ import { getShopifyProductByHandle } from "@/lib/shopify/products";
 import { getSiteSettings } from "@/sanity/lib/getData";
 import { notFound } from "next/navigation";
 import RelatedProductsServer from "@/components/product/RelatedProductsServer";
-import ColorVariants from "@/components/product/ColorVariants";
 import ProductEditorialImages from "@/components/product/ProductEditorialImages";
 import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/schemas";
 import { getBreadcrumbsFromProduct } from "@/components/product/Breadcrumbs";
@@ -123,10 +122,6 @@ export default async function ProductPage({
             />
           </ProductInfo>
         </div>
-        <ColorVariants
-          colorVariants={product.colorVariants}
-          currentProductId={product._id}
-        />
         <ProductEditorialImages editorialImages={product.editorialImages} />
       </div>
       {product.brand?.slug && (
