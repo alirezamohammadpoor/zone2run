@@ -1,13 +1,16 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useScrollStore } from "@/store/scroll";
 
 export function useModalScrollRestoration() {
-  const { scrollY, setScrollY } = useScrollStore();
+  const pathname = usePathname();
+  const { setScrollY, setLockedPathname } = useScrollStore();
 
   const lockScroll = () => {
     const currentScrollY = window.scrollY;
     setScrollY(currentScrollY);
+    setLockedPathname(pathname);
 
     // Calculate scrollbar width before locking
     const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
@@ -29,7 +32,16 @@ export function useModalScrollRestoration() {
   };
 
   const unlockScroll = () => {
-    const savedScrollY = scrollY;
+    // Read fresh values from the store at call time (not stale closure values)
+    const { scrollY: savedScrollY, lockedPathname } = useScrollStore.getState();
+    const currentPathname = window.location.pathname;
+    const wasLockedOnThisPage =
+      lockedPathname !== null &&
+      // Compare ignoring locale prefix since usePathname returns locale-less paths
+      (lockedPathname === currentPathname ||
+        currentPathname.endsWith(lockedPathname) ||
+        lockedPathname.endsWith(currentPathname));
+    setLockedPathname(null);
 
     // Reset body styles
     document.body.style.position = "";
@@ -45,8 +57,12 @@ export function useModalScrollRestoration() {
       (header as HTMLElement).style.paddingRight = "";
     }
 
-    // Restore scroll
-    window.scrollTo(0, savedScrollY);
+    // Only restore scroll if we're still on the same page
+    // If the user navigated away (e.g., clicked a link in the modal),
+    // the new page should start at its own scroll position (top)
+    if (wasLockedOnThisPage) {
+      window.scrollTo(0, savedScrollY);
+    }
   };
 
   return { lockScroll, unlockScroll };
