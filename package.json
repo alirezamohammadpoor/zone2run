@@ -1,6 +1,6 @@
 {
   "name": "zone2run",
-  "version": "2.16.2",
+  "version": "2.16.3",
   "private": true,
   "scripts": {
     "dev": "portless zone2 next dev --turbopack",
