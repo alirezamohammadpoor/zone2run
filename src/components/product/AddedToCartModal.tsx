@@ -69,20 +69,20 @@ const AddedToCartModal = memo(function AddedToCartModal({
         )}
         {/* Product Info + Button */}
         <div className="flex flex-col flex-1">
-          <div className="text-left flex flex-col justify-center h-full px-2 mt-4">
+          <div className="text-left flex flex-col justify-center h-full px-2">
             <p className="text-xs font-semibold">{lastAddedProduct.brand}</p>
             <p className="text-xs">{lastAddedProduct.title}</p>
             <p className="text-xs">
               {formatCurrency(lastAddedProduct.price, lastAddedProduct.currencyCode)}
             </p>
             <p className="text-xs">Size: {lastAddedProduct.size}</p>
-            <div className="flex justify-end mt-auto">
+            <div className="flex justify-end mt-auto pr-2 pb-2">
               <button
                 onClick={() => {
                   setIsCartOpen(true);
                   hideAddedToCart();
                 }}
-                className="px-4 py-2 bg-black text-white text-xs cursor-pointer min-h-touch-target"
+                className="px-4 py-2 bg-black text-white text-xs cursor-pointer"
               >
                 View Cart
               </button>

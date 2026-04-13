@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import dynamic from "next/dynamic";
 import { useEscapeKey } from "@/hooks/useEscapeKey";
 import { useInertBackground } from "@/hooks/useInertBackground";
@@ -48,6 +50,11 @@ export function FilterSortModal({
   activeFilterCount,
 }: FilterSortModalProps) {
   const { unlockScroll } = useModalScrollRestoration();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleClose = () => {
     onClose();
@@ -69,7 +76,9 @@ export function FilterSortModal({
     onSortChange("newest");
   };
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <>
       <Backdrop isOpen={isOpen} onClick={handleClose} />
       <FocusLock disabled={!isOpen}>
@@ -207,6 +216,7 @@ export function FilterSortModal({
           </div>
         </div>
       </FocusLock>
-    </>
+    </>,
+    document.body,
   );
 }
