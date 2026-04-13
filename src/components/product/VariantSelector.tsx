@@ -82,7 +82,7 @@ const VariantSelector = memo(function VariantSelector({
             <button
               key={size}
               aria-label={`Select size ${size}${!isAvailable ? ", unavailable" : ""}${isSelected ? ", selected" : ""}`}
-              className={`py-2 px-4 border text-center text-xs transition-colors min-h-touch-target ${
+              className={`py-2 px-4 border text-center text-xs transition-colors ${
                 isOneSize ? "w-full" : ""
               } ${
                 !isAvailable
