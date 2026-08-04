@@ -10,15 +10,16 @@ Premium headless e-commerce for running apparel. Sanity CMS + Shopify + Next.js.
 
 ## Tech Stack
 
-| Tech     | Version                | Role                          |
-| -------- | ---------------------- | ----------------------------- |
-| Next.js  | 16.0.7                 | App Router, Server Components |
-| React    | 19.2.1                 | UI                            |
-| Sanity   | 4.10.1                 | CMS, Visual editing           |
-| Shopify  | Storefront API 2024-01 | Commerce backend              |
-| Zustand  | 5.0.6                  | Client state (cart)           |
-| Tailwind | 3.4.17                 | Styling                       |
-| Bun      | -                      | Package manager               |
+| Tech        | Version                | Role                          |
+| ----------- | ---------------------- | ----------------------------- |
+| Next.js     | 16.3.0                 | App Router, Server Components |
+| React       | 19.2.8                 | UI                            |
+| Sanity      | 6.9.0                  | CMS, Visual editing           |
+| next-sanity | 13.3.0                 | Sanity ↔ Next integration     |
+| Shopify     | Storefront API 2024-01 | Commerce backend              |
+| Zustand     | 5.0.10                 | Client state (cart)           |
+| Tailwind    | 3.4.19                 | Styling                       |
+| Bun         | -                      | Package manager               |
 
 ---
 
@@ -230,7 +231,7 @@ SANITY_REVALIDATE_SECRET
 
 ## Gotchas
 
-1. **`bun typegen`** - Run after ANY Sanity schema change
+1. **`bun typegen`** - Run after ANY Sanity schema change. Sanity 6 CLI requires Node ≥22.12 (local default node is 20 — run with a newer node in PATH)
 2. **Webhook dedup is in-memory** - Doesn't survive deploys. Consider Redis for scale.
 3. **Cart optimistic updates** - UI updates instantly, Shopify sync is background. Silent failures possible.
 4. **Gender mapping** - URL `/mens/` maps to DB value `"mens"` (note the 's')

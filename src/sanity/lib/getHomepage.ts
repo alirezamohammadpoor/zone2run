@@ -1,5 +1,6 @@
 import { defineQuery } from "next-sanity";
 import { sanityFetch } from "./live";
+import type { Home } from "../../../sanity.types";
 
 // Shared modules projection for both queries
 const modulesProjection = `modules[] {
@@ -154,12 +155,14 @@ export async function getHomepage() {
     const { data: homepage } = await sanityFetch({ query: siteSettingsQuery });
 
     if (homepage) {
-      return homepage;
+      // Projection omits document meta fields (_type, _rev, …) HomePageSanity's
+      // Home prop type declares but never reads — cast spans that gap
+      return homepage as unknown as Home;
     }
 
     // Fallback to old system during migration
     const { data: fallback } = await sanityFetch({ query: fallbackQuery });
-    return fallback;
+    return fallback as unknown as Home | null;
   } catch (error) {
     console.error("Error fetching homepage:", error);
     return null;
