@@ -1,4 +1,4 @@
-import { unstable_cache } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 import { defineQuery } from "next-sanity";
 import { client } from "./client";
 import type {
@@ -110,29 +110,29 @@ const EMPTY_HEADER: HeaderData = {
 };
 
 /**
- * Cached header data — single GROQ query, cached via unstable_cache.
+ * Cached header data — single GROQ query in a "use cache" scope.
  * Uses client.fetch (NOT sanityFetch from defineLive) to avoid dual-cache conflict.
  * Revalidated on-demand via revalidateTag("header-data") from the revalidation webhook.
  *
  * Content types that trigger revalidation: brand, navigationMenu, category, blogPost, collection.
  * If a new content type affects the header, add it to HEADER_CONTENT_TYPES in /api/revalidate/route.ts.
  */
-export const getCachedHeaderData = unstable_cache(
-  async (): Promise<HeaderData> => {
-    try {
-      const data = await cdnClient.fetch<RawHeaderQueryResult>(HEADER_QUERY);
-      const categoryMap = transformCategoryArray(data.categories);
-      return {
-        menuData: { men: categoryMap, women: categoryMap },
-        brands: data.brands ?? [],
-        menuConfig: data.navigationMenu ?? undefined,
-        blogPosts: data.blogPosts ?? [],
-      };
-    } catch (error) {
-      console.error("Failed to fetch header data:", error);
-      return EMPTY_HEADER;
-    }
-  },
-  ["header-data"],
-  { tags: ["header-data"] }
-);
+export async function getCachedHeaderData(): Promise<HeaderData> {
+  "use cache";
+  // Parity with the old unstable_cache config: no TTL, tag-invalidated only
+  cacheTag("header-data");
+  cacheLife("max");
+  try {
+    const data = await cdnClient.fetch<RawHeaderQueryResult>(HEADER_QUERY);
+    const categoryMap = transformCategoryArray(data.categories);
+    return {
+      menuData: { men: categoryMap, women: categoryMap },
+      brands: data.brands ?? [],
+      menuConfig: data.navigationMenu ?? undefined,
+      blogPosts: data.blogPosts ?? [],
+    };
+  } catch (error) {
+    console.error("Failed to fetch header data:", error);
+    return EMPTY_HEADER;
+  }
+}
