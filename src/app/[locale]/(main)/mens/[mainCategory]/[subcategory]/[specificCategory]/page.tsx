@@ -19,8 +19,7 @@ export async function generateMetadata({
   return specificCategoryMetadata(locale, "mens", mainCategory, subcategory, specificCategory);
 }
 
-// ISR: Revalidate every hour, on-demand via Sanity webhook
-// TODO: Cache Components adoption — restore revalidate = 3600 as cacheLife once this route's data is cached
+// All content is cached ("use cache" getters, tag-invalidated via Sanity Live + webhook)
 
 export default async function MensSpecificCategoryPage({
   params,

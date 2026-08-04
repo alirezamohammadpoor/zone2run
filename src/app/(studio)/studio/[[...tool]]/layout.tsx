@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import "../../../globals.css";
 
-// TODO: Cache Components adoption. Refactor this route so this opt-out can be removed.
-// See: https://nextjs.org/docs/app/guides/migrating-to-cache-components
+// Deliberately opted out of instant-navigation validation: Sanity Studio is a
+// client-side admin SPA with its own rendering/auth — instant navigation
+// guarantees add nothing for editors and the tool routes resolve client-side.
 export const instant = false;
 
 export const metadata: Metadata = {

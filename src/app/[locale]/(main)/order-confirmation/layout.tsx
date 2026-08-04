@@ -1,7 +1,8 @@
 import { orderConfirmationMetadata } from "@/lib/metadata";
 
-// TODO: Cache Components adoption. Refactor this route so this opt-out can be removed.
-// See: https://nextjs.org/docs/app/guides/migrating-to-cache-components
+// Deliberately opted out of instant-navigation validation: this route is a
+// placeholder until Shopify order data is wired in (order lookups are
+// request-bound by nature, so the subtree will stay allowed to block).
 export const instant = false;
 
 export const metadata = orderConfirmationMetadata;
