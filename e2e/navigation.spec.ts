@@ -17,8 +17,10 @@ test.describe("PLP to PDP navigation", () => {
     // PDP loads — URL should contain /products/
     await page.waitForURL(/\/products\//, { timeout: 15000 });
 
-    // Product title is visible (PDP has an h1)
-    const heading = page.locator("h1");
+    // Product title is visible (PDP has an h1). Filter to the visible one —
+    // Next keeps the previous route's DOM hidden during soft-nav transitions,
+    // so a bare h1 locator can strict-violate against the outgoing page.
+    const heading = page.locator("h1").filter({ visible: true }).first();
     await expect(heading).toBeVisible({ timeout: 10000 });
 
     // Price with SEK currency code (formatCurrency uses currencyDisplay: "code")

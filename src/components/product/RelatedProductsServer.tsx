@@ -27,19 +27,22 @@ export default async function RelatedProductsServer({
     return null;
   }
 
-  // Shuffle so the carousel feels fresh on every visit (Fisher-Yates)
-  const shuffled = [...products];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  // Deterministic rotation seeded by product id — order varies across PDPs but
+  // is stable per page, so the result is cacheable (Math.random() is sync-IO
+  // under Cache Components and would block prerendering)
+  const rotated = [...products];
+  if (currentProductId && rotated.length > 1) {
+    let seed = 0;
+    for (const ch of currentProductId) seed = (seed * 31 + ch.charCodeAt(0)) % 997;
+    rotated.push(...rotated.splice(0, seed % rotated.length));
   }
 
   // Get brand name from first product
-  const brandName = shuffled[0]?.brand?.name || "This Brand";
+  const brandName = rotated[0]?.brand?.name || "This Brand";
 
   return (
     <RelatedProducts
-      products={shuffled}
+      products={rotated}
       brandName={brandName}
       brandSlug={brandSlug}
       displayType={displayType}

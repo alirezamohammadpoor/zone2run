@@ -13,6 +13,7 @@ interface NotFoundPage {
 }
 
 export async function getNotFoundPage(): Promise<NotFoundPage | null> {
+  "use cache";
   const query = defineQuery(`*[_type == "settings"][0].notFoundPage {
     title,
     body,
@@ -63,6 +64,7 @@ export type FooterSettings = {
 };
 
 export async function getFooterSettings(): Promise<FooterSettings | null> {
+  "use cache";
   const query = defineQuery(`*[_type == "settings"][0].footer {
     newsletter {
       heading,

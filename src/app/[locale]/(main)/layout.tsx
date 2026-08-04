@@ -14,6 +14,10 @@ import { LocaleProvider } from "@/lib/locale/LocaleContext";
 import { localeToCountry } from "@/lib/locale/localeUtils";
 import { SUPPORTED_LOCALES } from "@/lib/locale/localeUtils";
 
+// TODO: Cache Components adoption. Refactor this route so this opt-out can be removed.
+// See: https://nextjs.org/docs/app/guides/migrating-to-cache-components
+export const instant = false;
+
 export const metadata: Metadata = {
   title: {
     default: "Zone2Run",

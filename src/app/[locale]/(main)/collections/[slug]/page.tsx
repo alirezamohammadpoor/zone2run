@@ -8,8 +8,12 @@ import { BreadcrumbJsonLd } from "@/components/schemas";
 import { localeToCountry } from "@/lib/locale/localeUtils";
 import { buildHreflangAlternates } from "@/lib/metadata";
 
+// TODO: Cache Components adoption. Refactor this route so this opt-out can be removed.
+// See: https://nextjs.org/docs/app/guides/migrating-to-cache-components
+export const instant = false;
+
 // ISR: Revalidate every hour, on-demand via Sanity webhook
-export const revalidate = 3600;
+// TODO: Cache Components adoption — restore revalidate = 3600 as cacheLife once this route's data is cached
 
 interface CollectionPageProps {
   params: Promise<{ locale: string; slug: string }>;

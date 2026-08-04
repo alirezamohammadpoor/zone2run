@@ -127,6 +127,7 @@ const modulesProjection = `modules[] {
 }`;
 
 export async function getHomepage() {
+  "use cache";
   // First try to get homepage via siteSettings (new system)
   // Use _id == "siteSettings" to target the singleton specifically
   const siteSettingsQuery = defineQuery(`*[_id == "siteSettings"][0] {

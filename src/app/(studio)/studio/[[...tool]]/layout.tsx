@@ -1,10 +1,20 @@
 import type { Metadata } from "next";
 import "../../../globals.css";
 
+// TODO: Cache Components adoption. Refactor this route so this opt-out can be removed.
+// See: https://nextjs.org/docs/app/guides/migrating-to-cache-components
+export const instant = false;
+
 export const metadata: Metadata = {
   title: "Zone2Run Studio",
   description: "Content Management Studio",
 };
+
+// cacheComponents requires at least the root value of the optional catch-all
+// to prerender; [] is /studio itself, deeper tool paths resolve client-side
+export function generateStaticParams() {
+  return [{ tool: [] }];
+}
 
 /**
  * Isolated layout for Sanity Studio

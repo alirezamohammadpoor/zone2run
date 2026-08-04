@@ -26,6 +26,7 @@ export interface BlogPostListing {
 
 
 export async function getBlogPosts(limit?: number) {
+  "use cache";
   const query = defineQuery(`*[_type == "blogPost"] | order(publishedAt desc) {
     _id,
     title,
@@ -61,6 +62,7 @@ export async function getBlogPosts(limit?: number) {
 }
 
 export const getBlogPost = cache(async (slug: string) => {
+  "use cache";
   const query = defineQuery(`*[_type == "blogPost" && slug.current == $slug][0] {
     ...,
     _id,

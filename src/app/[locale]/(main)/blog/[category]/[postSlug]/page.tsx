@@ -11,8 +11,12 @@ import type { PLPProduct } from "@/types/plpProduct";
 import { getSelectedImage } from "@/lib/utils/imageSelection";
 import ArticleJsonLd from "@/components/schemas/ArticleJsonLd";
 
+// TODO: Cache Components adoption. Refactor this route so this opt-out can be removed.
+// See: https://nextjs.org/docs/app/guides/migrating-to-cache-components
+export const instant = false;
+
 // ISR: Revalidate every 24 hours, on-demand via Sanity webhook
-export const revalidate = 86400;
+// TODO: Cache Components adoption — restore revalidate = 86400 as cacheLife once this route's data is cached
 
 // Generate dynamic metadata for SEO
 export async function generateMetadata({

@@ -14,8 +14,12 @@ import { Suspense } from "react";
 import { localeToCountry } from "@/lib/locale/localeUtils";
 import { buildHreflangAlternates } from "@/lib/metadata";
 
+// TODO: Cache Components adoption. Refactor this route so this opt-out can be removed.
+// See: https://nextjs.org/docs/app/guides/migrating-to-cache-components
+export const instant = false;
+
 // Fallback only — primary revalidation is on-demand via Sanity webhook. Pricing/stock fetched live from Shopify.
-export const revalidate = 21600;
+// TODO: Cache Components adoption — restore revalidate = 21600 as cacheLife once this route's data is cached
 
 // Generate dynamic metadata for SEO
 export async function generateMetadata({

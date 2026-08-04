@@ -102,6 +102,44 @@ count(*[_type == "product" && (
   $searchTerm in tags[]
 )])`;
 
+// Cached GROQ layer — the server actions below stay per-request (country
+// pricing enrichment) and compose these "use cache" scopes
+async function fetchNewArrivals(): Promise<SearchProduct[]> {
+  "use cache";
+  const { data } = await sanityFetch({ query: NEW_ARRIVALS });
+  return data as SearchProduct[];
+}
+
+async function fetchSearchPage(
+  query: string,
+  searchPattern: string,
+  page: number,
+): Promise<SearchProduct[]> {
+  "use cache";
+  const { data } = await sanityFetch({
+    query: buildSearchProductsQuery(page),
+    params: { searchTerm: query, searchPattern },
+  });
+  return data as SearchProduct[];
+}
+
+async function fetchSearchMeta(query: string, searchPattern: string) {
+  "use cache";
+  const [brandsRes, collectionsRes, countRes] = await Promise.all([
+    sanityFetch({ query: SEARCH_BRANDS, params: { searchPattern } }),
+    sanityFetch({ query: SEARCH_COLLECTIONS, params: { searchPattern } }),
+    sanityFetch({
+      query: COUNT_PRODUCTS,
+      params: { searchTerm: query, searchPattern },
+    }),
+  ]);
+  return {
+    brands: brandsRes.data as SearchBrand[],
+    collections: collectionsRes.data as SearchCollection[],
+    totalCount: countRes.data as number,
+  };
+}
+
 /**
  * Initial search — fetches page 1 products, brands, collections, and total count.
  */
@@ -111,8 +149,7 @@ export async function searchProducts(
 ): Promise<SanitySearchResult> {
   // Empty query → return new arrivals only
   if (!query || query.length < 2) {
-    const { data } = await sanityFetch({ query: NEW_ARRIVALS });
-    let products = data as SearchProduct[];
+    let products = await fetchNewArrivals();
     if (country) products = await enrichWithLocalePrices(products, country);
     return {
       products,
@@ -127,23 +164,13 @@ export async function searchProducts(
   const searchPattern = `${query}*`;
 
   // Parallel fetch for performance (includes count query)
-  const [productsRes, brandsRes, collectionsRes, countRes] = await Promise.all([
-    sanityFetch({ query: buildSearchProductsQuery(1), params: {
-      searchTerm: query,
-      searchPattern,
-    } }),
-    sanityFetch({ query: SEARCH_BRANDS, params: { searchPattern } }),
-    sanityFetch({ query: SEARCH_COLLECTIONS, params: { searchPattern } }),
-    sanityFetch({ query: COUNT_PRODUCTS, params: {
-      searchTerm: query,
-      searchPattern,
-    } }),
+  const [pageProducts, meta] = await Promise.all([
+    fetchSearchPage(query, searchPattern, 1),
+    fetchSearchMeta(query, searchPattern),
   ]);
 
-  let products = productsRes.data as SearchProduct[];
-  const brands = brandsRes.data as SearchBrand[];
-  const collections = collectionsRes.data as SearchCollection[];
-  const totalCount = countRes.data as number;
+  let products = pageProducts;
+  const { brands, collections, totalCount } = meta;
 
   if (country) products = await enrichWithLocalePrices(products, country);
 
@@ -169,11 +196,7 @@ export async function searchProductsPage(
 
   const searchPattern = `${query}*`;
 
-  const { data } = await sanityFetch({ query: buildSearchProductsQuery(page), params: {
-    searchTerm: query,
-    searchPattern,
-  } });
-  const products = data as SearchProduct[];
+  const products = await fetchSearchPage(query, searchPattern, page);
 
   return country ? enrichWithLocalePrices(products, country) : products;
 }
