@@ -33,8 +33,8 @@ Shopify → Webhooks → Sanity → GROQ → Next.js → Browser
 
 - **Shopify**: inventory, pricing, checkout
 - **Sanity**: enriched content, editorial, images
-- **Next.js**: SSR/ISR, image optimization
-- **Webhooks**: auto-sync products/collections
+- **Next.js**: Cache Components (static shells + streamed dynamic content), image optimization
+- **Webhooks**: auto-sync products/collections + tag-based cache invalidation
 
 ---
 
@@ -66,7 +66,7 @@ src/
 │   └── api/
 │       ├── shopify-product-webhook/  # Main sync webhook
 │       ├── draft/            # Enable preview
-│       └── revalidate/       # ISR trigger
+│       └── revalidate/       # Tag-based cache invalidation (Sanity webhook)
 │
 ├── components/
 │   ├── Header.tsx            # Client nav (uses HeaderServer.tsx wrapper)
@@ -74,8 +74,7 @@ src/
 │   ├── CartModal.tsx         # Slide-out cart
 │   ├── homepage/             # Modular homepage components
 │   ├── product/              # PDP components
-│   ├── menumodal/            # Mobile nav
-│   └── skeletons/            # Loading states
+│   └── menumodal/            # Mobile nav
 │
 ├── sanity/
 │   ├── lib/                  # Data fetching
@@ -143,14 +142,45 @@ const { items, addItem, checkout } = useCartStore();
 // Persists to localStorage ("cart-storage")
 ```
 
+### Caching & Invalidation (Cache Components)
+
+`cacheComponents: true` + `partialPrefetching: true` (next.config.js). Every route
+prerenders a static shell; request-bound content streams in behind Suspense.
+
+- **Data layer**: every getter in `src/sanity/lib/` (and search) is a `"use cache"`
+  function. `sanityFetch` (src/sanity/lib/live.ts) tags each cached query with
+  next-sanity's per-query sync tags plus a coarse `"sanity-content"` tag.
+- **Invalidation is event-driven, not time-based** (next-sanity pins cached queries
+  to a 1y cacheLife):
+  - `SanityLive` expires sync tags while a browser is connected (live updates).
+  - `/api/revalidate` (Sanity webhook) expires `"sanity-content"` — the
+    visitor-independent path. Header data has its own `"header-data"` tag
+    (getCachedHeaderData), expired for header-relevant content types.
+- **Streamed commerce on the PDP**: cached Sanity content renders in the shell;
+  the live Shopify fetch starts in the page body but is awaited only inside
+  Suspense leaves whose fallbacks are the components' own null-states
+  (src/app/[locale]/(main)/products/[handle]/page.tsx).
+- **URL params are URL data**: never `await params`/`searchParams` at the top of a
+  page with unenumerated segments — push the promise into a Suspense-wrapped
+  child (see genderRouteHelpers `*Route` wrappers) or rely on a loading.tsx
+  boundary. Locale is enumerated via generateStaticParams and is fine to await.
+- **Client URL state**: use `useClientSearch` (src/hooks/useClientSearch.ts) for
+  filter/sort/limit — render-time `useSearchParams()` suspends the subtree into
+  its fallback. Hooks consumed only in event handlers should read
+  `window.location` at event time instead.
+- **instant() regression suite**: e2e/instant-navigation.spec.ts locks shell
+  expectations. Run with `EXPOSE_TESTING_API=1` at build and test time.
+
 ### Loading States
 
-Every route has `loading.tsx` with skeleton:
+Routes whose content is keyed by URL params use `loading.tsx` as the shell
+boundary (products/[handle], brands/[slug], collections/[slug], blog post,
+mens/, womens/). Fully static routes don't need one:
 
 ```typescript
-// src/app/products/[handle]/loading.tsx
+// src/app/[locale]/(main)/brands/[slug]/loading.tsx
 export default function Loading() {
-  return <ProductDetailsSkeleton />;
+  return <div className="min-h-screen" />;
 }
 ```
 
@@ -193,7 +223,7 @@ Processing:
 3. Extract: gender, category, brand
 4. Process images → upload to Sanity
 5. Create/update documents
-6. Trigger ISR revalidation
+6. Sanity webhook → `/api/revalidate` → `revalidateTag("sanity-content")`
 
 ---
 
@@ -549,17 +579,9 @@ export default async function Page() {
 
 ### React.cache() Deduplication
 
-Prevent duplicate Sanity queries on same page (PR #96):
-
-```tsx
-import { cache } from 'react';
-
-export const getProductByHandle = cache(async (handle: string) => {
-  return await sanityFetch(query, { handle });
-});
-```
-
-**When to Use**: Server components that might be rendered multiple times (layouts, parallel fetches)
+Superseded for Sanity data: `"use cache"` getters dedupe and cache across
+requests. `React.cache()` remains useful only for request-scoped dedupe of
+deliberately uncached reads (e.g. per-request Shopify lookups rendered twice).
 
 ---
 
