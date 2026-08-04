@@ -23,6 +23,7 @@ export async function getSanityProductByHandle(
   "use cache";
   const query = defineQuery(`*[_type == "product" && (shopifyHandle == $handle || store.slug.current == $handle)][0] {
     ${PDP_PRODUCT_PROJECTION},
+    "shopifyId": store.gid,
     "colorVariants": colorVariants[]-> {
       _id,
       "title": coalesce(title, store.title),

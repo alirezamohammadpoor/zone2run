@@ -91,7 +91,7 @@ export function ProductPrice({
 /**
  * Fallback when Shopify API fails - uses cached Sanity data
  */
-function ProductFormFallback({ product }: { product: SanityProduct }) {
+export function ProductFormFallback({ product }: { product: SanityProduct }) {
   // Convert Sanity variants to match Shopify shape
   const variants = product.variants?.map((v) => ({
     id: v.id,
