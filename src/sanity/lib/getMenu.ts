@@ -3,6 +3,7 @@ import { sanityFetch } from "@/sanity/lib/live";
 import type { MenuConfig } from "@/types/menu";
 
 export async function getMenu(): Promise<MenuConfig | undefined> {
+  "use cache";
   const query = defineQuery(`*[_type == "navigationMenu"][0] {
     men {
       featuredCollections[]-> {

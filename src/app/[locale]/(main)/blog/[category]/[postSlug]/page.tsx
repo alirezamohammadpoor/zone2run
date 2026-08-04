@@ -11,8 +11,7 @@ import type { PLPProduct } from "@/types/plpProduct";
 import { getSelectedImage } from "@/lib/utils/imageSelection";
 import ArticleJsonLd from "@/components/schemas/ArticleJsonLd";
 
-// ISR: Revalidate every 24 hours, on-demand via Sanity webhook
-export const revalidate = 86400;
+// All content is cached ("use cache" getters, tag-invalidated via Sanity Live + webhook)
 
 // Generate dynamic metadata for SEO
 export async function generateMetadata({

@@ -5,6 +5,8 @@ export interface SanityProduct {
   _createdAt?: string;
   title: string;
   handle: string;
+  /** Shopify product GID (store.gid) — lets the PDP render without awaiting the live Shopify fetch */
+  shopifyId?: string;
   description: string;
   vendor: string;
   productType: string;

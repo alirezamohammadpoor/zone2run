@@ -7,8 +7,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return genderMetadata(locale, "mens");
 }
 
-// ISR: Revalidate every hour, on-demand via Sanity webhook
-export const revalidate = 3600;
+// All content is cached ("use cache" getters, tag-invalidated via Sanity Live + webhook)
 
 export default async function MensPage({
   params,

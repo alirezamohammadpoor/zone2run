@@ -1,10 +1,21 @@
 import type { Metadata } from "next";
 import "../../../globals.css";
 
+// Deliberately opted out of instant-navigation validation: Sanity Studio is a
+// client-side admin SPA with its own rendering/auth — instant navigation
+// guarantees add nothing for editors and the tool routes resolve client-side.
+export const instant = false;
+
 export const metadata: Metadata = {
   title: "Zone2Run Studio",
   description: "Content Management Studio",
 };
+
+// cacheComponents requires at least the root value of the optional catch-all
+// to prerender; [] is /studio itself, deeper tool paths resolve client-side
+export function generateStaticParams() {
+  return [{ tool: [] }];
+}
 
 /**
  * Isolated layout for Sanity Studio

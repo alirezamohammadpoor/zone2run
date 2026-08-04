@@ -1,8 +1,6 @@
 import { Suspense } from "react";
 import { searchProducts } from "@/lib/actions/search";
-import ProductGrid from "@/components/ProductGrid";
 import SearchResults from "./SearchResults";
-import type { SanityProduct } from "@/types/sanityProduct";
 import type { Metadata } from "next";
 import { localeToCountry } from "@/lib/locale/localeUtils";
 import { buildHreflangAlternates } from "@/lib/metadata";
@@ -39,7 +37,20 @@ export async function generateMetadata({
   };
 }
 
-export default async function SearchPage({
+// The query is request-bound by design: the static shell prerenders and
+// results render per-request inside the Suspense boundary below.
+export default function SearchPage(props: {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ q?: string }>;
+}) {
+  return (
+    <Suspense fallback={<div className="min-h-screen" />}>
+      <SearchContent params={props.params} searchParams={props.searchParams} />
+    </Suspense>
+  );
+}
+
+async function SearchContent({
   params,
   searchParams,
 }: {
@@ -73,13 +84,11 @@ export default async function SearchPage({
       </div>
 
       {results.products.length > 0 ? (
-        <Suspense fallback={<ProductGrid products={results.products as SanityProduct[]} />}>
-          <SearchResults
-            initialProducts={results.products}
-            totalCount={results.totalCount}
-            query={q}
-          />
-        </Suspense>
+        <SearchResults
+          initialProducts={results.products}
+          totalCount={results.totalCount}
+          query={q}
+        />
       ) : (
         <p className="text-xs text-gray-500 px-2">
           No products found for &quot;{q}&quot;

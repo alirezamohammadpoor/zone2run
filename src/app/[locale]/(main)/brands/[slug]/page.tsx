@@ -9,8 +9,7 @@ import { BreadcrumbJsonLd } from "@/components/schemas";
 import { localeToCountry } from "@/lib/locale/localeUtils";
 import { buildHreflangAlternates } from "@/lib/metadata";
 
-// Fallback only — primary revalidation is on-demand via Sanity webhook
-export const revalidate = 3600;
+// All content is cached ("use cache" getters, tag-invalidated via Sanity Live + webhook)
 
 // Generate dynamic metadata for SEO
 export async function generateMetadata({

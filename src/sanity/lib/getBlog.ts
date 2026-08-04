@@ -26,6 +26,7 @@ export interface BlogPostListing {
 
 
 export async function getBlogPosts(limit?: number) {
+  "use cache";
   const query = defineQuery(`*[_type == "blogPost"] | order(publishedAt desc) {
     _id,
     title,
@@ -61,6 +62,7 @@ export async function getBlogPosts(limit?: number) {
 }
 
 export const getBlogPost = cache(async (slug: string) => {
+  "use cache";
   const query = defineQuery(`*[_type == "blogPost" && slug.current == $slug][0] {
     ...,
     _id,
@@ -98,9 +100,10 @@ export const getBlogPost = cache(async (slug: string) => {
   }`);
 
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data } = await sanityFetch({ query, params: { slug } });
-    return data;
+    // next-sanity v13 brands results with StegaString/null types the page's
+    // hand-written expectations predate; parity cast until queries are typegen-typed
+    return data as any;
   } catch (error) {
     console.error(`Error fetching blog post ${slug}:`, error);
     return null;

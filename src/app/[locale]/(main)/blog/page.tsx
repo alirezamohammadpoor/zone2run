@@ -12,8 +12,7 @@ export async function generateMetadata({
   return blogMetadata(locale);
 }
 
-// Fallback only — primary revalidation is on-demand via Sanity webhook
-export const revalidate = 3600;
+// All content is cached ("use cache" getters, tag-invalidated via Sanity Live + webhook)
 
 // Helper function to format dates consistently for SSR
 function formatDate(dateString: string) {

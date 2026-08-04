@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, Suspense, useCallback } from "react";
+import { useState, useCallback } from "react";
 import dynamic from "next/dynamic";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useClientSearch, notifyUrlChange } from "@/hooks/useClientSearch";
 import ProductGrid from "@/components/ProductGrid";
 import ProductGridWithImages from "@/components/ProductGridWithImages";
 import LoadMoreButton from "@/components/LoadMoreButton";
@@ -64,15 +65,16 @@ function ProductListingInner({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { lockScroll } = useModalScrollRestoration();
   const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  // Non-suspending URL read — useSearchParams would push this whole subtree
+  // into a Suspense fallback during prerender under Cache Components
+  const search = useClientSearch();
 
   // URL-based filter & sort state
   const { filters, updateFilters } = useUrlFilters(initialFilters);
   const { sort, updateSort } = useUrlSort();
 
   // Read visible limit from URL (?limit=56) — shareable & survives back/forward
-  const urlLimit = searchParams.get("limit");
+  const urlLimit = new URLSearchParams(search).get("limit");
   const visibleCount = urlLimit ? Math.max(PRODUCTS_PER_LOAD, parseInt(urlLimit, 10) || PRODUCTS_PER_LOAD) : PRODUCTS_PER_LOAD;
 
   // Extract available filter options with cascading behavior
@@ -89,10 +91,14 @@ function ProductListingInner({
 
   const handleLoadMore = useCallback(() => {
     const newLimit = visibleCount + PRODUCTS_PER_LOAD;
-    const params = new URLSearchParams(searchParams.toString());
+    // Event-time URL read/write, then notify useClientSearch subscribers
+    const params = new URLSearchParams(window.location.search);
     params.set("limit", newLimit.toString());
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-  }, [visibleCount, searchParams, router, pathname]);
+    router.replace(`${window.location.pathname}?${params.toString()}`, {
+      scroll: false,
+    });
+    notifyUrlChange();
+  }, [visibleCount, router]);
 
   const handleOpenModal = () => {
     lockScroll();
@@ -187,12 +193,11 @@ function ProductListingInner({
 
 /**
  * Main PLP component with client-side filtering and sorting.
- * Wraps inner component in Suspense for useSearchParams compatibility.
+ *
+ * No Suspense wrapper: nothing inside suspends anymore (URL state comes from
+ * useClientSearch), and a boundary here defers hydration until interaction —
+ * deep-linked filter/sort params would not apply until the user clicks.
  */
 export function ProductListing(props: ProductListingProps) {
-  return (
-    <Suspense fallback={<ProductGrid products={props.products} />}>
-      <ProductListingInner {...props} />
-    </Suspense>
-  );
+  return <ProductListingInner {...props} />;
 }

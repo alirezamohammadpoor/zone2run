@@ -2,6 +2,7 @@ import { defineQuery } from "next-sanity";
 import { sanityFetch } from "@/sanity/lib/live";
 
 export async function getSiteSettings() {
+  "use cache";
   const query = defineQuery(`*[_type == "siteSettings"][0] {
     productTabs {
       shippingAndReturns,

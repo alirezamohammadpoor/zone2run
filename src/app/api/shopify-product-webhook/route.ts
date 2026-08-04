@@ -19,8 +19,6 @@ import {
   type ProcessingResult,
 } from "@/lib/webhook";
 
-export const runtime = "nodejs";
-
 /**
  * Parse webhook headers
  */

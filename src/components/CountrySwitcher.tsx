@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { useLocale } from "@/lib/locale/LocaleContext";
 import { COUNTRY_MAP, SUPPORTED_COUNTRIES } from "@/lib/locale/countries";
@@ -27,7 +27,6 @@ interface CountrySwitcherProps {
 export default function CountrySwitcher({ isOpen, onClose }: CountrySwitcherProps) {
   const { locale, country } = useLocale();
   const router = useRouter();
-  const pathname = usePathname();
   const { unlockScroll } = useModalScrollRestoration();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -56,11 +55,12 @@ export default function CountrySwitcher({ isOpen, onClose }: CountrySwitcherProp
       setDropdownOpen(false);
       localStorage.setItem("z2r-country-switch", JSON.stringify({ prevCountry: country }));
       const newLocale = countryToLocale(newCountry);
-      const newPath = pathname.replace(`/${locale}`, `/${newLocale}`);
+      // Event-time read — usePathname() at render would block prerendering
+      const newPath = window.location.pathname.replace(`/${locale}`, `/${newLocale}`);
       router.push(newPath);
       handleClose();
     },
-    [locale, pathname, router, handleClose, country],
+    [locale, router, handleClose, country],
   );
 
   // Close dropdown when clicking outside
