@@ -1,18 +1,18 @@
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidateTag } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
-import { SUPPORTED_LOCALES } from "@/lib/locale/localeUtils";
 
 const REVALIDATE_SECRET = process.env.SANITY_REVALIDATE_SECRET;
 
-/** Revalidate a path for ALL supported locales (e.g. "/mens" → "/en-se/mens", "/en-dk/mens", ...) */
-function revalidateForAllLocales(path: string, revalidated: string[]) {
-  for (const locale of SUPPORTED_LOCALES) {
-    const localePath = `/${locale}${path}`;
-    revalidatePath(localePath);
-    revalidated.push(localePath);
-  }
-}
-
+/**
+ * Visitor-independent cache invalidation, called by the Sanity webhook on
+ * document changes. All cached Sanity queries carry the "sanity-content" tag
+ * (see src/sanity/lib/live.ts), so expiring that tag marks every route that
+ * consumed Sanity data stale — they regenerate in the background on the next
+ * request ("max" profile = serve stale while revalidating).
+ *
+ * SanityLive expires next-sanity's fine-grained sync tags too, but only while
+ * a browser is connected — this webhook covers the empty-store case.
+ */
 export async function POST(request: NextRequest) {
   const secret = request.nextUrl.searchParams.get("secret");
 
@@ -22,61 +22,26 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const revalidated: string[] = [];
+    const expired: string[] = [];
 
-    // Product changes
-    if (body._type === "product") {
-      const handle = body.handle;
-      if (handle) {
-        revalidateForAllLocales(`/products/${handle}`, revalidated);
-      }
-      // Revalidate listing pages (product added/removed affects these)
-      if (body.gender) {
-        revalidateForAllLocales(`/${body.gender}`, revalidated);
-      }
-      // Handle both {slug: "value"} and {slug: {current: "value"}} formats
-      const brandSlug = body.brand?.slug?.current || body.brand?.slug;
-      if (brandSlug && typeof brandSlug === "string") {
-        revalidateForAllLocales(`/brands/${brandSlug}`, revalidated);
-      }
-    }
+    // Any Sanity document change can surface through GROQ joins (products
+    // dereference brands/categories, homepage embeds products, ...) — expire
+    // all Sanity-backed data rather than maintaining a per-type mapping.
+    revalidateTag("sanity-content", "max");
+    expired.push("sanity-content");
 
-    // Collection changes
-    if (body._type === "collection") {
-      const slug = body.slug;
-      if (slug) {
-        revalidateForAllLocales(`/collections/${slug}`, revalidated);
-      }
-    }
-
-    // Blog post changes
-    if (body._type === "blogPost") {
-      const slug = body.slug;
-      const category = body.category?.slug;
-      if (slug && category) {
-        revalidateForAllLocales(`/blog/${category}/${slug}`, revalidated);
-        revalidateForAllLocales(`/blog`, revalidated);
-      }
-    }
-
-    // Homepage changes
-    if (body._type === "homepageVersion" || body._type === "siteSettings") {
-      revalidateForAllLocales(``, revalidated);
-    }
-
-    // Brand changes
-    if (body._type === "brand") {
-      const slug = body.slug;
-      if (slug) {
-        revalidateForAllLocales(`/brands/${slug}`, revalidated);
-      }
-    }
-
-    // Bust cached header data when relevant content types change
-    const HEADER_CONTENT_TYPES = ["brand", "navigationMenu", "category", "blogPost", "collection"];
+    // Header data is cached outside sanityFetch with its own tag
+    // (getCachedHeaderData) — expire it when header-relevant types change.
+    const HEADER_CONTENT_TYPES = [
+      "brand",
+      "navigationMenu",
+      "category",
+      "blogPost",
+      "collection",
+    ];
     if (HEADER_CONTENT_TYPES.includes(body._type)) {
       revalidateTag("header-data", "max");
-      revalidated.push("tag:header-data");
+      expired.push("header-data");
     }
 
     // Structured log for Vercel Functions monitoring
@@ -84,14 +49,14 @@ export async function POST(request: NextRequest) {
       JSON.stringify({
         event: "revalidation_complete",
         type: body._type,
-        paths: revalidated.length,
+        tags: expired,
         timestamp: new Date().toISOString(),
       })
     );
 
     return NextResponse.json({
-      revalidated,
-      count: revalidated.length,
+      expired,
+      count: expired.length,
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
