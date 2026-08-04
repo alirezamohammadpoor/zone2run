@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import PLPFallback from "@/components/plp/PLPFallback";
 import { Suspense } from "react";
 import { getProductsByBrand, getBrandBySlug } from "@/sanity/lib/getData";
 import { notFound } from "next/navigation";
@@ -147,7 +148,7 @@ export default async function BrandPage({
       </div>
 
       {/* Products grid streams in via Suspense */}
-      <Suspense fallback={<div className="min-h-screen" />}>
+      <Suspense fallback={<PLPFallback />}>
         <BrandProductGrid
           decodedSlug={decodedSlug}
           editorialImages={editorialImages}

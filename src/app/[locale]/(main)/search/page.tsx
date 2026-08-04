@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import PLPFallback from "@/components/plp/PLPFallback";
 import { searchProducts } from "@/lib/actions/search";
 import SearchResults from "./SearchResults";
 import type { Metadata } from "next";
@@ -44,7 +45,7 @@ export default function SearchPage(props: {
   searchParams: Promise<{ q?: string }>;
 }) {
   return (
-    <Suspense fallback={<div className="min-h-screen" />}>
+    <Suspense fallback={<PLPFallback />}>
       <SearchContent params={props.params} searchParams={props.searchParams} />
     </Suspense>
   );
