@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import {
   subcategoryMetadata,
-  SubcategoryPage,
+  SubcategoryRoute,
 } from "@/lib/utils/genderRouteHelpers";
-import { localeToCountry } from "@/lib/locale/localeUtils";
 
 export async function generateMetadata({
   params,
@@ -16,19 +15,10 @@ export async function generateMetadata({
 
 // All content is cached ("use cache" getters, tag-invalidated via Sanity Live + webhook)
 
-export default async function MensSubcategoryPage({
+export default function MensSubcategoryPage({
   params,
 }: {
   params: Promise<{ locale: string; mainCategory: string; subcategory: string }>;
 }) {
-  const { locale, mainCategory, subcategory } = await params;
-  const country = localeToCountry(locale);
-  return (
-    <SubcategoryPage
-      gender="mens"
-      mainCategory={mainCategory}
-      subcategory={subcategory}
-      country={country}
-    />
-  );
+  return <SubcategoryRoute gender="mens" params={params} />;
 }

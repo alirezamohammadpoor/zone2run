@@ -5,6 +5,7 @@ const withBundleAnalyzer = require("@next/bundle-analyzer")({
 
 const nextConfig = {
   cacheComponents: true,
+  partialPrefetching: true,
   turbopack: {},
   images: {
     remotePatterns: [

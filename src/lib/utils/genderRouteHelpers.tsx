@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import {
   getProductsByGender,
@@ -7,12 +8,119 @@ import {
 import { ProductListing } from "@/components/plp/ProductListing";
 import { buildCategoryBreadcrumbs } from "@/lib/utils/breadcrumbs";
 import { buildCategoryMetadata } from "@/lib/metadata";
+import { localeToCountry } from "@/lib/locale/localeUtils";
 
 type GenderUrl = "mens" | "womens";
 type GenderApi = "men" | "women";
 
 const apiGender = (g: GenderUrl): GenderApi =>
   g === "mens" ? "men" : "women";
+
+// Category params are URL data and can't live in the shared App Shell — the
+// *Route wrappers below keep the page component sync and await params inside
+// a Suspense boundary so navigations stay instant.
+type CategoryParams = Promise<{
+  locale: string;
+  mainCategory: string;
+  subcategory: string;
+  specificCategory: string;
+}>;
+
+export function MainCategoryRoute({
+  gender,
+  params,
+}: {
+  gender: GenderUrl;
+  params: Promise<{ locale: string; mainCategory: string }>;
+}) {
+  return (
+    <Suspense fallback={<div className="min-h-screen" />}>
+      <MainCategoryResolver gender={gender} params={params} />
+    </Suspense>
+  );
+}
+
+async function MainCategoryResolver({
+  gender,
+  params,
+}: {
+  gender: GenderUrl;
+  params: Promise<{ locale: string; mainCategory: string }>;
+}) {
+  const { locale, mainCategory } = await params;
+  return (
+    <MainCategoryPage
+      gender={gender}
+      mainCategory={mainCategory}
+      country={localeToCountry(locale)}
+    />
+  );
+}
+
+export function SubcategoryRoute({
+  gender,
+  params,
+}: {
+  gender: GenderUrl;
+  params: Promise<{ locale: string; mainCategory: string; subcategory: string }>;
+}) {
+  return (
+    <Suspense fallback={<div className="min-h-screen" />}>
+      <SubcategoryResolver gender={gender} params={params} />
+    </Suspense>
+  );
+}
+
+async function SubcategoryResolver({
+  gender,
+  params,
+}: {
+  gender: GenderUrl;
+  params: Promise<{ locale: string; mainCategory: string; subcategory: string }>;
+}) {
+  const { locale, mainCategory, subcategory } = await params;
+  return (
+    <SubcategoryPage
+      gender={gender}
+      mainCategory={mainCategory}
+      subcategory={subcategory}
+      country={localeToCountry(locale)}
+    />
+  );
+}
+
+export function SpecificCategoryRoute({
+  gender,
+  params,
+}: {
+  gender: GenderUrl;
+  params: CategoryParams;
+}) {
+  return (
+    <Suspense fallback={<div className="min-h-screen" />}>
+      <SpecificCategoryResolver gender={gender} params={params} />
+    </Suspense>
+  );
+}
+
+async function SpecificCategoryResolver({
+  gender,
+  params,
+}: {
+  gender: GenderUrl;
+  params: CategoryParams;
+}) {
+  const { locale, mainCategory, subcategory, specificCategory } = await params;
+  return (
+    <SpecificCategoryPage
+      gender={gender}
+      mainCategory={mainCategory}
+      subcategory={subcategory}
+      specificCategory={specificCategory}
+      country={localeToCountry(locale)}
+    />
+  );
+}
 
 // ─── Gender landing (/mens, /womens) ────────────────────────────────────────
 
