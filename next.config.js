@@ -27,6 +27,10 @@ const nextConfig = {
   },
 
   experimental: {
+    // Vercel's Next 16.3 pipeline emits granular immutable CSS chunks (6 render-
+    // blocking stylesheets on staging vs 1 locally) — inlining removes the CSS
+    // request chain from first paint entirely
+    inlineCss: true,
     optimizePackageImports: [
       "@sanity/client",
       "@sanity/visual-editing",

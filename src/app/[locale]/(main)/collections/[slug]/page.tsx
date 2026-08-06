@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import PLPFallback from "@/components/plp/PLPFallback";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { getCollectionInfo, getCollectionProducts } from "@/sanity/lib/getData";
@@ -150,7 +151,7 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
       </div>
 
       {/* Products grid streams in via Suspense */}
-      <Suspense fallback={<div className="min-h-screen" />}>
+      <Suspense fallback={<PLPFallback />}>
         <CollectionProductGrid
           collectionId={collection._id}
           shopifyId={collection.shopifyId}

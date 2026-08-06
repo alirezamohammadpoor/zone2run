@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import PLPFallback from "@/components/plp/PLPFallback";
 import { notFound } from "next/navigation";
 import {
   getProductsByGender,
@@ -34,7 +35,7 @@ export function MainCategoryRoute({
   params: Promise<{ locale: string; mainCategory: string }>;
 }) {
   return (
-    <Suspense fallback={<div className="min-h-screen" />}>
+    <Suspense fallback={<PLPFallback />}>
       <MainCategoryResolver gender={gender} params={params} />
     </Suspense>
   );
@@ -65,7 +66,7 @@ export function SubcategoryRoute({
   params: Promise<{ locale: string; mainCategory: string; subcategory: string }>;
 }) {
   return (
-    <Suspense fallback={<div className="min-h-screen" />}>
+    <Suspense fallback={<PLPFallback />}>
       <SubcategoryResolver gender={gender} params={params} />
     </Suspense>
   );
@@ -97,7 +98,7 @@ export function SpecificCategoryRoute({
   params: CategoryParams;
 }) {
   return (
-    <Suspense fallback={<div className="min-h-screen" />}>
+    <Suspense fallback={<PLPFallback />}>
       <SpecificCategoryResolver gender={gender} params={params} />
     </Suspense>
   );
