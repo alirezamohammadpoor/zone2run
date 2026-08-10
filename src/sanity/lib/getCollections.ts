@@ -63,6 +63,7 @@ interface Collection {
 }
 
 export async function getAllCollections() {
+  "use cache";
   const query = defineQuery(`*[_type == "collection"] | order(sortOrder asc, store.title asc) {
     _id,
     "title": store.title,
@@ -84,6 +85,7 @@ export async function getAllCollections() {
 
 // Get collection info only (no products) - for hero/LCP optimization
 export const getCollectionInfo = cache(async (slug: string): Promise<Omit<Collection, 'products'> | null> => {
+  "use cache";
   const query = defineQuery(`*[_type == "collection" && (store.slug.current == $slug || lower(store.slug.current) == lower($slug))][0]{
     _id,
     "title": store.title,
@@ -115,6 +117,7 @@ export async function getCollectionProducts(
   curatedProducts?: Array<{ _id: string }>,
   country?: string,
 ): Promise<PLPProduct[]> {
+  "use cache";
   const shopifyIdStr = shopifyId ? shopifyId.toString() : "";
 
   const baseFilter = `*[_type == "product" && (references($collectionId) || (defined(shopifyCollectionIds) && $shopifyIdStr in shopifyCollectionIds))]`;
@@ -139,6 +142,7 @@ export async function getProductsByCollectionId(
   collectionId: string,
   country?: string,
 ): Promise<PLPProduct[]> {
+  "use cache";
   // First get the collection to access shopifyId and curatedProducts
   const collectionQuery = defineQuery(`*[_type == "collection" && _id == $collectionId][0]{
     _id,

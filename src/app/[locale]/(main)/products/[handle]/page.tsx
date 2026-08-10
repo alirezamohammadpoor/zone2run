@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
 import ProductGalleryClient from "@/components/product/ProductGalleryClient";
 import ProductInfo from "@/components/product/ProductInfo";
-import ProductForm, { ProductPrice } from "@/components/product/ProductForm";
+import ProductForm, {
+  ProductPrice,
+  ProductFormFallback,
+} from "@/components/product/ProductForm";
+import type { ShopifyProduct } from "@/types/shopify";
+import type { SanityProduct } from "@/types/sanityProduct";
 import { getProductByHandle } from "@/lib/product/getProductByHandle";
 import { getShopifyProductByHandle } from "@/lib/shopify/products";
 import { getSiteSettings } from "@/sanity/lib/getData";
@@ -14,8 +19,8 @@ import { Suspense } from "react";
 import { localeToCountry } from "@/lib/locale/localeUtils";
 import { buildHreflangAlternates } from "@/lib/metadata";
 
-// Fallback only — primary revalidation is on-demand via Sanity webhook. Pricing/stock fetched live from Shopify.
-export const revalidate = 21600;
+// Sanity content is cached (tag-invalidated via Sanity Live + webhook);
+// pricing/stock streams live from Shopify behind Suspense on every request.
 
 // Generate dynamic metadata for SEO
 export async function generateMetadata({
@@ -73,10 +78,12 @@ export default async function ProductPage({
   const { locale, handle } = await params;
   const country = localeToCountry(locale);
 
-  // Parallel fetch: Sanity (ISR cached) + Shopify (@inContext for locale prices) + site settings
-  const [product, shopifyProduct, siteSettings] = await Promise.all([
+  // Live Shopify fetch starts immediately but is never awaited here — the
+  // cached Sanity content renders without it and the commerce UI streams in
+  const shopifyProductPromise = getShopifyProductByHandle(handle, country);
+
+  const [product, siteSettings] = await Promise.all([
     getProductByHandle(handle),
-    getShopifyProductByHandle(handle, country),
     getSiteSettings(),
   ]);
 
@@ -107,19 +114,30 @@ export default async function ProductPage({
           <ProductInfo
             product={product}
             siteSettings={siteSettings}
-            shopifyId={shopifyProduct?.id}
+            shopifyId={product.shopifyId}
             priceSlot={
-              <ProductPrice
-                shopifyProduct={shopifyProduct}
-                fallbackPrice={product.priceRange.minVariantPrice}
-              />
+              <Suspense
+                fallback={
+                  <ProductPrice
+                    shopifyProduct={null}
+                    fallbackPrice={product.priceRange.minVariantPrice}
+                  />
+                }
+              >
+                <ProductPriceLive
+                  promise={shopifyProductPromise}
+                  fallbackPrice={product.priceRange.minVariantPrice}
+                />
+              </Suspense>
             }
           >
-            {/* Shopify data - fetched in parallel with Sanity */}
-            <ProductForm
-              staticProduct={product}
-              shopifyProduct={shopifyProduct}
-            />
+            {/* Live Shopify variants/stock stream in; cached Sanity fallback shows instantly */}
+            <Suspense fallback={<ProductFormFallback product={product} />}>
+              <ProductFormLive
+                promise={shopifyProductPromise}
+                staticProduct={product}
+              />
+            </Suspense>
           </ProductInfo>
         </div>
         <ProductEditorialImages editorialImages={product.editorialImages} />
@@ -134,5 +152,32 @@ export default async function ProductPage({
         </Suspense>
       )}
     </>
+  );
+}
+
+async function ProductPriceLive({
+  promise,
+  fallbackPrice,
+}: {
+  promise: Promise<ShopifyProduct | null>;
+  fallbackPrice: number;
+}) {
+  return (
+    <ProductPrice
+      shopifyProduct={await promise}
+      fallbackPrice={fallbackPrice}
+    />
+  );
+}
+
+async function ProductFormLive({
+  promise,
+  staticProduct,
+}: {
+  promise: Promise<ShopifyProduct | null>;
+  staticProduct: SanityProduct;
+}) {
+  return (
+    <ProductForm staticProduct={staticProduct} shopifyProduct={await promise} />
   );
 }

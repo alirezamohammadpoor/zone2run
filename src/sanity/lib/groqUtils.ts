@@ -122,12 +122,10 @@ export const PDP_PRODUCT_PROJECTION =
 },
 "images": [{
   "url": coalesce(mainImage.asset->url, store.previewImageUrl),
-  "alt": coalesce(mainImage.alt, store.title),
-  "lqip": mainImage.asset->metadata.lqip
+  "alt": coalesce(mainImage.alt, store.title)
 }] + coalesce(gallery[] {
   "url": asset->url,
-  "alt": coalesce(alt, ^.title),
-  "lqip": asset->metadata.lqip
+  "alt": coalesce(alt, ^.title)
 }, []),
 "options": store.options,
 "variants": ` +
@@ -162,12 +160,10 @@ _id,
 },
 "images": [{
   "url": coalesce(mainImage.asset->url, store.previewImageUrl),
-  "alt": coalesce(mainImage.alt, store.title),
-  "lqip": mainImage.asset->metadata.lqip
+  "alt": coalesce(mainImage.alt, store.title)
 }] + coalesce(gallery[] {
   "url": asset->url,
-  "alt": coalesce(alt, ^.title),
-  "lqip": asset->metadata.lqip
+  "alt": coalesce(alt, ^.title)
 }, []),
 "sizes": store.variants[]->store.option1,
 brand-> {
@@ -199,12 +195,10 @@ _id,
 },
 "images": [{
   "url": coalesce(mainImage.asset->url, store.previewImageUrl),
-  "alt": coalesce(mainImage.alt, store.title),
-  "lqip": mainImage.asset->metadata.lqip
+  "alt": coalesce(mainImage.alt, store.title)
 }] + coalesce(gallery[] {
   "url": asset->url,
-  "alt": coalesce(alt, ^.title),
-  "lqip": asset->metadata.lqip
+  "alt": coalesce(alt, ^.title)
 }, []),
 brand-> {
   name,

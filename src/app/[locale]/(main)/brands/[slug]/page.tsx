@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import PLPFallback from "@/components/plp/PLPFallback";
 import { Suspense } from "react";
 import { getProductsByBrand, getBrandBySlug } from "@/sanity/lib/getData";
 import { notFound } from "next/navigation";
@@ -9,8 +10,7 @@ import { BreadcrumbJsonLd } from "@/components/schemas";
 import { localeToCountry } from "@/lib/locale/localeUtils";
 import { buildHreflangAlternates } from "@/lib/metadata";
 
-// Fallback only — primary revalidation is on-demand via Sanity webhook
-export const revalidate = 3600;
+// All content is cached ("use cache" getters, tag-invalidated via Sanity Live + webhook)
 
 // Generate dynamic metadata for SEO
 export async function generateMetadata({
@@ -148,7 +148,7 @@ export default async function BrandPage({
       </div>
 
       {/* Products grid streams in via Suspense */}
-      <Suspense fallback={<div className="min-h-screen" />}>
+      <Suspense fallback={<PLPFallback />}>
         <BrandProductGrid
           decodedSlug={decodedSlug}
           editorialImages={editorialImages}

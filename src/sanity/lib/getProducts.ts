@@ -20,8 +20,10 @@ import { deduplicateSizes, type RawProductWithSizes } from "./deduplicateSizes";
 export async function getSanityProductByHandle(
   handle: string,
 ): Promise<SanityProduct | null> {
+  "use cache";
   const query = defineQuery(`*[_type == "product" && (shopifyHandle == $handle || store.slug.current == $handle)][0] {
     ${PDP_PRODUCT_PROJECTION},
+    "shopifyId": store.gid,
     "colorVariants": colorVariants[]-> {
       _id,
       "title": coalesce(title, store.title),
@@ -60,6 +62,7 @@ export async function getSanityProductByHandle(
 export async function getAllProducts(
   country?: string,
 ): Promise<PLPProduct[]> {
+  "use cache";
   const query = defineQuery(`*[_type == "product"] {
     ${PLP_PRODUCT_PROJECTION}
   }`);
@@ -81,6 +84,7 @@ export async function getProductsByBrand(
   gender?: string,
   country?: string,
 ): Promise<PLPProduct[]> {
+  "use cache";
   const dbGender = gender ? mapGenderValue(gender) : null;
 
   const genderFilter = dbGender
@@ -110,6 +114,7 @@ export async function getProductsByGender(
   limit?: number,
   country?: string,
 ): Promise<PLPProduct[]> {
+  "use cache";
   const dbGender = mapGenderValue(gender);
 
   const query = defineQuery(`*[_type == "product" && (gender == $gender || gender == "unisex")] {
@@ -134,6 +139,7 @@ export async function getProductsByPath(
   limit?: number,
   country?: string,
 ): Promise<PLPProduct[]> {
+  "use cache";
   const dbGender = mapGenderValue(gender);
 
   const query =
@@ -186,6 +192,7 @@ export async function getProductsBySubcategoryIncludingSubSubcategories(
   limit?: number,
   country?: string,
 ): Promise<PLPProduct[]> {
+  "use cache";
   const dbGender = mapGenderValue(gender);
 
   const query = defineQuery(`*[_type == "product" &&
@@ -229,6 +236,7 @@ export async function getProductsByPath3Level(
   limit?: number,
   country?: string,
 ): Promise<PLPProduct[]> {
+  "use cache";
   const dbGender = mapGenderValue(gender);
 
   const query = defineQuery(`*[_type == "product" &&
@@ -268,6 +276,7 @@ export async function getProductsByIds(
   productIds: string[],
   country?: string,
 ): Promise<CardProduct[]> {
+  "use cache";
   if (productIds.length === 0) return [];
 
   const query = defineQuery(`*[_id in $productIds] {
@@ -294,6 +303,7 @@ export async function getRelatedProducts(
   limit: number = 12,
   country?: string,
 ): Promise<CardProduct[]> {
+  "use cache";
   const query = defineQuery(`*[_type == "product" && brand->slug.current == $brandSlug && _id != $excludeId] {
     ${CARD_PRODUCT_PROJECTION}
   } | order(_createdAt desc)[0...${limit}]`);

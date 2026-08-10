@@ -1,16 +1,16 @@
 "use client";
 
-import { usePathname } from "next/navigation";
 import { useScrollStore } from "@/store/scroll";
 
 export function useModalScrollRestoration() {
-  const pathname = usePathname();
   const { setScrollY, setLockedPathname } = useScrollStore();
 
   const lockScroll = () => {
     const currentScrollY = window.scrollY;
     setScrollY(currentScrollY);
-    setLockedPathname(pathname);
+    // Event-time read instead of usePathname() — a render-time URL read would
+    // block prerendering of every dynamic route under Cache Components
+    setLockedPathname(window.location.pathname);
 
     // Calculate scrollbar width before locking
     const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;

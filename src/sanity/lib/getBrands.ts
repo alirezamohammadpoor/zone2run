@@ -16,6 +16,7 @@ interface Brand {
 }
 
 export async function getAllBrands() {
+  "use cache";
   const query = defineQuery(`*[_type == "brand"] {
     _id,
     name,
@@ -41,6 +42,7 @@ export async function getAllBrands() {
 }
 
 export const getBrandBySlug = cache(async (slug: string) => {
+  "use cache";
   const query = defineQuery(`*[_type == "brand" && slug.current == $slug][0] {
     _id,
     name,

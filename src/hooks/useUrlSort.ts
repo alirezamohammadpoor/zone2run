@@ -1,6 +1,7 @@
 "use client";
 
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useClientSearch, notifyUrlChange } from "./useClientSearch";
 
 export type SortOption =
   | "newest"
@@ -18,20 +19,20 @@ const VALID_SORT_OPTIONS: SortOption[] = [
 ];
 
 export function useUrlSort() {
-  const searchParams = useSearchParams();
+  const search = useClientSearch();
   const router = useRouter();
-  const pathname = usePathname();
-  const sortParam = searchParams?.get("sort") || "";
+  const sortParam = new URLSearchParams(search).get("sort") || "";
   const sort: SortOption =
     sortParam && VALID_SORT_OPTIONS.includes(sortParam as SortOption)
       ? (sortParam as SortOption)
       : "newest";
 
   const updateSort = (newSort: SortOption) => {
-    if (newSort === sort || !searchParams) {
+    if (newSort === sort) {
       return;
     }
-    const newSearchParams = new URLSearchParams(searchParams.toString());
+    // Event-time reads — render-time URL hooks would suspend under Cache Components
+    const newSearchParams = new URLSearchParams(window.location.search);
     if (newSort === "newest") {
       // Remove sort param for default (cleaner URLs)
       newSearchParams.delete("sort");
@@ -41,9 +42,11 @@ export function useUrlSort() {
     // Reset limit when sort changes (back to first page of results)
     newSearchParams.delete("limit");
     const queryString = newSearchParams.toString();
+    const pathname = window.location.pathname;
     router.push(queryString ? `${pathname}?${queryString}` : pathname, {
       scroll: false,
     });
+    notifyUrlChange();
   };
 
   return { sort, updateSort };

@@ -4,6 +4,8 @@ const withBundleAnalyzer = require("@next/bundle-analyzer")({
 });
 
 const nextConfig = {
+  cacheComponents: true,
+  partialPrefetching: true,
   turbopack: {},
   images: {
     remotePatterns: [
@@ -25,6 +27,10 @@ const nextConfig = {
   },
 
   experimental: {
+    // Vercel's Next 16.3 pipeline emits granular immutable CSS chunks (6 render-
+    // blocking stylesheets on staging vs 1 locally) — inlining removes the CSS
+    // request chain from first paint entirely
+    inlineCss: true,
     optimizePackageImports: [
       "@sanity/client",
       "@sanity/visual-editing",
@@ -33,6 +39,12 @@ const nextConfig = {
       "@portabletext/react",
       "embla-carousel-react",
     ],
+    // Exposes the Next.js testing API on `next start` so the instant()
+    // e2e suite (e2e/instant-navigation.spec.ts) can run against a
+    // production build. Only set locally — never on Vercel.
+    ...(process.env.EXPOSE_TESTING_API === "1" && {
+      exposeTestingApiInProductionBuild: true,
+    }),
   },
 
   webpack: (config, { dev, isServer }) => {

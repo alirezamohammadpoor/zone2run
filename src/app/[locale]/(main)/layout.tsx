@@ -1,14 +1,13 @@
 import type { Metadata, Viewport } from "next";
 import "../../globals.css";
-import { draftMode } from "next/headers";
-import { VisualEditing } from "next-sanity/visual-editing";
+import { Suspense } from "react";
 import { SanityLive } from "@/sanity/lib/live";
 import HeaderServer from "@/components/HeaderServer";
 import { ScrollRestoration } from "@/components/ScrollRestoration";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { FooterContent } from "@/components/Footer";
-import PreviewBanner from "@/components/PreviewBanner";
+import DraftModeUI from "@/components/DraftModeUI";
 import { OrganizationJsonLd } from "@/components/schemas";
 import { LocaleProvider } from "@/lib/locale/LocaleContext";
 import { localeToCountry } from "@/lib/locale/localeUtils";
@@ -40,7 +39,6 @@ export default async function MainLayout({
 }) {
   const { locale } = await params;
   const country = localeToCountry(locale);
-  const { isEnabled: isDraft } = await draftMode();
 
   return (
     <html lang={locale}>
@@ -64,14 +62,13 @@ export default async function MainLayout({
           Skip to main content
         </a>
         <LocaleProvider locale={locale} country={country}>
-          {isDraft && (
-            <>
-              <PreviewBanner />
-              <VisualEditing />
-            </>
-          )}
+          <Suspense fallback={null}>
+            <DraftModeUI />
+          </Suspense>
           <SanityLive />
-          <ScrollRestoration />
+          <Suspense fallback={null}>
+            <ScrollRestoration />
+          </Suspense>
           <HeaderServer />
           <main id="main-content" className="relative" tabIndex={-1}>
             <div className="relative bg-white">

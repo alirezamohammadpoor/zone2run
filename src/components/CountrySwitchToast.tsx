@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useEffect, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useUIStore } from "@/lib/cart/uiStore";
 import { useLocale } from "@/lib/locale/LocaleContext";
 import { COUNTRY_MAP } from "@/lib/locale/countries";
@@ -13,7 +13,6 @@ const CountrySwitchToast = memo(function CountrySwitchToast() {
   const hideToast = useUIStore((s) => s.hideCountrySwitch);
   const [isVisible, setIsVisible] = useState(false);
   const router = useRouter();
-  const pathname = usePathname();
   const { locale } = useLocale();
 
   useEffect(() => {
@@ -42,7 +41,8 @@ const CountrySwitchToast = memo(function CountrySwitchToast() {
       );
     }
     const prevLocale = countryToLocale(data.prevCountry);
-    const newPath = pathname.replace(`/${locale}`, `/${prevLocale}`);
+    // Event-time read — usePathname() at render would block prerendering
+    const newPath = window.location.pathname.replace(`/${locale}`, `/${prevLocale}`);
     hideToast();
     router.push(newPath);
   };

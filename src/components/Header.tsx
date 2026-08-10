@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import LocaleLink from "@/components/LocaleLink";
 
 import dynamic from "next/dynamic";
@@ -175,24 +175,29 @@ function Header({
         />
       </header>
 
-      <MenuModal
-        isMenuOpen={isMenuOpen}
-        setIsMenuOpen={setIsMenuOpen}
-        menuData={menuData}
-        brands={brands}
-        menuConfig={menuConfig}
-      />
-      <CartModal isCartOpen={isCartOpen} setIsCartOpen={setIsCartOpen} />
-      <AddedToCartModal isCartOpen={isCartOpen} setIsCartOpen={setIsCartOpen} />
-      <SearchModal
-        isOpen={isSearchOpen}
-        onClose={() => setIsSearchOpen(false)}
-      />
-      <CountrySwitcher
-        isOpen={isCountryOpen}
-        onClose={() => setIsCountryOpen(false)}
-      />
-      <CountrySwitchToast />
+      {/* Overlays read URL data (usePathname et al) — Suspense keeps them out
+          of the static shell; all are invisible until opened, so a null
+          fallback causes no layout shift */}
+      <Suspense fallback={null}>
+        <MenuModal
+          isMenuOpen={isMenuOpen}
+          setIsMenuOpen={setIsMenuOpen}
+          menuData={menuData}
+          brands={brands}
+          menuConfig={menuConfig}
+        />
+        <CartModal isCartOpen={isCartOpen} setIsCartOpen={setIsCartOpen} />
+        <AddedToCartModal isCartOpen={isCartOpen} setIsCartOpen={setIsCartOpen} />
+        <SearchModal
+          isOpen={isSearchOpen}
+          onClose={() => setIsSearchOpen(false)}
+        />
+        <CountrySwitcher
+          isOpen={isCountryOpen}
+          onClose={() => setIsCountryOpen(false)}
+        />
+        <CountrySwitchToast />
+      </Suspense>
     </>
   );
 }

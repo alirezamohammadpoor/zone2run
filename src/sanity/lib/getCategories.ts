@@ -20,6 +20,7 @@ export interface Category {
 }
 
 export async function getAllMainCategories() {
+  "use cache";
   const query = defineQuery(`*[_type == "category" && categoryType == "main"] {
     _id,
     title,
@@ -48,6 +49,7 @@ export async function getSubSubcategoriesByParentAndGender(
   parentSlug: string,
   gender: string
 ) {
+  "use cache";
   const dbGender = mapGenderValue(gender);
 
   const query = defineQuery(`*[_type == "category" &&
@@ -87,6 +89,7 @@ export async function getSubcategoriesByParentAndGender(
   parentSlug: string,
   gender: string
 ) {
+  "use cache";
   const dbGender = mapGenderValue(gender);
 
   const query = defineQuery(`*[_type == "category" &&
@@ -128,6 +131,7 @@ export async function getSubcategoriesByParentAndGender(
 export async function getCategoryHierarchyForGender(
   gender: string
 ): Promise<{ [mainCategorySlug: string]: SubcategoryMenuItem[] }> {
+  "use cache";
   const dbGender = mapGenderValue(gender);
 
   // Single query that fetches: main categories → subcategories → sub-subcategories
