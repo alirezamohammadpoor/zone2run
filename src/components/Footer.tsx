@@ -18,12 +18,24 @@ export function StickyFooter() {
   );
 }
 
+// External links authored without a scheme ("instagram.com") would otherwise
+// resolve relative to the current page and become /en-se/instagram.com.
+function externalHref(url: string) {
+  return /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(url) ? url : `https://${url}`;
+}
+
+// Anything that is not a site path or hash is external, whether or not the
+// editor remembered to tick "external" in Sanity.
+function isExternalUrl(link: FooterLink) {
+  return Boolean(link.isExternal) || !/^[/#]/.test(link.url);
+}
+
 // Render a single link
 function FooterLink({ link }: { link: FooterLink }) {
-  if (link.isExternal) {
+  if (isExternalUrl(link)) {
     return (
       <a
-        href={link.url}
+        href={externalHref(link.url)}
         target="_blank"
         rel="noopener noreferrer"
         className="hover:text-gray-500"

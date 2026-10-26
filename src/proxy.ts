@@ -42,6 +42,13 @@ export function proxy(request: NextRequest) {
     return new NextResponse("Not Found", { status: 404 });
   }
 
+  // ── Hostname-shaped first segment ("instagram.com") → 410 ─────────────
+  // These came from scheme-less footer links and were crawled as locales.
+  // Gone tells search engines to drop them; a redirect would keep them alive.
+  if (firstSegment && /^[a-z0-9-]+(\.[a-z0-9-]+)+$/i.test(firstSegment)) {
+    return new NextResponse("Gone", { status: 410 });
+  }
+
   // ── No locale in URL → redirect to geo-detected locale ─────────────
   // Priority: cookie > Vercel geo header > default (SE)
   const cookieCountry = request.cookies.get(COUNTRY_COOKIE)?.value;
@@ -64,7 +71,10 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Match all paths except API, Next internals, Studio, and static assets
-    "/((?!api|_next|studio|favicon\\.ico|sitemap\\.xml|robots\\.txt|.*\\.).*)",
+    // Match all paths except API, Next internals, Studio, and static assets.
+    // Assets are listed by extension on purpose: a blanket "contains a dot"
+    // exclusion let paths like /instagram.com bypass the locale gate and
+    // render as a locale.
+    "/((?!api|_next|studio|favicon\\.ico|sitemap\\.xml|robots\\.txt|.*\\.(?:ico|png|jpe?g|gif|webp|avif|svg|css|js|map|txt|xml|json|woff2?|ttf|otf|webmanifest|mp4|webm)$).*)",
   ],
 };
