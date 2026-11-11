@@ -21,6 +21,7 @@ export async function generateMetadata({
     description:
       "Search premium running apparel from top Scandinavian brands.",
     alternates: buildCanonicalAlternates("/search"),
+    robots: { index: false, follow: true },
     openGraph: {
       title: "Search | Zone2Run",
       description:
