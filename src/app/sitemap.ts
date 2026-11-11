@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { client } from "@/sanity/lib/client";
-import { SUPPORTED_LOCALES, DEFAULT_LOCALE } from "@/lib/locale/localeUtils";
+import { DEFAULT_LOCALE } from "@/lib/locale/localeUtils";
 
 interface ProductSitemapEntry {
   handle: string;
@@ -68,16 +68,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ),
     ]);
 
-  // Build locale-agnostic path lists, then expand across all locales
+  // Build locale-agnostic path lists
   const now = new Date();
 
-  // Static paths with their priorities/frequencies
+  // Static paths with their priorities/frequencies (/brands and /collections
+  // index routes 404, so they are not listed)
   const staticPaths: { path: string; changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"]; priority: number }[] = [
     { path: "", changeFrequency: "daily", priority: 1 },
     { path: "/mens", changeFrequency: "daily", priority: 0.9 },
     { path: "/womens", changeFrequency: "daily", priority: 0.9 },
-    { path: "/collections", changeFrequency: "weekly", priority: 0.8 },
-    { path: "/brands", changeFrequency: "weekly", priority: 0.8 },
     { path: "/blog", changeFrequency: "weekly", priority: 0.7 },
   ];
 
@@ -99,69 +98,71 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  // Helper: expand a single path across all locales
-  const forAllLocales = (
+  // One entry per page, under the default locale only. Locale variants are
+  // the same content and canonicalise to it (see buildCanonicalAlternates);
+  // listing all 24 turned ~650 pages into ~16k crawlable URLs.
+  const forDefaultLocale = (
     path: string,
-    opts: { lastModified: Date; changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"]; priority: number; isDefault?: boolean }
-  ): MetadataRoute.Sitemap =>
-    SUPPORTED_LOCALES.map((locale) => ({
-      url: `${baseUrl}/${locale}${path}`,
+    opts: { lastModified: Date; changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"]; priority: number }
+  ): MetadataRoute.Sitemap => [
+    {
+      url: `${baseUrl}/${DEFAULT_LOCALE}${path}`,
       lastModified: opts.lastModified,
       changeFrequency: opts.changeFrequency,
-      // Default locale gets full priority, alternates slightly lower
-      priority: locale === DEFAULT_LOCALE ? opts.priority : Math.max(0.1, opts.priority - 0.1),
-    }));
+      priority: opts.priority,
+    },
+  ];
 
   const entries: MetadataRoute.Sitemap = [];
 
-  // Static pages × all locales
+  // Static pages
   for (const sp of staticPaths) {
-    entries.push(...forAllLocales(sp.path, { lastModified: now, changeFrequency: sp.changeFrequency, priority: sp.priority }));
+    entries.push(...forDefaultLocale(sp.path, { lastModified: now, changeFrequency: sp.changeFrequency, priority: sp.priority }));
   }
 
-  // Product pages × all locales
+  // Product pages
   for (const p of products) {
     if (!p.handle) continue;
-    entries.push(...forAllLocales(`/products/${p.handle}`, {
+    entries.push(...forDefaultLocale(`/products/${p.handle}`, {
       lastModified: p.updatedAt ? new Date(p.updatedAt) : now,
       changeFrequency: "daily",
       priority: 0.8,
     }));
   }
 
-  // Collection pages × all locales
+  // Collection pages
   for (const c of collections) {
     if (!c.slug) continue;
-    entries.push(...forAllLocales(`/collections/${c.slug}`, {
+    entries.push(...forDefaultLocale(`/collections/${c.slug}`, {
       lastModified: c.updatedAt ? new Date(c.updatedAt) : now,
       changeFrequency: "weekly",
       priority: 0.7,
     }));
   }
 
-  // Brand pages × all locales
+  // Brand pages
   for (const b of brands) {
     if (!b.slug) continue;
-    entries.push(...forAllLocales(`/brands/${b.slug}`, {
+    entries.push(...forDefaultLocale(`/brands/${b.slug}`, {
       lastModified: b._updatedAt ? new Date(b._updatedAt) : now,
       changeFrequency: "weekly",
       priority: 0.6,
     }));
   }
 
-  // Blog pages × all locales
+  // Blog pages
   for (const post of blogPosts) {
     if (!post.slug || !post.category) continue;
-    entries.push(...forAllLocales(`/blog/${post.category}/${post.slug}`, {
+    entries.push(...forDefaultLocale(`/blog/${post.category}/${post.slug}`, {
       lastModified: post.publishedAt ? new Date(post.publishedAt) : now,
       changeFrequency: "monthly",
       priority: 0.5,
     }));
   }
 
-  // Category pages × all locales
+  // Category pages
   for (const path of categoryPathsSet) {
-    entries.push(...forAllLocales(path, {
+    entries.push(...forDefaultLocale(path, {
       lastModified: now,
       changeFrequency: "daily",
       priority: 0.7,

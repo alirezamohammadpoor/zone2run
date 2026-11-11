@@ -8,7 +8,7 @@ import Image from "next/image";
 import { ProductListing } from "@/components/plp/ProductListing";
 import { BreadcrumbJsonLd } from "@/components/schemas";
 import { localeToCountry } from "@/lib/locale/localeUtils";
-import { buildHreflangAlternates } from "@/lib/metadata";
+import { buildCanonicalAlternates } from "@/lib/metadata";
 
 // All content is cached ("use cache" getters, tag-invalidated via Sanity Live + webhook)
 
@@ -35,7 +35,7 @@ export async function generateMetadata({
   return {
     title: `${brand.name} | Zone2Run`,
     description,
-    alternates: buildHreflangAlternates(`/brands/${slug}`, locale),
+    alternates: buildCanonicalAlternates(`/brands/${slug}`),
     openGraph: {
       title: brand.name,
       description,

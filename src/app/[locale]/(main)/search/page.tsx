@@ -4,7 +4,7 @@ import { searchProducts } from "@/lib/actions/search";
 import SearchResults from "./SearchResults";
 import type { Metadata } from "next";
 import { localeToCountry } from "@/lib/locale/localeUtils";
-import { buildHreflangAlternates } from "@/lib/metadata";
+import { buildCanonicalAlternates } from "@/lib/metadata";
 
 const BASE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || "https://zone2run-build.vercel.app";
@@ -20,7 +20,7 @@ export async function generateMetadata({
     title: "Search | Zone2Run",
     description:
       "Search premium running apparel from top Scandinavian brands.",
-    alternates: buildHreflangAlternates("/search", locale),
+    alternates: buildCanonicalAlternates("/search"),
     openGraph: {
       title: "Search | Zone2Run",
       description:
