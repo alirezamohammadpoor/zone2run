@@ -17,7 +17,7 @@ import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/schemas";
 import { getBreadcrumbsFromProduct } from "@/components/product/Breadcrumbs";
 import { Suspense } from "react";
 import { localeToCountry } from "@/lib/locale/localeUtils";
-import { buildHreflangAlternates } from "@/lib/metadata";
+import { buildCanonicalAlternates } from "@/lib/metadata";
 
 // Sanity content is cached (tag-invalidated via Sanity Live + webhook);
 // pricing/stock streams live from Shopify behind Suspense on every request.
@@ -45,7 +45,7 @@ export async function generateMetadata({
   return {
     title: `${product.title} | Zone2Run`,
     description,
-    alternates: buildHreflangAlternates(`/products/${handle}`, locale),
+    alternates: buildCanonicalAlternates(`/products/${handle}`),
     openGraph: {
       title: product.title,
       description,
