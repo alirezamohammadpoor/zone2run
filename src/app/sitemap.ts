@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { cacheLife, cacheTag } from "next/cache";
 import { client } from "@/sanity/lib/client";
 import { DEFAULT_LOCALE } from "@/lib/locale/localeUtils";
 
@@ -31,6 +32,12 @@ interface CategoryPathEntry {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // Crawlers fetch this often; each uncached hit ran 5 Sanity queries.
+  // Hourly refresh, and the Sanity webhook expires it with the rest of the content.
+  "use cache";
+  cacheLife("hours");
+  cacheTag("sanity-content");
+
   const baseUrl =
     process.env.NEXT_PUBLIC_SITE_URL || "https://zone2run-build.vercel.app";
 

@@ -31,7 +31,8 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/studio/", "/api/", "/order-confirmation"],
+        // Search is an unbounded ?q= URL space, one function run per query
+        disallow: ["/studio/", "/api/", "/order-confirmation", "/*/search"],
       },
       {
         userAgent: AI_CRAWLERS,
