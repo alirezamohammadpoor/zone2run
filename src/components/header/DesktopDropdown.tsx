@@ -80,10 +80,10 @@ export default function DesktopDropdown({
 
   const renderOurSpaceContent = () => {
     return (
-      <div className="flex justify-between py-4 px-2">
-        {/* Left side - Editorial titles */}
-        <div>
-          <p className="text-xs mb-4">Editorials</p>
+      <div className="grid grid-cols-4 3xl:grid-cols-5 gap-x-2 py-4 px-2">
+        {/* Left side - Editorial titles (site grid columns 1-2) */}
+        <div className="col-span-2">
+          <p className="text-xs mb-3">Editorials</p>
           <div className="space-y-2">
             <LocaleLink
               href="/blog"
@@ -110,8 +110,8 @@ export default function DesktopDropdown({
         </div>
 
         {/* Right side - Latest 4 editorials with images */}
-        <div className="w-[60vw]">
-          <p className="text-xs mb-2">Latest Editorials</p>
+        <div className="col-span-2 3xl:col-start-4">
+          <p className="text-xs mb-3">Latest Editorials</p>
           <div className="grid grid-cols-4 gap-2">
             {blogPosts?.slice(0, 4).map((post) => {
               if (!post?.slug?.current) return null;
@@ -132,7 +132,7 @@ export default function DesktopDropdown({
                         }
                         fill
                         className="object-cover"
-                        sizes="(min-width: 1280px) 12.5vw, 150px"
+                        sizes="(min-width: 1920px) 10vw, 12vw"
                         placeholder={post.featuredImage.asset.lqip ? "blur" : "empty"}
                         blurDataURL={post.featuredImage.asset.lqip}
                       />

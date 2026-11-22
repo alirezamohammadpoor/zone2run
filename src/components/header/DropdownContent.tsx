@@ -56,9 +56,12 @@ const DropdownContent = memo(function DropdownContent({
   ).map((cat) => [cat, data[cat]] as const);
 
   return (
-    <div className="flex justify-between py-4 px-2">
+    // On the site grid (4 cols at xl, 5 at 3xl). Links take columns 1-2 and
+    // tiles the last two; both split their columns into 4 half-columns with
+    // the same 8px gutter, so link columns and tiles share one rhythm.
+    <div className="grid grid-cols-4 3xl:grid-cols-5 gap-x-2 py-4 px-2">
       {/* Left side - Categories as columns and Brands */}
-      <div className="flex gap-12">
+      <div className="col-span-2 grid grid-cols-4 gap-x-2 items-start">
         {/* Main Categories as separate columns */}
         {sortedCategories.map(([category, subcategories]) => (
           <div key={category}>
@@ -151,7 +154,7 @@ const DropdownContent = memo(function DropdownContent({
 
         {/* Brands Column */}
         <div>
-          <p className="text-xs mb-3 mt-2">Brands</p>
+          <p className="text-xs mb-3">Brands</p>
           <div className="space-y-1">
             {brands?.map((brand) => {
               if (!brand?.slug?.current) return null;
@@ -171,8 +174,8 @@ const DropdownContent = memo(function DropdownContent({
       </div>
 
       {/* Featured Collections Column - Right side */}
-      <div className="w-[60vw]">
-        <p className="text-xs mb-3 mt-2">Featured Collections</p>
+      <div className="col-span-2 3xl:col-start-4">
+        <p className="text-xs mb-3">Featured Collections</p>
         <div className="grid grid-cols-4 gap-2">
           {featuredCollections?.slice(0, 4).map((collection) => {
             if (!collection?.slug?.current) return null;
@@ -194,7 +197,7 @@ const DropdownContent = memo(function DropdownContent({
                       }
                       fill
                       className="object-cover"
-                      sizes="(min-width: 1280px) 12.5vw, 150px"
+                      sizes="(min-width: 1920px) 10vw, 12vw"
                     />
                   ) : (
                     <div className="w-full h-full bg-gray-200 flex items-center justify-center">
