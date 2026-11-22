@@ -76,7 +76,7 @@ function MenuModal({
           <div className="text-xs flex justify-between items-center h-8 relative mt-4 px-2">
             <span className="text-xs"></span>
             <button
-              className="mr-2 text-xs hover:text-gray-500"
+              className="text-xs hover:text-gray-500"
               onClick={handleClose}
               aria-label="Close navigation menu"
             >

@@ -56,7 +56,7 @@ const DropdownContent = memo(function DropdownContent({
   ).map((cat) => [cat, data[cat]] as const);
 
   return (
-    <div className="flex justify-between py-4 px-4">
+    <div className="flex justify-between py-4 px-2">
       {/* Left side - Categories as columns and Brands */}
       <div className="flex gap-12">
         {/* Main Categories as separate columns */}
@@ -173,7 +173,7 @@ const DropdownContent = memo(function DropdownContent({
       {/* Featured Collections Column - Right side */}
       <div className="w-[60vw]">
         <p className="text-xs mb-3 mt-2">Featured Collections</p>
-        <div className="grid grid-cols-4 gap-1">
+        <div className="grid grid-cols-4 gap-2">
           {featuredCollections?.slice(0, 4).map((collection) => {
             if (!collection?.slug?.current) return null;
             return (

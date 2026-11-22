@@ -48,7 +48,7 @@ export default function DesktopDropdown({
   const renderHelpContent = () => {
     const links = menuConfig?.help?.links || [];
     return (
-      <div className="py-4 px-4">
+      <div className="py-4 px-2">
         <p className="text-sm mb-4">Help & Support</p>
         <div className="space-y-3">
           {links.map((link, index) =>
@@ -80,7 +80,7 @@ export default function DesktopDropdown({
 
   const renderOurSpaceContent = () => {
     return (
-      <div className="flex justify-between py-4 px-4">
+      <div className="flex justify-between py-4 px-2">
         {/* Left side - Editorial titles */}
         <div>
           <p className="text-xs mb-4">Editorials</p>
@@ -112,7 +112,7 @@ export default function DesktopDropdown({
         {/* Right side - Latest 4 editorials with images */}
         <div className="w-[60vw]">
           <p className="text-xs mb-2">Latest Editorials</p>
-          <div className="grid grid-cols-4 gap-1">
+          <div className="grid grid-cols-4 gap-2">
             {blogPosts?.slice(0, 4).map((post) => {
               if (!post?.slug?.current) return null;
               const postUrl = `/blog/${post.category?.slug?.current || "editorial"}/${post.slug.current}`;

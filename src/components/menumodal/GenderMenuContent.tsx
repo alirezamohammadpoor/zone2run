@@ -5,6 +5,7 @@ import Image from "next/image";
 import LocaleLink from "@/components/LocaleLink";
 import { getBrandUrl } from "@/lib/utils/brandUrls";
 import { urlFor } from "@/sanity/lib/image";
+import { CAROUSEL_CARD_SIZES } from "@/lib/utils/gridSizes";
 import { useSetToggle } from "@/hooks/useSetToggle";
 import { ChevronRightIcon } from "@/components/icons/ChevronRightIcon";
 import { NavLink } from "@/components/ui/NavLink";
@@ -239,7 +240,7 @@ function GenderMenuContent({
                       onPointerDown={handlePointerDown}
                       onPointerMove={handlePointerMove}
                       draggable={false}
-                      className="flex-shrink-0 w-[55vw] min-w-0 flex flex-col cursor-pointer snap-start"
+                      className="w-carousel-card flex flex-col cursor-pointer snap-start"
                     >
                       <div className="w-full aspect-[3/4] relative bg-gray-100">
                         {collection.menuImage?.asset?.url ? (
@@ -252,7 +253,7 @@ function GenderMenuContent({
                             }
                             fill
                             className="object-cover"
-                            sizes="55vw"
+                            sizes={CAROUSEL_CARD_SIZES}
                             draggable={false}
                           />
                         ) : (
