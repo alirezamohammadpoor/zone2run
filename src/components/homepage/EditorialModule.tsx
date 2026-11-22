@@ -5,6 +5,7 @@ import React, { useEffect, useState, useMemo, useCallback, memo } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Image from "next/image";
 import LocaleLink from "@/components/LocaleLink";
+import { CAROUSEL_CARD_SIZES } from "@/lib/utils/gridSizes";
 
 // Type for editorial blog posts (from getLatestBlogPosts query)
 interface EditorialBlogPost {
@@ -121,7 +122,7 @@ const EditorialModuleComponent = memo(function EditorialModuleComponent({
       </div>
 
       <div
-        className="overflow-hidden"
+        className="overflow-hidden -mx-2 px-2"
         ref={emblaRef}
         tabIndex={0}
         role="group"
@@ -140,7 +141,7 @@ const EditorialModuleComponent = memo(function EditorialModuleComponent({
               <LocaleLink
                 key={post._id}
                 href={postUrl}
-                className={`flex-shrink-0 w-[70vw] min-w-0 xl:w-[calc(25vw-0.5rem)] ${isDragging ? "pointer-events-none" : ""}`}
+                className={`w-carousel-card ${isDragging ? "pointer-events-none" : ""}`}
                 onClick={handleLinkClick}
                 draggable={false}
               >
@@ -152,7 +153,7 @@ const EditorialModuleComponent = memo(function EditorialModuleComponent({
                         alt={selectedImage.alt}
                         className="w-full h-full object-cover"
                         fill
-                        sizes="(max-width: 1279px) 70vw, 25vw"
+                        sizes={CAROUSEL_CARD_SIZES}
                         draggable={false}
                       />
                     )}

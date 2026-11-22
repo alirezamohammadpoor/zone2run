@@ -10,7 +10,7 @@ interface ProductGridProps {
   /** Number of images to load with priority (above-fold optimization) */
   priorityCount?: number;
   /** Responsive column layout. When provided, overrides className. */
-  columns?: "2" | "2-lg" | "3-lg" | "4" | "4-lg" | "auto";
+  columns?: "2" | "2-lg" | "3-lg" | "4" | "4-lg" | "auto" | "site";
   /** Image sizes hint for responsive loading */
   sizes?: string;
 }
@@ -22,7 +22,10 @@ const COLUMN_CLASSES: Record<string, string> = {
   "4": "grid grid-cols-2 xl:grid-cols-4 gap-2",
   "4-lg": "grid grid-cols-2 lg:grid-cols-4 gap-2",
   auto: "grid grid-cols-2 xl:grid-cols-4 gap-2",
+  // Site grid: 2 / 3 / 4 / 5 columns (see globals.css --grid-cols)
+  site: "grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-5 gap-2",
 };
+
 
 const ProductGrid = memo(function ProductGrid({
   products,

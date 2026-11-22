@@ -6,6 +6,10 @@ module.exports = {
   ],
   theme: {
     extend: {
+      // Site grid: 2 cols (mobile) / 3 (md) / 4 (xl) / 5 (3xl), see globals.css
+      screens: {
+        "3xl": "1920px",
+      },
       fontFamily: {
         sans: [
           "Helvetica Neue",
