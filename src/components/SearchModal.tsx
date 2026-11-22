@@ -111,7 +111,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           />
 
           {/* Scrollable Content */}
-          <div className="flex-1 overflow-y-auto px-4 xl:px-4">
+          <div className="flex-1 overflow-y-auto px-2">
             {/* Search Input */}
             <div className="mt-6">
               <input
@@ -181,7 +181,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   <span>{results.isDefault ? "New arrivals" : "Results"}</span>
                   <span aria-live="polite" aria-atomic="true">{results.totalCount} products</span>
                 </div>
-                <div className="grid grid-cols-2 xl:grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2">
                   {results.products.map((product) => (
                     <LocaleLink
                       key={product._id}
@@ -190,7 +190,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                     >
                       <ProductCard
                         product={product as CardProduct}
-                        sizes="(max-width: 1279px) calc(50vw - 12px), calc(25vw - 10px)"
+                        sizes="(min-width: 1280px) 12vw, (min-width: 768px) 32vw, 48vw"
                         disableGallery
                       />
                     </LocaleLink>
@@ -215,7 +215,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           {results?.products &&
             results.products.length > 0 &&
             !results.isDefault && (
-              <div className="bg-white border-t border-gray-300 p-4 xl:px-16 flex-shrink-0">
+              <div className="bg-white border-t border-gray-300 px-2 py-4 flex-shrink-0">
                 <LocaleLink
                   href={`/search?q=${encodeURIComponent(query)}`}
                   onClick={handleClose}
