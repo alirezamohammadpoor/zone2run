@@ -17,7 +17,7 @@ export default function PLPFallback({ cards = 8 }: { cards?: number }) {
           <span className="h-4" />
         </div>
       </div>
-      <div className="grid grid-cols-2 xl:grid-cols-4 gap-2 px-2 my-8 md:my-12 xl:my-16">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-5 gap-2 px-2 my-8 md:my-12 xl:my-16">
         {Array.from({ length: cards }, (_, i) => (
           <div key={i} className="aspect-[4/5] flex flex-col">
             <div className="w-full h-full" />

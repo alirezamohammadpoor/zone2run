@@ -1,6 +1,7 @@
 import Image from "next/image";
 import LocaleLink from "@/components/LocaleLink";
 import ProductCard from "./ProductCard";
+import { GRID_COL_SIZES } from "@/lib/utils/gridSizes";
 import ProductGrid from "./ProductGrid";
 import { urlFor } from "@/sanity/lib/image";
 import type { CardProduct } from "@/types/cardProduct";
@@ -150,7 +151,7 @@ function EditorialImageBlock({
   // 4col layout: image spans 2x2
   const getClassName = () => {
     if (isMobile) {
-      return "col-span-2 w-full aspect-[4/5] relative";
+      return "col-span-2 md:col-span-3 w-full aspect-[4/5] relative";
     }
     if (gridLayout === "3col") {
       return "w-full aspect-[4/5] relative";
@@ -257,20 +258,22 @@ export default function ProductGridWithImages({
   activeGender,
 }: ProductGridWithImagesProps) {
   // Determine XL grid columns based on layout
+  // 4col follows the site grid (2 / 3 / 4 / 5). 3col is an editor choice per
+  // collection: 2 / 3 / 3 / 3.
   const xlGridCols =
-    gridLayout === "3col" ? "xl:grid-cols-3" : "xl:grid-cols-4";
+    gridLayout === "3col" ? "xl:grid-cols-3" : "xl:grid-cols-4 3xl:grid-cols-5";
 
   // Compute sizes based on grid layout: 2-col mobile, 3 or 4-col xl
   const productSizes = gridLayout === "3col"
-    ? "(max-width: 1279px) calc(50vw - 12px), calc(33.33vw - 11px)"
-    : "(max-width: 1279px) calc(50vw - 12px), calc(25vw - 10px)";
+    ? "(min-width: 768px) 33vw, 48vw"
+    : GRID_COL_SIZES;
 
   // If no images, fallback to simple grid
   if (!editorialImages || editorialImages.length === 0) {
     return (
       <ProductGrid
         products={products}
-        className={`grid grid-cols-2 ${xlGridCols} gap-2 px-2 my-8 md:my-12 xl:my-16`}
+        className={`grid grid-cols-2 md:grid-cols-3 ${xlGridCols} gap-2 px-2 my-8 md:my-12 xl:my-16`}
         sizes={productSizes}
       />
     );
@@ -296,8 +299,9 @@ export default function ProductGridWithImages({
 
   return (
     <div className="my-8 md:my-12 xl:my-16">
-      {/* Mobile grid */}
-      <div className="grid grid-cols-2 gap-2 px-2 xl:hidden">
+      {/* Mobile + tablet grid (2 / 3 cols). Dense packing on tablet fills the
+          cell an odd product count leaves before a full-row editorial image. */}
+      <div className="grid grid-cols-2 md:grid-cols-3 md:grid-flow-dense gap-2 px-2 xl:hidden">
         <GridContent
           gridItems={mobileGridItems}
           isMobile={true}

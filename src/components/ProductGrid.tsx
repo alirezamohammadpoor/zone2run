@@ -2,6 +2,7 @@ import { memo } from "react";
 import LocaleLink from "@/components/LocaleLink";
 import ProductCard from "./ProductCard";
 import type { CardProduct } from "@/types/cardProduct";
+import { GRID_COL_SIZES } from "@/lib/utils/gridSizes";
 
 interface ProductGridProps {
   products: CardProduct[];
@@ -39,7 +40,7 @@ const ProductGrid = memo(function ProductGrid({
 
   const gridClass = columns
     ? COLUMN_CLASSES[columns]
-    : className ?? "grid grid-cols-2 xl:grid-cols-4 gap-2 px-2 my-8 md:my-12 xl:my-16";
+    : className ?? "grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-5 gap-2 px-2 my-8 md:my-12 xl:my-16";
 
   return (
     <div className={gridClass}>
@@ -50,7 +51,7 @@ const ProductGrid = memo(function ProductGrid({
         >
           <ProductCard
             product={product}
-            sizes={sizes ?? "(max-width: 1279px) calc(50vw - 12px), calc(25vw - 10px)"}
+            sizes={sizes ?? GRID_COL_SIZES}
             priority={index < priorityCount}
             availableSizes={product.sizes}
           />

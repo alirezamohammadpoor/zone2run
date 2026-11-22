@@ -239,7 +239,7 @@ export default async function PostPage({
                           },
                         )}
                         count={value.productCount}
-                        className="grid grid-cols-2 xl:grid-cols-4 gap-2"
+                        className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-5 gap-2"
                       />
                     ) : (
                       <BlogProductCarousel
@@ -285,7 +285,7 @@ export default async function PostPage({
           ) : (
             <ProductGrid
               products={collectionProducts}
-              className="grid grid-cols-2 xl:grid-cols-4 gap-2"
+              className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-5 gap-2"
             />
           )}
         </div>
