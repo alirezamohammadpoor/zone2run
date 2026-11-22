@@ -18,12 +18,12 @@ const nextConfig = {
         hostname: "cdn.shopify.com",
       },
     ],
-    formats: ["image/webp"],
-    minimumCacheTTL: 2678400, // 31 days - reduces Vercel image optimization costs
+    // Shopify/Sanity CDNs resize; Vercel Image Optimization is never hit
+    loader: "custom",
+    loaderFile: "./src/lib/image-loader.ts",
     deviceSizes: [640, 828, 1200, 1920],
-    imageSizes: [64, 128, 256, 384, 512],
-    // Disable optimization in development to prevent timeouts
-    unoptimized: process.env.NODE_ENV === "development",
+    // Smallest rendered image is the 80px cart thumbnail (128 covers it at 1x)
+    imageSizes: [128, 256, 384],
   },
 
   experimental: {

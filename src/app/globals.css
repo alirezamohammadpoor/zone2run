@@ -12,6 +12,30 @@
     sans-serif;
   --font-heading-style: normal;
   --font-heading-weight: 400;
+
+  /* Site grid. Columns follow the item rule: mobile 2, tablet 3, laptop 4,
+     desktop 5. Margin = block side padding (px-2), gutter = card gap (gap-2). */
+  --grid-margin: 8px;
+  --grid-gutter: 8px;
+  --grid-cols: 2;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --grid-cols: 3;
+  }
+}
+
+@media (min-width: 1280px) {
+  :root {
+    --grid-cols: 4;
+  }
+}
+
+@media (min-width: 1920px) {
+  :root {
+    --grid-cols: 5;
+  }
 }
 
 *,
@@ -78,5 +102,27 @@ body {
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+}
+
+@layer components {
+  /* Width of one grid column, for blocks that span a single column
+     outside a .site-grid (e.g. centred media). */
+  .w-grid-col {
+    width: calc(
+      (100vw - 2 * var(--grid-margin) - (var(--grid-cols) - 1) * var(--grid-gutter)) /
+        var(--grid-cols)
+    );
+  }
+
+  /* Carousel card: shows grid-cols + 0.2 cards (2.2 / 3.2 / 4.2 / 5.2)
+     from the left margin, with gutters between cards. */
+  .w-carousel-card {
+    flex-shrink: 0;
+    min-width: 0;
+    width: calc(
+      (100vw - var(--grid-margin) - var(--grid-cols) * var(--grid-gutter)) /
+        (var(--grid-cols) + 0.2)
+    );
   }
 }

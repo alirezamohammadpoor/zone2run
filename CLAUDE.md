@@ -265,11 +265,10 @@ SANITY_REVALIDATE_SECRET
 2. **Webhook dedup is in-memory** - Doesn't survive deploys. Consider Redis for scale.
 3. **Cart optimistic updates** - UI updates instantly, Shopify sync is background. Silent failures possible.
 4. **Gender mapping** - URL `/mens/` maps to DB value `"mens"` (note the 's')
-5. **Image optimization disabled in dev** - `unoptimized: true` in dev mode
-6. **31-day image cache** - New images show immediately (new URLs). Replaced images cached for 31 days.
-7. **Server Components by default** - Only add `"use client"` when needed
-8. **loading.tsx for loading states** - Not spinners in components
-9. **Don't add "Claude Code" in commits or PRs**
+5. **No Vercel Image Optimization** - `src/lib/image-loader.ts` sends `next/image` to Shopify (`width`) and Sanity (`w`, `q`, `auto=format`, `fit=max`) CDNs. Other hosts pass through unresized — add a branch there before using a new image host.
+6. **Server Components by default** - Only add `"use client"` when needed
+7. **loading.tsx for loading states** - Not spinners in components
+8. **Don't add "Claude Code" in commits or PRs**
 
 ---
 
@@ -528,8 +527,7 @@ Eliminates 28× `useEmblaCarousel()` hydration on PLP, unblocks hero LCP
 - LQIP from Sanity (`metadata.lqip`)
 - Priority loading: `priority={index === 0}`
 - Responsive `sizes` attribute matching Tailwind breakpoints
-- 31-day cache (`minimumCacheTTL: 2678400`)
-- Add common widths to `imageSizes` in next.config.js
+- Custom loader (`src/lib/image-loader.ts`): source CDNs resize, zero Vercel transformations
 
 **Real Fix** (PR #128): Aligned `sizes` to Tailwind `xl:` breakpoint (1279px) with `calc()` for gap/padding → browser picks 512px instead of 828px variants
 

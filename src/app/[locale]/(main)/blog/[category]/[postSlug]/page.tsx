@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getBlogPost, getProductsByCollectionId } from "@/sanity/lib/getData";
-import { buildHreflangAlternates } from "@/lib/metadata";
+import { buildCanonicalAlternates } from "@/lib/metadata";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { PortableText } from "@portabletext/react";
@@ -34,7 +34,7 @@ export async function generateMetadata({
   return {
     title: `${post.title} | Zone2Run Blog`,
     description: post.excerpt || `Read ${post.title} on Zone2Run`,
-    alternates: buildHreflangAlternates(path, locale),
+    alternates: buildCanonicalAlternates(path),
     openGraph: {
       title: post.title,
       description: post.excerpt,

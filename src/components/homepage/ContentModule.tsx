@@ -3,6 +3,7 @@ import PortableTextRenderer from "@/components/PortableTextRenderer";
 import LocaleLink from "@/components/LocaleLink";
 import Image from "next/image";
 import ProductGrid from "@/components/ProductGrid";
+import { CAROUSEL_CARD_SIZES, GRID_COL_SIZES } from "@/lib/utils/gridSizes";
 import ProductCarousel from "@/components/ProductCarousel";
 import { getBlurProps } from "@/lib/utils/imageProps";
 import type { CardProduct } from "@/types/cardProduct";
@@ -25,7 +26,7 @@ function TextContent({ module }: { module: PortableTextModule }) {
       {module.content && (
         <PortableTextRenderer
           value={module.content}
-          className="text-xs w-full xl:w-[30vw]"
+          className="text-xs w-full xl:w-grid-col"
         />
       )}
       {module.link && (
@@ -64,7 +65,7 @@ function MediaContent({ module }: { module: PortableTextModule }) {
 
     return (
       <div className="flex justify-center relative overflow-hidden w-full">
-        <div className="w-full xl:w-[30vw] aspect-[4/5] relative bg-gray-100">
+        <div className="w-full xl:w-grid-col aspect-[4/5] relative bg-gray-100">
           <video
             src={video.asset.url}
             className="absolute inset-0 w-full h-full object-cover"
@@ -92,14 +93,14 @@ function MediaContent({ module }: { module: PortableTextModule }) {
 
     return (
       <div className="flex justify-center relative overflow-hidden w-full">
-        <div className="w-full xl:w-[30vw] aspect-[4/5] relative">
+        <div className="w-full xl:w-grid-col aspect-[4/5] relative">
           <Image
             src={imageWithLqip.asset?.url || ""}
             alt={module.image.alt || module.title || "Content image"}
             fill
             className="object-cover"
             style={{ objectPosition }}
-            sizes="(min-width: 1280px) 30vw, 100vw"
+            sizes="(min-width: 1920px) 19vw, (min-width: 1280px) 24vw, 100vw"
             {...getBlurProps(imageWithLqip)}
           />
         </div>
@@ -153,15 +154,16 @@ function ProductsContent({
           ? module.productCount
           : undefined
       }
-      columns={isSplit ? "2" : "auto"}
+      columns={isSplit ? "2" : "site"}
+      sizes={isSplit ? undefined : GRID_COL_SIZES}
     />
   );
 
   const renderHorizontal = () => (
     <ProductCarousel
       products={products}
-      cardClassName="flex-shrink-0 w-[70vw] min-w-0 xl:w-[calc(25vw-0.5rem)]"
-      sizes="(max-width: 1279px) 70vw, 25vw"
+      cardClassName="w-carousel-card"
+      sizes={CAROUSEL_CARD_SIZES}
     />
   );
 
@@ -199,9 +201,11 @@ function TwoColumnLayout({
 }) {
   return (
     <div className={`w-full px-2 ${SECTION_SPACING}`}>
-      <div className="flex flex-col xl:flex-row xl:items-center gap-8">
-        <div className="xl:w-1/2">{left}</div>
-        <div className="xl:w-1/2 flex items-center">{right}</div>
+      {/* Stacked below xl; on the site grid from xl: text spans the leading
+          columns, products the last 2 so each card sits on one column. */}
+      <div className="flex flex-col gap-8 xl:grid xl:grid-cols-4 3xl:grid-cols-5 xl:gap-x-2 xl:gap-y-0 xl:items-center">
+        <div className="xl:col-span-2 3xl:col-span-3">{left}</div>
+        <div className="xl:col-span-2 flex items-center">{right}</div>
       </div>
     </div>
   );

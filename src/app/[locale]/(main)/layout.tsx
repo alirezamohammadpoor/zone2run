@@ -11,7 +11,8 @@ import DraftModeUI from "@/components/DraftModeUI";
 import { OrganizationJsonLd } from "@/components/schemas";
 import { LocaleProvider } from "@/lib/locale/LocaleContext";
 import { localeToCountry } from "@/lib/locale/localeUtils";
-import { SUPPORTED_LOCALES } from "@/lib/locale/localeUtils";
+import { SUPPORTED_LOCALES, isValidLocale } from "@/lib/locale/localeUtils";
+import { notFound } from "next/navigation";
 
 export const metadata: Metadata = {
   title: {
@@ -38,6 +39,11 @@ export default async function MainLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  // `dynamicParams = false` is not allowed with cacheComponents, so guard here:
+  // a first segment that is not a real locale (e.g. "instagram.com" from a
+  // scheme-less footer link) must 404 instead of rendering the catalogue under
+  // a fake locale that crawlers then spider in full. proxy.ts also 410s these.
+  if (!isValidLocale(locale)) notFound();
   const country = localeToCountry(locale);
 
   return (

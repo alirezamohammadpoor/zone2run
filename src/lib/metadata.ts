@@ -1,26 +1,20 @@
 import type { Metadata } from "next";
-import { SUPPORTED_LOCALES, DEFAULT_LOCALE } from "@/lib/locale/localeUtils";
+import { DEFAULT_LOCALE } from "@/lib/locale/localeUtils";
 
 const BASE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || "https://zone2run-build.vercel.app";
 
 /**
- * Builds hreflang alternates for all supported locales.
- * Used in generateMetadata() to tell Google about locale variants.
+ * Canonical alternates for a locale-prefixed page.
+ *
+ * All locales serve the same English content (only currency differs), so every
+ * locale variant canonicalises to the default locale. No hreflang: advertising
+ * 24 near-identical URLs per page made crawlers render the whole catalogue 24×.
  *
  * @param path - The path WITHOUT locale prefix, e.g. "/products/handle" or "/mens/clothing"
- * @param locale - The current page's locale, used for the canonical URL
  */
-export function buildHreflangAlternates(path: string, locale: string) {
-  return {
-    canonical: `${BASE_URL}/${locale}${path}`,
-    languages: {
-      "x-default": `${BASE_URL}/${DEFAULT_LOCALE}${path}`,
-      ...Object.fromEntries(
-        SUPPORTED_LOCALES.map((l) => [l, `${BASE_URL}/${l}${path}`])
-      ),
-    },
-  };
+export function buildCanonicalAlternates(path: string) {
+  return { canonical: `${BASE_URL}/${DEFAULT_LOCALE}${path}` };
 }
 
 /**
@@ -69,7 +63,7 @@ export function buildCategoryMetadata(
   return {
     title,
     description,
-    alternates: buildHreflangAlternates(path, locale),
+    alternates: buildCanonicalAlternates(path),
     openGraph: {
       title,
       url,
@@ -94,7 +88,7 @@ export function homeMetadata(locale: string): Metadata {
     title: "Zone2Run - Premium Running Apparel",
     description:
       "Shop premium running gear from top Scandinavian brands. High-performance apparel for dedicated runners.",
-    alternates: buildHreflangAlternates("", locale),
+    alternates: buildCanonicalAlternates(""),
     openGraph: {
       title: "Zone2Run - Premium Running Apparel",
       description:
@@ -118,7 +112,7 @@ export function blogMetadata(locale: string): Metadata {
     title: "Running Blog - Tips & Gear Guides",
     description:
       "Running tips, gear guides, and training insights from Zone2Run.",
-    alternates: buildHreflangAlternates("/blog", locale),
+    alternates: buildCanonicalAlternates("/blog"),
     openGraph: {
       title: "Running Blog - Tips & Gear Guides",
       description:
@@ -142,7 +136,7 @@ export function brandsMetadata(locale: string): Metadata {
     title: "Brands",
     description:
       "Explore our curated selection of premium running brands at Zone2Run.",
-    alternates: buildHreflangAlternates("/brands", locale),
+    alternates: buildCanonicalAlternates("/brands"),
     openGraph: {
       title: "Brands",
       description:
@@ -165,7 +159,7 @@ export function collectionsMetadata(locale: string): Metadata {
   return {
     title: "Collections",
     description: "Shop our curated collections of running apparel at Zone2Run.",
-    alternates: buildHreflangAlternates("/collections", locale),
+    alternates: buildCanonicalAlternates("/collections"),
     openGraph: {
       title: "Collections",
       description: "Shop our curated collections of running apparel at Zone2Run.",
