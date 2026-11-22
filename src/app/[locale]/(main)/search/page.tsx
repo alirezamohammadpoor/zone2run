@@ -65,7 +65,7 @@ async function SearchContent({
 
   if (!q || q.length < 2) {
     return (
-      <div className="px-4 py-12">
+      <div className="px-2 py-12">
         <h1 className="text-xs mb-8">Search</h1>
         <p className="text-xs text-gray-500">
           Enter a search term to find products.
@@ -77,7 +77,9 @@ async function SearchContent({
   const results = await searchProducts(q, country);
 
   return (
-    <div className="px-2 py-8">
+    <div className="py-8">
+      {/* No outer inset: the grid and these rows each carry px-2, so search
+          cards line up with PLP cards. */}
       <div className="flex justify-between items-center mb-4 px-2">
         <h1 className="text-xs">Results for &quot;{q}&quot;</h1>
         <span className="text-xs text-gray-500" aria-live="polite" aria-atomic="true">

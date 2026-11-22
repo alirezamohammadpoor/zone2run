@@ -88,12 +88,12 @@ export async function FooterContent() {
       <div className="px-2 pt-8">
         <NewsletterSignup newsletter={footer?.newsletter} />
       </div>
-      <nav className="grid grid-cols-2 xl:grid-cols-3 gap-8 w-full py-8 px-2 text-xs">
+      <nav className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-5 gap-x-2 gap-y-8 w-full py-8 px-2 text-xs">
         <FooterColumnComponent column={footer?.column1} />
         <FooterColumnComponent column={footer?.column2} />
         <FooterColumnComponent
           column={footer?.column3}
-          className="col-span-2 xl:col-span-1"
+          className="col-span-2 md:col-span-1"
         />
       </nav>
       {footer?.copyrightText && (

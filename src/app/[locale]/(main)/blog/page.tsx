@@ -37,7 +37,7 @@ export default async function BlogPage() {
           staying connected and showing what drives the journey.
         </p>
       </div>
-      <div className="flex flex-col gap-4 xl:grid xl:grid-cols-3 xl:gap-2">
+      <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-5 gap-x-2 gap-y-4">
         {posts.map((post) => {
           const imageUrl =
             post.editorialImage?.asset?.url || post.featuredImage?.asset?.url;
@@ -56,7 +56,7 @@ export default async function BlogPage() {
                       alt={imageAlt}
                       className="w-full h-full object-cover"
                       fill
-                      sizes="(max-width: 1280px) 100vw, 50vw"
+                      sizes="(min-width: 1920px) 19vw, (min-width: 1280px) 24vw, (min-width: 768px) 32vw, 100vw"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
