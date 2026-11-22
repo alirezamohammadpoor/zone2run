@@ -8,7 +8,7 @@ on:
 jobs:
   unit:
     name: Vitest
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
@@ -17,7 +17,7 @@ jobs:
 
   e2e:
     name: Playwright
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: unit
     steps:
       - uses: actions/checkout@v4
