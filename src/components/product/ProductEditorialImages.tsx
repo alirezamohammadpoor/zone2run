@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useRef, useCallback } from "react";
+import { CAROUSEL_CARD_SIZES } from "@/lib/utils/gridSizes";
 import Image from "next/image";
 import { urlFor } from "@/sanity/lib/image";
 
@@ -36,7 +37,7 @@ export default function ProductEditorialImages({
   }, []);
 
   return (
-    <div className="ml-2 my-8 md:my-12 xl:my-16 pr-2 w-full">
+    <div className="px-2 my-8 md:my-12 xl:my-16 w-full">
       <div
         ref={scrollRef}
         className="overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-2 px-2"
@@ -56,14 +57,14 @@ export default function ProductEditorialImages({
             return (
               <div
                 key={item._key}
-                className="flex-shrink-0 w-[70vw] xl:w-[30vw] aspect-[4/5] relative snap-start"
+                className="w-carousel-card aspect-[4/5] relative snap-start"
               >
                 <Image
                   src={urlFor(item.image).url()}
                   alt={item.image.alt || item.caption || "Editorial image"}
                   fill
                   className="object-cover"
-                  sizes="(min-width: 1280px) 30vw, 70vw"
+                  sizes={CAROUSEL_CARD_SIZES}
                   draggable={false}
                 />
                 {item.caption && (
