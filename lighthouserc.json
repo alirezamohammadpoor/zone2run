@@ -1,0 +1,123 @@
+{
+  "ci": {
+    "collect": {
+      "numberOfRuns": 3,
+      "settings": {
+        "formFactor": "mobile",
+        "screenEmulation": {
+          "mobile": true,
+          "width": 390,
+          "height": 844,
+          "deviceScaleFactor": 3,
+          "disabled": false
+        },
+        "throttlingMethod": "simulate",
+        "throttling": {
+          "rttMs": 165,
+          "throughputKbps": 9000,
+          "cpuSlowdownMultiplier": 2
+        },
+        "onlyCategories": [
+          "performance"
+        ],
+        "skipAudits": [
+          "uses-http2"
+        ]
+      }
+    },
+    "assert": {
+      "assertMatrix": [
+        {
+          "matchingUrlPattern": "^(?!.*(/mens/clothing(\\?|$)|/collections/|/search|/blog/[^/]+/)).*$",
+          "assertions": {
+            "cumulative-layout-shift": [
+              "error",
+              {
+                "maxNumericValue": 0.1,
+                "aggregationMethod": "median-run"
+              }
+            ],
+            "total-blocking-time": [
+              "error",
+              {
+                "maxNumericValue": 200,
+                "aggregationMethod": "median-run"
+              }
+            ],
+            "server-response-time": [
+              "error",
+              {
+                "maxNumericValue": 600,
+                "aggregationMethod": "median-run"
+              }
+            ],
+            "resource-summary:script:size": [
+              "error",
+              {
+                "maxNumericValue": 330000
+              }
+            ],
+            "resource-summary:document:size": [
+              "warn",
+              {
+                "maxNumericValue": 120000
+              }
+            ],
+            "largest-contentful-paint": [
+              "error",
+              {
+                "maxNumericValue": 2500,
+                "aggregationMethod": "median-run"
+              }
+            ]
+          }
+        },
+        {
+          "matchingUrlPattern": ".*(/mens/clothing(\\?|$)|/collections/|/search|/blog/[^/]+/).*",
+          "assertions": {
+            "cumulative-layout-shift": [
+              "error",
+              {
+                "maxNumericValue": 0.1,
+                "aggregationMethod": "median-run"
+              }
+            ],
+            "total-blocking-time": [
+              "error",
+              {
+                "maxNumericValue": 200,
+                "aggregationMethod": "median-run"
+              }
+            ],
+            "server-response-time": [
+              "error",
+              {
+                "maxNumericValue": 600,
+                "aggregationMethod": "median-run"
+              }
+            ],
+            "resource-summary:script:size": [
+              "error",
+              {
+                "maxNumericValue": 330000
+              }
+            ],
+            "resource-summary:document:size": [
+              "warn",
+              {
+                "maxNumericValue": 120000
+              }
+            ],
+            "largest-contentful-paint": [
+              "error",
+              {
+                "maxNumericValue": 3600,
+                "aggregationMethod": "median-run"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

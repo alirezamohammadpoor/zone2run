@@ -1,0 +1,15 @@
+{
+  "_comment": "One URL per template. Lighthouse CI runs these against each preview deployment.",
+  "paths": [
+    "/en-se",
+    "/en-se/mens",
+    "/en-se/mens/clothing",
+    "/en-se/mens/clothing/tops",
+    "/en-se/brands/arcteryx",
+    "/en-se/collections/arcteryx",
+    "/en-se/products/mens-delta-hoody",
+    "/en-se/blog",
+    "/en-se/blog/editorials/the-dead-bird-takeover-arc-teryx-s-rise-from-niche-to-normcore-icon",
+    "/en-se/search?q=shirt"
+  ]
+}
