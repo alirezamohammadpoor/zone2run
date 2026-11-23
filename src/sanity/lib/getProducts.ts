@@ -119,9 +119,9 @@ export async function getProductsByGender(
   "use cache";
   const dbGender = mapGenderValue(gender);
 
-  const query = defineQuery(`*[_type == "product" && (gender == $gender || gender == "unisex")] | order(coalesce(store.createdAt, _createdAt) desc)${buildLimitClause(limit)} {
+  const query = defineQuery(`*[_type == "product" && (gender == $gender || gender == "unisex")] {
     ${PLP_PRODUCT_PROJECTION}
-  }`);
+  } | order(_createdAt desc)${buildLimitClause(limit)}`);
 
   try {
     const { data } = await sanityFetch({ query, params: { gender: dbGender } });
@@ -148,27 +148,26 @@ export async function getProductsByPath(
     categoryType === "main"
       ? defineQuery(`*[_type == "product" &&
         (gender == $gender || gender == "unisex") &&
-        category._ref in *[_type == "category" && (
-          (categoryType == "main" && slug.current == $categorySlug)
+        (
+          (category->categoryType == "main" &&
+           category->slug.current == $categorySlug)
           ||
-          (categoryType == "subcategory" &&
-           parentCategory->slug.current == $categorySlug)
+          (category->categoryType == "subcategory" &&
+           category->parentCategory->slug.current == $categorySlug)
           ||
-          (categoryType == "specific" &&
-           parentCategory->parentCategory->slug.current == $categorySlug)
-        )]._id
-      ] | order(coalesce(store.createdAt, _createdAt) desc)${buildLimitClause(limit)} {
+          (category->categoryType == "specific" &&
+           category->parentCategory->parentCategory->slug.current == $categorySlug)
+        )
+      ] {
     ${PLP_PRODUCT_PROJECTION}
-  }`)
+  } | order(_createdAt desc)${buildLimitClause(limit)}`)
       : defineQuery(`*[_type == "product" &&
         (gender == $gender || gender == "unisex") &&
-        category._ref in *[_type == "category" &&
-          categoryType == $categoryType &&
-          slug.current == $categorySlug
-        ]._id
-      ] | order(coalesce(store.createdAt, _createdAt) desc)${buildLimitClause(limit)} {
+        category->categoryType == $categoryType &&
+        category->slug.current == $categorySlug
+      ] {
     ${PLP_PRODUCT_PROJECTION}
-  }`);
+  } | order(_createdAt desc)${buildLimitClause(limit)}`);
 
   try {
     const { data } = await sanityFetch({ query, params: {
@@ -200,18 +199,18 @@ export async function getProductsBySubcategoryIncludingSubSubcategories(
 
   const query = defineQuery(`*[_type == "product" &&
     (gender == $gender || gender == "unisex") &&
-    category._ref in *[_type == "category" && (
-      (categoryType == "subcategory" &&
-       slug.current == $subcategorySlug &&
-       parentCategory->slug.current == $mainCategorySlug)
+    (
+      (category->categoryType == "subcategory" &&
+       category->slug.current == $subcategorySlug &&
+       category->parentCategory->slug.current == $mainCategorySlug)
       ||
-      (categoryType == "specific" &&
-       parentCategory->slug.current == $subcategorySlug &&
-       parentCategory->parentCategory->slug.current == $mainCategorySlug)
-    )]._id
-  ] | order(coalesce(store.createdAt, _createdAt) desc)${buildLimitClause(limit)} {
+      (category->categoryType == "specific" &&
+       category->parentCategory->slug.current == $subcategorySlug &&
+       category->parentCategory->parentCategory->slug.current == $mainCategorySlug)
+    )
+  ] {
     ${PLP_PRODUCT_PROJECTION}
-  }`);
+  } | order(_createdAt desc)${buildLimitClause(limit)}`);
 
   try {
     const { data } = await sanityFetch({ query, params: {
@@ -244,15 +243,13 @@ export async function getProductsByPath3Level(
 
   const query = defineQuery(`*[_type == "product" &&
     (gender == $gender || gender == "unisex") &&
-    category._ref in *[_type == "category" &&
-      categoryType == "specific" &&
-      slug.current == $subsubcategorySlug &&
-      parentCategory->slug.current == $subcategorySlug &&
-      parentCategory->parentCategory->slug.current == $mainCategorySlug
-    ]._id
-  ] | order(coalesce(store.createdAt, _createdAt) desc)${buildLimitClause(limit)} {
+    category->categoryType == "specific" &&
+    category->slug.current == $subsubcategorySlug &&
+    category->parentCategory->slug.current == $subcategorySlug &&
+    category->parentCategory->parentCategory->slug.current == $mainCategorySlug
+  ] {
     ${PLP_PRODUCT_PROJECTION}
-  }`);
+  } | order(_createdAt desc)${buildLimitClause(limit)}`);
 
   try {
     const { data } = await sanityFetch({ query, params: {

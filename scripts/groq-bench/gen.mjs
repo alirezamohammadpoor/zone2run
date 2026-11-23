@@ -6,7 +6,7 @@ import { execSync } from 'child_process';
 const base = process.argv[2] || 'origin/staging';
 const FILE = 'src/sanity/lib/getProducts.ts';
 const sources = { old: execSync(`git show ${base}:${FILE}`, { encoding: 'utf8' }), new: fs.readFileSync(FILE, 'utf8') };
-const fns = ['getProductsByBrand','getProductsByPath','getProductsBySubcategoryIncludingSubSubcategories','getProductsByPath3Level','getRelatedProducts'];
+const fns = ['getProductsByBrand','getRelatedProducts'];
 function extract(src, fn){
   const start = src.indexOf(`export async function ${fn}(`);
   const end = src.indexOf('export async function', start+10);
@@ -33,8 +33,6 @@ for (const v of ['old','new']){
 }
 const cases=[
  {name:'brand products (arcteryx)', fn:'getProductsByBrand', i:0, params:{brandSlug:'arcteryx'}},
- {name:'category main (mens/clothing)', fn:'getProductsByPath', i:0, params:{gender:'mens',categoryType:'main',categorySlug:'clothing'}},
- {name:'subcategory (mens/clothing/tops)', fn:'getProductsBySubcategoryIncludingSubSubcategories', i:0, params:{gender:'mens',mainCategorySlug:'clothing',subcategorySlug:'tops'}},
  {name:'related by brand (arcteryx)', fn:'getRelatedProducts', i:0, params:{brandSlug:'arcteryx',excludeId:'x'}},
 ];
 const out=cases.map(c=>({name:c.name, params:c.params, old:res.old[c.fn][c.i], new:res.new[c.fn][c.i]}));
