@@ -28,7 +28,7 @@
     "assert": {
       "assertMatrix": [
         {
-          "matchingUrlPattern": "^(?!.*(/mens/clothing(\\?|$)|/collections/|/search)).*$",
+          "matchingUrlPattern": "^(?!.*(/mens/clothing(\\?|$)|/collections/|/search|/blog/[^/]+/)).*$",
           "assertions": {
             "cumulative-layout-shift": [
               "error",
@@ -73,7 +73,7 @@
           }
         },
         {
-          "matchingUrlPattern": ".*(/mens/clothing(\\?|$)|/collections/|/search).*",
+          "matchingUrlPattern": ".*(/mens/clothing(\\?|$)|/collections/|/search|/blog/[^/]+/).*",
           "assertions": {
             "cumulative-layout-shift": [
               "error",
