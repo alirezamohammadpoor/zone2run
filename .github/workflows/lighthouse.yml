@@ -1,6 +1,9 @@
 name: Lighthouse budget
 # Runs against every successful Vercel preview deployment and fails the
 # check when a template breaks its performance budget (lighthouserc.json).
+# LCP target is 2.5s. PLP (/mens/clothing), collection and search measured
+# 2.95s / 2.52s / 3.37s on the first run, so they sit on a 3.6s ratchet that
+# still catches regressions; drop them to 2500 once server pagination lands.
 on:
   deployment_status:
 
