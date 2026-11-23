@@ -38,15 +38,13 @@ const modulesProjection = `modules[] {
         },
         featuredImage {
           asset-> {
-            url,
-            metadata
+            url
           },
           alt
         },
         editorialImage {
           asset-> {
-            url,
-            metadata
+            url
           },
           alt
         }
@@ -57,7 +55,7 @@ const modulesProjection = `modules[] {
     heroImage {
       asset-> {
         url,
-        metadata
+        metadata { lqip }
       },
       alt,
       hotspot
@@ -72,7 +70,7 @@ const modulesProjection = `modules[] {
     image {
       asset-> {
         url,
-        metadata
+        metadata { lqip }
       },
       alt
     },
@@ -98,7 +96,7 @@ const modulesProjection = `modules[] {
     image {
       asset-> {
         url,
-        metadata
+        metadata { lqip }
       },
       alt,
       hotspot
