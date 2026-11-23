@@ -47,9 +47,11 @@ export default async function MainLayout({
         <link rel="dns-prefetch" href="//cdn.sanity.io" />
         <link rel="dns-prefetch" href="//cdn.shopify.com" />
 
-        {/* Preconnect - establish early connections to critical origins */}
-        <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://cdn.shopify.com" crossOrigin="anonymous" />
+        {/* Preconnect - establish early connections to critical origins.
+            No crossOrigin: <img>/<video> fetch these hosts in no-cors mode, and
+            a CORS-mode preconnect is a separate socket they can't reuse. */}
+        <link rel="preconnect" href="https://cdn.sanity.io" />
+        <link rel="preconnect" href="https://cdn.shopify.com" />
 
         {/* Organization JSON-LD for SEO */}
         <OrganizationJsonLd />
