@@ -91,11 +91,13 @@ export async function getProductsByBrand(
     ? `&& (gender == $dbGender || gender == "unisex")`
     : "";
 
-  const baseFilter = `*[_type == "product" && (brand->slug.current == $brandSlug || lower(brand->slug.current) == lower($brandSlug))${genderFilter}]`;
+  // Resolve the brand once, then match products on the indexed brand._ref:
+  // a dereference in the filter (brand->slug) joins every product document
+  const baseFilter = `*[_type == "product" && brand._ref in *[_type == "brand" && (slug.current == $brandSlug || lower(slug.current) == lower($brandSlug))]._id${genderFilter}]`;
 
-  const query = defineQuery(`${baseFilter} {
+  const query = defineQuery(`${baseFilter} | order(coalesce(store.createdAt, _createdAt) desc)${buildLimitClause(limit)} {
     ${PLP_PRODUCT_PROJECTION}
-  } | order(_createdAt desc)${buildLimitClause(limit)}`);
+  }`);
 
   try {
     const params = dbGender ? { brandSlug, dbGender } : { brandSlug };
@@ -304,9 +306,10 @@ export async function getRelatedProducts(
   country?: string,
 ): Promise<CardProduct[]> {
   "use cache";
-  const query = defineQuery(`*[_type == "product" && brand->slug.current == $brandSlug && _id != $excludeId] {
+  // Order + slice before projecting so only `limit` documents are projected
+  const query = defineQuery(`*[_type == "product" && brand._ref in *[_type == "brand" && slug.current == $brandSlug]._id && _id != $excludeId] | order(coalesce(store.createdAt, _createdAt) desc)[0...${limit}] {
     ${CARD_PRODUCT_PROJECTION}
-  } | order(_createdAt desc)[0...${limit}]`);
+  }`);
 
   try {
     const { data } = await sanityFetch({ query, params: { brandSlug, excludeId } });
