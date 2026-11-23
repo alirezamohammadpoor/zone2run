@@ -222,8 +222,7 @@ export const BLOG_PRODUCT_PROJECTION = `product-> {
   "images": [{
     "url": coalesce(mainImage.asset->url, store.previewImageUrl),
     "alt": coalesce(mainImage.alt, store.title),
-    "lqip": mainImage.asset->metadata.lqip
-  }] + coalesce(gallery[] { "url": asset->url, "alt": coalesce(alt, ^.title), "lqip": asset->metadata.lqip }, [])
+  }] + coalesce(gallery[] { "url": asset->url, "alt": coalesce(alt, ^.title) }, [])
 }`;
 
 /**
@@ -237,8 +236,7 @@ export const BLOG_PRODUCT_LISTING_PROJECTION = `product-> {
   "images": [{
     "url": coalesce(mainImage.asset->url, store.previewImageUrl),
     "alt": coalesce(mainImage.alt, store.title),
-    "lqip": mainImage.asset->metadata.lqip
-  }] + coalesce(gallery[] { "url": asset->url, "alt": coalesce(alt, ^.title), "lqip": asset->metadata.lqip }, [])
+  }] + coalesce(gallery[] { "url": asset->url, "alt": coalesce(alt, ^.title) }, [])
 }`;
 
 /**
@@ -305,12 +303,10 @@ export const COLLECTION_PRODUCT_PROJECTION = `{
   },
   "images": [{
     "url": store.previewImageUrl,
-    "alt": store.title,
-    "lqip": mainImage.asset->metadata.lqip
+    "alt": store.title
   }] + coalesce(gallery[] {
     "url": asset->url,
-    "alt": coalesce(alt, ^.title),
-    "lqip": asset->metadata.lqip
+    "alt": coalesce(alt, ^.title)
   }, []),
   "sizes": store.variants[]->store.option1,
   category-> {
